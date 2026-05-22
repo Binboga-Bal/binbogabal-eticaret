@@ -7,6 +7,7 @@ import { CategoryGrid } from "@/components/shop/home/CategoryGrid";
 import { ProcessFlow } from "@/components/shop/home/ProcessFlow";
 import { FaqSection } from "@/components/shop/home/FaqSection";
 import { ProductCard } from "@/components/shop/product/ProductCard";
+import { homeBannersTheme } from "@/lib/theme";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -99,26 +100,22 @@ export default async function HomePage() {
 
       {/* Hikayemiz */}
       <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
-        {/* Arkaplan görseli */}
         <Image
-          src="/images/home-screen/our-history/our-history.webp"
+          src={homeBannersTheme.hikayemiz.image}
           alt="Hikayemiz arkaplan"
           fill
           className="object-cover object-center"
           sizes="100vw"
         />
-        {/* İçerik */}
         <div className="relative w-full py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-lg">
-            <h2 className="text-white font-black text-3xl mb-2">HİKAYEMİZ</h2>
-            <p className="text-honey-bright font-bold text-lg mb-4">ŞİRKET DEĞİL, KOOPERATİFİZ!</p>
-            <p className="text-white/90 text-sm leading-relaxed mb-6">
-              1973 yılında, Adana’nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor oldugunu biliyorlardı. Çünkü bal sadece doganın degil, sabrın da işiydi. Yagmurun erken yagması, kuraklıgın uzaması, piyasanın dengesizligi… Hepsi küçük üreticinin omzuna yük oluyordu.
-<br /> <br />
-İşte o gün, yükü paylaşmak için bir araya geldiler. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi böyle dogdu.
+            <h2 className="text-white font-black text-3xl mb-2">{homeBannersTheme.hikayemiz.heading}</h2>
+            <p className="text-honey-bright font-bold text-lg mb-4">{homeBannersTheme.hikayemiz.subheading}</p>
+            <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
+              {homeBannersTheme.hikayemiz.body}
             </p>
-            <Link href="/hakkimizda" className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
-              HİKAYENİN DEVAMI ▶
+            <Link href={homeBannersTheme.hikayemiz.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
+              {homeBannersTheme.hikayemiz.btn.label}
             </Link>
           </div>
         </div>
@@ -149,49 +146,24 @@ export default async function HomePage() {
       )}
 
       {/* Hakkımızda banner */}
-      <section className="py-14 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-10">
-            <div className="flex-1">
-              <div className="flex gap-4 mb-6">
-                <div className="text-center">
-                  <div className="font-black text-sm text-gray-500">LONDON</div>
-                  <div className="bg-honey text-white text-xs font-bold px-2 py-0.5 rounded">HONEY GOLD</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-black text-xs text-gray-500">GLOBAL</div>
-                  <div className="font-black text-honey-dark">HONEY STARS</div>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-honey-light aspect-video flex items-center justify-center text-6xl">
-                🍯
-              </div>
-            </div>
-
-            <div className="flex-1 max-w-lg">
-              <div className="mb-3">
-                <span className="bg-honey text-white text-sm font-bold px-3 py-1 rounded">
-                  HAKKIMIZDA
-                </span>
-                <span className="ml-3 text-sm font-semibold text-gray-600">ÜLKE İÇİN KOOPERATİF</span>
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                Binboğa Bal, 1973 yılında Adana'nın Kozan ilçesinde kurulan S.S. 745 Sayılı Kozan
-                Bal Tarım Satış Kooperatifi tarafından üretilmektedir. Kooperatif yapımız sayesinde
-                arıcılarımıza en yüksek kalite ve fiyatı sunuyor, tüketiciyle en doğrudan köprüyü
-                kuruyoruz.
-              </p>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-honey-bright rounded-full w-24 h-24 flex flex-col items-center justify-center text-center">
-                  <span className="text-xs font-bold text-gray-700">Ulusal</span>
-                  <span className="text-xs font-black text-honey-dark">Arıcı</span>
-                  <span className="text-xs font-bold text-gray-700">Ödülleri</span>
-                </div>
-              </div>
-              <Link href="/hakkimizda" className="btn-primary inline-flex items-center gap-2">
-                DEVAMINI OKU ▶
-              </Link>
-            </div>
+      <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
+        <Image
+          src={homeBannersTheme.hakkimizda.image}
+          alt="Hakkımızda arkaplan"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="relative w-full py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
+          <div className="max-w-lg">
+            <h2 className="text-white font-black text-3xl mb-2">{homeBannersTheme.hakkimizda.heading}</h2>
+            <p className="text-honey-bright font-bold text-lg mb-4">{homeBannersTheme.hakkimizda.subheading}</p>
+            <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
+              {homeBannersTheme.hakkimizda.body}
+            </p>
+            <Link href={homeBannersTheme.hakkimizda.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
+              {homeBannersTheme.hakkimizda.btn.label}
+            </Link>
           </div>
         </div>
       </section>

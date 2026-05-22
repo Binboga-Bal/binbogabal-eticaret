@@ -1,27 +1,7 @@
 import Image from "next/image";
+import { trustBadgesTheme } from "@/lib/theme";
 
-const badges = [
-  {
-    image: "/images/home-screen/first-infographics/1800-arici-aile.webp",
-    title: "1800+ Arıcı Aile",
-    description: "Kooperatifin ortaklarından üretilen bal",
-  },
-  {
-    image: "/images/home-screen/first-infographics/guvenilir-bal.webp",
-    title: "Güvenilir Bal",
-    description: "Akredite laboratuvarlarda analizden geçer",
-  },
-  {
-    image: "/images/home-screen/first-infographics/ozenli-paketleme.webp",
-    title: "Özenli Paketleme",
-    description: "Binboğa'nın kalite standartlarıyla ambalajlanır",
-  },
-  {
-    image: "/images/home-screen/first-infographics/hizli-teslimat.webp",
-    title: "Hızlı Teslimat",
-    description: "Aynı gün kargoya verilen siparişler",
-  },
-];
+const badges = trustBadgesTheme.badges;
 
 export function TrustBadges() {
   return (

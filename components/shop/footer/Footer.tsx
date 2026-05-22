@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Facebook, Linkedin, Instagram, Twitter } from "lucide-react";
+import { footerTheme } from "@/lib/theme";
 
 const footerLinks = {
   kurumsal: [
@@ -38,9 +40,15 @@ export function Footer() {
           {/* Logo + social */}
           <div>
             <div className="mb-4">
-              <div className="text-honey-dark font-black text-xl">KOOPERATİF</div>
-              <div className="text-honey font-black text-2xl leading-none">BALI</div>
-              <div className="text-honey-dark font-bold">Binboğa</div>
+              <Link href="/">
+                <Image
+                  src={footerTheme.logo.src}
+                  alt="Binboğa Bal Logo"
+                  width={footerTheme.logo.width}
+                  height={footerTheme.logo.height}
+                  className="object-contain"
+                />
+              </Link>
             </div>
             <div className="flex items-center gap-3 mt-4">
               {socialLinks.map(({ href, icon: Icon, label }) => (

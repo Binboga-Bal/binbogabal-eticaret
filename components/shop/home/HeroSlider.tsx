@@ -47,8 +47,8 @@ export function HeroSlider() {
 
         .hero-slider-wrapper .swiper-button-next,
         .hero-slider-wrapper .swiper-button-prev {
-          color: #fff;
-          background: rgba(0,0,0,0.3);
+          color: ${sliderTheme.navBtnColor};
+          background: ${sliderTheme.navBtnBg};
           width: 44px;
           height: 44px;
           border-radius: 50%;
@@ -58,6 +58,7 @@ export function HeroSlider() {
         .hero-slider-wrapper .swiper-button-prev::after {
           font-size: 16px;
           font-weight: 900;
+          color: ${sliderTheme.navBtnColor};
         }
         .hero-slider-wrapper .swiper-pagination-bullet {
           background: rgba(255,255,255,0.6);

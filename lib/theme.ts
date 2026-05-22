@@ -106,6 +106,11 @@ export const sliderTheme = {
   heightMobile: 520,    // ≤ md breakpoint
   height:       700,    // md+
 
+  /** Önceki/sonraki ok butonlarının arka plan rengi */
+  navBtnBg: palette.honeyDark,
+  /** Önceki/sonraki ok butonlarının ikon rengi */
+  navBtnColor: palette.white,
+
   slides: [
     {
       // badge:       "1973 KOZAN — KOOPERATİF BALI",
@@ -241,3 +246,107 @@ export function hexToRgba(hex: string, alpha: number): string {
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// § 9 — GÜVEN ROZETLERİ (TrustBadges bileşeni)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const trustBadgesTheme = {
+  badges: [
+    {
+      image: "/images/home-screen/first-infographics/1800-arici-aile.webp",
+      title: "1800+ Arıcı Aile",
+      description: "Kooperatifin ortaklarından üretilen bal",
+    },
+    {
+      image: "/images/home-screen/first-infographics/guvenilir-bal.webp",
+      title: "Güvenilir Bal",
+      description: "Akredite laboratuvarlarda analizden geçer",
+    },
+    {
+      image: "/images/home-screen/first-infographics/ozenli-paketleme.webp",
+      title: "Özenli Paketleme",
+      description: "Binboğa'nın kalite standartlarıyla ambalajlanır",
+    },
+    {
+      image: "/images/home-screen/first-infographics/hizli-teslimat.webp",
+      title: "Hızlı Teslimat",
+      description: "Aynı gün kargoya verilen siparişler",
+    },
+  ],
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// § 10 — SÜREÇ AKIŞI (ProcessFlow bileşeni)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const processFlowTheme = {
+  heading: "KOOPERATİF DİREK ÜRETİCİDEN ANALİZİ YAPILMIŞ BAL ALMAK DEMEK...",
+
+  /** Bal peteği (flat-top hexagon) clip-path */
+  hexagonClip: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+
+  steps: [
+    {
+      number: 1,
+      title: "ÜRETİCİ İÇİN ADİL MODEL",
+      description:
+        "Arıcılarımıza adil fiyat ve öncelikli gelir güvencesi sunuyoruz. Arıcılar ortaklardan oluşur, üreticilerin kooperatif ağına dahil olması ve rekabetçi fiyatlarla kazanmalarını sağlarız.",
+      image: "/images/home-screen/second-infographics/uretici-icin-adil-model.webp",
+    },
+    {
+      number: 2,
+      title: "KALİTE İÇİN KONTROL",
+      description:
+        "Her parti bal, çok aşamalı kalite denetimlerinden geçer. Akredite laboratuvarlarda analizden geçer, uluslararası standartlara uygunluğu garanti eder.",
+      image: "/images/home-screen/second-infographics/kalite-icin-kontrol.webp",
+    },
+    {
+      number: 3,
+      title: "TÜKETİCİ İÇİN GÜVEN",
+      description:
+        "Hangi bölgeden, hangi taşıyıcıyla ve ne kadar hijyenik üretildiğine dair tam bilgi. Şeffaflık ve güven, marka bağlılığını sağlar.",
+      image: "/images/home-screen/second-infographics/tuketici-icin-guven.webp",
+    },
+    {
+      number: 4,
+      title: "GELECEK İÇİN SÜRDÜRÜLEBİLİRLİK",
+      description:
+        "Doğal arıcılık, organik üretim ve geleceğe duyarlı uygulamalarla ekoloji sistemini koruyoruz. Doğaya saygılı, biyoçeşitlilik destekleyen gelecek nesiller için dünya bırakıyoruz.",
+      image: "/images/home-screen/second-infographics/gelecek-icin-surdurebilirlik.webp",
+    },
+  ],
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// § 11 — ANASAYFA BANNER'LARI (page.tsx Hikayemiz & Hakkımızda)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const homeBannersTheme = {
+  hikayemiz: {
+    image:     "/images/home-screen/our-history/our-history.webp",
+    heading:   "HİKAYEMİZ",
+    subheading: "ŞİRKET DEĞİL, KOOPERATİFİZ!",
+    body: "1973 yılında, Adana'nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor oldugunu biliyorlardı. Çünkü bal sadece doganın degil, sabrın da işiydi. Yagmurun erken yagması, kuraklıgın uzaması, piyasanın dengesizligi… Hepsi küçük üreticinin omzuna yük oluyordu.\n\nİşte o gün, yükü paylaşmak için bir araya geldiler. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi böyle dogdu.",
+    btn:  { label: "HİKAYENİN DEVAMI ▶", href: "/hakkimizda" },
+  },
+  hakkimizda: {
+    image:     "/images/home-screen/about-us/about-us.webp",
+    heading:   "HAKKIMIZDA",
+    subheading: "ÜLKE İÇİN KOOPERATİF!",
+    body: "Binboğa Kooperatifi, üreticinin emeğini koruyan ve doğal balı güvenilir biçimde sofralara ulaştıran köklü bir yapıdır. 1973'ten bu yana kooperatif gücüyle, doğallığı ve kaliteyi bir arada sunuyoruz.\n\nArıcı ailelerimizden gelen üretimi; izlenebilirlik, özenli paketleme ve sürdürülebilir kalite anlayışı ile tüketicilerimize ulaştırıyoruz.",
+    btn:  { label: "DEVAMINI OKU ▶", href: "/hakkimizda" },
+  },
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// § 12 — FOOTER
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const footerTheme = {
+  logo: {
+    src:    "/images/logo.png",
+    width:  180,
+    height: 90,
+  },
+} as const;

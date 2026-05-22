@@ -1,49 +1,14 @@
 import Image from "next/image";
+import { processFlowTheme } from "@/lib/theme";
 
-const steps = [
-  {
-    number: 1,
-    title: "ÜRETİCİ İÇİN ADİL MODEL",
-    description:
-      "Arıcılarımıza adil fiyat ve öncelikli gelir güvencesi sunuyoruz. Arıcılar ortaklardan oluşur, üreticilerin kooperatif ağına dahil olması ve rekabetçi fiyatlarla kazanmalarını sağlarız.",
-    image: "/images/home-screen/second-infographics/uretici-icin-adil-model.webp",
-  },
-  {
-    number: 2,
-    title: "KALİTE İÇİN KONTROL",
-    description:
-      "Her parti bal, çok aşamalı kalite denetimlerinden geçer. Akredite laboratuvarlarda analizden geçer, uluslararası standartlara uygunluğu garanti eder.",
-    image: "/images/home-screen/second-infographics/kalite-icin-kontrol.webp",
-  },
-  {
-    number: 3,
-    title: "TÜKETİCİ İÇİN GÜVEN",
-    description:
-      "Hangi bölgeden, hangi taşıyıcıyla ve ne kadar hijyenik üretildiğine dair tam bilgi. Şeffaflık ve güven, marka bağlılığını sağlar.",
-    image: "/images/home-screen/second-infographics/tuketici-icin-guven.webp",
-  },
-  {
-    number: 4,
-    title: "GELECEK İÇİN SÜRDÜRÜLEBİLİRLİK",
-    description:
-      "Doğal arıcılık, organik üretim ve geleceğe duyarlı uygulamalarla ekoloji sistemini koruyoruz. Doğaya saygılı, biyoçeşitlilik destekleyen gelecek nesiller için dünya bırakıyoruz.",
-    image: "/images/home-screen/second-infographics/gelecek-icin-surdurebilirlik.webp",
-  },
-];
-
-/**
- * Bal peteği (flat-top hexagon) clip-path.
- * Gerçek petek hücresi yönü: üst ve alt kenar düz, yan köşeler sivri.
- *   polygon: sol-üst → sağ-üst → sağ → sağ-alt → sol-alt → sol
- */
-const HEXAGON_CLIP = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
+const { steps, heading, hexagonClip: HEXAGON_CLIP } = processFlowTheme;
 
 export function ProcessFlow() {
   return (
     <section className="py-16 bg-honey-light/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-center text-xl md:text-2xl font-bold text-gray-800 mb-14">
-          KOOPERATİF DİREK ÜRETİCİDEN ANALİZİ YAPILMIŞ BAL ALMAK DEMEK...
+          {heading}
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
