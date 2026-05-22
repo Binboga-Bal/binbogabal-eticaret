@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * CSS değişkenleri — lib/theme.ts → palette ile senkron tutulmalıdır.
+   * Renk değiştirirken ÖNCE lib/theme.ts'i güncelle,
+   * ardından aşağıdaki değerleri de eşitle.
+   */
+  :root {
+    --honey-dark:   #B82C00;   /* palette.honeyDark   */
+    --honey-medium: #D67503;   /* palette.honeyMedium */
+    --honey:        #F9B10B;   /* palette.honey       */
+    --honey-bright: #FCD908;   /* palette.honeyBright */
+    --honey-light:  #FCE7A5;   /* palette.honeyLight  */
+    --honey-cream:  #FFF8E7;   /* palette.honeyCream  */
+  }
+
+  * {
+    @apply border-gray-200;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased;
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    @apply font-bold;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-honey-dark hover:bg-red-900 text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200 inline-flex items-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-honey hover:bg-honey-medium text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200 inline-flex items-center gap-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-honey-dark text-honey-dark hover:bg-honey-dark hover:text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 inline-flex items-center gap-2;
+  }
+
+  .section-title {
+    @apply text-2xl md:text-3xl font-bold text-gray-900;
+  }
+
+  .badge-discount {
+    @apply bg-honey-dark text-white text-xs font-bold px-2 py-1 rounded;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-honey focus:border-transparent;
+  }
+
+  .wave-separator {
+    clip-path: ellipse(75% 100% at 50% 0%);
+  }
+}
+
+/* Swiper custom styles */
+.swiper-button-next,
+.swiper-button-prev {
+  @apply bg-white shadow-md rounded-full w-10 h-10 flex items-center justify-center;
+  color: var(--honey-dark) !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--honey-dark) !important;
+}
+
+/* Admin sidebar */
+.admin-nav-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-honey-cream hover:text-honey-dark transition-colors duration-150 text-sm font-medium;
+}
+
+.admin-nav-link.active {
+  @apply bg-honey-cream text-honey-dark font-semibold;
+}

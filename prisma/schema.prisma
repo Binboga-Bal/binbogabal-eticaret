@@ -1,0 +1,391 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── KULLANICILAR ────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  name          String?
+  phone         String?
+  role          UserRole  @default(CUSTOMER)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  addresses     Address[]
+  orders        Order[]
+  reviews       Review[]
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum UserRole {
+  CUSTOMER
+  EDITOR
+  ADMIN
+  SUPERADMIN
+}
+
+// ─── ADRESLER ────────────────────────────────────────────────────────────────
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  title      String
+  firstName  String
+  lastName   String
+  phone      String
+  city       String
+  district   String
+  neighborhood String?
+  fullAddress String  @db.Text
+  zipCode    String?
+  isDefault  Boolean @default(false)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+// ─── KATEGORİLER ─────────────────────────────────────────────────────────────
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?    @db.Text
+  image       String?
+  parentId    String?
+  order       Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  parent   Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryChildren")
+  products Product[]
+
+  @@map("categories")
+}
+
+// ─── ÜRÜNLER ─────────────────────────────────────────────────────────────────
+
+model Product {
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  shortDescription String?   @db.Text
+  description      String?   @db.LongText
+  metaTitle        String?
+  metaDescription  String?
+  images           Json      // string[]
+  categoryId       String?
+  honeyType        HoneyType?
+  isActive         Boolean   @default(true)
+  isFeatured       Boolean   @default(false)
+  isBestseller     Boolean   @default(false)
+  isNew            Boolean   @default(false)
+  erpProductCode   String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  category  Category?        @relation(fields: [categoryId], references: [id])
+  variants  ProductVariant[]
+  reviews   Review[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id              String          @id @default(cuid())
+  productId       String
+  size            Int             // gram
+  packagingType   PackagingType   @default(GLASS)
+  price           Decimal         @db.Decimal(10, 2)
+  discountedPrice Decimal?        @db.Decimal(10, 2)
+  stock           Int             @default(0)
+  sku             String?         @unique
+  erpVariantCode  String?         @unique
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("product_variants")
+}
+
+enum HoneyType {
+  CICEK
+  CAM
+  KEVEN_KEKIK
+  NARENCIYE
+  OZEL
+}
+
+enum PackagingType {
+  GLASS
+  PLASTIC
+}
+
+// ─── SİPARİŞLER ──────────────────────────────────────────────────────────────
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String?
+  guestEmail      String?
+  guestPhone      String?
+  addressId       String?
+  shippingAddress Json          // snapshot
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  subtotal        Decimal       @db.Decimal(10, 2)
+  shippingFee     Decimal       @db.Decimal(10, 2) @default(0)
+  discount        Decimal       @db.Decimal(10, 2) @default(0)
+  total           Decimal       @db.Decimal(10, 2)
+  couponCode      String?
+  notes           String?       @db.Text
+  erpOrderCode    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user         User?                @relation(fields: [userId], references: [id])
+  address      Address?             @relation(fields: [addressId], references: [id])
+  items        OrderItem[]
+  transactions PaymentTransaction[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  variantId String
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+  productName  String
+  variantInfo  String
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+// ─── ÖDEME ───────────────────────────────────────────────────────────────────
+
+model PaymentTransaction {
+  id              String            @id @default(cuid())
+  orderId         String
+  provider        PaymentProvider   @default(QNB_PAY)
+  status          TransactionStatus @default(PENDING)
+  amount          Decimal           @db.Decimal(10, 2)
+  providerRefId   String?
+  providerResponse Json?
+  errorCode       String?
+  errorMessage    String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payment_transactions")
+}
+
+enum PaymentProvider {
+  QNB_PAY
+  IYZICO
+  STRIPE
+  MANUAL
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// ─── KUPONLAR ────────────────────────────────────────────────────────────────
+
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  description   String?
+  discountType  DiscountType @default(PERCENTAGE)
+  discountValue Decimal      @db.Decimal(10, 2)
+  minOrderAmount Decimal?    @db.Decimal(10, 2)
+  maxDiscount   Decimal?     @db.Decimal(10, 2)
+  maxUses       Int?
+  usedCount     Int          @default(0)
+  isActive      Boolean      @default(true)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime     @default(now())
+
+  @@map("coupons")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
+// ─── BLOG / İÇERİK ───────────────────────────────────────────────────────────
+
+model BlogPost {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  excerpt         String?   @db.Text
+  content         String    @db.LongText
+  coverImage      String?
+  authorId        String?
+  isPublished     Boolean   @default(false)
+  publishedAt     DateTime?
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("blog_posts")
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("faqs")
+}
+
+// ─── DEĞERLENDİRMELER ────────────────────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([productId, userId])
+  @@map("reviews")
+}
+
+// ─── DIA ERP SYNC ────────────────────────────────────────────────────────────
+
+model ErpSyncLog {
+  id          String      @id @default(cuid())
+  syncType    ErpSyncType
+  status      SyncStatus  @default(PENDING)
+  message     String?     @db.Text
+  recordCount Int?
+  createdAt   DateTime    @default(now())
+  completedAt DateTime?
+
+  @@map("erp_sync_logs")
+}
+
+enum ErpSyncType {
+  PRODUCTS
+  STOCK
+  ORDERS
+  PRICES
+}
+
+enum SyncStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+// ─── SITE AYARLARI ───────────────────────────────────────────────────────────
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+
+  @@map("site_settings")
+}
