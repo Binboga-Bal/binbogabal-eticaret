@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binboğa Bal — Geliştirme Günlüğü</title>
+  <style>
+    :root {
+      --honey-dark:   #C57930;
+      --honey-medium: #D67503;
+      --honey:        #F9B10B;
+      --honey-bright: #FCD908;
+      --honey-light:  #FCE7A5;
+      --honey-cream:  #FFF8E7;
+      --bg:           #0f1117;
+      --bg2:          #181c27;
+      --bg3:          #1e2333;
+      --border:       #2a3050;
+      --text:         #e2e8f0;
+      --text-muted:   #8892a4;
+      --green:        #22c55e;
+      --red:          #f87171;
+      --blue:         #60a5fa;
+      --purple:       #a78bfa;
+      --teal:         #2dd4bf;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 28px 0;
+    }
+
+    .sidebar-logo {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .sidebar-logo h1 { font-size: 15px; font-weight: 700; color: var(--honey); }
+    .sidebar-logo p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .sidebar nav { padding: 0 12px; }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      padding: 12px 12px 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .nav-link:hover { background: var(--bg3); color: var(--text); }
+    .nav-link.active { background: rgba(197,121,48,.15); color: var(--honey); }
+    .nav-link .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--honey-medium); flex-shrink: 0;
+    }
+
+    /* ── MAIN CONTENT ────────────────────────── */
+    .content {
+      flex: 1;
+      max-width: 960px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── PAGE HEADER ─────────────────────────── */
+    .page-header {
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(197,121,48,.2);
+      color: var(--honey);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .page-header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .page-header p {
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* ── SECTION ─────────────────────────────── */
+    .section {
+      margin-bottom: 64px;
+      scroll-margin-top: 32px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-title .icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .section-title h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .section-title .step-num {
+      background: var(--honey-dark);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── CARD ────────────────────────────────── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .card p, .card li {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .card ul { padding-left: 18px; }
+    .card ul li { margin-bottom: 4px; }
+
+    /* ── STEP LIST ───────────────────────────── */
+    .step-list { counter-reset: step; }
+    .step-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .step-item::before {
+      counter-increment: step;
+      content: counter(step);
+      min-width: 28px; height: 28px;
+      background: var(--honey-dark);
+      color: #fff;
+      font-size: 12px; font-weight: 800;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-item::after {
+      content: '';
+      position: absolute;
+      left: 14px; top: 30px;
+      width: 1px;
+      height: calc(100% - 8px);
+      background: var(--border);
+    }
+    .step-item:last-child::after { display: none; }
+    .step-item .step-body h4 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .step-item .step-body p, .step-item .step-body li { font-size: 13px; color: var(--text-muted); }
+    .step-item .step-body ul { padding-left: 16px; margin-top: 4px; }
+
+    /* ── CODE BLOCK ──────────────────────────── */
+    pre {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      margin: 12px 0;
+      color: #cdd6f4;
+    }
+    .kw  { color: #cba6f7; }   /* keyword */
+    .str { color: #a6e3a1; }   /* string */
+    .cm  { color: #585b70; font-style: italic; } /* comment */
+    .fn  { color: #89b4fa; }   /* function */
+    .nm  { color: #fab387; }   /* number / name */
+    .tp  { color: #f38ba8; }   /* type */
+
+    /* ── INLINE CODE ─────────────────────────── */
+    code {
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'Cascadia Code', monospace;
+      font-size: 12.5px;
+      color: var(--honey-bright);
+    }
+
+    /* ── TAGS ────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin: 2px;
+    }
+    .tag-green  { background: rgba(34,197,94,.15);  color: var(--green); }
+    .tag-blue   { background: rgba(96,165,250,.15); color: var(--blue); }
+    .tag-purple { background: rgba(167,139,250,.15);color: var(--purple); }
+    .tag-honey  { background: rgba(197,121,48,.2);  color: var(--honey); }
+    .tag-red    { background: rgba(248,113,113,.15);color: var(--red); }
+    .tag-teal   { background: rgba(45,212,191,.15); color: var(--teal); }
+
+    /* ── ALERT ───────────────────────────────── */
+    .alert {
+      border-left: 3px solid;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+    .alert-warn  { border-color: var(--honey); background: rgba(249,177,11,.06); color: #fbbf24; }
+    .alert-info  { border-color: var(--blue);  background: rgba(96,165,250,.06); color: var(--blue); }
+    .alert-fix   { border-color: var(--green); background: rgba(34,197,94,.06);  color: var(--green); }
+    .alert-label { font-weight: 700; margin-right: 6px; }
+
+    /* ── FILE TREE ───────────────────────────── */
+    .file-tree {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.9;
+    }
+    .file-tree .dir  { color: var(--blue); font-weight: 600; }
+    .file-tree .file { color: var(--text-muted); }
+    .file-tree .file.new  { color: var(--green); }
+    .file-tree .file.mod  { color: var(--honey); }
+
+    /* ── TABLE ───────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: var(--bg3);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(42,48,80,.5);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── DIVIDER ─────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 40px 0;
+    }
+
+    /* ── DATE HEADER ─────────────────────────── */
+    .date-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 56px 0 36px;
+    }
+    .date-header .date-pill {
+      background: rgba(197,121,48,.18);
+      color: var(--honey);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      padding: 5px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .date-header .date-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .date-header .date-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ── COMMIT ──────────────────────────────── */
+    .commit-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .commit-card .hash {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--honey);
+      background: rgba(197,121,48,.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .commit-card .msg { font-size: 13.5px; color: var(--text); font-weight: 500; }
+    .commit-card .meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── COLOR PALETTE ───────────────────────── */
+    .palette-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .swatch {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 120px;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { padding: 24px 20px; }
+    }
+
+    /* ── SCROLLBAR ───────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--honey-dark); }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>🍯 Binboğa Bal</h1>
+      <p>Geliştirme Günlüğü — 2025</p>
+    </div>
+    <nav>
+      <div class="nav-section-label">Proje</div>
+      <a href="#overview"   class="nav-link"><span class="dot"></span>Genel Bakış</a>
+      <a href="#stack"      class="nav-link"><span class="dot"></span>Teknoloji Stack'i</a>
+      <a href="#structure"  class="nav-link"><span class="dot"></span>Proje Yapısı</a>
+
+      <div class="nav-section-label">22 Mayıs 2025</div>
+      <a href="#step1" class="nav-link"><span class="dot"></span>1 — Tema Sistemi</a>
+      <a href="#step2" class="nav-link"><span class="dot"></span>2 — Header Tasarımı</a>
+      <a href="#step3" class="nav-link"><span class="dot"></span>3 — Wave / Arch Düzeltmeleri</a>
+      <a href="#step4" class="nav-link"><span class="dot"></span>4 — Layout & Overlap</a>
+      <a href="#step5" class="nav-link"><span class="dot"></span>5 — Hero Slider</a>
+      <a href="#step6" class="nav-link"><span class="dot"></span>6 — Duyuru Bandı</a>
+      <a href="#step7" class="nav-link"><span class="dot"></span>7 — Logo & Wave Mesafe</a>
+      <a href="#step8" class="nav-link"><span class="dot"></span>8 — TrustBadges</a>
+      <a href="#step9" class="nav-link"><span class="dot"></span>9 — ProcessFlow</a>
+      <a href="#step10" class="nav-link"><span class="dot"></span>10 — Hikayemiz</a>
+
+      <div class="nav-section-label">22 Mayıs 2026</div>
+      <a href="#step11" class="nav-link"><span class="dot"></span>11 — Hakkımızda Banner</a>
+      <a href="#step12" class="nav-link"><span class="dot"></span>12 — Footer Logo</a>
+      <a href="#step13" class="nav-link"><span class="dot"></span>13 — Tema §9-12 Genişletme</a>
+      <a href="#step14" class="nav-link"><span class="dot"></span>14 — Slider Buton Rengi</a>
+      <a href="#step15" class="nav-link"><span class="dot"></span>15 — CSS Modül Tip Düzeltmesi</a>
+
+      <div class="nav-section-label">Referans</div>
+      <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
+      <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
+      <a href="#commits"     class="nav-link"><span class="dot"></span>Commit Geçmişi</a>
+      <a href="#maintenance" class="nav-link"><span class="dot"></span>Bakım Notları</a>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════ MAIN CONTENT -->
+  <main class="content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="badge">Geliştirme Günlüğü</div>
+      <h1>Binboğa Bal E-Ticaret<br>Geliştirme Dokümantasyonu</h1>
+      <p>
+        S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin online satış platformu.<br>
+        Bu belge, projenin başlangıcından bugüne tüm geliştirme adımlarını, tasarım kararlarını,
+        çözülen hataları ve bakım notlarını kapsar.
+      </p>
+      <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <span class="tag tag-green">Next.js 15</span>
+        <span class="tag tag-blue">TypeScript</span>
+        <span class="tag tag-purple">Tailwind CSS</span>
+        <span class="tag tag-honey">Prisma ORM</span>
+        <span class="tag tag-teal">MySQL</span>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════ GENEL BAKIŞ -->
+    <section class="section" id="overview">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(197,121,48,.15)">🎯</div>
+        <h2>Genel Bakış</h2>
+      </div>
+
+      <div class="card">
+        <h3>Proje Hakkında</h3>
+        <p>
+          Binboğa Bal, 1973 yılında Adana'nın Kozan ilçesinde kurulan kooperatifin
+          modern e-ticaret platformudur. Platform; ürün yönetimi, sipariş takibi,
+          müşteri hesapları, blog/içerik yönetimi ve admin panelini kapsar.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Temel Hedefler</h3>
+        <ul>
+          <li>Marka kimliğini yansıtan özgün bir tasarım (bal/petek motifli)</li>
+          <li>Tüm renk ve boyut değerlerini tek dosyadan yönetmek (<code>lib/theme.ts</code>)</li>
+          <li>Performanslı ve SEO dostu Next.js App Router mimarisi</li>
+          <li>Kooperatif anlatısını ön plana çıkaran içerik yapısı</li>
+          <li>Mobil öncelikli responsive tasarım</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ STACK -->
+    <section class="section" id="stack">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">⚙️</div>
+        <h2>Teknoloji Stack'i</h2>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Teknoloji</th>
+              <th>Versiyon / Detay</th>
+              <th>Kullanım Amacı</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Next.js</td>
+              <td>15 (App Router)</td>
+              <td>Full-stack React framework, SSR/SSG, routing</td>
+            </tr>
+            <tr>
+              <td>TypeScript</td>
+              <td>5.x</td>
+              <td>Type safety, geliştirici deneyimi</td>
+            </tr>
+            <tr>
+              <td>Tailwind CSS</td>
+              <td>3.x</td>
+              <td>Utility-first CSS, tema entegrasyonu</td>
+            </tr>
+            <tr>
+              <td>Prisma ORM</td>
+              <td>5.x</td>
+              <td>Veritabanı erişimi, tip güvenli sorgular</td>
+            </tr>
+            <tr>
+              <td>MySQL</td>
+              <td>8.x</td>
+              <td>İlişkisel veritabanı (ürün, sipariş, kullanıcı)</td>
+            </tr>
+            <tr>
+              <td>Swiper.js</td>
+              <td>11.x</td>
+              <td>Hero slider (fade efekti, autoplay, pagination)</td>
+            </tr>
+            <tr>
+              <td>Zustand</td>
+              <td>4.x</td>
+              <td>Sepet state yönetimi (client-side)</td>
+            </tr>
+            <tr>
+              <td>QNB Pay</td>
+              <td>—</td>
+              <td>Ödeme altyapısı entegrasyonu</td>
+            </tr>
+            <tr>
+              <td>Dia ERP</td>
+              <td>—</td>
+              <td>Stok / sipariş senkronizasyonu</td>
+            </tr>
+            <tr>
+              <td>Lucide React</td>
+              <td>—</td>
+              <td>İkon seti (header, arama, sepet vb.)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ PROJE YAPISI -->
+    <section class="section" id="structure">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.1)">📁</div>
+        <h2>Proje Yapısı</h2>
+      </div>
+
+      <div class="file-tree">
+        <span class="dir">binbogabal-eticaret/</span><br>
+        &nbsp;├── <span class="dir">app/</span><br>
+        &nbsp;│&nbsp;&nbsp; ├── <span class="dir">(shop)/</span> &nbsp;<span style="color:#585b70">← Müşteri tarafı (route group)</span><br>
+        &nbsp;│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file mod">layout.tsx</span> &nbsp;<span style="color:#585b70">← Header + Footer sarmalayıcı</span><br>
+        &nbsp;│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file mod">page.tsx</span> &nbsp;<span style="color:#585b70">← Anasayfa</span><br>
+        &nbsp;│&nbsp;&nbsp; │&nbsp;&nbsp; ├── urunlerimiz/, sepet/, odeme/, hakkimizda/ …<br>
+        &nbsp;│&nbsp;&nbsp; └── <span class="dir">admin/</span> &nbsp;<span style="color:#585b70">← Yönetim paneli</span><br>
+        &nbsp;├── <span class="dir">components/</span><br>
+        &nbsp;│&nbsp;&nbsp; └── <span class="dir">shop/</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="dir">header/</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="file mod">Header.tsx</span> &nbsp;<span style="color:#585b70">← SVG arch header</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="dir">home/</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file mod">HeroSlider.tsx</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file mod">TrustBadges.tsx</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file mod">ProcessFlow.tsx</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── CategoryGrid.tsx<br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; └── FaqSection.tsx<br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── cart/, footer/, product/ …<br>
+        &nbsp;├── <span class="dir">lib/</span><br>
+        &nbsp;│&nbsp;&nbsp; ├── <span class="file mod">theme.ts</span> &nbsp;<span style="color:#585b70">← Merkezi tema dosyası ⭐</span><br>
+        &nbsp;│&nbsp;&nbsp; ├── prisma.ts, utils/ …<br>
+        &nbsp;├── <span class="dir">public/</span><br>
+        &nbsp;│&nbsp;&nbsp; └── <span class="dir">images/</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="dir new">home-screen/</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file new">first-infographics/</span> &nbsp;<span style="color:#585b70">← TrustBadges görselleri</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file new">second-infographics/</span> &nbsp;<span style="color:#585b70">← ProcessFlow görselleri</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="file new">our-history/</span> &nbsp;<span style="color:#585b70">← Hikayemiz arkaplanı</span><br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── slider-images/, logo.png …<br>
+        &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="file new">products/</span> &nbsp;<span style="color:#585b70">← Ürün görselleri</span><br>
+        &nbsp;├── <span class="file mod">tailwind.config.ts</span> &nbsp;<span style="color:#585b70">← theme.ts'ten renk okur</span><br>
+        &nbsp;└── styles/globals.css
+      </div>
+      <div style="margin-top: 10px; display: flex; gap: 12px; font-size: 12px; color: var(--text-muted);">
+        <span><span class="file new" style="font-family:monospace">■</span> Yeni eklenen</span>
+        <span><span class="file mod" style="font-family:monospace">■</span> Değiştirilen</span>
+      </div>
+    </section>
+
+
+    <div class="divider"></div>
+    <h2 style="font-size:22px; font-weight:800; color:#fff; margin-bottom:32px; letter-spacing:-.02em;">
+      📋 Geliştirme Adımları
+    </h2>
+
+    <div class="date-header">
+      <span class="date-pill">📅 22 Mayıs 2025</span>
+      <div class="date-line"></div>
+      <span class="date-count">Adım 1 – 10 · commit 6f2bb4b, 8fa2ee8</span>
+    </div>
+
+
+    <!-- ═══════════════════════════════ ADIM 1: TEMA -->
+    <section class="section" id="step1">
+      <div class="section-title">
+        <div class="step-num">1</div>
+        <h2>Merkezi Tema Sistemi — <code>lib/theme.ts</code></h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem</h3>
+        <p>
+          Renk değerleri ve boyutlar (header yüksekliği, slider hızı vb.) pek çok dosyaya
+          dağılmış durumdaydı. Tek bir renk değiştirmek için 5-6 dosyayı düzenlemek gerekiyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm: Tek Kaynak (Single Source of Truth)</h3>
+        <p>
+          Tüm tasarım sabitleri <code>lib/theme.ts</code> dosyasına taşındı.
+          Bu dosya 8 bölüme ayrıldı:
+        </p>
+        <ul style="margin-top:10px;">
+          <li><strong>§1 palette</strong> — Tüm renk tanımları (honeyDark, honey, honeyCream…)</li>
+          <li><strong>§2 headerTheme</strong> — Header boyutları ve renkleri</li>
+          <li><strong>§3 sliderTheme</strong> — Slider içerikleri, hız, yükseklik</li>
+          <li><strong>§4 buttonTheme</strong> — Buton renk seti</li>
+          <li><strong>§5 adminTheme</strong> — Admin panel renkleri</li>
+          <li><strong>§6 tailwindColors</strong> — Tailwind'e aktarılan renk nesnesi</li>
+          <li><strong>§7</strong> — CSS değişkenleriyle senkron notu</li>
+          <li><strong>§8 hexToRgba()</strong> — Yardımcı fonksiyon</li>
+        </ul>
+      </div>
+
+      <div class="palette-row">
+        <div class="swatch" style="background:#C57930; color:#fff;">#C57930<br><small>honeyDark</small></div>
+        <div class="swatch" style="background:#D67503; color:#fff;">#D67503<br><small>honeyMedium</small></div>
+        <div class="swatch" style="background:#F9B10B; color:#000;">#F9B10B<br><small>honey</small></div>
+        <div class="swatch" style="background:#FCD908; color:#000;">#FCD908<br><small>honeyBright</small></div>
+        <div class="swatch" style="background:#FCE7A5; color:#000;">#FCE7A5<br><small>honeyLight</small></div>
+        <div class="swatch" style="background:#FFF8E7; color:#000;">#FFF8E7<br><small>honeyCream</small></div>
+      </div>
+
+      <pre><span class="cm">// lib/theme.ts — Kullanım örneği</span>
+<span class="kw">export const</span> palette = {
+  honeyDark:   <span class="str">"#C57930"</span>,
+  honeyMedium: <span class="str">"#D67503"</span>,
+  honey:       <span class="str">"#F9B10B"</span>,
+  honeyBright: <span class="str">"#FCD908"</span>,
+  honeyLight:  <span class="str">"#FCE7A5"</span>,
+  honeyCream:  <span class="str">"#FFF8E7"</span>,
+} <span class="kw">as const</span>;
+
+<span class="kw">export const</span> headerTheme = {
+  announcementBg:     palette.honeyDark,
+  announcementHeight: <span class="nm">40</span>,
+  navHeight:          <span class="nm">85</span>,
+  waveDepth:          <span class="nm">90</span>,
+  solidHeight:        <span class="nm">125</span>,  <span class="cm">// announcementHeight + navHeight</span>
+  logoWidth:          <span class="nm">230</span>,
+  logoBottomPad:      <span class="nm">20</span>,
+  archLeft:           <span class="nm">540</span>,
+  archRight:          <span class="nm">900</span>,
+} <span class="kw">as const</span>;</pre>
+
+      <div class="card">
+        <h3>Tailwind Entegrasyonu</h3>
+        <p>
+          <code>tailwind.config.ts</code> dosyası renkleri doğrudan <code>theme.ts</code>'den alır.
+          Böylece <code>bg-honey-dark</code>, <code>text-honey</code> gibi sınıflar
+          otomatik olarak tema renkleriyle çalışır.
+        </p>
+      </div>
+
+      <pre><span class="cm">// tailwind.config.ts</span>
+<span class="kw">import</span> { tailwindColors } <span class="kw">from</span> <span class="str">"./lib/theme"</span>;
+
+<span class="kw">const</span> config = {
+  theme: {
+    extend: {
+      colors: { ...tailwindColors }  <span class="cm">// honey-dark, honey-medium, honey, honey-bright…</span>
+    }
+  }
+};</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 2: HEADER -->
+    <section class="section" id="step2">
+      <div class="section-title">
+        <div class="step-num">2</div>
+        <h2>Header Tasarımı — SVG Arch</h2>
+      </div>
+
+      <div class="card">
+        <h3>Tasarım Kararı</h3>
+        <p>
+          Standart dikdörtgen header yerine, ortada aşağı doğru kavisli (arch/wave)
+          bir header tasarlandı. Logo, bu kavisin tam ortasına yerleştirildi.
+          Tasarım SVG ile çizildi — hiçbir CSS gradient veya clip-path kullanılmadı.
+        </p>
+      </div>
+
+      <pre><span class="cm">/*
+  Header şekli (temsili):
+  ┌──────────── TAM GENİŞLİK ────────────┐  ← navHeight (85px)
+  │  [ÜRÜNLERİMİZ]  [LOGO]  [HAKKIMIZDA] │
+  └──────────╮               ╭───────────┘
+              ╲      🍯      ╱
+               ╰─── arch ───╯  ← waveDepth (90px) kadar iner
+*/</span>
+
+<span class="cm">// SVG path hesaplaması</span>
+<span class="kw">const</span> VB_W = <span class="nm">1440</span>;
+<span class="kw">const</span> VB_H = headerTheme.navHeight + headerTheme.waveDepth; <span class="cm">// 85+90=175</span>
+
+<span class="cm">// Beyaz dolgu path'i</span>
+<span class="kw">const</span> headerPath = [
+  <span class="str">`M 0 0`</span>,
+  <span class="str">`L 1440 0`</span>,
+  <span class="str">`L 1440 85`</span>,
+  <span class="str">`L 900 85`</span>,
+  <span class="str">`C 820 85, 780 175, 720 175`</span>,  <span class="cm">// sağdan merkeze bezier</span>
+  <span class="str">`C 660 175, 620 85, 540 85`</span>,   <span class="cm">// merkezden sola bezier</span>
+  <span class="str">`L 0 85`</span>,
+  <span class="str">`Z`</span>,
+].join(<span class="str">" "</span>);</pre>
+
+      <div class="card">
+        <h3>Navigasyon Yapısı</h3>
+        <ul>
+          <li>Sol nav: yalnızca ilk link (ÜRÜNLERİMİZ)</li>
+          <li>Orta: logo için boşluk (<code>logoWidth + 48px</code>)</li>
+          <li>Sağ nav: kalan linkler + User / Search / Cart ikonları</li>
+          <li>Mobil: hamburger menü, arama ve sepet ikonları</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 3: WAVE DÜZELTMELERI -->
+    <section class="section" id="step3">
+      <div class="section-title">
+        <div class="step-num">3</div>
+        <h2>Wave / Arch Görsel Düzeltmeleri</h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem: Arch Kesik Görünüyordu</h3>
+        <p>
+          Arch'ın en alt noktasındaki çizgi (<code>waveStroke</code>), SVG <code>viewBox</code>
+          sınırında yarıya kesiliyor; arch "tıraşlanmış" görünüyordu.
+        </p>
+      </div>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ ÇÖZÜM:</span>
+        SVG elementine <code>overflow="visible"</code> eklendi.
+        Böylece stroke viewBox sınırında kırpılmıyor.
+      </div>
+
+      <pre><span class="tp">&lt;svg</span>
+  viewBox=<span class="str">"0 0 1440 175"</span>
+  overflow=<span class="str">"visible"</span>          <span class="cm">← bu satır eklendi</span>
+  preserveAspectRatio=<span class="str">"none"</span>
+  className=<span class="str">"absolute inset-0 w-full h-full"</span>
+<span class="tp">&gt;</span>
+  <span class="tp">&lt;path</span> d={headerPath} fill=<span class="str">"white"</span> <span class="tp">/&gt;</span>
+  <span class="tp">&lt;path</span>
+    d={archBorderPath}
+    fill=<span class="str">"none"</span>
+    stroke=<span class="str">"#C57930"</span>
+    strokeWidth=<span class="str">"6"</span>
+  <span class="tp">/&gt;</span>
+<span class="tp">&lt;/svg&gt;</span></pre>
+
+      <div class="card">
+        <h3>Wave Derinliğini Artırma</h3>
+        <p>
+          Kullanıcı isteğiyle wave daha derine indirildi, slider/sayfa görselleri
+          üzerine binmesi sağlandı. <code>waveDepth</code> değeri <code>60 → 90px</code>'e artırıldı.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 4: LAYOUT & OVERLAP -->
+    <section class="section" id="step4">
+      <div class="section-title">
+        <div class="step-num">4</div>
+        <h2>Shop Layout & Header–İçerik Örtüşmesi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Hedef</h3>
+        <p>
+          Header'ın arch/wave kısmı, hero slider ve bölüm görsellerinin <em>üstüne binmeli</em>.
+          Ama aynı zamanda, sayfa içeriği headerın arkasına gizlenmemeli.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm: fixed + paddingTop Stratejisi</h3>
+        <ul>
+          <li><strong>Header:</strong> <code>position: fixed</code> → akıştan çıkar, her zaman üstte kalır</li>
+          <li><strong>&lt;main&gt;:</strong> <code>paddingTop = solidHeight (125px)</code> → içerik "solid" bölümün altından başlar</li>
+          <li><strong>Wave (90px):</strong> <code>main</code>'in padding'inin üzerinden içeriğe biner — efekt sağlanır</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// app/(shop)/layout.tsx</span>
+<span class="kw">import</span> { headerTheme } <span class="kw">from</span> <span class="str">"@/lib/theme"</span>;
+<span class="kw">const</span> MAIN_PT = headerTheme.solidHeight; <span class="cm">// 125 px</span>
+
+<span class="kw">export default function</span> <span class="fn">ShopLayout</span>({ children }) {
+  <span class="kw">return</span> (
+    &lt;&gt;
+      &lt;<span class="tp">Header</span> /&gt;
+      &lt;<span class="tp">main</span> style={{ paddingTop: MAIN_PT }}&gt;{children}&lt;/<span class="tp">main</span>&gt;
+      &lt;<span class="tp">Footer</span> /&gt;
+    &lt;/&gt;
+  );
+}</pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ BAKIM NOTU:</span>
+        <code>solidHeight = announcementHeight + navHeight</code>.
+        Bu değerlerden biri değiştiğinde <code>solidHeight</code> de manuel güncellenmeli!
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 5: HERO SLIDER -->
+    <section class="section" id="step5">
+      <div class="section-title">
+        <div class="step-num">5</div>
+        <h2>Hero Slider — Swiper.js ile İmaj & Gradient Modu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem: Geçişler Kötü Görünüyordu</h3>
+        <p>
+          Sadece görsel tanımlandığında geçişlerde beyaz flaş oluşuyor,
+          üzerinde istenmeyen overlay/fade görünüyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm: EffectFade + crossFade + Dual Branch</h3>
+        <ul>
+          <li><code>effect="fade"</code> + <code>fadeEffect={{ crossFade: true }}</code> → geçişlerde arka planın görünmesini önler</li>
+          <li><strong>Image branch:</strong> <code>slide.image</code> varsa → sadece tam ekran görsel, hiç overlay yok</li>
+          <li><strong>Gradient branch:</strong> <code>slide.image</code> yoksa → gradient arka plan + metin + istatistikler</li>
+        </ul>
+      </div>
+
+      <pre><span class="kw">function</span> <span class="fn">SlideContent</span>({ slide }) {
+
+  <span class="cm">// ── IMAGE ONLY BRANCH ──────────────────────────────────</span>
+  <span class="kw">if</span> (slide.image) {
+    <span class="kw">return</span> (
+      &lt;<span class="tp">section</span> className=<span class="str">"hero-slide-section relative overflow-hidden bg-black"</span>&gt;
+        &lt;<span class="tp">img</span>
+          src={slide.image}
+          className=<span class="str">"absolute inset-0 w-full h-full object-cover"</span>
+        /&gt;
+        &lt;<span class="cm">/* Alt dekoratif dalga SVG */</span>&gt;
+      &lt;/<span class="tp">section</span>&gt;
+    );
+  }
+
+  <span class="cm">// ── GRADIENT + TEXT BRANCH ─────────────────────────────</span>
+  <span class="kw">return</span> &lt;<span class="tp">section</span> style={{ background: <span class="str">`linear-gradient(...)`</span> }}&gt;...&lt;/<span class="tp">section</span>&gt;;
+}</pre>
+
+      <div class="card">
+        <h3>Yükseklik Sorunu: Swiper Fade'de Container Collapse</h3>
+        <p>
+          Fade modunda slide'lar <code>position: absolute</code> olduğu için Swiper container'ı
+          JS çalışana kadar <code>height: 0</code>'a düşüyor; beyaz alan görünüyordu.
+        </p>
+      </div>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ ÇÖZÜM:</span>
+        Hem wrapper div'e hem de <code>&lt;Swiper&gt;</code>'a
+        <code>style={{ minHeight: sliderTheme.height }}</code> eklendi.
+        Responsive yükseklik için CSS <code>@media</code> kuralları da eklendi.
+      </div>
+
+      <pre><span class="cm">// Responsive yükseklik — theme değerlerinden</span>
+&lt;<span class="tp">style</span>&gt;{`
+  .hero-slide-section { min-height: <span class="nm">${sliderTheme.heightMobile}</span>px; }
+  @media (min-width: 768px) {
+    .hero-slide-section { min-height: <span class="nm">${sliderTheme.height}</span>px; }
+  }
+`}&lt;/<span class="tp">style</span>&gt;
+
+<span class="cm">// sliderTheme.slides içeriği theme.ts'ten gelir</span>
+<span class="kw">const</span> slides = sliderTheme.slides <span class="kw">as unknown as</span> Slide[];</pre>
+
+      <div class="card">
+        <h3>TypeScript: <code>as const</code> Union Sorunu</h3>
+        <p>
+          <code>as const</code> ile tanımlanan slides array'indeki literal union tipler
+          <code>gradientFrom?</code> gibi optional alanları bulamıyordu.
+        </p>
+      </div>
+
+      <pre><span class="cm">// ❌ Çalışmayan yaklaşım</span>
+<span class="kw">type</span> <span class="tp">Slide</span> = (<span class="kw">typeof</span> sliderTheme.slides)[<span class="nm">number</span>];
+
+<span class="cm">// ✅ Çalışan çözüm</span>
+<span class="kw">interface</span> <span class="tp">Slide</span> {
+  primaryBtn:   { label: <span class="tp">string</span>; href: <span class="tp">string</span> };
+  secondaryBtn?: { label: <span class="tp">string</span>; href: <span class="tp">string</span> };
+  image?:       <span class="tp">string</span>;
+  badge?:       <span class="tp">string</span>;
+  title?:       <span class="tp">string</span>;
+  <span class="cm">// ... tüm alanlar optional</span>
+}
+<span class="kw">const</span> slides: <span class="tp">Slide</span>[] = sliderTheme.slides <span class="kw">as unknown as</span> <span class="tp">Slide</span>[];</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 6: DUYURU BANDI -->
+    <section class="section" id="step6">
+      <div class="section-title">
+        <div class="step-num">6</div>
+        <h2>Duyuru Bandı — Tema Entegrasyonu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem</h3>
+        <p>
+          Header'ın üstündeki duyuru bandı rengi ve yüksekliği hardcoded tanımlıydı,
+          <code>theme.ts</code>'ten okumuyordu.
+        </p>
+      </div>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ ÇÖZÜM:</span>
+        <code>headerTheme.announcementBg</code>, <code>announcementText</code> ve
+        <code>announcementHeight</code> theme'den okunacak şekilde güncellendi.
+      </div>
+
+      <pre>&lt;<span class="tp">div</span>
+  style={{
+    height:     headerTheme.announcementHeight,  <span class="cm">// 40px</span>
+    background: headerTheme.announcementBg,      <span class="cm">// #C57930</span>
+    color:      headerTheme.announcementText,    <span class="cm">// #FFFFFF</span>
+  }}
+&gt;
+  Kooperatif Üyelerine Ücretsiz Kargo! &amp;nbsp;|&amp;nbsp; 0 (322) 515 89 10
+&lt;/<span class="tp">div</span>&gt;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 7: LOGO MESAFE -->
+    <section class="section" id="step7">
+      <div class="section-title">
+        <div class="step-num">7</div>
+        <h2>Logo — Wave Alt Mesafesi</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Logo görseli ile wave'in en alt noktası arasına boşluk eklenmesi istendi.
+          Logo biraz daha yukarıda durmalıydı.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm: <code>logoBottomPad</code></h3>
+        <p>
+          Logo container'ına <code>paddingBottom: logoBottomPad</code> eklendi.
+          Flexbox ile ortalandığından, alt padding logo'yu yukarı kaydırır.
+          Değer <code>theme.ts</code>'te <code>logoBottomPad: 20</code> olarak tutulur.
+        </p>
+      </div>
+
+      <pre>&lt;<span class="tp">Link</span>
+  href=<span class="str">"/"</span>
+  style={{
+    top:           <span class="nm">0</span>,
+    width:         headerTheme.logoWidth,
+    height:        VB_H,
+    paddingBottom: headerTheme.logoBottomPad,  <span class="cm">← bu alan logoyu yukarı iter</span>
+    display:       <span class="str">"flex"</span>,
+    alignItems:    <span class="str">"center"</span>,
+    justifyContent:<span class="str">"center"</span>,
+  }}
+&gt;
+  &lt;<span class="tp">Image</span> src=<span class="str">"/images/logo.png"</span> ... /&gt;
+&lt;/<span class="tp">Link</span>&gt;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 8: TRUSTBADGES -->
+    <section class="section" id="step8">
+      <div class="section-title">
+        <div class="step-num">8</div>
+        <h2>TrustBadges — İnfografik Görseller</h2>
+      </div>
+
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li>Emoji ikonlar (<code>🐝 🔬 📦 🚚</code>) kaldırıldı</li>
+          <li><code>public/images/home-screen/first-infographics/</code> klasöründen gerçek <code>.webp</code> görseller eklendi</li>
+          <li>Arka plan düz beyazdan <code>bg-gradient-to-b from-white to-honey-cream</code> gradyanına geçirildi</li>
+          <li>Layout satırdan sütunsal (dikey) ve ortalı hale getirildi</li>
+          <li>Görsel boyutu: mobil <code>128×128px</code>, masaüstü <code>160×160px</code></li>
+        </ul>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Görsel Dosyası</th><th>Başlık</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td>1800-arici-aile.webp</td><td>1800+ Arıcı Aile</td><td>Kooperatifin ortaklarından üretilen bal</td></tr>
+            <tr><td>guvenilir-bal.webp</td><td>Güvenilir Bal</td><td>Akredite laboratuvarlarda analizden geçer</td></tr>
+            <tr><td>ozenli-paketleme.webp</td><td>Özenli Paketleme</td><td>Binboğa'nın kalite standartlarıyla ambalajlanır</td></tr>
+            <tr><td>hizli-teslimat.webp</td><td>Hızlı Teslimat</td><td>Aynı gün kargoya verilen siparişler</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><span class="cm">// TrustBadges.tsx — Görsel kullanımı</span>
+&lt;<span class="tp">div</span> className=<span class="str">"relative w-32 h-32 md:w-40 md:h-40"</span>&gt;
+  &lt;<span class="tp">Image</span>
+    src={badge.image}
+    alt={badge.title}
+    fill
+    className=<span class="str">"object-contain drop-shadow-sm"</span>
+    sizes=<span class="str">"(max-width: 768px) 128px, 160px"</span>
+  /&gt;
+&lt;/<span class="tp">div</span>&gt;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 9: PROCESSFLOW -->
+    <section class="section" id="step9">
+      <div class="section-title">
+        <div class="step-num">9</div>
+        <h2>ProcessFlow — Bal Peteği Hexagon & İnfografik Görseller</h2>
+      </div>
+
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li>Emoji ikonlar (<code>👨‍🌾 🔬 🛡️ 🌱</code>) kaldırıldı</li>
+          <li><code>public/images/home-screen/second-infographics/</code> klasöründen <code>.webp</code> görseller eklendi</li>
+          <li>Adım numarası container'ı: daireden → <strong>bal peteği (flat-top hexagon)</strong> şekline dönüştürüldü</li>
+          <li>Bağlantı çizgisi iyileştirildi: kalınlık <code>h-0.5 → h-px</code></li>
+          <li>Grid boşluğu: <code>gap-8 → gap-10</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Bal Peteği Clip-Path</h3>
+        <p>
+          Flat-top hexagon (gerçek bal peteği yönü) — üst ve alt kenari düz, yanlar sivri.
+          CSS <code>clip-path: polygon()</code> kullanıldı.
+        </p>
+      </div>
+
+      <pre><span class="kw">const</span> HEXAGON_CLIP = <span class="str">"polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)"</span>;
+
+<span class="cm">/*
+     sol-üst(25%,0%) ── sağ-üst(75%,0%)
+    /                              \
+  sol(0%,50%)                  sağ(100%,50%)
+    \                              /
+     sol-alt(25%,100%) ── sağ-alt(75%,100%)
+*/</span>
+
+&lt;<span class="tp">div</span>
+  className=<span class="str">"flex items-center justify-center bg-honey-dark text-white font-black"</span>
+  style={{ width: <span class="nm">56</span>, height: <span class="nm">56</span>, clipPath: HEXAGON_CLIP }}
+&gt;
+  {step.number}
+&lt;/<span class="tp">div</span>&gt;</pre>
+
+      <div style="overflow-x:auto; margin-top: 8px;">
+        <table>
+          <thead><tr><th>Adım</th><th>Başlık</th><th>Görsel Dosyası</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Üretici İçin Adil Model</td><td>uretici-icin-adil-model.webp</td></tr>
+            <tr><td>2</td><td>Kalite İçin Kontrol</td><td>kalite-icin-kontrol.webp</td></tr>
+            <tr><td>3</td><td>Tüketici İçin Güven</td><td>tuketici-icin-guven.webp</td></tr>
+            <tr><td>4</td><td>Gelecek İçin Sürdürülebilirlik</td><td>gelecek-icin-surdurebilirlik.webp</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 10: HİKAYEMİZ -->
+    <section class="section" id="step10">
+      <div class="section-title">
+        <div class="step-num">10</div>
+        <h2>Hikayemiz Bölümü — Arkaplan Görseli</h2>
+      </div>
+
+      <div class="card">
+        <h3>Değişiklikler (3 Aşamada)</h3>
+        <div class="step-list" style="margin-top: 12px;">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Arkaplan eklendi</h4>
+              <p><code>public/images/home-screen/our-history/our-history.webp</code> görseli <code>Image fill object-cover</code> olarak yerleştirildi. Bölüm yüksekliği artırıldı: <code>min-h-[420px] md:min-h-[500px]</code>.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Renk katmanı kaldırıldı</h4>
+              <p><code>&lt;div className="absolute inset-0 bg-honey-dark/70" /&gt;</code> satırı silindi. Arkaplan görseli artık temiz görünüyor.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>"1800 Arıcı Üye" dairesi kaldırıldı</h4>
+              <p>Sağ altta yer alan dekoratif daire elementi (<code>absolute right-8</code>) bölümden çıkarıldı.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <pre><span class="cm">{/* Hikayemiz — son hali */}</span>
+&lt;<span class="tp">section</span> className=<span class="str">"relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center"</span>&gt;
+
+  <span class="cm">{/* Arkaplan görseli */}</span>
+  &lt;<span class="tp">Image</span>
+    src=<span class="str">"/images/home-screen/our-history/our-history.webp"</span>
+    alt=<span class="str">"Hikayemiz arkaplan"</span>
+    fill
+    className=<span class="str">"object-cover object-center"</span>
+    sizes=<span class="str">"100vw"</span>
+  /&gt;
+
+  <span class="cm">{/* İçerik — relative z-index ile görselin üstüne binir */}</span>
+  &lt;<span class="tp">div</span> className=<span class="str">"relative w-full py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"</span>&gt;
+    &lt;<span class="tp">div</span> className=<span class="str">"max-w-lg"</span>&gt;
+      &lt;<span class="tp">h2</span> className=<span class="str">"text-white font-black text-3xl mb-2"</span>&gt;HİKAYEMİZ&lt;/<span class="tp">h2</span>&gt;
+      &lt;<span class="tp">p</span> className=<span class="str">"text-honey-bright font-bold text-lg mb-4"</span>&gt;ŞİRKET DEĞİL, KOOPERATİFİZ!&lt;/<span class="tp">p</span>&gt;
+      &lt;<span class="tp">p</span> className=<span class="str">"text-white/90 text-sm leading-relaxed mb-6"</span>&gt;...&lt;/<span class="tp">p</span>&gt;
+      &lt;<span class="tp">Link</span> href=<span class="str">"/hakkimizda"</span> className=<span class="str">"btn-secondary text-black inline-flex items-center gap-2 rounded-2xl"</span>&gt;
+        HİKAYENİN DEVAMI ▶
+      &lt;/<span class="tp">Link</span>&gt;
+    &lt;/<span class="tp">div</span>&gt;
+  &lt;/<span class="tp">div</span>&gt;
+
+&lt;/<span class="tp">section</span>&gt;</pre>
+    </section>
+
+
+    <div class="date-header" style="margin-top:64px;">
+      <span class="date-pill">📅 22 Mayıs 2026</span>
+      <div class="date-line"></div>
+      <span class="date-count">Adım 11 – 15 · commit dc529bc</span>
+    </div>
+
+
+    <!-- ═══════════════════════════════ ADIM 11: HAKKIMIZDA BANNER -->
+    <section class="section" id="step11">
+      <div class="section-title">
+        <div class="step-num">11</div>
+        <h2>Hakkımızda Banner — Tam Ekran Görselli Yapıya Dönüşüm</h2>
+      </div>
+
+      <div class="card">
+        <h3>Eski Tasarım</h3>
+        <ul>
+          <li>İki sütunlu düzen: solda emoji <code>🍯</code> placeholder + ödül rozetleri, sağda metin</li>
+          <li><code>bg-white</code> düz arka plan, <code>py-14</code> yüksekliği</li>
+          <li>Hardcoded metinler ve stiller bileşen içinde gömülüydü</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Tasarım — Hikayemiz Bölümüyle Uyumlu</h3>
+        <ul>
+          <li><code>relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center</code> yapısı</li>
+          <li><code>about-us/about-us.webp</code> görseli <code>Image fill object-cover</code> olarak arka plana eklendi</li>
+          <li>İçerik <code>flex justify-end</code> ile sağa hizalandı — Hikayemiz solda, Hakkımızda sağda</li>
+          <li>Siyah overlay (<code>bg-black/50</code>) denendi, sonra tamamen kaldırıldı</li>
+          <li>Tüm veriler <code>homeBannersTheme.hakkimizda</code> üzerinden <code>theme.ts</code>'ten okunuyor</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">{/* Hakkımızda banner — son hali */}</span>
+&lt;<span class="tp">section</span> className=<span class="str">"relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center"</span>&gt;
+  &lt;<span class="tp">Image</span>
+    src={homeBannersTheme.hakkimizda.image}
+    alt=<span class="str">"Hakkımızda arkaplan"</span>
+    fill
+    className=<span class="str">"object-cover object-center"</span>
+    sizes=<span class="str">"100vw"</span>
+  /&gt;
+  &lt;<span class="tp">div</span> className=<span class="str">"relative w-full py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end"</span>&gt;
+    &lt;<span class="tp">div</span> className=<span class="str">"max-w-lg"</span>&gt;
+      &lt;<span class="tp">h2</span> className=<span class="str">"text-white font-black text-3xl mb-2"</span>&gt;{homeBannersTheme.hakkimizda.heading}&lt;/<span class="tp">h2</span>&gt;
+      &lt;<span class="tp">p</span>  className=<span class="str">"text-honey-bright font-bold text-lg mb-4"</span>&gt;{homeBannersTheme.hakkimizda.subheading}&lt;/<span class="tp">p</span>&gt;
+      &lt;<span class="tp">p</span>  className=<span class="str">"text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line"</span>&gt;
+        {homeBannersTheme.hakkimizda.body}
+      &lt;/<span class="tp">p</span>&gt;
+      &lt;<span class="tp">Link</span> href={homeBannersTheme.hakkimizda.btn.href} className=<span class="str">"btn-secondary text-white inline-flex items-center gap-2 rounded-2xl"</span>&gt;
+        {homeBannersTheme.hakkimizda.btn.label}
+      &lt;/<span class="tp">Link</span>&gt;
+    &lt;/<span class="tp">div</span>&gt;
+  &lt;/<span class="tp">div</span>&gt;
+&lt;/<span class="tp">section</span>&gt;</pre>
+
+      <div class="alert alert-info">
+        <span class="alert-label">📁 Yeni Görsel:</span>
+        <code>public/images/home-screen/about-us/about-us.webp</code> klasörü ve görseli eklendi.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 12: FOOTER LOGO -->
+    <section class="section" id="step12">
+      <div class="section-title">
+        <div class="step-num">12</div>
+        <h2>Footer Logo — Metin → Görsel</h2>
+      </div>
+
+      <div class="card">
+        <h3>Eski Yapı</h3>
+        <p>Footer'ın sol sütununda metin tabanlı logo vardı: üç ayrı <code>&lt;div&gt;</code> ile "KOOPERATİF / BALI / Binboğa" yazıyordu.</p>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Yapı</h3>
+        <ul>
+          <li>Metin kaldırıldı, yerine <code>Image</code> bileşeni ile <code>logo.png</code> eklendi</li>
+          <li>Başlangıç boyutu: <code>120×60px</code> → kullanıcı isteğiyle <code>180×90px</code>'e büyütüldü</li>
+          <li>Boyutlar <code>footerTheme.logo.width / height</code> ile <code>theme.ts</code>'ten yönetiliyor</li>
+          <li><code>Footer.tsx</code>'e <code>import Image from "next/image"</code> ve <code>footerTheme</code> import'u eklendi</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// Footer.tsx — yeni logo bloğu</span>
+&lt;<span class="tp">Link</span> href=<span class="str">"/"</span>&gt;
+  &lt;<span class="tp">Image</span>
+    src={footerTheme.logo.src}
+    alt=<span class="str">"Binboğa Bal Logo"</span>
+    width={footerTheme.logo.width}    <span class="cm">// 180</span>
+    height={footerTheme.logo.height}  <span class="cm">// 90</span>
+    className=<span class="str">"object-contain"</span>
+  /&gt;
+&lt;/<span class="tp">Link</span>&gt;
+
+<span class="cm">// lib/theme.ts — §12</span>
+<span class="kw">export const</span> footerTheme = {
+  logo: {
+    src:    <span class="str">"/images/logo.png"</span>,
+    width:  <span class="nm">180</span>,
+    height: <span class="nm">90</span>,
+  },
+} <span class="kw">as const</span>;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 13: TEMA §9-12 -->
+    <section class="section" id="step13">
+      <div class="section-title">
+        <div class="step-num">13</div>
+        <h2>Tema Merkezileştirme Genişletmesi — <code>lib/theme.ts</code> §9–12</h2>
+      </div>
+
+      <div class="card">
+        <h3>Strateji</h3>
+        <p>
+          Tek kaynak (<em>single source of truth</em>) stratejisi kapsamında,
+          bileşen içlerine gömülü kalmış tüm içerik ve konfigürasyon verileri
+          <code>lib/theme.ts</code>'e taşındı.
+        </p>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>§</th><th>Export</th><th>Kaynak Bileşen</th><th>İçerik</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>§9</td>
+              <td><code>trustBadgesTheme</code></td>
+              <td>TrustBadges.tsx</td>
+              <td>4 rozet: görsel yolu, başlık, açıklama</td>
+            </tr>
+            <tr>
+              <td>§10</td>
+              <td><code>processFlowTheme</code></td>
+              <td>ProcessFlow.tsx</td>
+              <td>4 adım + bölüm başlığı + hexagon clip-path sabiti</td>
+            </tr>
+            <tr>
+              <td>§11</td>
+              <td><code>homeBannersTheme</code></td>
+              <td>app/(shop)/page.tsx</td>
+              <td>Hikayemiz & Hakkımızda: görsel, başlık, alt başlık, metin, buton</td>
+            </tr>
+            <tr>
+              <td>§12</td>
+              <td><code>footerTheme</code></td>
+              <td>Footer.tsx</td>
+              <td>Logo: src, width, height</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Güncellenen Bileşenler</h3>
+        <ul>
+          <li><code>TrustBadges.tsx</code> — <code>const badges = trustBadgesTheme.badges</code></li>
+          <li><code>ProcessFlow.tsx</code> — <code>const { steps, heading, hexagonClip } = processFlowTheme</code></li>
+          <li><code>app/(shop)/page.tsx</code> — <code>homeBannersTheme.hikayemiz.*</code> ve <code>homeBannersTheme.hakkimizda.*</code></li>
+          <li><code>Footer.tsx</code> — <code>footerTheme.logo.*</code></li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// lib/theme.ts — §11 örneği</span>
+<span class="kw">export const</span> homeBannersTheme = {
+  hikayemiz: {
+    image:      <span class="str">"/images/home-screen/our-history/our-history.webp"</span>,
+    heading:    <span class="str">"HİKAYEMİZ"</span>,
+    subheading: <span class="str">"ŞİRKET DEĞİL, KOOPERATİFİZ!"</span>,
+    body:       <span class="str">"1973 yılında..."</span>,
+    btn:        { label: <span class="str">"HİKAYENİN DEVAMI ▶"</span>, href: <span class="str">"/hakkimizda"</span> },
+  },
+  hakkimizda: {
+    image:      <span class="str">"/images/home-screen/about-us/about-us.webp"</span>,
+    heading:    <span class="str">"HAKKIMIZDA"</span>,
+    subheading: <span class="str">"ÜLKE İÇİN KOOPERATİF!"</span>,
+    body:       <span class="str">"Binboğa Kooperatifi..."</span>,
+    btn:        { label: <span class="str">"DEVAMINI OKU ▶"</span>, href: <span class="str">"/hakkimizda"</span> },
+  },
+} <span class="kw">as const</span>;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 14: SLIDER BUTON RENGİ -->
+    <section class="section" id="step14">
+      <div class="section-title">
+        <div class="step-num">14</div>
+        <h2>Slider Nav Buton Rengi — Theme Entegrasyonu</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Hero slider'daki önceki/sonraki ok butonlarının arka plan rengi ana marka rengiyle
+          (<code>palette.honeyDark</code>) ve ok ikonunun rengi beyazla değiştirilmesi istendi.
+          Her iki değer de <code>theme.ts</code>'ten kontrol edilebilir hale getirildi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Eklenen Tema Değerleri</h3>
+        <ul>
+          <li><code>navBtnBg: palette.honeyDark</code> — dairesel butonun arka plan rengi</li>
+          <li><code>navBtnColor: palette.white</code> — ok ikonunun rengi</li>
+        </ul>
+      </div>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ DETAY:</span>
+        Swiper ok ikonları <code>::after</code> pseudo-element ile çizilir. Sadece ana elemana
+        <code>color</code> vermek yeterli olmuyor; <code>::after</code> seçicisine de ayrıca
+        <code>color: ${sliderTheme.navBtnColor}</code> eklendi.
+      </div>
+
+      <pre><span class="cm">// lib/theme.ts — sliderTheme'e eklendi</span>
+<span class="kw">export const</span> sliderTheme = {
+  <span class="cm">// ... mevcut değerler</span>
+  navBtnBg:    palette.honeyDark,  <span class="cm">// buton arka plan</span>
+  navBtnColor: palette.white,      <span class="cm">// ok ikon rengi</span>
+} <span class="kw">as const</span>;
+
+<span class="cm">// HeroSlider.tsx — CSS template literal</span>
+<span class="str">`.hero-slider-wrapper .swiper-button-next,
+ .hero-slider-wrapper .swiper-button-prev {
+   color:      ${sliderTheme.navBtnColor};
+   background: ${sliderTheme.navBtnBg};
+ }
+ .hero-slider-wrapper .swiper-button-next::after,
+ .hero-slider-wrapper .swiper-button-prev::after {
+   font-size:   16px;
+   font-weight: 900;
+   color:       ${sliderTheme.navBtnColor};   /* ← ::after'a da gerekli */
+ }`</span></pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 15: CSS MODÜL TİP -->
+    <section class="section" id="step15">
+      <div class="section-title">
+        <div class="step-num">15</div>
+        <h2>TypeScript CSS Modül Tip Hatası — <code>global.d.ts</code></h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem</h3>
+        <p>
+          VS Code'da <code>HeroSlider.tsx</code> içindeki Swiper CSS importları
+          (<code>swiper/css</code>, <code>swiper/css/navigation</code> vb.)
+          kırmızı alt çizgiyle işaretleniyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Tanı</h3>
+        <ul>
+          <li>Swiper <code>package.json exports</code> alanı doğruydu — yollar geçerliydi</li>
+          <li><code>tsconfig.json → moduleResolution: "bundler"</code> ile yollar çözümleniyordu</li>
+          <li>Sorun: TypeScript, CSS dosyalarını modül olarak tanımıyordu (tip tanımı yoktu)</li>
+        </ul>
+      </div>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ ÇÖZÜM:</span>
+        Proje kökünde <code>global.d.ts</code> dosyası oluşturuldu. TypeScript bu dosyayı
+        <code>tsconfig.json → include: ["**/*.ts"]</code> kapsamında otomatik algılar.
+      </div>
+
+      <pre><span class="cm">// global.d.ts — proje kökünde</span>
+<span class="kw">declare module</span> <span class="str">"*.css"</span>;</pre>
+
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ NOT:</span>
+        <code>npx tsc --noEmit</code> çıktısı sıfır hata döndürdü. Çalışma zamanında etkisi yok;
+        yalnızca TypeScript editör entegrasyonunu düzeltir.
+      </div>
+    </section>
+
+
+    <div class="divider"></div>
+
+
+    <!-- ═══════════════════════════════ TEMA REF -->
+    <section class="section" id="theme-ref">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.1)">📐</div>
+        <h2>Tema Değerleri Referansı</h2>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Değer</th><th>Sayı / Renk</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td>announcementHeight</td><td>40 px</td><td>Duyuru bandı yüksekliği</td></tr>
+            <tr><td>navHeight</td><td>85 px</td><td>Nav satırı yüksekliği</td></tr>
+            <tr><td>solidHeight</td><td>125 px</td><td>announceH + navH → main paddingTop</td></tr>
+            <tr><td>waveDepth</td><td>90 px</td><td>Arch'ın en derin noktası</td></tr>
+            <tr><td>logoWidth</td><td>230 px</td><td>Logo genişliği</td></tr>
+            <tr><td>logoHeight</td><td>150 px</td><td>Logo max yüksekliği</td></tr>
+            <tr><td>logoBottomPad</td><td>20 px</td><td>Logo ile wave dibi arası boşluk</td></tr>
+            <tr><td>archLeft</td><td>540</td><td>Arch sol başlangıç noktası (1440px viewBox)</td></tr>
+            <tr><td>archRight</td><td>900</td><td>Arch sağ başlangıç noktası</td></tr>
+            <tr><td>waveStrokeWidth</td><td>6</td><td>Arch kenar çizgisi kalınlığı</td></tr>
+            <tr><td>autoplayDelay</td><td>5500 ms</td><td>Slider otomatik geçiş süresi</td></tr>
+            <tr><td>speed</td><td>800 ms</td><td>Slider geçiş animasyon süresi</td></tr>
+            <tr><td>heightMobile</td><td>520 px</td><td>Slider min yüksekliği (mobil)</td></tr>
+            <tr><td>height</td><td>700 px</td><td>Slider min yüksekliği (masaüstü)</td></tr>
+            <tr><td>navBtnBg</td><td>palette.honeyDark</td><td>Slider ok butonu arka plan rengi</td></tr>
+            <tr><td>navBtnColor</td><td>palette.white</td><td>Slider ok ikon rengi</td></tr>
+            <tr><td colspan="3" style="background:var(--bg3); color:var(--text-muted); font-size:11px; letter-spacing:.05em;">— trustBadgesTheme (§9) —</td></tr>
+            <tr><td>badges[].image</td><td>string</td><td>Rozet görsel yolu (first-infographics/)</td></tr>
+            <tr><td>badges[].title</td><td>string</td><td>Rozet başlığı</td></tr>
+            <tr><td>badges[].description</td><td>string</td><td>Rozet açıklaması</td></tr>
+            <tr><td colspan="3" style="background:var(--bg3); color:var(--text-muted); font-size:11px; letter-spacing:.05em;">— processFlowTheme (§10) —</td></tr>
+            <tr><td>heading</td><td>string</td><td>ProcessFlow bölüm başlığı</td></tr>
+            <tr><td>hexagonClip</td><td>string</td><td>Bal peteği clip-path değeri</td></tr>
+            <tr><td>steps[].number/title/description/image</td><td>—</td><td>4 süreç adımı verisi</td></tr>
+            <tr><td colspan="3" style="background:var(--bg3); color:var(--text-muted); font-size:11px; letter-spacing:.05em;">— homeBannersTheme (§11) —</td></tr>
+            <tr><td>hikayemiz.image</td><td>string</td><td>Hikayemiz arkaplan görseli</td></tr>
+            <tr><td>hikayemiz.heading/subheading/body/btn</td><td>—</td><td>Hikayemiz bölüm içeriği</td></tr>
+            <tr><td>hakkimizda.image</td><td>string</td><td>Hakkımızda arkaplan görseli</td></tr>
+            <tr><td>hakkimizda.heading/subheading/body/btn</td><td>—</td><td>Hakkımızda bölüm içeriği</td></tr>
+            <tr><td colspan="3" style="background:var(--bg3); color:var(--text-muted); font-size:11px; letter-spacing:.05em;">— footerTheme (§12) —</td></tr>
+            <tr><td>logo.src</td><td>/images/logo.png</td><td>Footer logo dosyası</td></tr>
+            <tr><td>logo.width</td><td>180 px</td><td>Footer logo genişliği</td></tr>
+            <tr><td>logo.height</td><td>90 px</td><td>Footer logo yüksekliği</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ HATALAR -->
+    <section class="section" id="bugs">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.1)">🐛</div>
+        <h2>Çözülen Hatalar</h2>
+      </div>
+
+      <div class="card">
+        <h3>1 — SVG Stroke Kırpılması</h3>
+        <p><strong>Belirti:</strong> Arch alt kenar çizgisi yarıya kesik görünüyordu.</p>
+        <p><strong>Neden:</strong> SVG viewBox sınırında stroke varsayılan olarak kırpılır.</p>
+        <p><strong>Çözüm:</strong> <code>&lt;svg overflow="visible"&gt;</code></p>
+      </div>
+
+      <div class="card">
+        <h3>2 — Swiper Fade'de Container Yüksekliği Çöküşü</h3>
+        <p><strong>Belirti:</strong> Sayfa yüklenirken beyaz boşluk görünüyordu.</p>
+        <p><strong>Neden:</strong> Fade modunda slide'lar <code>position: absolute</code> → container 0px yüksekliğe düşüyor.</p>
+        <p><strong>Çözüm:</strong> Hem wrapper'a hem <code>&lt;Swiper&gt;</code>'a <code>style={{ minHeight: sliderTheme.height }}</code></p>
+      </div>
+
+      <div class="card">
+        <h3>3 — TypeScript <code>as const</code> Union Type Hatası</h3>
+        <p><strong>Belirti:</strong> <code>Property 'gradientFrom' does not exist on type</code></p>
+        <p><strong>Neden:</strong> <code>as const</code> her slide'ı ayrı literal union olarak tanımlıyor; ortak alanlar bulunamıyor.</p>
+        <p><strong>Çözüm:</strong> Explicit <code>interface Slide</code> + <code>as unknown as Slide[]</code> cast</p>
+      </div>
+
+      <div class="card">
+        <h3>4 — <code>solidHeight</code> Yanlış Hesabı</h3>
+        <p><strong>Belirti:</strong> İçerik header'ın arkasına giriyordu.</p>
+        <p><strong>Neden:</strong> <code>announcementHeight</code> ve <code>navHeight</code> güncellendi ama <code>solidHeight</code> eski değerde kaldı.</p>
+        <p><strong>Çözüm:</strong> <code>solidHeight</code> güncellendi (108 → 125). Uyarı yorumu eklendi.</p>
+      </div>
+
+      <div class="card">
+        <h3>5 — JSX Yorum Parse Hatası</h3>
+        <p><strong>Belirti:</strong> <code>return ()</code> içinde root <code>&lt;div&gt;</code>'e sibling olan <code>{/* */}</code> yorumları TypeScript hatasına neden oluyor.</p>
+        <p><strong>Çözüm:</strong> <code>{/* ... */}</code> yorumlar <code>// ...</code> olarak return bloğunun dışına taşındı.</p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ COMMITLER -->
+    <section class="section" id="commits">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.1)">📦</div>
+        <h2>Commit Geçmişi</h2>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">6f2bb4b</div>
+        </div>
+        <div>
+          <div class="msg">First-Commit</div>
+          <div class="meta">İlk commit — temel proje yapısı, Next.js kurulumu, Prisma şeması, admin panel iskeleti</div>
+        </div>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">8fa2ee8</div>
+        </div>
+        <div>
+          <div class="msg">feat(homepage): anasayfa görsel ve tasarım güncellemeleri</div>
+          <div class="meta">
+            TrustBadges infografik görseller · ProcessFlow bal peteği hexagon · Hikayemiz arkaplan görseli ·
+            Renk katmanı ve dekoratif daire kaldırıldı · Bölüm başlık stilleri güncellendi ·
+            20 dosya değişti, 9 yeni görsel eklendi
+          </div>
+        </div>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">dc529bc</div>
+        </div>
+        <div>
+          <div class="msg">feat(homepage): anasayfa tema merkezileştirme ve tasarım güncellemeleri</div>
+          <div class="meta">
+            Hakkımızda banner tam ekran görselli yapıya dönüştürüldü ·
+            Footer logo metni → görsel logo ·
+            lib/theme.ts §9-12 eklendi (trustBadgesTheme, processFlowTheme, homeBannersTheme, footerTheme) ·
+            TrustBadges, ProcessFlow, Footer ve page.tsx theme.ts'den okuyacak şekilde güncellendi ·
+            Slider nav buton rengi theme kontrolüne alındı ·
+            global.d.ts ile CSS modül tip hatası giderildi ·
+            7 dosya değişti, 1 yeni görsel (about-us.webp) eklendi · 22 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info" style="margin-top: 16px;">
+        <span class="alert-label">ℹ️ REPO:</span>
+        <a href="https://github.com/Binboga-Bal/binbogabal-eticaret" style="color: var(--blue);">
+          github.com/Binboga-Bal/binbogabal-eticaret
+        </a>
+        (Repo Binboga-Bal organizasyonuna taşındı)
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ BAKIM -->
+    <section class="section" id="maintenance">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.1)">🔧</div>
+        <h2>Bakım Notları</h2>
+      </div>
+
+      <div class="card">
+        <h3>⚠️ solidHeight Güncellenmeli</h3>
+        <p>
+          <code>lib/theme.ts</code>'te <code>announcementHeight</code> veya <code>navHeight</code>
+          değiştirildiğinde, <code>solidHeight</code> de elle güncellenmeli:
+        </p>
+        <pre style="margin-top:8px;">solidHeight = announcementHeight + navHeight
+             = <span class="nm">40</span> + <span class="nm">85</span> = <span class="nm">125</span> <span class="cm">// ← bunu güncelle</span></pre>
+      </div>
+
+      <div class="card">
+        <h3>⚠️ globals.css CSS Değişkenleri</h3>
+        <p>
+          <code>styles/globals.css</code> dosyasındaki <code>:root</code> CSS değişkenleri
+          (<code>--honey-dark</code>, <code>--honey</code> vb.) <code>lib/theme.ts → palette</code>
+          ile <strong>manuel senkron</strong> tutulmalıdır. Bir renk değiştiğinde
+          <strong>her iki dosya da</strong> güncellenmelidir.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>✅ Sadece theme.ts Değiştirmeniz Yeterliler</h3>
+        <ul>
+          <li>Tüm Tailwind renk sınıfları (<code>bg-honey-dark</code>, <code>text-honey</code> …)</li>
+          <li>Header boyutları ve renkleri</li>
+          <li>Slider içeriği, yüksekliği, hızı, buton renkleri</li>
+          <li>Buton, admin panel temaları</li>
+          <li>Ana içerik padding-top (<code>solidHeight</code> üzerinden)</li>
+          <li>TrustBadges rozet içerikleri (<code>trustBadgesTheme</code>)</li>
+          <li>ProcessFlow adım içerikleri ve başlık (<code>processFlowTheme</code>)</li>
+          <li>Hikayemiz & Hakkımızda banner içerikleri (<code>homeBannersTheme</code>)</li>
+          <li>Footer logo boyutu ve dosyası (<code>footerTheme</code>)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Görsel Ekleme</h3>
+        <ul>
+          <li>TrustBadges görselleri → <code>public/images/home-screen/first-infographics/</code></li>
+          <li>ProcessFlow görselleri → <code>public/images/home-screen/second-infographics/</code></li>
+          <li>Hikayemiz görseli → <code>public/images/home-screen/our-history/</code></li>
+          <li>Hakkımızda görseli → <code>public/images/home-screen/about-us/</code></li>
+          <li>Slider banner'ları → <code>public/images/slider-images/</code></li>
+          <li>Ürün görselleri → <code>public/images/products/</code></li>
+          <li>Tüm görseller <strong>.webp</strong> formatında olmalı (performans için)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Next.js Image Kullanım Kuralları</h3>
+        <ul>
+          <li>Arkaplan görselleri: <code>&lt;Image fill className="object-cover"&gt;</code> + parent <code>relative</code></li>
+          <li>İnfografik görseller: <code>&lt;Image fill className="object-contain"&gt;</code></li>
+          <li>Tüm Image'lere <code>sizes</code> prop'u verilmeli (LCP optimizasyonu)</li>
+          <li>Slider'da <code>&lt;img&gt;</code> kullanıldı (Swiper fade + crossFade uyumluluğu için)</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- FOOTER -->
+    <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+      <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
+      <span>Son güncelleme: 22 Mayıs 2026</span>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
