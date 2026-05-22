@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Inter, Poppins, Playfair_Display, Baloo_2, Lobster_Two } from "next/font/google";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -11,6 +11,25 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-poppins",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["700", "800", "900"],
+  variable: "--font-playfair",
+});
+
+const baloo = Baloo_2({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-baloo",
+});
+
+const lobsterTwo = Lobster_Two({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-lobster",
 });
 
 export const metadata: Metadata = {
@@ -34,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="tr" className={`${inter.variable} ${poppins.variable} ${playfair.variable} ${baloo.variable} ${lobsterTwo.variable}`}>
       <body>{children}</body>
     </html>
   );

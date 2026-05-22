@@ -424,6 +424,12 @@
       <a href="#step13" class="nav-link"><span class="dot"></span>13 — Tema §9-12 Genişletme</a>
       <a href="#step14" class="nav-link"><span class="dot"></span>14 — Slider Buton Rengi</a>
       <a href="#step15" class="nav-link"><span class="dot"></span>15 — CSS Modül Tip Düzeltmesi</a>
+      <a href="#step16" class="nav-link"><span class="dot"></span>16 — Ürünlerimiz Banner</a>
+      <a href="#step17" class="nav-link"><span class="dot"></span>17 — Banner Sloganı & Font</a>
+      <a href="#step18" class="nav-link"><span class="dot"></span>18 — Breadcrumb & Başlık</a>
+      <a href="#step19" class="nav-link"><span class="dot"></span>19 — Bal Türü Filtresi</a>
+      <a href="#step20" class="nav-link"><span class="dot"></span>20 — Fiyat Aralığı Filtresi</a>
+      <a href="#step21" class="nav-link"><span class="dot"></span>21 — ProductCard Adet & Hemen Al</a>
 
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -1176,7 +1182,7 @@
     <div class="date-header" style="margin-top:64px;">
       <span class="date-pill">📅 22 Mayıs 2026</span>
       <div class="date-line"></div>
-      <span class="date-count">Adım 11 – 15 · commit dc529bc</span>
+      <span class="date-count">Adım 11 – 21 · commit dc529bc, 04c4d17 + yeni</span>
     </div>
 
 
@@ -1454,6 +1460,351 @@
     </section>
 
 
+    <!-- ═══════════════════════════════ ADIM 16: ÜRÜNLERİMİZ BANNER -->
+    <section class="section" id="step16">
+      <div class="section-title">
+        <div class="step-num">16</div>
+        <h2>Ürünlerimiz Sayfası — Banner Yeniden Tasarımı</h2>
+      </div>
+
+      <div class="card">
+        <h3>Yapılan Değişiklikler</h3>
+        <ul>
+          <li>"Her Damlası Bir Emek..." başlık metni kaldırıldı</li>
+          <li>Banner yüksekliği artırıldı: <code>h-48</code> → <code>h-96 md:h-[520px]</code></li>
+          <li><code>public/images/urunlerimiz/urunlerimiz-banner.webp</code> görseli eklendi (<code>Image fill object-cover priority</code>)</li>
+          <li>Alt dalga SVG korundu, dalga container'ı <code>bottom-[-1px]</code> ile 1px aşağı alındı — görsel ile içerik arasındaki hairline çizgi giderildi</li>
+          <li>Sol tarafa sola-sağa karartma gradient overlay eklendi (<code>from-black/60 via-black/20 to-transparent</code>)</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">{/* Hero Banner — son hali */}</span>
+&lt;<span class="tp">div</span> className=<span class="str">"relative h-96 md:h-[520px] overflow-hidden"</span>&gt;
+  &lt;<span class="tp">Image</span>
+    src=<span class="str">"/images/urunlerimiz/urunlerimiz-banner.webp"</span>
+    alt=<span class="str">"Ürünlerimiz banner"</span>
+    fill
+    className=<span class="str">"object-cover"</span>
+    priority
+  /&gt;
+  <span class="cm">{/* Gradient overlay */}</span>
+  &lt;<span class="tp">div</span> className=<span class="str">"absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10"</span> /&gt;
+  <span class="cm">{/* Dalga SVG */}</span>
+  &lt;<span class="tp">div</span> className=<span class="str">"absolute bottom-[-1px] left-0 right-0 z-30"</span>&gt;
+    &lt;<span class="tp">svg</span> viewBox=<span class="str">"0 0 1440 40"</span> className=<span class="str">"w-full block"</span> preserveAspectRatio=<span class="str">"none"</span>&gt;
+      &lt;<span class="tp">path</span> d=<span class="str">"M0,40 C360,0 1080,40 1440,15 L1440,40 Z"</span> fill=<span class="str">"white"</span> /&gt;
+    &lt;/<span class="tp">svg</span>&gt;
+  &lt;/<span class="tp">div</span>&gt;
+&lt;/<span class="tp">div</span>&gt;</pre>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ HAIRLINE DÜZELTME:</span>
+        SVG wave container'ına <code>bottom-[-1px]</code> eklendi. Banner div'in <code>overflow-hidden</code>'ı ile
+        sub-pixel rendering arasındaki 1px görünür çizgi bu sayede ortadan kalktı.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 17: BANNER SLOGANI & FONT -->
+    <section class="section" id="step17">
+      <div class="section-title">
+        <div class="step-num">17</div>
+        <h2>Banner Sloganı — "Arıcıdan Aracısız Kooperatif Tecrübesiyle" & Font Süreci</h2>
+      </div>
+
+      <div class="card">
+        <h3>Slogan İçeriği</h3>
+        <p>Banner'ın sol tarafına, gradient overlay üzerine büyük ve kalın bir slogan eklendi.</p>
+        <ul style="margin-top:8px;">
+          <li>Ana metin: <strong>"Arıcıdan Aracısız"</strong> — büyük, beyaz</li>
+          <li>Alt metin: <strong>"Kooperatif Tecrübesiyle"</strong> — honey sarısı, biraz daha küçük</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Font Deneme Süreci</h3>
+        <div style="overflow-x:auto; margin-top:8px;">
+          <table>
+            <thead><tr><th>Font</th><th>Durum</th><th>Gerekçe</th></tr></thead>
+            <tbody>
+              <tr><td>Poppins (font-display)</td><td><span class="tag tag-red">Reddedildi</span></td><td>900 weight yok, yeterince dikkat çekici değil</td></tr>
+              <tr><td>Playfair Display</td><td><span class="tag tag-red">Reddedildi</span></td><td>Serif, el yazısı tarzı isteniyordu</td></tr>
+              <tr><td>Pacifico</td><td><span class="tag tag-red">Reddedildi</span></td><td>Çok yuvarlak ve kalın</td></tr>
+              <tr><td>Satisfy</td><td><span class="tag tag-red">Reddedildi</span></td><td>İnce ama başka bir stil istendi</td></tr>
+              <tr><td>Allura</td><td><span class="tag tag-red">Reddedildi</span></td><td>Aynı incelik, farklı stil istendi</td></tr>
+              <tr><td>Lora</td><td><span class="tag tag-red">Reddedildi</span></td><td>Gıda uyumlu ama başka önerildi</td></tr>
+              <tr><td>Baloo 2</td><td><span class="tag tag-red">Reddedildi</span></td><td>Logo "KOOPERATİF BALI" fontuna benzemiyor</td></tr>
+              <tr><td>Lobster</td><td><span class="tag tag-honey">Yakın</span></td><td>Logo "Binboğa" yazısına benziyor, denendi</td></tr>
+              <tr><td><strong>Lobster Two</strong></td><td><span class="tag tag-green">✓ Seçildi</span></td><td>Lobster'ın ince versiyonu — logo ile uyumlu, okunabilir</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Teknik Kurulum — <code>app/layout.tsx</code></h3>
+        <ul>
+          <li>Her font denemesinde <code>next/font/google</code>'dan import edildi</li>
+          <li>CSS değişkeni: <code>--font-lobster</code></li>
+          <li>Tailwind: <code>font-script: ["var(--font-lobster)", "cursive"]</code></li>
+          <li>HTML tag'ine variable eklendi: <code>${lobsterTwo.variable}</code></li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// app/layout.tsx — son hali</span>
+<span class="kw">import</span> { Inter, Poppins, Playfair_Display, Baloo_2, Lobster_Two } <span class="kw">from</span> <span class="str">"next/font/google"</span>;
+
+<span class="kw">const</span> lobsterTwo = <span class="fn">Lobster_Two</span>({
+  subsets: [<span class="str">"latin"</span>],
+  weight:  [<span class="str">"400"</span>, <span class="str">"700"</span>],
+  style:   [<span class="str">"normal"</span>, <span class="str">"italic"</span>],
+  variable: <span class="str">"--font-lobster"</span>,
+});
+
+<span class="cm">// tailwind.config.ts</span>
+fontFamily: {
+  script: [<span class="str">"var(--font-lobster)"</span>, <span class="str">"cursive"</span>],
+}
+
+<span class="cm">{/* Slogan JSX */}</span>
+&lt;<span class="tp">div</span> className=<span class="str">"max-w-xl drop-shadow-2xl"</span>&gt;
+  &lt;<span class="tp">p</span> className=<span class="str">"font-script text-5xl md:text-6xl lg:text-7xl text-white leading-[1.2]"</span>&gt;
+    Arıcıdan Aracısız
+  &lt;/<span class="tp">p</span>&gt;
+  &lt;<span class="tp">p</span> className=<span class="str">"font-script text-2xl md:text-3xl lg:text-4xl text-honey leading-snug mt-2"</span>&gt;
+    Kooperatif Tecrübesiyle
+  &lt;/<span class="tp">p</span>&gt;
+&lt;/<span class="tp">div</span>&gt;</pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ HATA:</span>
+        Font değişkeni <code>lobsterTwo</code> olarak tanımlandı fakat HTML className'de
+        <code>${lobster.variable}</code> kullanılıyordu → <em>ReferenceError: lobster is not defined</em>.
+        <code>${lobsterTwo.variable}</code> olarak düzeltildi.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 18: BREADCRUMB & BAŞLIK -->
+    <section class="section" id="step18">
+      <div class="section-title">
+        <div class="step-num">18</div>
+        <h2>Breadcrumb, Başlık & Hızlı Filtre Butonları</h2>
+      </div>
+
+      <div class="card">
+        <h3>Banner Altına Eklenen Bölüm</h3>
+        <p>Banner ile ürün listesi arasına yeni bir bilgi + aksiyon satırı eklendi.</p>
+        <ul style="margin-top:8px;">
+          <li><strong>Sol — Breadcrumb:</strong> Ana Sayfa / <span style="color:var(--honey)">Ürünlerimiz</span> — tıklanabilir link</li>
+          <li><strong>Sol — Başlık:</strong> "Ürünlerimiz" (3xl, font-black)</li>
+          <li><strong>Sağ — Outline Butonlar:</strong> İlk Kez Alacaklar · En Çok Tercih Edilenler · Avantajlı Setler</li>
+          <li>Responsive: mobilde alt alta, masaüstünde yan yana hizalanır (<code>flex-col sm:flex-row sm:items-end</code>)</li>
+          <li>Hover'da buton dolup <code>honey-dark</code> rengine geçiyor</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">{/* Başlık & Hızlı Filtreler */}</span>
+&lt;<span class="tp">div</span> className=<span class="str">"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4"</span>&gt;
+  &lt;<span class="tp">div</span> className=<span class="str">"flex flex-col sm:flex-row sm:items-end justify-between gap-4"</span>&gt;
+
+    &lt;<span class="tp">div</span>&gt;
+      &lt;<span class="tp">nav</span> className=<span class="str">"flex items-center gap-1.5 text-sm text-gray-400 mb-1"</span>&gt;
+        &lt;<span class="tp">Link</span> href=<span class="str">"/"</span> className=<span class="str">"hover:text-honey-dark transition-colors"</span>&gt;Ana Sayfa&lt;/<span class="tp">Link</span>&gt;
+        &lt;<span class="tp">span</span>&gt;/&lt;/<span class="tp">span</span>&gt;
+        &lt;<span class="tp">span</span> className=<span class="str">"text-honey-dark font-medium"</span>&gt;Ürünlerimiz&lt;/<span class="tp">span</span>&gt;
+      &lt;/<span class="tp">nav</span>&gt;
+      &lt;<span class="tp">h1</span> className=<span class="str">"text-3xl font-black text-gray-800"</span>&gt;Ürünlerimiz&lt;/<span class="tp">h1</span>&gt;
+    &lt;/<span class="tp">div</span>&gt;
+
+    &lt;<span class="tp">div</span> className=<span class="str">"flex flex-wrap gap-2"</span>&gt;
+      {[<span class="str">"İlk Kez Alacaklar"</span>, <span class="str">"En Çok Tercih Edilenler"</span>, <span class="str">"Avantajlı Setler"</span>].map(...)}&gt;
+        &lt;<span class="tp">Link</span> className=<span class="str">"px-4 py-2 text-sm font-medium border border-honey-dark text-honey-dark rounded-lg hover:bg-honey-dark hover:text-white transition-colors"</span>&gt;
+          ...
+        &lt;/<span class="tp">Link</span>&gt;
+    &lt;/<span class="tp">div</span>&gt;
+
+  &lt;/<span class="tp">div</span>&gt;
+&lt;/<span class="tp">div</span>&gt;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 19: BAL TÜRÜ FİLTRESİ -->
+    <section class="section" id="step19">
+      <div class="section-title">
+        <div class="step-num">19</div>
+        <h2>Bal Türü Filtresi — Grid Kart Yapısına Dönüşüm</h2>
+      </div>
+
+      <div class="card">
+        <h3>Süreç</h3>
+        <div class="step-list" style="margin-top:12px;">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Filtre sidebar'dan kaldırıldı</h4>
+              <p>Checkbox listesi kaldırıldı. Ayrı <code>HoneyTypeFilter.tsx</code> bileşeni oluşturulup banner altına taşındı, ancak kullanıcı "geri filtreler içerisine al" istedi.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>İkonlu grid butonlar eklendi</h4>
+              <p>SVG ve emoji ikonlarla birlikte denendi. Sonrasında "ikonları kaldır" talebi geldi.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Son hali: 2 sütunlu grid, ikonsuz outline butonlar</h4>
+              <p><code>grid grid-cols-2 gap-2</code> yapısında eşit genişlikte butonlar. Aktif seçimde <code>bg-honey-dark text-white</code>. "Keven Kekik" label düzeltildi. <code>gap-1 px-2</code> ile sıkıştırılmış iç boşluk.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <pre><span class="cm">// ProductFilter.tsx — Bal Türü son hali</span>
+<span class="kw">const</span> honeyTypes = [
+  { value: <span class="str">"CAM"</span>,         label: <span class="str">"Çam"</span>         },
+  { value: <span class="str">"KEVEN_KEKIK"</span>, label: <span class="str">"Keven Kekik"</span> },
+  { value: <span class="str">"NARENCIYE"</span>,   label: <span class="str">"Narenciye"</span>   },
+  { value: <span class="str">"CICEK"</span>,       label: <span class="str">"Çiçek"</span>       },
+  { value: <span class="str">"OZEL"</span>,        label: <span class="str">"Özel"</span>        },
+];
+
+&lt;<span class="tp">div</span> className=<span class="str">"grid grid-cols-2 gap-2"</span>&gt;
+  {honeyTypes.map((t) =&gt; {
+    <span class="kw">const</span> isActive = searchParams.get(<span class="str">"tur"</span>) === t.value;
+    <span class="kw">return</span> (
+      &lt;<span class="tp">button</span>
+        onClick={() =&gt; setParam(<span class="str">"tur"</span>, t.value)}
+        className={`flex items-center justify-center px-2 py-2.5 rounded-xl border-2 text-xs font-medium transition-all ${
+          isActive
+            ? <span class="str">"border-honey-dark bg-honey-dark text-white shadow-sm"</span>
+            : <span class="str">"border-gray-200 bg-gray-50 text-gray-600 hover:border-honey-dark hover:text-honey-dark"</span>
+        }`}
+      &gt;
+        {t.label}
+      &lt;/<span class="tp">button</span>&gt;
+    );
+  })}
+&lt;/<span class="tp">div</span>&gt;</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 20: FİYAT ARALIK FİLTRESİ -->
+    <section class="section" id="step20">
+      <div class="section-title">
+        <div class="step-num">20</div>
+        <h2>Fiyat Aralığı Filtresi</h2>
+      </div>
+
+      <div class="card">
+        <h3>UI — ProductFilter.tsx</h3>
+        <ul>
+          <li>Min / Max fiyat için iki adet <code>&lt;input type="number"&gt;</code> yan yana</li>
+          <li>"Uygula" butonu ile URL'e <code>minFiyat</code> & <code>maxFiyat</code> parametreleri ekleniyor</li>
+          <li>Local state (<code>useState</code>) ile input değerleri tutulur; "Filtreleri Temizle" buna da sıfırlar</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Server-Side Filtreleme — <code>page.tsx</code></h3>
+        <ul>
+          <li><code>searchParams</code> tipine <code>minFiyat?</code> ve <code>maxFiyat?</code> eklendi</li>
+          <li>Prisma <code>where</code> sorgusuna variant <code>price: { gte, lte }</code> filtresi eklendi</li>
+          <li>Mevcut <code>boyut</code> / <code>ambalaj</code> filtreleriyle birleştirildi (<code>hasVariantFilter</code> flag'i)</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// ProductFilter.tsx — Fiyat Aralığı</span>
+<span class="kw">const</span> [minInput, setMinInput] = useState(searchParams.get(<span class="str">"minFiyat"</span>) ?? <span class="str">""</span>);
+<span class="kw">const</span> [maxInput, setMaxInput] = useState(searchParams.get(<span class="str">"maxFiyat"</span>) ?? <span class="str">""</span>);
+
+<span class="kw">const</span> applyPrice = () =&gt; {
+  <span class="kw">const</span> params = <span class="kw">new</span> URLSearchParams(searchParams.toString());
+  <span class="kw">if</span> (minInput) params.set(<span class="str">"minFiyat"</span>, minInput); <span class="kw">else</span> params.delete(<span class="str">"minFiyat"</span>);
+  <span class="kw">if</span> (maxInput) params.set(<span class="str">"maxFiyat"</span>, maxInput); <span class="kw">else</span> params.delete(<span class="str">"maxFiyat"</span>);
+  params.delete(<span class="str">"sayfa"</span>);
+  router.push(`/urunlerimiz?${params.toString()}`);
+};
+
+<span class="cm">// page.tsx — Prisma filtresi</span>
+<span class="kw">const</span> hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
+
+...(<span class="kw">params</span>.minFiyat || params.maxFiyat) && {
+  price: {
+    ...(params.minFiyat && { gte: <span class="fn">parseFloat</span>(params.minFiyat) }),
+    ...(params.maxFiyat && { lte: <span class="fn">parseFloat</span>(params.maxFiyat) }),
+  },
+}</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 21: PRODUCTCARD ADET & HEMEN AL -->
+    <section class="section" id="step21">
+      <div class="section-title">
+        <div class="step-num">21</div>
+        <h2>ProductCard — Adet Seçimi + Sepete Ekle + Hemen Al</h2>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Bileşen: <code>ProductCardActions.tsx</code></h3>
+        <p>
+          Adet seçimi state'i ve iki aksiyon butonu ayrı bir client bileşene taşındı.
+          <code>ProductCard</code> (server component) bu bileşeni render eder.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Düzen (Layout)</h3>
+        <ul>
+          <li><strong>Üst satır:</strong> <code>[ − ]  X Adet  [ + ]</code> — border'lı, tam genişlik, stok sınırına göre devre dışı</li>
+          <li><strong>Alt satır:</strong> <strong>Sepete Ekle</strong> (honey-dark) + <strong>Hemen Al</strong> (honey sarı) — eşit genişlikte yan yana</li>
+          <li>Stok 0 ise tüm alan yerine "Stokta Yok" disabled butonu gösterilir</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// ProductCardActions.tsx</span>
+<span class="kw">export function</span> <span class="fn">ProductCardActions</span>({ product, variant }: Props) {
+  <span class="kw">const</span> [qty, setQty] = useState(<span class="nm">1</span>);
+  <span class="kw">const</span> max = variant.stock ?? <span class="nm">99</span>;
+
+  <span class="kw">return</span> (
+    &lt;<span class="tp">div</span> className=<span class="str">"mt-3 space-y-2"</span>&gt;
+
+      <span class="cm">{/* Adet seçici */}</span>
+      &lt;<span class="tp">div</span> className=<span class="str">"flex items-center justify-between rounded-xl border border-gray-200 overflow-hidden"</span>&gt;
+        &lt;<span class="tp">button</span> onClick={() =&gt; setQty((q) =&gt; Math.max(1, q - 1))} disabled={qty &lt;= 1}&gt;
+          &lt;<span class="tp">Minus</span> size={13} /&gt;
+        &lt;/<span class="tp">button</span>&gt;
+        &lt;<span class="tp">span</span>&gt;{qty} Adet&lt;/<span class="tp">span</span>&gt;
+        &lt;<span class="tp">button</span> onClick={() =&gt; setQty((q) =&gt; Math.min(max, q + 1))} disabled={qty &gt;= max}&gt;
+          &lt;<span class="tp">Plus</span> size={13} /&gt;
+        &lt;/<span class="tp">button</span>&gt;
+      &lt;/<span class="tp">div</span>&gt;
+
+      <span class="cm">{/* Aksiyon butonlar */}</span>
+      &lt;<span class="tp">div</span> className=<span class="str">"flex gap-2"</span>&gt;
+        &lt;<span class="tp">AddToCartButton</span> product={product} variant={variant} quantity={qty} className=<span class="str">"flex-1 h-9 text-xs"</span> /&gt;
+        &lt;<span class="tp">a</span>
+          href={`/urunlerimiz/${product.slug}?hemenAl=1&amp;adet=${qty}&amp;variant=${variant.id}`}
+          className=<span class="str">"flex-1 h-9 flex items-center justify-center rounded-xl bg-honey text-white text-xs font-semibold hover:bg-honey-medium"</span>
+        &gt;
+          Hemen Al
+        &lt;/<span class="tp">a</span>&gt;
+      &lt;/<span class="tp">div</span>&gt;
+
+    &lt;/<span class="tp">div</span>&gt;
+  );
+}</pre>
+
+      <div class="alert alert-info">
+        <span class="alert-label">📁 Yeni Dosya:</span>
+        <code>components/shop/product/ProductCardActions.tsx</code> oluşturuldu.
+        <code>components/shop/product/HoneyTypeFilter.tsx</code> oluşturuldu (aktif değil, sidebar'a taşındı).
+        <code>ProductCard.tsx</code>'te <code>AddToCartButton</code> → <code>ProductCardActions</code> ile değiştirildi.
+      </div>
+    </section>
+
+
     <div class="divider"></div>
 
 
@@ -1599,6 +1950,33 @@
         </div>
       </div>
 
+      <div class="commit-card">
+        <div>
+          <div class="hash">04c4d17</div>
+        </div>
+        <div>
+          <div class="msg">docs(devlog): 22 Mayıs 2026 geliştirme günlüğü güncellendi</div>
+          <div class="meta">DEVLOG.html adım 11–15 eklendi · 22 Mayıs 2026</div>
+        </div>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">feat(urunlerimiz): ürünlerimiz sayfası tam yeniden tasarım</div>
+          <div class="meta">
+            Banner görseli + yükseklik artırma · Hairline wave düzeltmesi ·
+            Lobster Two slogan fontu + gradient overlay ·
+            Breadcrumb + başlık + 3 hızlı filtre butonu ·
+            Bal türü grid filtresi · Fiyat aralığı filtresi (UI + Prisma) ·
+            ProductCard adet seçici + Hemen Al butonu ·
+            ProductCardActions.tsx yeni bileşen · 22 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
       <div class="alert alert-info" style="margin-top: 16px;">
         <span class="alert-label">ℹ️ REPO:</span>
         <a href="https://github.com/Binboga-Bal/binbogabal-eticaret" style="color: var(--blue);">
@@ -1679,7 +2057,7 @@
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 22 Mayıs 2026</span>
+      <span>Son güncelleme: 22 Mayıs 2026 — Adım 21</span>
     </div>
 
   </main>

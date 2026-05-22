@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
@@ -20,6 +22,8 @@ interface PageProps {
     boyut?: string;
     siralama?: string;
     sayfa?: string;
+    minFiyat?: string;
+    maxFiyat?: string;
   }>;
 }
 
@@ -28,16 +32,24 @@ const PAGE_SIZE = 12;
 export default async function ProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
+  const hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
+
   const where: Prisma.ProductWhereInput = {
     isActive: true,
     ...(params.tur && { honeyType: params.tur as HoneyType }),
-    ...(params.boyut || params.ambalaj
+    ...(hasVariantFilter
       ? {
           variants: {
             some: {
               isActive: true,
               ...(params.boyut && { size: parseInt(params.boyut) }),
               ...(params.ambalaj && { packagingType: params.ambalaj as PackagingType }),
+              ...((params.minFiyat || params.maxFiyat) && {
+                price: {
+                  ...(params.minFiyat && { gte: parseFloat(params.minFiyat) }),
+                  ...(params.maxFiyat && { lte: parseFloat(params.maxFiyat) }),
+                },
+              }),
             },
           },
         }
@@ -73,15 +85,64 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   return (
     <div>
       {/* Hero */}
-      <div className="relative h-48 bg-honey-light overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-3xl font-black text-honey-dark">Her Damlası Bir Emek...</h1>
+      <div className="relative h-96 md:h-[520px] overflow-hidden">
+        <Image
+          src="/images/urunlerimiz/urunlerimiz-banner.webp"
+          alt="Ürünlerimiz banner"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Karartma gradyanı — sol taraf okunabilirliği */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10" />
+        {/* Slogan */}
+        <div className="absolute inset-0 z-20 flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="max-w-xl drop-shadow-2xl">
+              <p className="font-script text-5xl md:text-6xl lg:text-7xl text-white leading-[1.2]">
+                Arıcıdan Aracısız
+              </p>
+              <p className="font-script text-2xl md:text-3xl lg:text-4xl text-honey leading-snug mt-2">
+                Kooperatif Tecrübesiyle
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" className="w-full" preserveAspectRatio="none">
+        <div className="absolute bottom-[-1px] left-0 right-0 z-30">
+          <svg viewBox="0 0 1440 40" className="w-full block" preserveAspectRatio="none">
             <path d="M0,40 C360,0 1080,40 1440,15 L1440,40 Z" fill="white" />
           </svg>
         </div>
+      </div>
+
+      {/* Başlık & Hızlı Filtreler */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
+              <Link href="/" className="hover:text-honey-dark transition-colors">Ana Sayfa</Link>
+              <span>/</span>
+              <span className="text-honey-dark font-medium">Ürünlerimiz</span>
+            </nav>
+            <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "İlk Kez Alacaklar", href: "?tur=ilk-kez" },
+              { label: "En Çok Tercih Edilenler", href: "?siralama=populer" },
+              { label: "Avantajlı Setler", href: "?tur=set" },
+            ].map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className="px-4 py-2 text-sm font-medium border border-honey-dark text-honey-dark rounded-lg hover:bg-honey-dark hover:text-white transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

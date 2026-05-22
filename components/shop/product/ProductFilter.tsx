@@ -1,15 +1,15 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
 const honeyTypes = [
-  { value: "CAM", label: "Çam Balı" },
-  { value: "KEVEN_KEKIK", label: "Keven & Kekik Balı" },
-  { value: "NARENCIYE", label: "Narenciye Balı" },
-  { value: "CICEK", label: "Çiçek Balı" },
-  { value: "OZEL", label: "Özel Ürünler" },
+  { value: "CAM",         label: "Çam" },
+  { value: "KEVEN_KEKIK", label: "Keven Kekik" },
+  { value: "NARENCIYE",   label: "Narenciye" },
+  { value: "CICEK",       label: "Çiçek" },
+  { value: "OZEL",        label: "Özel" },
 ];
 
 const packagingTypes = [
@@ -37,7 +37,22 @@ export function ProductFilter() {
     [router, searchParams]
   );
 
-  const clearAll = () => router.push("/urunlerimiz");
+  const clearAll = () => {
+    setMinInput("");
+    setMaxInput("");
+    router.push("/urunlerimiz");
+  };
+
+  const [minInput, setMinInput] = useState(searchParams.get("minFiyat") ?? "");
+  const [maxInput, setMaxInput] = useState(searchParams.get("maxFiyat") ?? "");
+
+  const applyPrice = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (minInput) params.set("minFiyat", minInput); else params.delete("minFiyat");
+    if (maxInput) params.set("maxFiyat", maxInput); else params.delete("maxFiyat");
+    params.delete("sayfa");
+    router.push(`/urunlerimiz?${params.toString()}`);
+  };
 
   return (
     <aside className="w-64 flex-shrink-0">
@@ -51,20 +66,55 @@ export function ProductFilter() {
 
         {/* Bal türü */}
         <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">Bal Türü</h4>
-          <div className="space-y-1.5">
-            {honeyTypes.map((t) => (
-              <label key={t.value} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={searchParams.get("tur") === t.value}
-                  onChange={() => setParam("tur", t.value)}
-                  className="accent-honey-dark"
-                />
-                <span className="text-sm text-gray-600">{t.label}</span>
-              </label>
-            ))}
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">Bal Türü</h4>
+          <div className="grid grid-cols-2 gap-2">
+            {honeyTypes.map((t) => {
+              const isActive = searchParams.get("tur") === t.value;
+              return (
+                <button
+                  key={t.value}
+                  onClick={() => setParam("tur", t.value)}
+                  className={`flex items-center justify-center px-2 py-2.5 rounded-xl border-2 text-xs font-medium transition-all ${
+                    isActive
+                      ? "border-honey-dark bg-honey-dark text-white shadow-sm"
+                      : "border-gray-200 bg-gray-50 text-gray-600 hover:border-honey-dark hover:text-honey-dark"
+                  }`}
+                >
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
           </div>
+        </div>
+
+        {/* Fiyat Aralığı */}
+        <div>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">Fiyat Aralığı (₺)</h4>
+          <div className="flex items-center gap-2 mb-2">
+            <input
+              type="number"
+              min={0}
+              placeholder="Min"
+              value={minInput}
+              onChange={(e) => setMinInput(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-honey-dark"
+            />
+            <span className="text-gray-400 text-sm">—</span>
+            <input
+              type="number"
+              min={0}
+              placeholder="Max"
+              value={maxInput}
+              onChange={(e) => setMaxInput(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-honey-dark"
+            />
+          </div>
+          <button
+            onClick={applyPrice}
+            className="w-full py-1.5 rounded-lg bg-honey-dark text-white text-xs font-semibold hover:bg-honey-medium transition-colors"
+          >
+            Uygula
+          </button>
         </div>
 
         {/* Ambalaj türü */}

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPrice, formatWeight, calculateDiscount } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
-import { AddToCartButton } from "./AddToCartButton";
+import { ProductCardActions } from "./ProductCardActions";
 import type { SerializedProduct } from "@/lib/utils/serialize";
 
 interface ProductCardProps {
@@ -71,7 +71,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <AddToCartButton product={product} variant={defaultVariant} />
+        <ProductCardActions product={product} variant={defaultVariant} />
       </div>
     </div>
   );
