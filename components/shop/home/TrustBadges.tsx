@@ -1,21 +1,23 @@
+import Image from "next/image";
+
 const badges = [
   {
-    icon: "🐝",
-    title: "1700+ Arıcı Bası",
+    image: "/images/home-screen/first-infographics/1800-arici-aile.webp",
+    title: "1800+ Arıcı Aile",
     description: "Kooperatifin ortaklarından üretilen bal",
   },
   {
-    icon: "🔬",
+    image: "/images/home-screen/first-infographics/guvenilir-bal.webp",
     title: "Güvenilir Bal",
     description: "Akredite laboratuvarlarda analizden geçer",
   },
   {
-    icon: "📦",
+    image: "/images/home-screen/first-infographics/ozenli-paketleme.webp",
     title: "Özenli Paketleme",
     description: "Binboğa'nın kalite standartlarıyla ambalajlanır",
   },
   {
-    icon: "🚚",
+    image: "/images/home-screen/first-infographics/hizli-teslimat.webp",
     title: "Hızlı Teslimat",
     description: "Aynı gün kargoya verilen siparişler",
   },
@@ -23,15 +25,33 @@ const badges = [
 
 export function TrustBadges() {
   return (
-    <section className="bg-white py-8">
+    <section className="bg-gradient-to-b from-white to-honey-cream py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {badges.map((badge) => (
-            <div key={badge.title} className="flex items-start gap-3">
-              <span className="text-2xl">{badge.icon}</span>
+            <div
+              key={badge.title}
+              className="flex flex-col items-center text-center gap-4"
+            >
+              {/* İnfografik görsel */}
+              <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
+                <Image
+                  src={badge.image}
+                  alt={badge.title}
+                  fill
+                  className="object-contain drop-shadow-sm"
+                  sizes="(max-width: 768px) 128px, 160px"
+                />
+              </div>
+
+              {/* Metin */}
               <div>
-                <p className="text-sm font-bold text-gray-800">{badge.title}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{badge.description}</p>
+                <p className="text-sm font-bold text-gray-800 leading-snug">
+                  {badge.title}
+                </p>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  {badge.description}
+                </p>
               </div>
             </div>
           ))}
