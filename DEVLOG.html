@@ -431,6 +431,12 @@
       <a href="#step20" class="nav-link"><span class="dot"></span>20 — Fiyat Aralığı Filtresi</a>
       <a href="#step21" class="nav-link"><span class="dot"></span>21 — ProductCard Adet & Hemen Al</a>
 
+      <div class="nav-section-label">24 Mayıs 2026</div>
+      <a href="#step22" class="nav-link"><span class="dot"></span>22 — Slider Responsive Yükseklik</a>
+      <a href="#step23" class="nav-link"><span class="dot"></span>23 — Wave SVG Baseline Gap</a>
+      <a href="#step24" class="nav-link"><span class="dot"></span>24 — Wave-Image Subpixel Gap</a>
+      <a href="#step25" class="nav-link"><span class="dot"></span>25 — Wave Responsive Yükseklik</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -1801,6 +1807,200 @@ fontFamily: {
         <code>components/shop/product/ProductCardActions.tsx</code> oluşturuldu.
         <code>components/shop/product/HoneyTypeFilter.tsx</code> oluşturuldu (aktif değil, sidebar'a taşındı).
         <code>ProductCard.tsx</code>'te <code>AddToCartButton</code> → <code>ProductCardActions</code> ile değiştirildi.
+      </div>
+    </section>
+
+
+    <div class="divider"></div>
+
+
+    <!-- ═══════════════════════════════ 24 MAYIS 2026 -->
+    <div class="day-header" style="margin: 0 0 32px;">
+      <span class="date-pill">📅 24 Mayıs 2026</span>
+    </div>
+
+    <section class="section" id="step22">
+      <div class="section-title">
+        <div class="step-num">22</div>
+        <h2>Slider — Responsive Yükseklik</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          <code>HeroSlider</code> wrapper div ve <code>&lt;Swiper&gt;</code> bileşeni
+          <code>style={{ minHeight: sliderTheme.height }}</code> ile sabit <strong>700px</strong>
+          inline style alıyordu. Bu değer CSS media query'lerini geçersiz kılıyor,
+          mobilde de 700px yükseklik zorlanıyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li>Wrapper div ve Swiper'dan hardcoded inline <code>minHeight</code> kaldırıldı.</li>
+          <li><code>&lt;style&gt;</code> bloğuna <code>.hero-slider-wrapper</code> ve <code>.hero-slider-wrapper .swiper</code> seçicileri eklendi.</li>
+          <li>Mobile (≤ md): <code>${sliderTheme.heightMobile}px</code> → <strong>520 px</strong></li>
+          <li>Tablet/Masaüstü (≥ md): <code>${sliderTheme.height}px</code> → <strong>700 px</strong></li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">/* Önceki — sabit inline stil */</span>
+&lt;<span class="tp">div</span> style={{ minHeight: sliderTheme.height }}&gt;
+  &lt;<span class="tp">Swiper</span> style={{ minHeight: sliderTheme.height }}&gt;
+
+<span class="cm">/* Sonraki — CSS media query */</span>
+.hero-slider-wrapper,
+.hero-slider-wrapper .swiper,
+.hero-slide-section {
+  min-height: <span class="nm">${sliderTheme.heightMobile}</span>px; <span class="cm">/* 520px */</span>
+}
+@media (min-width: 768px) {
+  .hero-slider-wrapper,
+  .hero-slider-wrapper .swiper,
+  .hero-slide-section {
+    min-height: <span class="nm">${sliderTheme.height}</span>px; <span class="cm">/* 700px */</span>
+  }
+}</pre>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✅ Sonuç:</span>
+        Yükseklik artık <code>lib/theme.ts</code> → <code>sliderTheme.heightMobile</code> / <code>height</code>
+        değerleriyle tek merkezden kontrol edilir; tüm ekran boyutlarında doğru çalışır.
+      </div>
+    </section>
+
+
+    <section class="section" id="step23">
+      <div class="section-title">
+        <div class="step-num">23</div>
+        <h2>Wave SVG — Baseline Gap Düzeltmesi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          Slider alt kısmındaki dalga SVG elementi <code>display: inline</code> (tarayıcı varsayılanı)
+          olarak render ediliyordu. Inline elementlerde tarayıcı, metnin alt çizgisine (baseline)
+          hizalama için SVG'nin altına <strong>2–4 px boşluk</strong> ekler — bu boşluk ince
+          yatay çizgi olarak görünüyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>
+          SVG elementine <code>block</code> sınıfı eklendi (<code>className="hero-slide-wave w-full block"</code>).
+          <code>display: block</code> ile baseline hizalaması devre dışı kalır, alt boşluk oluşmaz.
+        </p>
+      </div>
+
+      <pre>&lt;<span class="tp">svg</span>
+  viewBox=<span class="str">"0 0 1440 60"</span>
+  className=<span class="str">"hero-slide-wave w-full block"</span>
+  preserveAspectRatio=<span class="str">"none"</span>
+&gt;
+  &lt;<span class="tp">path</span> d=<span class="str">"M0,60 C360,0 1080,60 1440,20 L1440,60 Z"</span> fill=<span class="str">"white"</span> /&gt;
+&lt;/<span class="tp">svg</span>&gt;</pre>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✅ Sonuç:</span>
+        SVG'nin altındaki tarayıcı kaynaklı boşluk tamamen giderildi.
+      </div>
+    </section>
+
+
+    <section class="section" id="step24">
+      <div class="section-title">
+        <div class="step-num">24</div>
+        <h2>Wave-Image — Subpixel Gap Düzeltmesi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          Wave SVG konteyneri <code>absolute bottom-0</code> ile section'ın tam dibine konumlandırılmıştı.
+          Farklı viewport genişliklerinde SVG yüksekliği kesirli piksel hesaplamalar üretebilir
+          (örn. <code>56.916…px</code> → <code>57px</code>). Bu yuvarlama farkı, wave ile
+          image/section tabanı arasında <strong>1–2 px'lik görünür boşluk</strong> bırakıyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>
+          Wave konteyneri <code>bottom: -2px</code> ile section sınırının <strong>2 px altına</strong>
+          taşındı. Section'ın <code>overflow-hidden</code>'ı bu taşmayı keser; görünür alt kenar
+          her zaman section tabanıyla örtüşür, boşluk kalmaz.
+        </p>
+      </div>
+
+      <pre><span class="cm">/* Önceki */</span>
+&lt;<span class="tp">div</span> className=<span class="str">"absolute bottom-0 left-0 right-0 pointer-events-none"</span>&gt;
+
+<span class="cm">/* Sonraki — 2 px taşma, overflow-hidden tarafından kesilir */</span>
+&lt;<span class="tp">div</span>
+  className=<span class="str">"absolute left-0 right-0 pointer-events-none"</span>
+  style={{ bottom: <span class="str">'-2px'</span> }}
+&gt;</pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ Ön Koşul:</span>
+        Section elementinde <code>overflow-hidden</code> olması zorunludur; aksi hâlde wave 2 px
+        aşağı sarkar ve alttaki bölümle örtüşür.
+      </div>
+      <div class="alert alert-fix">
+        <span class="alert-label">✅ Sonuç:</span>
+        Wave ile image arasındaki ince çizgi tüm viewport genişliklerinde giderildi.
+      </div>
+    </section>
+
+
+    <section class="section" id="step25">
+      <div class="section-title">
+        <div class="step-num">25</div>
+        <h2>Wave SVG — Responsive Yükseklik</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          <code>viewBox="0 0 1440 60"</code> + <code>w-full</code> kombinasyonu SVG yüksekliğini
+          <code>genişlik ÷ 24</code> formülüyle hesaplar. Bu, mobilde (~375 px) sadece
+          <strong>~16 px</strong>, geniş monitörlerde (2560 px) <strong>~107 px</strong> gibi
+          uç değerler üretiyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>
+          SVG elementine <code>hero-slide-wave</code> CSS sınıfı eklendi; CSS'te sabit
+          responsive yükseklikler tanımlandı:
+        </p>
+        <table style="margin-top:10px">
+          <thead><tr><th>Breakpoint</th><th>Wave Yüksekliği</th></tr></thead>
+          <tbody>
+            <tr><td>Mobil (&lt; 768 px)</td><td><strong>36 px</strong></td></tr>
+            <tr><td>Tablet / Masaüstü (≥ 768 px)</td><td><strong>56 px</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><span class="cm">/* HeroSlider &lt;style&gt; bloğu */</span>
+.hero-slide-wave {
+  height: <span class="nm">36</span>px;
+}
+@media (min-width: <span class="nm">768</span>px) {
+  .hero-slide-wave {
+    height: <span class="nm">56</span>px;
+  }
+}</pre>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✅ Sonuç:</span>
+        Wave yüksekliği artık viewport genişliğinden bağımsız; tüm cihazlarda tutarlı
+        ve orantılı görünür. Değiştirmek için yalnızca CSS'teki <code>px</code> değerlerini güncellemek yeterli.
       </div>
     </section>
 

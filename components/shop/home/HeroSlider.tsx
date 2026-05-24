@@ -33,16 +33,28 @@ export function HeroSlider() {
   // minHeight: Swiper fade modunda slides position:absolute olduğu için
   // container yüksekliği JS çalışana kadar 0 kalabilir; arch zone + içerik için yer garantile
   return (
-    <div className="relative hero-slider-wrapper" style={{ minHeight: sliderTheme.height }}>
+    <div className="relative hero-slider-wrapper">
       <style>{`
         /* Slider yüksekliği — sliderTheme.heightMobile / height */
+        .hero-slider-wrapper,
+        .hero-slider-wrapper .swiper,
         .hero-slide-section {
           min-height: ${sliderTheme.heightMobile}px;
         }
         @media (min-width: 768px) {
+          .hero-slider-wrapper,
+          .hero-slider-wrapper .swiper,
           .hero-slide-section {
             min-height: ${sliderTheme.height}px;
           }
+        }
+
+        .hero-slider-wrapper,
+        .hero-slider-wrapper .swiper,
+        .hero-slider-wrapper .swiper-wrapper,
+        .hero-slider-wrapper .swiper-slide,
+        .hero-slide-section {
+          border: none !important;
         }
 
         .hero-slider-wrapper .swiper-button-next,
@@ -72,6 +84,16 @@ export function HeroSlider() {
           width: 24px;
           border-radius: 4px;
         }
+
+        /* Wave SVG yüksekliği — küçük ekranda çok ince, büyük ekranda çok şişkin olmasın */
+        .hero-slide-wave {
+          height: 36px;
+        }
+        @media (min-width: 768px) {
+          .hero-slide-wave {
+            height: 56px;
+          }
+        }
       `}</style>
 
       <Swiper
@@ -88,7 +110,6 @@ export function HeroSlider() {
         loop
         speed={sliderTheme.speed}
         className="w-full"
-        style={{ minHeight: sliderTheme.height }}
       >
         {slides.map((slide, i) => (
           <SwiperSlide key={i}>
@@ -105,16 +126,15 @@ function SlideContent({ slide }: { slide: Slide }) {
   // image tanımlıysa: sadece tam ekran görsel, overlay/metin yok
   if (slide.image) {
     return (
-      <section className="hero-slide-section relative overflow-hidden bg-black">
+      <section className="hero-slide-section relative overflow-hidden bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={slide.image}
           alt={slide.badge}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Alt dalga — header alt dalgasıyla tasarım tutarlılığı */}
-        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-          <svg viewBox="0 0 1440 60" className="w-full" preserveAspectRatio="none">
+        <div className="absolute left-0 right-0 pointer-events-none" style={{ bottom: '-2px' }}>
+          <svg viewBox="0 0 1440 60" className="hero-slide-wave w-full block" preserveAspectRatio="none">
             <path d="M0,60 C360,0 1080,60 1440,20 L1440,60 Z" fill="white" />
           </svg>
         </div>
@@ -211,9 +231,8 @@ function SlideContent({ slide }: { slide: Slide }) {
         </div>
       </div>
 
-      {/* Alt dalga */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-        <svg viewBox="0 0 1440 60" className="w-full" preserveAspectRatio="none">
+      <div className="absolute left-0 right-0 pointer-events-none" style={{ bottom: '-2px' }}>
+        <svg viewBox="0 0 1440 60" className="hero-slide-wave w-full block" preserveAspectRatio="none">
           <path d="M0,60 C360,0 1080,60 1440,20 L1440,60 Z" fill="white" />
         </svg>
       </div>
