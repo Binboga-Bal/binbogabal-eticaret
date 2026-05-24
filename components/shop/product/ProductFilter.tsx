@@ -4,14 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-const honeyTypes = [
-  { value: "CAM",         label: "Çam" },
-  { value: "KEVEN_KEKIK", label: "Keven Kekik" },
-  { value: "NARENCIYE",   label: "Narenciye" },
-  { value: "CICEK",       label: "Çiçek" },
-  { value: "OZEL",        label: "Özel" },
-];
-
 const packagingTypes = [
   { value: "GLASS", label: "Cam Kavanoz" },
   { value: "PLASTIC", label: "Plastik Ambalaj" },
@@ -19,7 +11,11 @@ const packagingTypes = [
 
 const sizes = [40, 90, 240, 460, 650, 850, 1000, 1500, 2000];
 
-export function ProductFilter() {
+interface Props {
+  honeyTypes: { id: string; slug: string; label: string }[];
+}
+
+export function ProductFilter({ honeyTypes }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -69,11 +65,11 @@ export function ProductFilter() {
           <h4 className="text-sm font-semibold text-gray-700 mb-3">Bal Türü</h4>
           <div className="grid grid-cols-2 gap-2">
             {honeyTypes.map((t) => {
-              const isActive = searchParams.get("tur") === t.value;
+              const isActive = searchParams.get("tur") === t.slug;
               return (
                 <button
-                  key={t.value}
-                  onClick={() => setParam("tur", t.value)}
+                  key={t.id}
+                  onClick={() => setParam("tur", t.slug)}
                   className={`flex items-center justify-center px-2 py-2.5 rounded-xl border-2 text-xs font-medium transition-all ${
                     isActive
                       ? "border-honey-dark bg-honey-dark text-white shadow-sm"

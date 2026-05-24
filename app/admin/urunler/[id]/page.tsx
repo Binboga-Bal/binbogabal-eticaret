@@ -27,11 +27,18 @@ export default async function ProductEditPage({ params }: PageProps) {
 
   const product = rawProduct ? serializeProduct(rawProduct) : null;
 
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
+  const [categories, honeyTypes] = await Promise.all([
+    prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    prisma.honeyType.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      select: { id: true, slug: true, label: true },
+    }),
+  ]);
 
   return (
     <div className="max-w-4xl space-y-5">
@@ -44,7 +51,7 @@ export default async function ProductEditPage({ params }: PageProps) {
         </h1>
       </div>
 
-      <ProductEditForm product={product} categories={categories} />
+      <ProductEditForm product={product} categories={categories} honeyTypes={honeyTypes} />
     </div>
   );
 }

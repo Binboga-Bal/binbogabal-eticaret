@@ -48,7 +48,8 @@ export async function syncProductsFromErp(): Promise<{ synced: number; errors: s
             create: {
               name: product.title || product.name,
               slug: await generateUniqueSlug(product.name),
-              description: product.description || null,
+              shortDescription: product.description || null,
+              description: product.note || null,
               images: product.image_url ? [product.image_url] : [],
               erpProductCode: product.code,
               isActive,
@@ -56,7 +57,8 @@ export async function syncProductsFromErp(): Promise<{ synced: number; errors: s
             },
             update: {
               name: product.title || product.name,
-              description: product.description || null,
+              shortDescription: product.description || null,
+              description: product.note || null,
               images: product.image_url ? [product.image_url] : [],
               isActive,
               isNew: product.b2c.is_new,
@@ -64,58 +66,29 @@ export async function syncProductsFromErp(): Promise<{ synced: number; errors: s
             select: { id: true },
           });
 
-          // Doğru erpVariantCode'lu varyantı bul
-          let canonicalId: string;
-          const correctVariant = await prisma.productVariant.findUnique({
+          // Her zaman tek varyant: upsert + diğerlerini sil
+          const variant = await prisma.productVariant.upsert({
             where: { erpVariantCode },
+            create: {
+              productId: savedProduct.id,
+              size: 0,
+              packagingType: "GLASS",
+              price: basePrice,
+              discountedPrice,
+              stock: 0,
+              erpVariantCode,
+              isActive,
+            },
+            update: {
+              price: basePrice,
+              discountedPrice,
+              isActive,
+            },
             select: { id: true },
           });
 
-          if (correctVariant) {
-            canonicalId = correctVariant.id;
-            await prisma.productVariant.update({
-              where: { id: canonicalId },
-              data: { price: basePrice, discountedPrice, isActive },
-            });
-          } else {
-            // Yanlış/eksik erpVariantCode ile oluşturulmuş eski varyant varsa migrate et
-            const staleVariant = await prisma.productVariant.findFirst({
-              where: { productId: savedProduct.id },
-              orderBy: { createdAt: "asc" },
-              select: { id: true },
-            });
-
-            if (staleVariant) {
-              canonicalId = staleVariant.id;
-              await prisma.productVariant.update({
-                where: { id: canonicalId },
-                data: { erpVariantCode, price: basePrice, discountedPrice, isActive },
-              });
-            } else {
-              const created = await prisma.productVariant.create({
-                data: {
-                  productId: savedProduct.id,
-                  size: 0,
-                  packagingType: "GLASS",
-                  price: basePrice,
-                  discountedPrice,
-                  stock: 0,
-                  erpVariantCode,
-                  isActive,
-                },
-                select: { id: true },
-              });
-              canonicalId = created.id;
-            }
-          }
-
-          // Aynı ürüne ait fazladan ERP varyantlarını temizle (erpVariantCode'u olan duplikalar)
           await prisma.productVariant.deleteMany({
-            where: {
-              productId: savedProduct.id,
-              id: { not: canonicalId },
-              erpVariantCode: { not: null },
-            },
+            where: { productId: savedProduct.id, id: { not: variant.id } },
           });
 
           synced++;

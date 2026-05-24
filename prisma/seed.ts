@@ -55,6 +55,17 @@ async function main() {
   });
   console.log("✅ Kategoriler oluşturuldu");
 
+  // Bal türleri
+  const honeyTypeRecords = await Promise.all([
+    prisma.honeyType.upsert({ where: { slug: "CICEK" },       create: { slug: "CICEK",       label: "Çiçek Balı",         order: 1 }, update: {} }),
+    prisma.honeyType.upsert({ where: { slug: "CAM" },         create: { slug: "CAM",         label: "Çam Balı",            order: 2 }, update: {} }),
+    prisma.honeyType.upsert({ where: { slug: "KEVEN_KEKIK" }, create: { slug: "KEVEN_KEKIK", label: "Keven & Kekik Balı", order: 3 }, update: {} }),
+    prisma.honeyType.upsert({ where: { slug: "NARENCIYE" },   create: { slug: "NARENCIYE",   label: "Narenciye Balı",      order: 4 }, update: {} }),
+    prisma.honeyType.upsert({ where: { slug: "OZEL" },        create: { slug: "OZEL",        label: "Özel Ürün",           order: 5 }, update: {} }),
+  ]);
+  const cicekHoneyType = honeyTypeRecords[0];
+  console.log("✅ Bal türleri oluşturuldu");
+
   // Ürün: Çiçek Balı
   const cicekBali = await prisma.product.upsert({
     where: { slug: "binboga-cicek-bali" },
@@ -70,7 +81,7 @@ async function main() {
 <p>Kooperatif Balı Binboğa Süzme Çiçek Balı, günlük enerji ihtiyacını destekleyebilecek doğal ve lezzetli bir besin alternatifidir.</p>`,
       images: ["/images/products/cicek-bali.jpg"],
       categoryId: cicekSeri.id,
-      honeyType: "CICEK",
+      honeyTypeId: cicekHoneyType.id,
       isActive: true,
       isBestseller: true,
       isFeatured: true,

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
 import { ProductCard } from "@/components/shop/product/ProductCard";
 import { ProductFilter } from "@/components/shop/product/ProductFilter";
-import type { HoneyType, PackagingType, Prisma } from "@prisma/client";
+import type { PackagingType, Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Ürünlerimiz",
@@ -34,9 +34,20 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
 
+  const [honeyTypes, selectedHoneyType] = await Promise.all([
+    prisma.honeyType.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      select: { id: true, slug: true, label: true },
+    }),
+    params.tur
+      ? prisma.honeyType.findUnique({ where: { slug: params.tur }, select: { id: true } })
+      : Promise.resolve(null),
+  ]);
+
   const where: Prisma.ProductWhereInput = {
     isActive: true,
-    ...(params.tur && { honeyType: params.tur as HoneyType }),
+    ...(selectedHoneyType && { honeyTypeId: selectedHoneyType.id }),
     ...(hasVariantFilter
       ? {
           variants: {
@@ -148,7 +159,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex gap-8">
           <Suspense>
-            <ProductFilter />
+            <ProductFilter honeyTypes={honeyTypes} />
           </Suspense>
 
           <div className="flex-1">

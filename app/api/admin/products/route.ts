@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/utils/slug";
-import type { HoneyType } from "@prisma/client";
-
 export async function POST(req: Request) {
   const session = await auth();
   if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
@@ -27,7 +25,7 @@ export async function POST(req: Request) {
         description: productData.description || null,
         images: Array.isArray(productData.images) ? productData.images : [],
         categoryId: productData.categoryId || null,
-        honeyType: productData.honeyType ? (productData.honeyType as HoneyType) : null,
+        honeyTypeId: productData.honeyTypeId || null,
         isActive: productData.isActive ?? true,
         isBestseller: productData.isBestseller ?? false,
         isFeatured: productData.isFeatured ?? false,

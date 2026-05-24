@@ -131,7 +131,7 @@ model Product {
   metaDescription  String?
   images           Json      // string[]
   categoryId       String?
-  honeyType        HoneyType?
+  honeyTypeId      String?
   isActive         Boolean   @default(true)
   isFeatured       Boolean   @default(false)
   isBestseller     Boolean   @default(false)
@@ -141,10 +141,25 @@ model Product {
   updatedAt        DateTime  @updatedAt
 
   category  Category?        @relation(fields: [categoryId], references: [id])
+  honeyType HoneyType?       @relation(fields: [honeyTypeId], references: [id])
   variants  ProductVariant[]
   reviews   Review[]
 
   @@map("products")
+}
+
+model HoneyType {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  label     String
+  order     Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products  Product[]
+
+  @@map("honey_types")
 }
 
 model ProductVariant {
@@ -165,14 +180,6 @@ model ProductVariant {
   orderItems OrderItem[]
 
   @@map("product_variants")
-}
-
-enum HoneyType {
-  CICEK
-  CAM
-  KEVEN_KEKIK
-  NARENCIYE
-  OZEL
 }
 
 enum PackagingType {

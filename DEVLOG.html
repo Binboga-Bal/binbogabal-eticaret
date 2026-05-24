@@ -448,6 +448,14 @@
       <div class="nav-section-label">24 Mayıs 2026 — UI</div>
       <a href="#step32" class="nav-link"><span class="dot"></span>32 — Ürün Carousel Bileşeni</a>
 
+      <div class="nav-section-label">25 Mayıs 2026 — DB & ERP</div>
+      <a href="#step33" class="nav-link"><span class="dot"></span>33 — ERP Açıklama Alanları</a>
+      <a href="#step34" class="nav-link"><span class="dot"></span>34 — HoneyType Tablo Migrasyonu</a>
+      <a href="#step35" class="nav-link"><span class="dot"></span>35 — Tek Varyant Garantisi</a>
+
+      <div class="nav-section-label">25 Mayıs 2026 — Sayfa</div>
+      <a href="#step36" class="nav-link"><span class="dot"></span>36 — Kooperatif Hikayemiz</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -2446,6 +2454,273 @@ images: product.image_url ? [product.image_url] : [],</pre>
     </section>
 
 
+    <!-- ═══════════════════════════════ ADIM 33: ERP AÇIKLAMA ALANLARI -->
+    <section class="section" id="step33">
+      <div class="section-title">
+        <div class="step-num">33</div>
+        <h2>ERP Sync — <code>description</code> / <code>shortDescription</code> Alan Eşleşmesi</h2>
+      </div>
+
+      <span class="date-pill">📅 25 Mayıs 2026</span>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          ERP proxy yanıtındaki <code>note</code> alanının ürünün uzun açıklaması,
+          <code>description</code> alanının ise kısa açıklama olarak kaydedilmesi istendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>ERP Yanıt Alanları</h3>
+        <div style="overflow-x:auto; margin-top: 8px;">
+          <table>
+            <thead><tr><th>ERP Alanı</th><th>DB Alanı</th><th>Açıklama</th></tr></thead>
+            <tbody>
+              <tr><td><code>product.note</code></td><td><code>Product.description</code> (<code>@db.LongText</code>)</td><td>Uzun ürün açıklaması</td></tr>
+              <tr><td><code>product.description</code></td><td><code>Product.shortDescription</code> (<code>@db.Text</code>)</td><td>Kısa açıklama / özet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <pre><span class="cm">// lib/dia-erp/sync.ts — upsert create & update bloğu</span>
+create: {
+  shortDescription: product.description || <span class="kw">null</span>,
+  description:      product.note        || <span class="kw">null</span>,
+  <span class="cm">// ... diğer alanlar</span>
+},
+update: {
+  shortDescription: product.description || <span class="kw">null</span>,
+  description:      product.note        || <span class="kw">null</span>,
+}</pre>
+
+      <div class="card">
+        <h3>Değiştirilen Dosya</h3>
+        <ul>
+          <li><strong>lib/dia-erp/sync.ts</strong> — <code>create</code> ve <code>update</code> bloklarında alan eşleşmesi güncellendi</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 34: HONEYTYPE TABLO MİGRASYONU -->
+    <section class="section" id="step34">
+      <div class="section-title">
+        <div class="step-num">34</div>
+        <h2>HoneyType — Prisma Enum'dan Dinamik Tabloya Migrasyon</h2>
+      </div>
+
+      <span class="date-pill">📅 25 Mayıs 2026</span>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Admin panelinden yeni bal türü eklenebilsin, mevcut türler düzenlenebilsin;
+          her değişiklik için schema migration gerektiren Prisma enum yapısı terk edilsin.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Eski Durum vs Yeni Durum</h3>
+        <div style="overflow-x:auto; margin-top: 8px;">
+          <table>
+            <thead><tr><th></th><th>Eski (Enum)</th><th>Yeni (Tablo)</th></tr></thead>
+            <tbody>
+              <tr><td>Depolama</td><td>Prisma enum — schema değişikliği gerektirir</td><td><code>honey_types</code> tablosu — runtime'da yönetilebilir</td></tr>
+              <tr><td>Yeni tür ekleme</td><td>schema.prisma → migrate → deploy</td><td>Admin paneli veya SQL INSERT</td></tr>
+              <tr><td>Ürün ilişkisi</td><td><code>Product.honeyType HoneyType?</code> (enum alan)</td><td><code>Product.honeyTypeId String?</code> → FK</td></tr>
+              <tr><td>Filtreleme</td><td><code>{ honeyType: params.tur as HoneyType }</code></td><td>Slug ile lookup → <code>{ honeyTypeId: id }</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Yeni <code>HoneyType</code> Modeli</h3>
+      </div>
+      <pre><span class="cm">// prisma/schema.prisma</span>
+<span class="kw">model</span> <span class="tp">HoneyType</span> {
+  id        <span class="tp">String</span>   <span class="str">@id @default(cuid())</span>
+  slug      <span class="tp">String</span>   <span class="str">@unique</span>   <span class="cm">// "CICEK", "CAM" — URL param ile eşleşir</span>
+  label     <span class="tp">String</span>             <span class="cm">// "Çiçek Balı"</span>
+  order     <span class="tp">Int</span>      <span class="str">@default(0)</span>
+  isActive  <span class="tp">Boolean</span>  <span class="str">@default(true)</span>
+  createdAt <span class="tp">DateTime</span> <span class="str">@default(now())</span>
+  updatedAt <span class="tp">DateTime</span> <span class="str">@updatedAt</span>
+
+  products  <span class="tp">Product</span>[]
+
+  <span class="str">@@map("honey_types")</span>
+}</pre>
+
+      <div class="card">
+        <h3>Migrasyon Adımları</h3>
+        <ul>
+          <li><code>prisma/schema.prisma</code> — <code>HoneyType</code> enum silindi, <code>HoneyType</code> model eklendi; <code>Product.honeyType</code> → <code>Product.honeyTypeId</code> FK</li>
+          <li><code>npx prisma db push --accept-data-loss</code> ile şema DB'ye uygulandı</li>
+          <li>5 başlangıç kaydı (<code>CICEK</code>, <code>CAM</code>, <code>KEVEN_KEKIK</code>, <code>NARENCIYE</code>, <code>OZEL</code>) Prisma upsert ile <code>honey_types</code> tablosuna eklendi</li>
+          <li><code>prisma generate</code> — Prisma Client yeniden üretildi (dev server kapatılarak)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Güncellenen Dosyalar</h3>
+        <div style="overflow-x:auto; margin-top: 8px;">
+          <table>
+            <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+            <tbody>
+              <tr><td><code>prisma/schema.prisma</code></td><td>Enum kaldırıldı, model + FK eklendi</td></tr>
+              <tr><td><code>prisma/seed.ts</code></td><td>HoneyType upsert + ürünler <code>honeyTypeId</code> ile</td></tr>
+              <tr><td><code>app/api/admin/honey-types/route.ts</code></td><td>YENİ — GET: aktif türleri listeler</td></tr>
+              <tr><td><code>app/api/admin/products/route.ts</code></td><td><code>honeyType</code> enum → <code>honeyTypeId</code> FK</td></tr>
+              <tr><td><code>app/api/admin/products/[id]/route.ts</code></td><td>Aynı</td></tr>
+              <tr><td><code>app/admin/urunler/[id]/page.tsx</code></td><td>DB'den <code>honeyTypes</code> çekip forma geçiyor</td></tr>
+              <tr><td><code>components/admin/ProductEditForm.tsx</code></td><td>Hardcoded dizi → props, <code>honeyTypeId</code> field</td></tr>
+              <tr><td><code>app/(shop)/urunlerimiz/page.tsx</code></td><td>Slug → ID lookup + ilişkisel filtre</td></tr>
+              <tr><td><code>components/shop/product/ProductFilter.tsx</code></td><td>Props'tan alıyor, slug ile filtreli</td></tr>
+              <tr><td><code>components/shop/product/HoneyTypeFilter.tsx</code></td><td>Props'tan alıyor, görsel mapping <code>VISUAL_MAP</code> ile</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ Tasarım Kararı:</span>
+        Görsel veriler (ikon SVG, renk sınıfları) DB'ye taşınmadı — bunlar UI endişesi.
+        <code>VISUAL_MAP</code> slug'a göre anahtar tutar; yeni tür eklenirse ikonla birlikte
+        UI kodu güncellenir, DB değişimi gerekmez.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 35: TEK VARYANT GARANTİSİ -->
+    <section class="section" id="step35">
+      <div class="section-title">
+        <div class="step-num">35</div>
+        <h2>ERP Sync — Tek Varyant Garantisi (upsert + deleteMany)</h2>
+      </div>
+
+      <span class="date-pill">📅 25 Mayıs 2026</span>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          Önceki sync mantığında varyant temizleme filtresi
+          <code>erpVariantCode: { not: null }</code> koşuluna bağlıydı.
+          Bu nedenle manuel oluşturulmuş (ERP kodu olmayan) varyantlar silinmiyordu;
+          her sync'te ürün başına birden fazla varyant kalıyordu.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm — if/else Bloğu Kaldırıldı</h3>
+        <p>
+          Karmaşık find-first / migrate / create dallanması tek bir
+          <code>upsert</code> + koşulsuz <code>deleteMany</code> ile değiştirildi.
+        </p>
+      </div>
+
+      <pre><span class="cm">// lib/dia-erp/sync.ts — basitleştirilmiş varyant mantığı</span>
+
+<span class="cm">// 1. ERP koduna göre upsert: varsa fiyat/isActive güncelle, yoksa oluştur</span>
+<span class="kw">const</span> variant = <span class="kw">await</span> prisma.productVariant.<span class="fn">upsert</span>({
+  where:  { erpVariantCode },
+  create: { productId, size: <span class="nm">0</span>, packagingType: <span class="str">"GLASS"</span>, price: basePrice, discountedPrice, stock: <span class="nm">0</span>, erpVariantCode, isActive },
+  update: { price: basePrice, discountedPrice, isActive },
+  select: { id: <span class="kw">true</span> },
+});
+
+<span class="cm">// 2. Bu ürünün diğer tüm varyantlarını sil (manuel dahil)</span>
+<span class="kw">await</span> prisma.productVariant.<span class="fn">deleteMany</span>({
+  where: { productId: savedProduct.id, id: { not: variant.id } },
+});</pre>
+
+      <div class="card">
+        <h3>Korunan Alanlar</h3>
+        <ul>
+          <li><code>size</code> — ERP'den gelmiyor, manuel ayarlanır; update bloğunda yer almaz</li>
+          <li><code>stock</code> — ayrı <code>syncStockFromErp()</code> ile güncellenir; sıfırlanmaz</li>
+          <li><code>packagingType</code> — varsayılan GLASS ile oluşturulur, güncellenmez</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen Dosya</h3>
+        <ul>
+          <li><strong>lib/dia-erp/sync.ts</strong> — ~30 satır if/else/migrate bloğu → 10 satır upsert+deleteMany</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 36: KOOPERATİF HİKAYEMİZ -->
+    <section class="section" id="step36">
+      <div class="section-title">
+        <div class="step-num">36</div>
+        <h2>Kooperatif Hikayemiz Sayfası &amp; Header Nav</h2>
+      </div>
+
+      <span class="date-pill">📅 25 Mayıs 2026</span>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Header'da "ÜRÜNLERİMİZ" butonunun sağına <strong>"KOOPERATİF HİKAYEMİZ"</strong>
+          linki eklenmesi; kooperatifi ve kooperatifçilik felsefesini anlatan yeni bir sayfa tasarlanması.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Header Değişikliği: <code>components/shop/header/Header.tsx</code></h3>
+        <ul>
+          <li><code>navLinks</code> dizisine <code>{ href: "/kooperatif-hikayemiz", label: "KOOPERATİF HİKAYEMİZ" }</code> — "ÜRÜNLERİMİZ"'den hemen sonra eklendi</li>
+          <li>Sol nav <code>slice(0, 1)</code> → <code>slice(0, 2)</code>: artık 2 link gösteriyor</li>
+          <li>Sağ nav <code>slice(1)</code> → <code>slice(2)</code>: HAKKIMIZDA + BAL REHBERİ</li>
+          <li>Nav gap <code>gap-10</code> → <code>gap-8</code>: 4 link dengeli yerleşim</li>
+          <li>Mobil menüde otomatik görünüyor (navLinks döngüsü)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Sayfa: <code>app/(shop)/kooperatif-hikayemiz/page.tsx</code></h3>
+        <div style="overflow-x:auto; margin-top: 8px;">
+          <table>
+            <thead><tr><th>Bölüm</th><th>İçerik / Teknik</th></tr></thead>
+            <tbody>
+              <tr><td>Hero</td><td>Altıgen petek SVG desen arka plan · kooperatif adı badge · H1 + açıklama</td></tr>
+              <tr><td>İstatistikler</td><td>4 kart: 1973 / 1800+ üye / 45.000+ kovan / 50+ yıl</td></tr>
+              <tr><td>Kooperatifçilik Nedir?</td><td>2 sütun: metin + 4 ilke kartı (Dayanışma, Demokratik Yönetim, Kâr Amacı Yok, Eğitim)</td></tr>
+              <tr><td>Kovandan Sofranıza</td><td>4 adımlı süreç numaralandırılmış kart (01-04)</td></tr>
+              <tr><td>50 Yılın Hikayesi</td><td>Zigzag timeline: 1973–2024 arası 7 dönüm noktası, masaüstünde orta çizgi</td></tr>
+              <tr><td>Onlar Anlatsın</td><td>3 arıcı alıntısı — koyu arka plan, şeffaf kart, <code>backdrop-blur</code></td></tr>
+              <tr><td>Manifesto</td><td>"Ürün değil sistem destekliyorsunuz" metni, honey-cream arka plan</td></tr>
+              <tr><td>CTA</td><td>Ürünler + Hakkımızda çift buton</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Tasarım Notları</h3>
+        <ul>
+          <li>Hakkımızda sayfasıyla içerik çakışmasını önlemek için odak farklılaştırıldı: bu sayfa <em>kooperatifçilik felsefesi</em> ve <em>insanlar</em>, hakkımızda ise <em>kurumsal kimlik</em></li>
+          <li>Altıgen desen: inline <code>data:image/svg+xml</code> URL, ek görsel dosyası gerektirmiyor</li>
+          <li>Timeline: <code>flex-row-reverse</code> ile zigzag; orta nokta <code>absolute + z-10</code> ile çizginin üstünde</li>
+          <li>Tüm renkler mevcut Tailwind tema sınıflarından (<code>honey-dark</code>, <code>honey-cream</code> vb.)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Eklenen / Değiştirilen Dosyalar</h3>
+        <ul>
+          <li><strong>app/(shop)/kooperatif-hikayemiz/page.tsx</strong> — YENİ: tam sayfa tasarımı</li>
+          <li><strong>components/shop/header/Header.tsx</strong> — navLinks + sol/sağ nav slice güncellendi</li>
+        </ul>
+      </div>
+    </section>
+
+
     <div class="divider"></div>
 
 
@@ -2666,6 +2941,23 @@ images: product.image_url ? [product.image_url] : [],</pre>
         </div>
       </div>
 
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">feat(db,erp,page): HoneyType tablo migrasyonu, tek varyant garantisi, Kooperatif Hikayemiz sayfası</div>
+          <div class="meta">
+            ERP sync: <code>product.note</code> → <code>description</code>, <code>product.description</code> → <code>shortDescription</code> ·
+            <code>HoneyType</code> Prisma enum → <code>honey_types</code> dinamik tablo; 10 dosya güncellendi ·
+            ERP varyant sync if/else → upsert + koşulsuz deleteMany; tek varyant garantisi ·
+            <code>app/(shop)/kooperatif-hikayemiz/page.tsx</code> — yeni sayfa: hero, istatistik, felsefe, timeline, arıcı alıntıları, manifesto ·
+            Header nav: KOOPERATİF HİKAYEMİZ linki eklendi, sol/sağ slice güncellendi ·
+            13 dosya değişti, 2 yeni dosya/dizin · 25 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
       <div class="alert alert-info" style="margin-top: 16px;">
         <span class="alert-label">ℹ️ REPO:</span>
         <a href="https://github.com/Binboga-Bal/binbogabal-eticaret" style="color: var(--blue);">
@@ -2746,7 +3038,7 @@ images: product.image_url ? [product.image_url] : [],</pre>
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 24 Mayıs 2026 — Adım 32</span>
+      <span>Son güncelleme: 25 Mayıs 2026 — Adım 36</span>
     </div>
 
   </main>

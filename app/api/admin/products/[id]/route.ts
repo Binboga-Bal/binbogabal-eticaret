@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import type { HoneyType } from "@prisma/client";
-
 type Params = { params: Promise<{ id: string }> };
 
 export async function PUT(req: Request, { params }: Params) {
@@ -28,7 +26,7 @@ export async function PUT(req: Request, { params }: Params) {
         description: productData.description || null,
         images: Array.isArray(productData.images) ? productData.images : undefined,
         categoryId: productData.categoryId || null,
-        honeyType: productData.honeyType ? (productData.honeyType as HoneyType) : null,
+        honeyTypeId: productData.honeyTypeId || null,
         isActive: productData.isActive,
         isBestseller: productData.isBestseller,
         isFeatured: productData.isFeatured,

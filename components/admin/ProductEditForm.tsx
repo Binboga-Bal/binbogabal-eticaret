@@ -16,7 +16,7 @@ const schema = z.object({
   slug: z.string().min(2, "Slug gerekli"),
   shortDescription: z.string().optional(),
   categoryId: z.string().optional(),
-  honeyType: z.string().optional(),
+  honeyTypeId: z.string().optional(),
   isActive: z.boolean().default(true),
   isBestseller: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
@@ -40,17 +40,10 @@ interface VariantRow {
 interface Props {
   product: SerializedProduct | null;
   categories: { id: string; name: string }[];
+  honeyTypes: { id: string; slug: string; label: string }[];
 }
 
-const HONEY_TYPES = [
-  { value: "CICEK", label: "Çiçek Balı" },
-  { value: "CAM", label: "Çam Balı" },
-  { value: "KEVEN_KEKIK", label: "Keven & Kekik Balı" },
-  { value: "NARENCIYE", label: "Narenciye Balı" },
-  { value: "OZEL", label: "Özel Ürün" },
-];
-
-export function ProductEditForm({ product, categories }: Props) {
+export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -77,7 +70,7 @@ export function ProductEditForm({ product, categories }: Props) {
       slug: product?.slug ?? "",
       shortDescription: product?.shortDescription ?? "",
       categoryId: product?.category?.id ?? "",
-      honeyType: product?.honeyType ?? "",
+      honeyTypeId: product?.honeyTypeId ?? "",
       isActive: product?.isActive ?? true,
       isBestseller: product?.isBestseller ?? false,
       isFeatured: product?.isFeatured ?? false,
@@ -175,11 +168,11 @@ export function ProductEditForm({ product, categories }: Props) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Bal Türü</label>
-              <select {...register("honeyType")}
+              <select {...register("honeyTypeId")}
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
               >
                 <option value="">Seçiniz...</option>
-                {HONEY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                {honeyTypes.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
               </select>
             </div>
           </div>

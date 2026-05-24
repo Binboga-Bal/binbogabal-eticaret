@@ -9,9 +9,10 @@ import { CartDrawer } from "../cart/CartDrawer";
 import { headerTheme } from "@/lib/theme";
 
 const navLinks = [
-  { href: "/urunlerimiz", label: "ÜRÜNLERİMİZ" },
-  { href: "/hakkimizda", label: "HAKKIMIZDA" },
-  { href: "/bal-rehberi", label: "BAL REHBERİ" },
+  { href: "/urunlerimiz",          label: "ÜRÜNLERİMİZ" },
+  { href: "/kooperatif-hikayemiz", label: "KOOPERATİF HİKAYEMİZ" },
+  { href: "/hakkimizda",           label: "HAKKIMIZDA" },
+  { href: "/bal-rehberi",          label: "BAL REHBERİ" },
 ];
 
 /*
@@ -114,8 +115,8 @@ export function Header() {
             style={{ height: headerTheme.navHeight }}
           >
             {/* Sol nav */}
-            <nav className="hidden md:flex items-center gap-10 flex-1">
-              {navLinks.slice(0, 1).map((l) => (
+            <nav className="hidden md:flex items-center gap-8 flex-1">
+              {navLinks.slice(0, 2).map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
@@ -131,8 +132,8 @@ export function Header() {
 
             {/* Sağ nav + ikonlar */}
             <div className="flex items-center gap-6 flex-1 justify-end">
-              <nav className="hidden md:flex items-center gap-10">
-                {navLinks.slice(1).map((l) => (
+              <nav className="hidden md:flex items-center gap-8">
+                {navLinks.slice(2).map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
