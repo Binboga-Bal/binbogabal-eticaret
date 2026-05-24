@@ -445,6 +445,9 @@
       <a href="#step30" class="nav-link"><span class="dot"></span>30 — Next.js Önbellek</a>
       <a href="#step31" class="nav-link"><span class="dot"></span>31 — Admin Panel Düzeltmeleri</a>
 
+      <div class="nav-section-label">24 Mayıs 2026 — UI</div>
+      <a href="#step32" class="nav-link"><span class="dot"></span>32 — Ürün Carousel Bileşeni</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -2328,6 +2331,121 @@ images: product.image_url ? [product.image_url] : [],</pre>
     </section>
 
 
+    <!-- ═══════════════════════════════ ADIM 32: ÜRÜN CAROUSEL BİLEŞENİ -->
+    <section class="section" id="step32">
+      <div class="section-title">
+        <div class="step-num">32</div>
+        <h2>Ürün Carousel Bileşeni — Anasayfa Çok Satanlar &amp; Avantajlı Ürünler</h2>
+      </div>
+
+      <span class="date-pill">📅 24 Mayıs 2026 — 21:00</span>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Anasayfadaki <strong>Çok Satanlar</strong> ve <strong>Avantajlı Ürünler</strong> bölümlerinde
+          sabit grid yerine 4 ürün yan yana görünen, 4'ü aşan ürünlerin otomatik sağa kayan
+          animasyonlu bir carousel istendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Yaklaşım: Swiper.js Entegrasyonu</h3>
+        <p>
+          Projede zaten <code>HeroSlider</code> için kullanılan <strong>Swiper v11</strong>
+          kütüphanesi seçildi. Özel bir translateX / klonlama mekanizması yazmak yerine
+          Swiper'ın <code>loop</code> + <code>autoplay</code> + <code>slidesPerGroup</code>
+          özellikleri kullanıldı; bu sayede sonsuz döngü tamamen kütüphane tarafından yönetiliyor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Bileşen: <code>components/shop/home/ProductCarousel.tsx</code></h3>
+        <ul>
+          <li><code>"use client"</code> direktifi — Swiper React bağlamaları tarayıcı tarafı gerektiriyor</li>
+          <li>Modüller: <code>Autoplay</code>, <code>Pagination</code>, <code>Navigation</code></li>
+          <li>Loop sadece ürün sayısı &gt; 4 olduğunda etkinleştiriliyor (<code>needsLoop</code> flag)</li>
+          <li>Otomatik oynatma: <strong>3 sn</strong> aralık, fare üzerine gelince duruyor (<code>pauseOnMouseEnter</code>)</li>
+          <li>Pagination: tıklanabilir bullet'lar, aktif bullet <code>honey-medium</code> rengi ile genişleyen pill şeklinde</li>
+          <li>Navigation: hover'da beliren sol/sağ ok butonları (<code>honey-medium</code> renkli)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Responsive Breakpoint'ler</h3>
+        <div style="overflow-x:auto; margin-top: 8px;">
+          <table>
+            <thead><tr><th>Ekran</th><th>Görünen Ürün</th><th>Boşluk</th></tr></thead>
+            <tbody>
+              <tr><td>Mobil (&lt; 640px)</td><td>2</td><td>12 px</td></tr>
+              <tr><td>Tablet (640 – 1023px)</td><td>3</td><td>16 px</td></tr>
+              <tr><td>Masaüstü (≥ 1024px)</td><td><strong>4</strong></td><td>20 px</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <pre><span class="cm">// components/shop/home/ProductCarousel.tsx — temel yapı</span>
+<span class="str">"use client"</span>;
+
+<span class="kw">import</span> { Swiper, SwiperSlide } <span class="kw">from</span> <span class="str">"swiper/react"</span>;
+<span class="kw">import</span> { Autoplay, Pagination, Navigation } <span class="kw">from</span> <span class="str">"swiper/modules"</span>;
+
+<span class="kw">const</span> needsLoop = products.length &gt; <span class="nm">4</span>;
+
+&lt;Swiper
+  modules={[Autoplay, Pagination, Navigation]}
+  slidesPerView={<span class="nm">2</span>}
+  spaceBetween={<span class="nm">12</span>}
+  loop={needsLoop}
+  autoplay={needsLoop ? { delay: <span class="nm">3000</span>, disableOnInteraction: <span class="kw">false</span>, pauseOnMouseEnter: <span class="kw">true</span> } : <span class="kw">false</span>}
+  pagination={{ clickable: <span class="kw">true</span> }}
+  navigation
+  breakpoints={{
+    <span class="nm">640</span>: { slidesPerView: <span class="nm">3</span>, spaceBetween: <span class="nm">16</span> },
+    <span class="nm">1024</span>: { slidesPerView: <span class="nm">4</span>, spaceBetween: <span class="nm">20</span> },
+  }}
+&gt;</pre>
+
+      <div class="card">
+        <h3>Anasayfa Güncellemeleri: <code>app/(shop)/page.tsx</code></h3>
+        <ul>
+          <li><code>ProductCard</code> grid import'u → <code>ProductCarousel</code> import'u ile değiştirildi</li>
+          <li>Her iki bölümde (<em>Çok Satanlar</em>, <em>Avantajlı Ürünler</em>) <code>&lt;div className="grid …"&gt;</code> kaldırıldı, <code>&lt;ProductCarousel products={…} /&gt;</code> ile değiştirildi</li>
+          <li>Veritabanı sorguları <code>take: 8</code> → <code>take: 12</code> artırıldı; carousel daha fazla ürünü döndürebilir</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Scoped CSS — Swiper Özelleştirme</h3>
+        <p>
+          Global stil çakışmalarını önlemek için tüm Swiper özelleştirme stilleri
+          <code>.product-carousel-wrapper</code> sarmalayıcısına scoped inline
+          <code>&lt;style&gt;</code> bloğu içinde tanımlandı:
+        </p>
+        <ul>
+          <li>Pagination <code>position: static</code> yapılarak kart içeriğinin üstüne binmesi engellendi</li>
+          <li>Aktif bullet: <code>width: 24px</code>, <code>border-radius: 4px</code> → pill efekti (HeroSlider ile tutarlı)</li>
+          <li>Ok butonları: <code>36×36 px</code> yuvarlak beyaz kart, <code>honey-medium</code> ikon rengi</li>
+        </ul>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ Karar Notu:</span>
+        İlk tasarım masaüstünde 5 ürün gösteriyordu; kullanıcı isteği ile <strong>4 ürüne</strong>
+        düşürüldü ve autoplay gecikmesi 3,5 sn → <strong>3 sn</strong> yapıldı.
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen / Eklenen Dosyalar</h3>
+        <ul>
+          <li><strong>components/shop/home/ProductCarousel.tsx</strong> — yeni Swiper carousel bileşeni</li>
+          <li><strong>app/(shop)/page.tsx</strong> — carousel entegrasyonu, take: 12, import güncellendi</li>
+        </ul>
+      </div>
+    </section>
+
+
     <div class="divider"></div>
 
 
@@ -2531,6 +2649,23 @@ images: product.image_url ? [product.image_url] : [],</pre>
         </div>
       </div>
 
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">feat(homepage): anasayfa ürün carousel bileşeni</div>
+          <div class="meta">
+            ProductCarousel.tsx — Swiper v11 tabanlı, 4 ürün (masaüstü) / 3 (tablet) / 2 (mobil) ·
+            Otomatik sağa kayan animasyon, 3 sn gecikme, fare hover'da duraklama ·
+            Loop, pagination (pill bullet), navigation ok butonları ·
+            Çok Satanlar &amp; Avantajlı Ürünler bölümleri carousel'e geçirildi ·
+            Ürün sorgusu take: 8 → 12 artırıldı ·
+            2 dosya değişti, 1 yeni bileşen · 24 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
       <div class="alert alert-info" style="margin-top: 16px;">
         <span class="alert-label">ℹ️ REPO:</span>
         <a href="https://github.com/Binboga-Bal/binbogabal-eticaret" style="color: var(--blue);">
@@ -2611,7 +2746,7 @@ images: product.image_url ? [product.image_url] : [],</pre>
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 24 Mayıs 2026 — Adım 31</span>
+      <span>Son güncelleme: 24 Mayıs 2026 — Adım 32</span>
     </div>
 
   </main>

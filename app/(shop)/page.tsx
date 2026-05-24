@@ -6,7 +6,7 @@ import { TrustBadges } from "@/components/shop/home/TrustBadges";
 import { CategoryGrid } from "@/components/shop/home/CategoryGrid";
 import { ProcessFlow } from "@/components/shop/home/ProcessFlow";
 import { FaqSection } from "@/components/shop/home/FaqSection";
-import { ProductCard } from "@/components/shop/product/ProductCard";
+import { ProductCarousel } from "@/components/shop/home/ProductCarousel";
 import { homeBannersTheme } from "@/lib/theme";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,7 +28,7 @@ async function getBestsellers() {
         orderBy: { size: "asc" },
       },
     },
-    take: 8,
+    take: 12,
   });
 }
 
@@ -41,7 +41,7 @@ async function getFeaturedProducts() {
         orderBy: { size: "asc" },
       },
     },
-    take: 8,
+    take: 12,
   });
 }
 
@@ -89,11 +89,7 @@ export default async function HomePage() {
                 Tümünü Gör →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {bestsellers.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductCarousel products={bestsellers} />
           </div>
         </section>
       )}
@@ -136,11 +132,7 @@ export default async function HomePage() {
                 Tümünü Gör →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {featured.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductCarousel products={featured} />
           </div>
         </section>
       )}
