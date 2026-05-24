@@ -437,6 +437,14 @@
       <a href="#step24" class="nav-link"><span class="dot"></span>24 — Wave-Image Subpixel Gap</a>
       <a href="#step25" class="nav-link"><span class="dot"></span>25 — Wave Responsive Yükseklik</a>
 
+      <div class="nav-section-label">24 Mayıs 2026 — ERP</div>
+      <a href="#step26" class="nav-link"><span class="dot"></span>26 — DIA Proxy İstemcisi</a>
+      <a href="#step27" class="nav-link"><span class="dot"></span>27 — Ürün Senkronizasyonu</a>
+      <a href="#step28" class="nav-link"><span class="dot"></span>28 — Depo Bazında Stok</a>
+      <a href="#step29" class="nav-link"><span class="dot"></span>29 — Duplikat Varyant</a>
+      <a href="#step30" class="nav-link"><span class="dot"></span>30 — Next.js Önbellek</a>
+      <a href="#step31" class="nav-link"><span class="dot"></span>31 — Admin Panel Düzeltmeleri</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -2008,6 +2016,321 @@ fontFamily: {
     <div class="divider"></div>
 
 
+    <!-- ═══════════════════════════════ ERP ENTEGRASYONU -->
+    <div class="day-header" style="margin: 0 0 32px;">
+      <span class="date-pill">📅 24 Mayıs 2026 — DIA Proxy ERP Entegrasyonu</span>
+    </div>
+
+
+    <!-- ═══════════════════════════════ ADIM 26: DIA PROXY İSTEMCİSİ -->
+    <section class="section" id="step26">
+      <div class="section-title">
+        <div class="step-num">26</div>
+        <h2>DIA Proxy İstemci Mimarisi — <code>lib/dia-erp/</code></h2>
+      </div>
+
+      <div class="card">
+        <h3>Motivasyon</h3>
+        <p>
+          E-ticaret uygulaması ERP'ye doğrudan bağlanıyordu. Bu yaklaşım session yönetimi,
+          kimlik bilgilerinin istemcide tutulması ve aynı ERP verisinin birden fazla servisten
+          sorgulanması sorunlarını beraberinde getiriyordu. Tüm ERP iletişimi
+          <code>dia-proxy-api</code> isim verilen ayrı bir Node.js servisine taşındı;
+          e-ticaret uygulaması artık sadece bu proxy üzerinden veri alıyor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Değişen Dosyalar</h3>
+        <ul>
+          <li><strong>lib/dia-erp/types.ts</strong> — Proxy yanıt tipleri: <code>ProxyProduct</code>, <code>ProxyListResponse&lt;T&gt;</code>, <code>ProxyCallResponse&lt;T&gt;</code>, <code>DiaOrder</code></li>
+          <li><strong>lib/dia-erp/client.ts</strong> — <code>DiaProxyClient</code> sınıfı: JWT token önbelleği (5 dk önceden yenileme), <code>getProducts()</code>, <code>erpCall()</code></li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// lib/dia-erp/client.ts — JWT token yönetimi</span>
+<span class="kw">private async</span> <span class="fn">getToken</span>(): <span class="tp">Promise</span>&lt;<span class="tp">string</span>&gt; {
+  <span class="kw">const</span> now = Date.now();
+  <span class="cm">// Token geçerliliği 5 dakikadan fazlaysa önbellekten dön</span>
+  <span class="kw">if</span> (tokenCache && tokenCache.expiresAt - now &gt; <span class="nm">5</span> * <span class="nm">60</span> * <span class="nm">1000</span>) <span class="kw">return</span> tokenCache.token;
+  <span class="cm">// Yenile: POST /api/auth/token { api_key }</span>
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(`${<span class="kw">this</span>.baseUrl}/api/auth/token`, {
+    method: <span class="str">"POST"</span>,
+    body: JSON.stringify({ api_key: <span class="kw">this</span>.apiKey }),
+  });
+  <span class="kw">const</span> { token, expires_in } = <span class="kw">await</span> res.<span class="fn">json</span>();
+  tokenCache = { token, expiresAt: now + <span class="fn">parseExpiresIn</span>(expires_in) };
+  <span class="kw">return</span> token;
+}</pre>
+
+      <div class="alert alert-info">
+        <span class="alert-label">🔑 Kimlik Bilgileri:</span>
+        <code>DIA_PROXY_URL</code> ve <code>DIA_PROXY_API_KEY</code> env değişkenleri
+        ile yapılandırılır; ERP credentials artık e-ticaret tarafında bulunmuyor.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 27: ÜRÜN SENKRONIZASYONU -->
+    <section class="section" id="step27">
+      <div class="section-title">
+        <div class="step-num">27</div>
+        <h2>Ürün Senkronizasyonu Yeniden Yazımı — Fiyat Level 10 + B2C</h2>
+      </div>
+
+      <div class="card">
+        <h3>Değişiklikler (<code>lib/dia-erp/sync.ts → syncProductsFromErp</code>)</h3>
+        <ul>
+          <li><strong>Fiyat:</strong> <code>product.prices.levels</code> dizisinden <code>level === 10</code> olan kayıt seçilir (<em>perakende fiyat</em>)</li>
+          <li><strong>İndirimli fiyat:</strong> <code>b2c.discount_rate &gt; 0</code> ise <code>basePrice × (1 - rate/100)</code> hesaplanır; yoksa <code>null</code></li>
+          <li><strong>Görünürlük:</strong> <code>b2c.visible</code> = false olan ürünler <code>isActive: false</code> olarak işaretlenir</li>
+          <li><strong>Yenilik:</strong> <code>b2c.is_new</code> alanı <code>isNew</code> olarak kaydedilir</li>
+          <li><strong>Görsel:</strong> <code>product.image_url</code> (AWS S3 URL) doğrudan <code>images: [url]</code> ham dizi olarak kaydedilir</li>
+          <li><strong>Stok:</strong> <code>syncProductsFromErp</code> artık stok yazmaz; yalnızca <code>syncStockFromErp</code> stok günceller</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// lib/dia-erp/sync.ts — Fiyat çözümleme</span>
+<span class="kw">function</span> <span class="fn">resolvePrice</span>(product: <span class="tp">ProxyProduct</span>): <span class="tp">number</span> {
+  <span class="kw">const</span> level10 = product.prices.levels.<span class="fn">find</span>((l) =&gt; l.level === <span class="nm">10</span>);
+  <span class="kw">return</span> level10?.amount ?? <span class="nm">0</span>;
+}
+
+<span class="kw">function</span> <span class="fn">resolveDiscountedPrice</span>(basePrice: <span class="tp">number</span>, discountRate: <span class="tp">number</span>): <span class="tp">number</span> | <span class="tp">null</span> {
+  <span class="kw">if</span> (discountRate &lt;= <span class="nm">0</span> || basePrice &lt;= <span class="nm">0</span>) <span class="kw">return null</span>;
+  <span class="kw">return</span> Math.<span class="fn">round</span>(basePrice * (<span class="nm">1</span> - discountRate / <span class="nm">100</span>) * <span class="nm">100</span>) / <span class="nm">100</span>;
+}</pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ Kritik:</span>
+        <code>erpVariantCode</code> olarak <code>product.code</code> (stok kart kodu, örn. <code>"600.01.0069"</code>)
+        kullanılır. AD birim iç anahtarı (<code>product.units[0].key</code>, örn. <code>"1493592"</code>) değil —
+        bu hata stok eşleştirmesini tamamen bozuyordu.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 28: DEPO BAZINDA STOK -->
+    <section class="section" id="step28">
+      <div class="section-title">
+        <div class="step-num">28</div>
+        <h2>Depo Bazında Stok Senkronizasyonu — <code>scf_stok_depobazinda_listele</code></h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          <code>ProxyProduct.stock.b2c_warehouse</code> alanı ERP tarafında hiç doldurulmaz, daima 0 gelir.
+          Gerçek depo stoğu ayrı bir ERP aksiyonu ile sorgulanmalıdır.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm: <code>syncStockFromErp()</code></h3>
+        <ul>
+          <li>ERP aksiyonu: <code>scf_stok_depobazinda_listele</code></li>
+          <li>Depo kodu: <code>DIA_PROXY_STOCK_DEPO_KODU</code> env değişkeni (varsayılan: <code>41908</code>)</li>
+          <li>Stok alanı: <code>fiili_stok$41908</code> (depo koduna göre dinamik alan adı)</li>
+          <li>Eşleştirme: <code>record.stokkartkodu</code> → <code>productVariant.erpVariantCode</code></li>
+          <li>Negatif değerler <code>Math.max(0, …)</code> ile sıfıra yuvarlanır</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// lib/dia-erp/sync.ts — Stok sorgu payload'ı</span>
+<span class="kw">const</span> stockField = `fiili_stok$${depoKodu}`;   <span class="cm">// "fiili_stok$41908"</span>
+
+<span class="kw">await</span> client.<span class="fn">erpCall</span>(<span class="str">"scf_stok_depobazinda_listele"</span>, {
+  firma_kodu: firmaKodu,
+  donem_kodu: <span class="nm">0</span>,
+  sorts: [{ field: <span class="str">"stokkartkodu"</span>, sorttype: <span class="str">"ASC"</span> }],
+  params: { tarih: <span class="str">"2099-12-31"</span> },
+  limit, offset,
+});
+
+<span class="cm">// Her kayıt için stok güncelle</span>
+<span class="kw">const</span> stock = Math.<span class="fn">max</span>(<span class="nm">0</span>, Math.<span class="fn">floor</span>(<span class="fn">parseFloat</span>(record[stockField] ?? <span class="str">"0"</span>)));
+<span class="kw">await</span> prisma.productVariant.<span class="fn">updateMany</span>({
+  where: { erpVariantCode: record.stokkartkodu },
+  data: { stock },
+});</pre>
+
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ ERP API:</span>
+        Proxy <code>POST /api/erp/call</code> üzerinden iletilir;
+        proxy ERP session yönetimini şeffaf biçimde üstlenir.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 29: DUPLİKAT VARYANT -->
+    <section class="section" id="step29">
+      <div class="section-title">
+        <div class="step-num">29</div>
+        <h2>Duplikat Varyant Sorunu ve <code>erpVariantCode</code> Koruması</h2>
+      </div>
+
+      <div class="card">
+        <h3>İki Ayrı Kök Neden</h3>
+        <div class="step-list" style="margin-top: 12px;">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Yanlış <code>erpVariantCode</code> (AD birim key'i)</h4>
+              <p>
+                Eski kod AD birim iç anahtarını (<code>"1493592"</code>) <code>erpVariantCode</code> olarak kaydediyordu.
+                Stok senkronizasyonu <code>stokkartkodu</code> (<code>"600.01.0069"</code>) ile eşleştirdiğinden
+                sıfır eşleşme bulunuyor, stok hiç güncellenmiyordu.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Admin kaydetme varyantı sıfırlıyordu</h4>
+              <p>
+                Admin panelinde ürün kaydedildiğinde PUT endpoint'i mevcut tüm varyantları
+                <code>deleteMany</code> ile silip yeniden oluşturuyordu. Yeni oluşturulan varyantlara
+                <code>erpVariantCode</code> atanmıyordu. Bir sonraki ERP sync ikinci bir varyant oluşturuyordu —
+                biri stoklu (ERP'den), biri stoksuz (admin'den).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Düzeltmeler</h3>
+        <ul>
+          <li><strong>sync.ts</strong> — <code>resolveErpVariantCode()</code> artık <code>product.code</code> döndürüyor (stok kart kodu)</li>
+          <li><strong>sync.ts</strong> — Migrate+consolidate mantığı: yanlış <code>erpVariantCode</code>'lu eski varyant bulunursa güncellenir; fazladan ERP varyantları <code>deleteMany</code> ile temizlenir</li>
+          <li><strong>app/api/admin/products/[id]/route.ts</strong> — <code>create</code> bloğuna <code>erpVariantCode: v.erpVariantCode ?? null</code> eklendi</li>
+          <li><strong>components/admin/ProductEditForm.tsx</strong> — <code>VariantRow</code> arayüzüne <code>erpVariantCode</code> eklendi; mevcut değerler form state'ine aktarıldı</li>
+          <li><strong>components/shop/product/ProductCard.tsx</strong> — Aktif varyantlar arasından en yüksek stoklunun seçilmesi için <code>sort((a, b) =&gt; b.stock - a.stock)</code> eklendi</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 30: NEXT.JS ÖNBELLEK -->
+    <section class="section" id="step30">
+      <div class="section-title">
+        <div class="step-num">30</div>
+        <h2>Next.js Üç Katmanlı Önbellek Sorunu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun: Senkronizasyon Sonrası Sayfa Güncellenmiyor</h3>
+        <p>
+          ERP senkronizasyonu başarıyla tamamlanıyor, veritabanı güncelleniyor;
+          ama ürünler sayfası ve admin paneli eski veriyi göstermeye devam ediyor.
+          Next.js 15 App Router'da üç ayrı önbellek katmanı birden sorun yaratıyordu.
+        </p>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Katman</th><th>TTL</th><th>Düzeltme</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Full Route Cache (sunucu)</td>
+              <td>Kalıcı (statik)</td>
+              <td><code>export const dynamic = "force-dynamic"</code> — <code>app/admin/layout.tsx</code>'e eklendi; tüm admin sayfalarını kapsar</td>
+            </tr>
+            <tr>
+              <td>Data Cache (fetch tabanlı)</td>
+              <td>Kalıcı (revalidate'e kadar)</td>
+              <td><code>revalidatePath("/urunlerimiz")</code> — ERP API route'a eklendi; sync sonrası sunucu cache'i geçersiz kılar</td>
+            </tr>
+            <tr>
+              <td>Router Cache (istemci tarafı)</td>
+              <td>30 sn (dynamic sayfalar)</td>
+              <td><code>staleTimes: { dynamic: 0 }</code> — <code>next.config.ts</code>'e eklendi; istemci cache'i devre dışı bırakır</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><span class="cm">// next.config.ts</span>
+<span class="kw">const</span> nextConfig: <span class="tp">NextConfig</span> = {
+  experimental: {
+    staleTimes: { dynamic: <span class="nm">0</span> },   <span class="cm">← Router Cache'i kapat</span>
+  },
+  images: { remotePatterns: [{ protocol: <span class="str">"https"</span>, hostname: <span class="str">"**"</span> }] },
+};
+
+<span class="cm">// components/admin/ErpSyncButtons.tsx</span>
+<span class="kw">const</span> router = <span class="fn">useRouter</span>();
+<span class="cm">// sync tamamlandıktan sonra:</span>
+router.<span class="fn">refresh</span>();   <span class="cm">← istemci tarafında server component'leri yeniden render eder</span></pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ Neden 3 katman?</span>
+        <code>force-dynamic</code> tek başına yetmez: sunucu fetch cache'i ve istemci Router Cache
+        bağımsız çalışır. Üçünün birlikte uygulanması gerekir.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 31: GÖRSEL URL VE ADMİN DÜZELTMELERİ -->
+    <section class="section" id="step31">
+      <div class="section-title">
+        <div class="step-num">31</div>
+        <h2>Görsel URL Hatası ve Admin Panel Düzeltmeleri</h2>
+      </div>
+
+      <div class="card">
+        <h3>1 — <code>JSON.stringify</code> Prisma Json Alanında</h3>
+        <p>
+          <code>images: JSON.stringify([url])</code> ifadesi MySQL'deki JSON sütununa
+          ham dizi yerine <strong>JSON string</strong> yazıyordu: <code>"[\"https://…\"]"</code>.
+          Bu durumda veritabanından okunan değer string olarak geldiğinden görseller admin
+          ve mağaza listesinde görünmez oluyordu.
+        </p>
+      </div>
+
+      <pre><span class="cm">// ❌ Hatalı — JSON string yazılıyor</span>
+images: JSON.<span class="fn">stringify</span>([product.image_url]),
+
+<span class="cm">// ✅ Doğru — ham dizi, Prisma Json alanına doğrudan</span>
+images: product.image_url ? [product.image_url] : [],</pre>
+
+      <div class="card">
+        <h3>2 — Admin Liste Sayfasında Görsel Cast Hatası</h3>
+        <p>
+          <code>(product.images as string[])</code> doğrudan cast'i, DB'de JSON string
+          olarak saklanan eski kayıtlarda çalışmıyordu.
+        </p>
+      </div>
+
+      <pre><span class="cm">// app/admin/urunler/page.tsx — güvenli parse</span>
+<span class="kw">const</span> raw = product.images;
+<span class="kw">const</span> images: <span class="tp">string</span>[] = Array.<span class="fn">isArray</span>(raw)
+  ? (raw <span class="kw">as</span> <span class="tp">string</span>[])
+  : <span class="kw">typeof</span> raw === <span class="str">"string"</span>
+  ? (() =&gt; { <span class="kw">try</span> { <span class="kw">return</span> JSON.<span class="fn">parse</span>(raw); } <span class="kw">catch</span> { <span class="kw">return</span> []; } })()
+  : [];</pre>
+
+      <div class="card">
+        <h3>Özet — Değiştirilen Dosyalar</h3>
+        <ul>
+          <li><strong>lib/dia-erp/types.ts</strong> — Proxy tipleri (<code>ProxyProduct</code>, <code>ProxyListResponse</code>)</li>
+          <li><strong>lib/dia-erp/client.ts</strong> — <code>DiaProxyClient</code> JWT token yönetimi</li>
+          <li><strong>lib/dia-erp/sync.ts</strong> — Ürün + stok senkronizasyonu tam yeniden yazım</li>
+          <li><strong>app/admin/layout.tsx</strong> — <code>force-dynamic</code></li>
+          <li><strong>app/admin/urunler/page.tsx</strong> — Görsel parse güvenli hale getirildi</li>
+          <li><strong>app/api/admin/erp/route.ts</strong> — <code>revalidatePath</code> eklendi</li>
+          <li><strong>app/api/admin/products/[id]/route.ts</strong> — <code>erpVariantCode</code> korunuyor</li>
+          <li><strong>components/admin/ErpSyncButtons.tsx</strong> — <code>router.refresh()</code></li>
+          <li><strong>components/admin/ProductEditForm.tsx</strong> — <code>erpVariantCode</code> state'e alındı</li>
+          <li><strong>components/shop/product/ProductCard.tsx</strong> — En yüksek stoklu aktif varyant seçimi</li>
+          <li><strong>next.config.ts</strong> — <code>staleTimes.dynamic: 0</code></li>
+          <li><strong>.env.example</strong> — Proxy env değişkenleri eklendi</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <div class="divider"></div>
+
+
     <!-- ═══════════════════════════════ TEMA REF -->
     <section class="section" id="theme-ref">
       <div class="section-title">
@@ -2177,6 +2500,37 @@ fontFamily: {
         </div>
       </div>
 
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">fix(erp-session): ERP HTTP-200 body-401 session expiry auto-refresh</div>
+          <div class="meta">
+            dia-proxy-api · <code>src/services/erpSession.js</code> — ERP HTTP 200 yanıtında
+            body-level session hatası tespiti; otomatik session sıfırlama ve retry · 24 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">feat(erp): DIA Proxy entegrasyonu — ürün/stok senkronizasyonu yeniden yazıldı</div>
+          <div class="meta">
+            lib/dia-erp/types.ts + client.ts (DiaProxyClient JWT) ·
+            sync.ts: fiyat level 10, b2c parametreleri, depo bazında stok (scf_stok_depobazinda_listele) ·
+            Duplikat varyant migrate+consolidate mantığı ·
+            erpVariantCode koruması (admin save + form state) ·
+            Next.js 3 önbellek katmanı düzeltmesi (force-dynamic, staleTimes, revalidatePath, router.refresh) ·
+            Görsel URL JSON.stringify hatası ·
+            12 dosya değişti · 24 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
       <div class="alert alert-info" style="margin-top: 16px;">
         <span class="alert-label">ℹ️ REPO:</span>
         <a href="https://github.com/Binboga-Bal/binbogabal-eticaret" style="color: var(--blue);">
@@ -2257,7 +2611,7 @@ fontFamily: {
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 22 Mayıs 2026 — Adım 21</span>
+      <span>Son güncelleme: 24 Mayıs 2026 — Adım 31</span>
     </div>
 
   </main>

@@ -28,6 +28,7 @@ type FormValues = z.infer<typeof schema>;
 
 interface VariantRow {
   id?: string;
+  erpVariantCode?: string | null;
   size: number;
   packagingType: "GLASS" | "PLASTIC";
   price: number;
@@ -59,6 +60,7 @@ export function ProductEditForm({ product, categories }: Props) {
   const [variants, setVariants] = useState<VariantRow[]>(
     product?.variants.map((v) => ({
       id: v.id,
+      erpVariantCode: v.erpVariantCode ?? null,
       size: v.size,
       packagingType: v.packagingType as "GLASS" | "PLASTIC",
       price: v.price,

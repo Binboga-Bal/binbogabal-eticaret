@@ -43,7 +43,12 @@ export default async function AdminProductsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {products.map((product) => {
-                const images = (product.images as string[]) ?? [];
+                const raw = product.images;
+                const images: string[] = Array.isArray(raw)
+                  ? (raw as string[])
+                  : typeof raw === "string"
+                  ? (() => { try { return JSON.parse(raw); } catch { return []; } })()
+                  : [];
                 const minPrice = product.variants.length
                   ? Math.min(...product.variants.map((v) => parseFloat(v.discountedPrice?.toString() ?? v.price.toString())))
                   : 0;

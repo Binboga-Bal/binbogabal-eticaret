@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { RefreshCw, Package, BarChart2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -11,6 +12,7 @@ const syncOptions = [
 ];
 
 export function ErpSyncButtons() {
+  const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, string>>({});
 
@@ -26,6 +28,7 @@ export function ErpSyncButtons() {
       [key]: data.message ?? (data.error ? `Hata: ${data.error}` : "Tamamlandı"),
     }));
     setLoading(null);
+    router.refresh();
   }
 
   return (

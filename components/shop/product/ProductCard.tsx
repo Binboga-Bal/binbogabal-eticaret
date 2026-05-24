@@ -12,7 +12,9 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const mainImage = product.images[0] ?? null;
 
-  const defaultVariant = product.variants.find((v) => v.isActive) ?? product.variants[0];
+  const activeVariants = product.variants.filter((v) => v.isActive);
+  const defaultVariant =
+    activeVariants.sort((a, b) => b.stock - a.stock)[0] ?? product.variants[0];
   if (!defaultVariant) return null;
 
   const discount = defaultVariant.discountedPrice

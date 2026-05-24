@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { syncProductsFromErp, syncStockFromErp } from "@/lib/dia-erp/sync";
 
@@ -14,6 +15,7 @@ export async function POST(req: Request) {
   try {
     if (type === "products") {
       const result = await syncProductsFromErp();
+      revalidatePath("/urunlerimiz");
       return NextResponse.json({
         message: `${result.synced} ürün senkronize edildi${result.errors.length > 0 ? `, ${result.errors.length} hata` : ""}`,
       });
@@ -21,6 +23,7 @@ export async function POST(req: Request) {
 
     if (type === "stock") {
       const result = await syncStockFromErp();
+      revalidatePath("/urunlerimiz");
       return NextResponse.json({ message: `${result.updated} varyant stoku güncellendi` });
     }
 

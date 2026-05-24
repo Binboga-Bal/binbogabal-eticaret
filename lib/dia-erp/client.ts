@@ -1,97 +1,98 @@
-import type {
-  DiaApiResponse,
-  DiaProduct,
-  DiaProductVariant,
-  DiaStock,
-  DiaOrder,
-} from "./types";
+import type { ProxyProduct, ProxyListResponse, ProxyCallResponse } from "./types";
 
-export class DiaErpClient {
+interface TokenCache {
+  token: string;
+  expiresAt: number; // ms epoch
+}
+
+// "24h" | "3600" | 3600 → milliseconds
+function parseExpiresIn(value: string | number): number {
+  if (typeof value === "number") return value * 1000;
+  const match = /^(\d+)([smhd])$/.exec(value);
+  if (!match) return 24 * 3600 * 1000;
+  const n = parseInt(match[1]);
+  const units: Record<string, number> = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
+  return n * (units[match[2]] ?? 1000);
+}
+
+let tokenCache: TokenCache | null = null;
+
+export class DiaProxyClient {
   private readonly baseUrl: string;
   private readonly apiKey: string;
-  private readonly companyCode: string;
 
   constructor() {
-    this.baseUrl = process.env.DIA_ERP_BASE_URL!;
-    this.apiKey = process.env.DIA_ERP_API_KEY!;
-    this.companyCode = process.env.DIA_ERP_COMPANY_CODE ?? "01";
+    this.baseUrl = (process.env.DIA_PROXY_URL ?? "http://localhost:3500").replace(/\/$/, "");
+    this.apiKey = process.env.DIA_PROXY_API_KEY!;
   }
 
-  private async request<T>(
-    path: string,
-    options: RequestInit = {}
-  ): Promise<DiaApiResponse<T>> {
-    const url = `${this.baseUrl}${path}`;
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
-          "X-Company-Code": this.companyCode,
-          ...options.headers,
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        return { success: false, error: `HTTP ${response.status}: ${errorText}` };
-      }
-
-      const data = await response.json();
-      return { success: true, data };
-    } catch (err) {
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : "Bağlantı hatası",
-      };
+  private async getToken(): Promise<string> {
+    const now = Date.now();
+    if (tokenCache && tokenCache.expiresAt - now > 5 * 60 * 1000) {
+      return tokenCache.token;
     }
-  }
 
-  async getProducts(page = 1, pageSize = 100): Promise<DiaApiResponse<DiaProduct[]>> {
-    return this.request<DiaProduct[]>(
-      `/products?page=${page}&pageSize=${pageSize}`
-    );
-  }
-
-  async getProductVariants(productCode: string): Promise<DiaApiResponse<DiaProductVariant[]>> {
-    return this.request<DiaProductVariant[]>(
-      `/products/${productCode}/variants`
-    );
-  }
-
-  async getStockLevels(variantCodes?: string[]): Promise<DiaApiResponse<DiaStock[]>> {
-    const body = variantCodes ? JSON.stringify({ codes: variantCodes }) : undefined;
-    return this.request<DiaStock[]>("/stock", {
-      method: variantCodes ? "POST" : "GET",
-      body,
-    });
-  }
-
-  async getPrices(variantCodes?: string[]): Promise<DiaApiResponse<{ variantCode: string; price: number }[]>> {
-    const body = variantCodes ? JSON.stringify({ codes: variantCodes }) : undefined;
-    return this.request("/prices", {
-      method: variantCodes ? "POST" : "GET",
-      body,
-    });
-  }
-
-  async createOrder(order: DiaOrder): Promise<DiaApiResponse<{ erpOrderCode: string }>> {
-    return this.request("/orders", {
+    const res = await fetch(`${this.baseUrl}/api/auth/token`, {
       method: "POST",
-      body: JSON.stringify(order),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ api_key: this.apiKey, client_id: "eticaret" }),
     });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Proxy auth hatası: ${res.status} — ${text}`);
+    }
+
+    const body = (await res.json()) as { token: string; expires_in: string | number };
+    tokenCache = {
+      token: body.token,
+      expiresAt: now + parseExpiresIn(body.expires_in),
+    };
+
+    return body.token;
   }
 
-  async getOrderStatus(erpOrderCode: string): Promise<DiaApiResponse<{ status: string; trackingNo?: string }>> {
-    return this.request(`/orders/${erpOrderCode}/status`);
+  private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const token = await this.getToken();
+
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        ...(options.headers as Record<string, string>),
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Proxy ${path}: HTTP ${res.status} — ${text}`);
+    }
+
+    return res.json() as Promise<T>;
+  }
+
+  async getProducts(limit = 100, offset = 0): Promise<ProxyListResponse<ProxyProduct>> {
+    return this.request<ProxyListResponse<ProxyProduct>>(
+      `/api/products?limit=${limit}&offset=${offset}`
+    );
+  }
+
+  async erpCall<T = unknown>(
+    action: string,
+    params?: Record<string, unknown>
+  ): Promise<T> {
+    const body = await this.request<ProxyCallResponse<T>>("/api/erp/call", {
+      method: "POST",
+      body: JSON.stringify({ action, params: params ?? {} }),
+    });
+    return body.data;
   }
 }
 
-let client: DiaErpClient | null = null;
+let client: DiaProxyClient | null = null;
 
-export function getDiaErpClient(): DiaErpClient {
-  if (!client) client = new DiaErpClient();
+export function getDiaErpClient(): DiaProxyClient {
+  if (!client) client = new DiaProxyClient();
   return client;
 }
