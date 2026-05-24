@@ -18,24 +18,24 @@
 
 export const palette = {
   /** Koyu kırmızı-kahve — birincil marka rengi */
-  honeyDark:   "#C57930",
+  honeyDark: "#C57930",
   /** Orta ton — altın turuncu */
   honeyMedium: "#D67503",
   /** Ana bal sarısı */
-  honey:       "#F9B10B",
+  honey: "#F9B10B",
   /** Parlak sarı — vurgu */
   honeyBright: "#FCD908",
   /** Açık sarı — arka plan aksan */
-  honeyLight:  "#FCE7A5",
+  honeyLight: "#FCE7A5",
   /** Krem — çok açık arka planlar */
-  honeyCream:  "#FFF8E7",
+  honeyCream: "#FFF8E7",
 
   // Nötr
   white: "#FFFFFF",
   black: "#000000",
 
   // Gri scala
-  gray50:  "#F9FAFB",
+  gray50: "#F9FAFB",
   gray100: "#F3F4F6",
   gray200: "#E5E7EB",
   gray300: "#D1D5DB",
@@ -53,29 +53,29 @@ export const palette = {
 
 export const headerTheme = {
   // Renkler
-  announcementBg:   palette.honeyDark,
+  announcementBg: palette.honeyDark,
   announcementText: palette.white,
-  bg:               palette.white,
+  bg: palette.white,
 
   /** Wave (arch) SVG dolgu rengi — header arka planıyla aynı */
-  waveFill:        palette.white,
+  waveFill: palette.white,
   /** Wave alt kenarı çizgi rengi — duyuru bandıyla eşleşir */
-  waveStroke:      palette.honeyDark,
+  waveStroke: palette.honeyDark,
   /** Wave kenar çizgisi kalınlığı (1440-birimlik viewBox'ta) */
   waveStrokeWidth: 6,
   /** Wave kenar gölge rengi (ince, şeffaf) */
-  waveShadow:      "rgba(184, 44, 0, 0.18)",
+  waveShadow: "rgba(184, 44, 0, 0.18)",
 
   // Boyutlar (px)
-  navHeight:          82,   // nav satırının yüksekliği
-  announcementHeight: 40,   // duyuru bandı yüksekliği
-  waveDepth:          90,   // arch'ın en derin noktası (arttırıldı: 60→80)
-  logoWidth:          230,  // logo genişliği
-  logoHeight:         150,  // logo maksimum yüksekliği
+  navHeight: 82, // nav satırının yüksekliği
+  announcementHeight: 40, // duyuru bandı yüksekliği
+  waveDepth: 90, // arch'ın en derin noktası (arttırıldı: 60→80)
+  logoWidth: 230, // logo genişliği
+  logoHeight: 150, // logo maksimum yüksekliği
   /** Logo ile wave dibinin en derin noktası arasındaki boşluk (px).
    *  Logo container'ına paddingBottom olarak uygulanır;
    *  değeri artırınca logo daha yukarı kayar. */
-  logoBottomPad:       20,
+  logoBottomPad: 20,
 
   /**
    * Header'ın "katı" bölümü (duyuru + nav).
@@ -90,7 +90,7 @@ export const headerTheme = {
   // Arch noktaları — 1440-birimlik viewBox üzerinden
   // Daha dar arch için: archLeft: 540, archRight: 900
   // Daha geniş arch için: archLeft: 380, archRight: 1060
-  archLeft:  540,
+  archLeft: 540,
   archRight: 900,
 } as const;
 
@@ -99,12 +99,12 @@ export const headerTheme = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const sliderTheme = {
-  autoplayDelay: 5500,  // ms
-  speed: 800,           // geçiş süresi (ms)
+  autoplayDelay: 5500, // ms
+  speed: 800, // geçiş süresi (ms)
 
   /** Slider yüksekliği (px) — HeroSlider bu değerden okur */
-  heightMobile: 520,    // ≤ md breakpoint
-  height:       700,    // md+
+  heightMobile: 520, // ≤ md breakpoint
+  height: 550, // md+
 
   /** Önceki/sonraki ok butonlarının arka plan rengi */
   navBtnBg: palette.honeyDark,
@@ -117,8 +117,8 @@ export const sliderTheme = {
       // title:       "Binlerce Arının\nBinlerce Arıcının\nKusursuz Emeği",
       // subtitle:    "Şirket Değil, Kooperatif!",
       // description: "Toroslar'ın endemik çiçeklerinden süzülen, analiz sertifikalı doğal balı doğrudan arıcıdan sofranzıa taşıyoruz.",
-      primaryBtn:   { label: "Ürünleri Keşfet",  href: "/urunlerimiz" },
-      secondaryBtn: { label: "Hikayemiz",         href: "/hakkimizda" },
+      primaryBtn: { label: "Ürünleri Keşfet", href: "/urunlerimiz" },
+      secondaryBtn: { label: "Hikayemiz", href: "/hakkimizda" },
       image: "/images/slider-images/banner1.webp" as string | undefined,
       // stats: [
       //   { value: "1800+", label: "Arıcı Üye" },
@@ -136,9 +136,12 @@ export const sliderTheme = {
       // title:       "Çiçek Balının\nRahatsız Edilmemiş\nHali",
       // subtitle:    "Keven • Kekik • Çalıkuşu",
       // description: "Kozan'ın vadilerinde, insanın ulaşamadığı yaylalarda üretilen çiçek balı. Her kaşıkta bin çiçeğin özü.",
-      primaryBtn:   { label: "Çiçek Balını İncele", href: "/urunlerimiz?tur=CICEK" },
-      secondaryBtn: { label: "Bal Rehberi",          href: "/bal-rehberi" },
-            image: "/images/slider-images/banner2.webp" as string | undefined,
+      primaryBtn: {
+        label: "Çiçek Balını İncele",
+        href: "/urunlerimiz?tur=CICEK",
+      },
+      secondaryBtn: { label: "Bal Rehberi", href: "/bal-rehberi" },
+      image: "/images/slider-images/banner2.webp" as string | undefined,
 
       // stats: [
       //   { value: "45 000",  label: "Kovan" },
@@ -155,8 +158,8 @@ export const sliderTheme = {
       // title:       "Uluslararası\nÖdüllü Kalite\nGüvencesi",
       // subtitle:    "ISO 22000 • Analiz Sertifikalı",
       // description: "Her seri üretimde bağımsız laboratuvar analizi yapılır. Ne yediğinizi bilmek hakkınız; biz de bunu şeffaflıkla sunuyoruz.",
-      primaryBtn:   { label: "Alışverişe Başla", href: "/urunlerimiz" },
-      secondaryBtn: { label: "Hakkımızda",       href: "/hakkimizda" },
+      primaryBtn: { label: "Alışverişe Başla", href: "/urunlerimiz" },
+      secondaryBtn: { label: "Hakkımızda", href: "/hakkimizda" },
       image: "/images/slider-images/banner3.webp" as string | undefined,
       // stats: [
       //   { value: "ISO",  label: "22000 Belgeli" },
@@ -176,9 +179,13 @@ export const sliderTheme = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const buttonTheme = {
-  primary:   { bg: palette.honeyDark,   hover: "#9A2400",           text: palette.white },
-  secondary: { bg: palette.honey,       hover: palette.honeyMedium, text: palette.white },
-  outline:   { border: palette.honeyDark, text: palette.honeyDark  },
+  primary: { bg: palette.honeyDark, hover: "#9A2400", text: palette.white },
+  secondary: {
+    bg: palette.honey,
+    hover: palette.honeyMedium,
+    text: palette.white,
+  },
+  outline: { border: palette.honeyDark, text: palette.honeyDark },
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -186,11 +193,11 @@ export const buttonTheme = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const adminTheme = {
-  navActiveBg:   palette.honeyCream,
+  navActiveBg: palette.honeyCream,
   navActiveText: palette.honeyDark,
-  navHoverBg:    palette.honeyCream,
-  navHoverText:  palette.honeyDark,
-  accentColor:   palette.honeyDark,
+  navHoverBg: palette.honeyCream,
+  navHoverText: palette.honeyDark,
+  accentColor: palette.honeyDark,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -200,15 +207,15 @@ export const adminTheme = {
 
 export const tailwindColors = {
   honey: {
-    dark:    palette.honeyDark,
-    medium:  palette.honeyMedium,
+    dark: palette.honeyDark,
+    medium: palette.honeyMedium,
     DEFAULT: palette.honey,
-    bright:  palette.honeyBright,
-    light:   palette.honeyLight,
-    cream:   palette.honeyCream,
+    bright: palette.honeyBright,
+    light: palette.honeyLight,
+    cream: palette.honeyCream,
   },
   primary: {
-    50:  palette.honeyCream,
+    50: palette.honeyCream,
     100: palette.honeyLight,
     200: palette.honeyBright,
     300: palette.honey,
@@ -292,7 +299,8 @@ export const processFlowTheme = {
       title: "ÜRETİCİ İÇİN ADİL MODEL",
       description:
         "Arıcılarımıza adil fiyat ve öncelikli gelir güvencesi sunuyoruz. Arıcılar ortaklardan oluşur, üreticilerin kooperatif ağına dahil olması ve rekabetçi fiyatlarla kazanmalarını sağlarız.",
-      image: "/images/home-screen/second-infographics/uretici-icin-adil-model.webp",
+      image:
+        "/images/home-screen/second-infographics/uretici-icin-adil-model.webp",
     },
     {
       number: 2,
@@ -313,7 +321,8 @@ export const processFlowTheme = {
       title: "GELECEK İÇİN SÜRDÜRÜLEBİLİRLİK",
       description:
         "Doğal arıcılık, organik üretim ve geleceğe duyarlı uygulamalarla ekoloji sistemini koruyoruz. Doğaya saygılı, biyoçeşitlilik destekleyen gelecek nesiller için dünya bırakıyoruz.",
-      image: "/images/home-screen/second-infographics/gelecek-icin-surdurebilirlik.webp",
+      image:
+        "/images/home-screen/second-infographics/gelecek-icin-surdurebilirlik.webp",
     },
   ],
 } as const;
@@ -324,18 +333,18 @@ export const processFlowTheme = {
 
 export const homeBannersTheme = {
   hikayemiz: {
-    image:     "/images/home-screen/our-history/our-history.webp",
-    heading:   "HİKAYEMİZ",
+    image: "/images/home-screen/our-history/our-history.webp",
+    heading: "HİKAYEMİZ",
     subheading: "ŞİRKET DEĞİL, KOOPERATİFİZ!",
     body: "1973 yılında, Adana'nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor oldugunu biliyorlardı. Çünkü bal sadece doganın degil, sabrın da işiydi. Yagmurun erken yagması, kuraklıgın uzaması, piyasanın dengesizligi… Hepsi küçük üreticinin omzuna yük oluyordu.\n\nİşte o gün, yükü paylaşmak için bir araya geldiler. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi böyle dogdu.",
-    btn:  { label: "HİKAYENİN DEVAMI ▶", href: "/hakkimizda" },
+    btn: { label: "HİKAYENİN DEVAMI ▶", href: "/hakkimizda" },
   },
   hakkimizda: {
-    image:     "/images/home-screen/about-us/about-us.webp",
-    heading:   "HAKKIMIZDA",
+    image: "/images/home-screen/about-us/about-us.webp",
+    heading: "HAKKIMIZDA",
     subheading: "ÜLKE İÇİN KOOPERATİF!",
     body: "Binboğa Kooperatifi, üreticinin emeğini koruyan ve doğal balı güvenilir biçimde sofralara ulaştıran köklü bir yapıdır. 1973'ten bu yana kooperatif gücüyle, doğallığı ve kaliteyi bir arada sunuyoruz.\n\nArıcı ailelerimizden gelen üretimi; izlenebilirlik, özenli paketleme ve sürdürülebilir kalite anlayışı ile tüketicilerimize ulaştırıyoruz.",
-    btn:  { label: "DEVAMINI OKU ▶", href: "/hakkimizda" },
+    btn: { label: "DEVAMINI OKU ▶", href: "/hakkimizda" },
   },
 } as const;
 
@@ -345,8 +354,8 @@ export const homeBannersTheme = {
 
 export const footerTheme = {
   logo: {
-    src:    "/images/logo.png",
-    width:  180,
+    src: "/images/logo.png",
+    width: 180,
     height: 90,
   },
 } as const;
