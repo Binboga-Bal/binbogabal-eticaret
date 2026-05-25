@@ -25,8 +25,12 @@ export async function PUT(req: Request, { params }: Params) {
         shortDescription: productData.shortDescription || null,
         description: productData.description || null,
         images: Array.isArray(productData.images) ? productData.images : undefined,
-        categoryId: productData.categoryId || null,
-        honeyTypeId: productData.honeyTypeId || null,
+        categories: {
+          set: (productData.categoryIds ?? []).map((id: string) => ({ id })),
+        },
+        honeyTypes: {
+          set: (productData.honeyTypeIds ?? []).map((id: string) => ({ id })),
+        },
         isActive: productData.isActive,
         isBestseller: productData.isBestseller,
         isFeatured: productData.isFeatured,

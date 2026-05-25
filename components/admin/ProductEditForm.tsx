@@ -15,8 +15,6 @@ const schema = z.object({
   name: z.string().min(2, "Ad gerekli"),
   slug: z.string().min(2, "Slug gerekli"),
   shortDescription: z.string().optional(),
-  categoryId: z.string().optional(),
-  honeyTypeId: z.string().optional(),
   isActive: z.boolean().default(true),
   isBestseller: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
@@ -50,6 +48,12 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   const [images, setImages] = useState<string[]>(product?.images ?? []);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
+    product?.categories?.map((c) => c.id) ?? []
+  );
+  const [selectedHoneyTypeIds, setSelectedHoneyTypeIds] = useState<string[]>(
+    product?.honeyTypes?.map((t) => t.id) ?? []
+  );
   const [variants, setVariants] = useState<VariantRow[]>(
     product?.variants.map((v) => ({
       id: v.id,
@@ -69,8 +73,6 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
       name: product?.name ?? "",
       slug: product?.slug ?? "",
       shortDescription: product?.shortDescription ?? "",
-      categoryId: product?.category?.id ?? "",
-      honeyTypeId: product?.honeyTypeId ?? "",
       isActive: product?.isActive ?? true,
       isBestseller: product?.isBestseller ?? false,
       isFeatured: product?.isFeatured ?? false,
@@ -117,7 +119,7 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
     const res = await fetch(product ? `/api/admin/products/${product.id}` : "/api/admin/products", {
       method: product ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, variants, images }),
+      body: JSON.stringify({ ...data, variants, images, categoryIds: selectedCategoryIds, honeyTypeIds: selectedHoneyTypeIds }),
     });
 
     const result = await res.json();
@@ -158,22 +160,44 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-              <select {...register("categoryId")}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-              >
-                <option value="">Seçiniz...</option>
-                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+              <div className="space-y-1.5 max-h-36 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                {categories.map((c) => (
+                  <label key={c.id} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategoryIds.includes(c.id)}
+                      onChange={(e) =>
+                        setSelectedCategoryIds((prev) =>
+                          e.target.checked ? [...prev, c.id] : prev.filter((id) => id !== c.id)
+                        )
+                      }
+                      className="accent-honey-dark w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700">{c.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bal Türü</label>
-              <select {...register("honeyTypeId")}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-              >
-                <option value="">Seçiniz...</option>
-                {honeyTypes.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-              </select>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bal Türü</label>
+              <div className="space-y-1.5 max-h-36 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                {honeyTypes.map((t) => (
+                  <label key={t.id} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedHoneyTypeIds.includes(t.id)}
+                      onChange={(e) =>
+                        setSelectedHoneyTypeIds((prev) =>
+                          e.target.checked ? [...prev, t.id] : prev.filter((id) => id !== t.id)
+                        )
+                      }
+                      className="accent-honey-dark w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700">{t.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 

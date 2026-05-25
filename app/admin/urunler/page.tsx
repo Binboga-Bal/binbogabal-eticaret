@@ -10,7 +10,7 @@ export const metadata = { title: "Ürün Yönetimi | Admin" };
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
     include: {
-      category: { select: { name: true } },
+      categories: { select: { name: true } },
       variants: { where: { isActive: true }, orderBy: { size: "asc" } },
     },
     orderBy: { createdAt: "desc" },
@@ -69,7 +69,7 @@ export default async function AdminProductsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-sm text-gray-600">{product.category?.name ?? "-"}</td>
+                    <td className="px-5 py-3 text-sm text-gray-600">{product.categories.map(c => c.name).join(", ") || "-"}</td>
                     <td className="px-5 py-3 text-sm text-gray-600">{product.variants.length}</td>
                     <td className="px-5 py-3 text-sm font-bold text-honey-dark">
                       {minPrice > 0 ? formatPrice(minPrice) : "-"}

@@ -15,7 +15,8 @@ export type SerializedProduct = Omit<Product, "createdAt" | "updatedAt"> & {
   updatedAt: string;
   images: string[];
   variants: SerializedVariant[];
-  category?: { id: string; name: string; slug: string } | null;
+  categories?: { id: string; name: string; slug: string }[];
+  honeyTypes?: { id: string; slug: string; label: string }[];
 };
 
 export function serializeVariant(v: ProductVariant): SerializedVariant {
@@ -33,7 +34,8 @@ export function serializeVariant(v: ProductVariant): SerializedVariant {
 export function serializeProduct(
   product: Product & {
     variants: ProductVariant[];
-    category?: { id: string; name: string; slug: string } | null;
+    categories?: { id: string; name: string; slug: string }[];
+    honeyTypes?: { id: string; slug: string; label: string }[];
   }
 ): SerializedProduct {
   const rawImages = product.images;
@@ -54,5 +56,7 @@ export function serializeProduct(
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
     variants: product.variants.map(serializeVariant),
+    categories: product.categories?.map(({ id, name, slug }) => ({ id, name, slug })),
+    honeyTypes: product.honeyTypes?.map(({ id, slug, label }) => ({ id, slug, label })),
   };
 }

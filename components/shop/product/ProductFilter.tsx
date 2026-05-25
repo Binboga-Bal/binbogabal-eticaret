@@ -28,9 +28,9 @@ export function ProductFilter({ honeyTypes }: Props) {
         params.set(key, value);
       }
       params.delete("sayfa");
-      router.push(`/urunlerimiz?${params.toString()}`);
+      router.push(`/urunlerimiz?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams]
+    [router, searchParams],
   );
 
   const clearAll = () => {
@@ -44,18 +44,23 @@ export function ProductFilter({ honeyTypes }: Props) {
 
   const applyPrice = () => {
     const params = new URLSearchParams(searchParams.toString());
-    if (minInput) params.set("minFiyat", minInput); else params.delete("minFiyat");
-    if (maxInput) params.set("maxFiyat", maxInput); else params.delete("maxFiyat");
+    if (minInput) params.set("minFiyat", minInput);
+    else params.delete("minFiyat");
+    if (maxInput) params.set("maxFiyat", maxInput);
+    else params.delete("maxFiyat");
     params.delete("sayfa");
-    router.push(`/urunlerimiz?${params.toString()}`);
+    router.push(`/urunlerimiz?${params.toString()}`, { scroll: false });
   };
 
   return (
     <aside className="w-64 flex-shrink-0">
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-6 sticky top-24">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-6 sticky top-[130px]">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-gray-800">Filtrele</h3>
-          <button onClick={clearAll} className="text-xs text-honey-dark hover:underline">
+          <button
+            onClick={clearAll}
+            className="text-xs text-honey-dark hover:underline"
+          >
             Temizle
           </button>
         </div>
@@ -69,14 +74,15 @@ export function ProductFilter({ honeyTypes }: Props) {
               return (
                 <button
                   key={t.id}
+                  title={t.label}
                   onClick={() => setParam("tur", t.slug)}
-                  className={`flex items-center justify-center px-2 py-2.5 rounded-xl border-2 text-xs font-medium transition-all ${
+                  className={`flex items-center justify-center px-2 py-1.5 rounded-xl border-2 text-[11px] font-medium transition-all min-w-0 ${
                     isActive
                       ? "border-honey-dark bg-honey-dark text-white shadow-sm"
                       : "border-gray-200 bg-gray-50 text-gray-600 hover:border-honey-dark hover:text-honey-dark"
                   }`}
                 >
-                  <span>{t.label}</span>
+                  <span className="truncate">{t.label}</span>
                 </button>
               );
             })}
@@ -85,7 +91,9 @@ export function ProductFilter({ honeyTypes }: Props) {
 
         {/* Fiyat Aralığı */}
         <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Fiyat Aralığı (₺)</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">
+            Fiyat Aralığı (₺)
+          </h4>
           <div className="flex items-center gap-2 mb-2">
             <input
               type="number"
@@ -115,10 +123,15 @@ export function ProductFilter({ honeyTypes }: Props) {
 
         {/* Ambalaj türü */}
         <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">Ambalaj Türü</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">
+            Ambalaj Türü
+          </h4>
           <div className="space-y-1.5">
             {packagingTypes.map((t) => (
-              <label key={t.value} className="flex items-center gap-2 cursor-pointer">
+              <label
+                key={t.value}
+                className="flex items-center gap-2 cursor-pointer"
+              >
                 <input
                   type="checkbox"
                   checked={searchParams.get("ambalaj") === t.value}
@@ -133,8 +146,10 @@ export function ProductFilter({ honeyTypes }: Props) {
 
         {/* Ambalaj Boyutu */}
         <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">Ambalaj Boyutu</h4>
-          <div className="space-y-1.5">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">
+            Ambalaj Boyutu
+          </h4>
+          <div className="space-y-1.5 grid grid-cols-2">
             {sizes.map((s) => (
               <label key={s} className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -143,7 +158,9 @@ export function ProductFilter({ honeyTypes }: Props) {
                   onChange={() => setParam("boyut", String(s))}
                   className="accent-honey-dark"
                 />
-                <span className="text-sm text-gray-600">{s >= 1000 ? `${s / 1000} KG` : `${s} GR`}</span>
+                <span className="text-sm text-gray-600">
+                  {s >= 1000 ? `${s / 1000} KG` : `${s} GR`}
+                </span>
               </label>
             ))}
           </div>

@@ -20,7 +20,11 @@ export default async function ProductEditPage({ params }: PageProps) {
     ? null
     : await prisma.product.findUnique({
         where: { id },
-        include: { variants: { orderBy: { size: "asc" } }, category: true },
+        include: {
+          variants: { orderBy: { size: "asc" } },
+          categories: { select: { id: true, name: true, slug: true } },
+          honeyTypes: { select: { id: true, slug: true, label: true } },
+        },
       });
 
   if (!isNew && !rawProduct) notFound();

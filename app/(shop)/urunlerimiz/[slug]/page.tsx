@@ -17,7 +17,7 @@ async function getProduct(slug: string) {
   return prisma.product.findUnique({
     where: { slug, isActive: true },
     include: {
-      category: true,
+      categories: { select: { id: true, name: true, slug: true } },
       variants: {
         where: { isActive: true },
         orderBy: { size: "asc" },

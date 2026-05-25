@@ -80,8 +80,8 @@ async function main() {
 <h4>Kooperatif Balı Binboğa Süzme Çiçek Balı Ne İşe Yarar?</h4>
 <p>Kooperatif Balı Binboğa Süzme Çiçek Balı, günlük enerji ihtiyacını destekleyebilecek doğal ve lezzetli bir besin alternatifidir.</p>`,
       images: ["/images/products/cicek-bali.jpg"],
-      categoryId: cicekSeri.id,
-      honeyTypeId: cicekHoneyType.id,
+      categories: { connect: [{ id: cicekSeri.id }] },
+      honeyTypes: { connect: [{ id: cicekHoneyType.id }] },
       isActive: true,
       isBestseller: true,
       isFeatured: true,

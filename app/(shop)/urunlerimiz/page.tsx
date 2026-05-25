@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
 import { ProductCard } from "@/components/shop/product/ProductCard";
 import { ProductFilter } from "@/components/shop/product/ProductFilter";
+import { SortSelect } from "@/components/shop/product/SortSelect";
 import type { PackagingType, Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
@@ -18,6 +18,8 @@ export const dynamic = "force-dynamic";
 interface PageProps {
   searchParams: Promise<{
     tur?: string;
+    kategori?: string;
+    bestseller?: string;
     ambalaj?: string;
     boyut?: string;
     siralama?: string;
@@ -34,20 +36,21 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
 
-  const [honeyTypes, selectedHoneyType] = await Promise.all([
-    prisma.honeyType.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      select: { id: true, slug: true, label: true },
-    }),
-    params.tur
-      ? prisma.honeyType.findUnique({ where: { slug: params.tur }, select: { id: true } })
-      : Promise.resolve(null),
-  ]);
+  const honeyTypes = await prisma.honeyType.findMany({
+    where: { isActive: true },
+    orderBy: { order: "asc" },
+    select: { id: true, slug: true, label: true },
+  });
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
-    ...(selectedHoneyType && { honeyTypeId: selectedHoneyType.id }),
+    ...(params.tur && {
+      honeyTypes: { some: { slug: params.tur, isActive: true } },
+    }),
+    ...(params.kategori && {
+      categories: { some: { slug: params.kategori, isActive: true } },
+    }),
+    ...(params.bestseller === "1" && { isBestseller: true }),
     ...(hasVariantFilter
       ? {
           variants: {
@@ -68,8 +71,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   };
 
   const page = parseInt(params.sayfa ?? "1");
+  const isFiyatSort = params.siralama === "fiyat-asc" || params.siralama === "fiyat-desc";
 
-  const [rawProducts, total] = await Promise.all([
+  const [fetchedProducts, total] = await Promise.all([
     prisma.product.findMany({
       where,
       include: {
@@ -78,17 +82,31 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           orderBy: { size: "asc" },
         },
       },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
+      ...(isFiyatSort ? {} : {
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+      }),
       orderBy:
-        params.siralama === "fiyat-asc"
-          ? {}
-          : params.siralama === "yeni"
+        params.siralama === "yeni"
           ? { createdAt: "desc" }
           : { isBestseller: "desc" },
     }),
     prisma.product.count({ where }),
   ]);
+
+  const rawProducts = isFiyatSort
+    ? fetchedProducts
+        .sort((a, b) => {
+          const minPrice = (p: typeof a) =>
+            p.variants.length
+              ? Math.min(...p.variants.map((v) => Number(v.discountedPrice ?? v.price)))
+              : 0;
+          return params.siralama === "fiyat-asc"
+            ? minPrice(a) - minPrice(b)
+            : minPrice(b) - minPrice(a);
+        })
+        .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    : fetchedProducts;
 
   const products = rawProducts.map(serializeProduct);
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -139,18 +157,31 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           </div>
           <div className="flex flex-wrap gap-2">
             {[
-              { label: "İlk Kez Alacaklar", href: "?tur=ilk-kez" },
-              { label: "En Çok Tercih Edilenler", href: "?siralama=populer" },
-              { label: "Avantajlı Setler", href: "?tur=set" },
-            ].map(({ label, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="px-4 py-2 text-sm font-medium border border-honey-dark text-honey-dark rounded-lg hover:bg-honey-dark hover:text-white transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
+              { label: "İlk Kez Alacaklar", paramKey: "kategori", paramValue: "ilk-kez-alacaklar-serisi" },
+              { label: "En Çok Tercih Edilenler", paramKey: "bestseller", paramValue: "1" },
+              { label: "Avantajlı Setler", paramKey: "kategori", paramValue: "kooperatif-avantajli-urunler-serisi" },
+            ].map(({ label, paramKey, paramValue }) => {
+              const isActive = params[paramKey as keyof typeof params] === paramValue;
+              const sp = new URLSearchParams(
+                Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined)) as Record<string, string>
+              );
+              sp.delete("kategori");
+              sp.delete("bestseller");
+              if (!isActive) sp.set(paramKey, paramValue);
+              const href = sp.toString() ? `?${sp.toString()}` : "/urunlerimiz";
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  scroll={false}
+                  className={`px-4 py-2 text-sm font-medium border border-honey-dark rounded-lg transition-colors ${
+                    isActive ? "bg-honey-dark text-white" : "text-honey-dark hover:bg-honey-dark hover:text-white"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -158,21 +189,14 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex gap-8">
-          <Suspense>
-            <ProductFilter honeyTypes={honeyTypes} />
-          </Suspense>
+          <ProductFilter honeyTypes={honeyTypes} />
 
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-gray-500">
                 <span className="font-semibold text-gray-800">{total}</span> ürün bulundu
               </p>
-              <select className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-honey">
-                <option value="">Sıralama</option>
-                <option value="yeni">En Yeni</option>
-                <option value="fiyat-asc">Fiyat: Düşükten Yükseğe</option>
-                <option value="fiyat-desc">Fiyat: Yüksekten Düşüğe</option>
-              </select>
+              <SortSelect currentSort={params.siralama ?? ""} />
             </div>
 
             {products.length === 0 ? (

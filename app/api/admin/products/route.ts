@@ -24,8 +24,12 @@ export async function POST(req: Request) {
         shortDescription: productData.shortDescription || null,
         description: productData.description || null,
         images: Array.isArray(productData.images) ? productData.images : [],
-        categoryId: productData.categoryId || null,
-        honeyTypeId: productData.honeyTypeId || null,
+        categories: productData.categoryIds?.length
+          ? { connect: productData.categoryIds.map((id: string) => ({ id })) }
+          : undefined,
+        honeyTypes: productData.honeyTypeIds?.length
+          ? { connect: productData.honeyTypeIds.map((id: string) => ({ id })) }
+          : undefined,
         isActive: productData.isActive ?? true,
         isBestseller: productData.isBestseller ?? false,
         isFeatured: productData.isFeatured ?? false,
