@@ -1,5 +1,6 @@
 export interface PaymentCustomer {
   name: string;
+  surname: string;
   email: string;
   phone: string;
   ip: string;
@@ -21,6 +22,15 @@ export interface PaymentItem {
   quantity: number;
 }
 
+export interface PaymentCard {
+  holderName: string;
+  number: string;
+  expiryMonth: string;
+  expiryYear: string;
+  cvv: string;
+  installments: number;
+}
+
 export interface CreatePaymentParams {
   orderId: string;
   orderNumber: string;
@@ -29,9 +39,9 @@ export interface CreatePaymentParams {
   customer: PaymentCustomer;
   shippingAddress: PaymentAddress;
   items: PaymentItem[];
+  card?: PaymentCard;
   callbackUrl: string;
   cancelUrl: string;
-  successUrl?: string;
 }
 
 export interface PaymentResult {

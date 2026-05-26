@@ -37,11 +37,17 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
 
-  const honeyTypes = await prisma.honeyType.findMany({
-    where: { isActive: true },
-    orderBy: { order: "asc" },
-    select: { id: true, slug: true, label: true },
-  });
+  const [honeyTypes, allCategories] = await Promise.all([
+    prisma.honeyType.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      select: { id: true, slug: true, label: true },
+    }),
+    prisma.category.findMany({
+      where: { isActive: true },
+      select: { slug: true, name: true },
+    }),
+  ]);
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
@@ -120,18 +126,57 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const products = rawProducts.map(serializeProduct);
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  // Dinamik breadcrumb
+  type BreadcrumbItem = { label: string; href?: string };
+  const breadcrumb: BreadcrumbItem[] = [
+    { label: "Ana Sayfa", href: "/" },
+    { label: "Ürünlerimiz", href: params.q || params.tur || params.kategori || params.bestseller ? "/urunlerimiz" : undefined },
+  ];
+  if (params.q) {
+    breadcrumb.push({ label: `"${params.q}"`, href: `/urunlerimiz?q=${encodeURIComponent(params.q)}` });
+  } else if (params.tur) {
+    const ht = honeyTypes.find((t) => t.slug === params.tur);
+    if (ht) breadcrumb.push({ label: ht.label, href: `/urunlerimiz?tur=${params.tur}` });
+  } else if (params.kategori) {
+    const cat = allCategories.find((c) => c.slug === params.kategori);
+    if (cat) breadcrumb.push({ label: cat.name, href: `/urunlerimiz?kategori=${params.kategori}` });
+  } else if (params.bestseller === "1") {
+    breadcrumb.push({ label: "En Çok Satanlar", href: `/urunlerimiz?bestseller=1` });
+  }
+
+  const Breadcrumb = () => (
+    <nav className="flex items-center gap-1.5 text-sm mb-1 flex-wrap">
+      {breadcrumb.map((item, i) => {
+        const isLast = i === breadcrumb.length - 1;
+        return (
+          <span key={i} className="flex items-center gap-1.5">
+            {i > 0 && <span className="text-gray-300">/</span>}
+            {item.href ? (
+              <Link
+                href={item.href}
+                className={
+                  isLast
+                    ? "text-honey-dark font-medium"
+                    : "text-gray-500 hover:text-honey-dark transition-colors"
+                }
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <span className="text-honey-dark font-medium">{item.label}</span>
+            )}
+          </span>
+        );
+      })}
+    </nav>
+  );
+
   return (
     <div>
       {params.q ? (
         /* Arama sonuçları başlığı */
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-          <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
-            <Link href="/" className="hover:text-honey-dark transition-colors">Ana Sayfa</Link>
-            <span>/</span>
-            <Link href="/urunlerimiz" className="hover:text-honey-dark transition-colors">Ürünlerimiz</Link>
-            <span>/</span>
-            <span className="text-honey-dark font-medium">Arama</span>
-          </nav>
+          <Breadcrumb />
           <div className="mt-2">
             <h1 className="text-2xl font-black text-gray-800">
               &ldquo;{params.q}&rdquo; için sonuçlar
@@ -182,11 +227,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
-                <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
-                  <Link href="/" className="hover:text-honey-dark transition-colors">Ana Sayfa</Link>
-                  <span>/</span>
-                  <span className="text-honey-dark font-medium">Ürünlerimiz</span>
-                </nav>
+                <Breadcrumb />
                 <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
               </div>
               <div className="flex flex-wrap gap-2">

@@ -70,15 +70,16 @@ export function Header() {
     <>
       {/* ── FIXED KAPSAYICI ─────────────────────────────────────────── */}
       {/* fixed: header akıştan çıkar, içerik altından başlayabilir  */}
-      <div className="fixed top-0 left-0 right-0 z-40">
+      <div className="fixed top-0 left-0 right-0 z-40" style={{ pointerEvents: "none" }}>
 
         {/* Duyuru bandı — renk ve yükseklik headerTheme'den */}
         <div
           className="relative z-10 flex items-center justify-center text-xs px-4 text-center"
           style={{
-            height:     headerTheme.announcementHeight,
-            background: headerTheme.announcementBg,
-            color:      headerTheme.announcementText,
+            height:        headerTheme.announcementHeight,
+            background:    headerTheme.announcementBg,
+            color:         headerTheme.announcementText,
+            pointerEvents: "auto",
           }}
         >
           Kooperatif Üyelerine Ücretsiz Kargo! &nbsp;|&nbsp; 0 (322) 515 89 10
@@ -87,7 +88,7 @@ export function Header() {
         {/* ── HEADER (SVG arka plan + nav + logo) ─────────────────────── */}
         <div
           className="relative"
-          style={{ height: VB_H, overflow: "visible" }}
+          style={{ height: VB_H, overflow: "visible", pointerEvents: "none" }}
         >
           {/* Beyaz header şekli (SVG)
               overflow="visible" → arch tipindeki stroke viewBox sınırında kırpılmaz */}
@@ -96,7 +97,7 @@ export function Header() {
             overflow="visible"
             preserveAspectRatio="none"
             className="absolute inset-0 w-full h-full"
-            style={{ display: "block" }}
+            style={{ display: "block", pointerEvents: "none" }}
           >
             {/* Beyaz dolgu */}
             <path d={headerPath} fill={headerTheme.waveFill} />
@@ -113,7 +114,7 @@ export function Header() {
           {/* ── NAV SATIRI ───────────────────────────────────────────── */}
           <div
             className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center"
-            style={{ height: headerTheme.navHeight }}
+            style={{ height: headerTheme.navHeight, pointerEvents: "auto" }}
           >
             {/* Sol nav */}
             <nav className="hidden md:flex items-center gap-8 flex-1">
@@ -188,7 +189,7 @@ export function Header() {
           <Link
             href="/"
             className="absolute left-1/2 z-20 focus:outline-none"
-            style={{
+            style={{ pointerEvents: "auto",
               top: 0,
               transform: "translateX(-50%)",
               width: headerTheme.logoWidth,
@@ -215,7 +216,7 @@ export function Header() {
 
         {/* Mobil nav */}
         {mobileOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-1 relative z-10">
+          <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-1 relative z-10" style={{ pointerEvents: "auto" }}>
             {navLinks.map((l) => (
               <Link
                 key={l.href}

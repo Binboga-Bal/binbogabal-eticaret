@@ -33,6 +33,7 @@ interface VariantRow {
   discountedPrice: number | null;
   stock: number;
   sku: string;
+  maxOrderQuantity: number | null;
 }
 
 interface Props {
@@ -64,6 +65,7 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
       discountedPrice: v.discountedPrice,
       stock: v.stock,
       sku: v.sku ?? "",
+      maxOrderQuantity: (v as { maxOrderQuantity?: number | null }).maxOrderQuantity ?? null,
     })) ?? []
   );
 
@@ -101,7 +103,7 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   }
 
   function addVariant() {
-    setVariants((v) => [...v, { size: 450, packagingType: "GLASS", price: 0, discountedPrice: null, stock: 0, sku: "" }]);
+    setVariants((v) => [...v, { size: 450, packagingType: "GLASS", price: 0, discountedPrice: null, stock: 0, sku: "", maxOrderQuantity: null }]);
   }
 
   function removeVariant(i: number) {
@@ -292,49 +294,59 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
         {variants.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-6">Henüz varyant eklenmedi. En az bir varyant ekleyin.</p>
         ) : (
-          <div className="space-y-3">
-            <div className="grid grid-cols-6 gap-3 text-xs font-semibold text-gray-500 uppercase px-1">
-              <span>Gram</span>
-              <span>Ambalaj</span>
-              <span>Fiyat (₺)</span>
-              <span>İnd. Fiyat (₺)</span>
-              <span>Stok</span>
-              <span>SKU</span>
-            </div>
-            {variants.map((v, i) => (
-              <div key={i} className="grid grid-cols-6 gap-3 items-center bg-gray-50 rounded-xl p-3">
-                <input type="number" value={v.size} onChange={(e) => updateVariant(i, "size", parseInt(e.target.value))}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-                />
-                <select value={v.packagingType} onChange={(e) => updateVariant(i, "packagingType", e.target.value)}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-                >
-                  <option value="GLASS">Cam</option>
-                  <option value="PLASTIC">Plastik</option>
-                </select>
-                <input type="number" value={v.price} onChange={(e) => updateVariant(i, "price", parseFloat(e.target.value))}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-                />
-                <input type="number" value={v.discountedPrice ?? ""} placeholder="Yok"
-                  onChange={(e) => updateVariant(i, "discountedPrice", e.target.value ? parseFloat(e.target.value) : null)}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-                />
-                <input type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", parseInt(e.target.value))}
-                  className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-                />
-                <div className="flex gap-2">
+          <div className="overflow-x-auto">
+            <div className="min-w-[700px] space-y-3">
+              <div className="grid grid-cols-[60px_85px_80px_80px_60px_100px_80px_32px] gap-3 text-xs font-semibold text-gray-500 uppercase px-1">
+                <span>Gram</span>
+                <span>Ambalaj</span>
+                <span>Fiyat (₺)</span>
+                <span>İnd. Fiyat</span>
+                <span>Stok</span>
+                <span>SKU</span>
+                <span title="Müşterinin tek siparişte alabileceği maksimum adet">Max Sipariş</span>
+                <span />
+              </div>
+              {variants.map((v, i) => (
+                <div key={i} className="grid grid-cols-[60px_85px_80px_80px_60px_100px_80px_32px] gap-3 items-center bg-gray-50 rounded-xl p-3">
+                  <input type="number" value={v.size} onChange={(e) => updateVariant(i, "size", parseInt(e.target.value))}
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                  />
+                  <select value={v.packagingType} onChange={(e) => updateVariant(i, "packagingType", e.target.value)}
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                  >
+                    <option value="GLASS">Cam</option>
+                    <option value="PLASTIC">Plastik</option>
+                  </select>
+                  <input type="number" value={v.price} onChange={(e) => updateVariant(i, "price", parseFloat(e.target.value))}
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                  />
+                  <input type="number" value={v.discountedPrice ?? ""} placeholder="Yok"
+                    onChange={(e) => updateVariant(i, "discountedPrice", e.target.value ? parseFloat(e.target.value) : null)}
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                  />
+                  <input type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", parseInt(e.target.value))}
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                  />
                   <input value={v.sku} onChange={(e) => updateVariant(i, "sku", e.target.value)}
-                    className="flex-1 px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
                     placeholder="SKU"
                   />
+                  <input
+                    type="number"
+                    min={1}
+                    value={v.maxOrderQuantity ?? ""}
+                    placeholder="—"
+                    onChange={(e) => updateVariant(i, "maxOrderQuantity", e.target.value ? parseInt(e.target.value) : null)}
+                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                  />
                   <button type="button" onClick={() => removeVariant(i)}
-                    className="text-red-400 hover:text-red-600 p-1"
+                    className="text-red-400 hover:text-red-600 p-1 flex items-center justify-center"
                   >
                     <Trash2 size={14} />
                   </button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>

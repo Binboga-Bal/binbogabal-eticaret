@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getPaymentAdapter } from "@/lib/payment";
+import { QNBPayAdapter } from "@/lib/payment";
 import { pushOrderToErp } from "@/lib/dia-erp/sync";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+// QNBPay 3D ödeme sonrası kullanıcının tarayıcısını yönlendirdiği URL (browser POST)
 export async function POST(req: Request) {
   const formData = await req.formData();
   const params: Record<string, string> = {};
@@ -12,29 +13,28 @@ export async function POST(req: Request) {
     params[key] = value.toString();
   });
 
-  const adapter = getPaymentAdapter("QNB_PAY");
+  const adapter = new QNBPayAdapter();
   const result = await adapter.verifyPayment(params);
 
-  if (!result.success) {
-    console.error("QNB Pay callback verification failed:", result.error);
-    // QNB Pay/PayTR expects plain text response
-    return new NextResponse("FAIL", { status: 200 });
+  if (!result.success || !result.orderId) {
+    console.error("QNBPay callback doğrulama başarısız:", result.error, params);
+    return NextResponse.redirect(`${baseUrl}/odeme/hata`, { status: 303 });
   }
 
   const orderNumber = result.orderId;
-  if (!orderNumber) {
-    return new NextResponse("FAIL", { status: 200 });
-  }
-
   const order = await prisma.order.findUnique({ where: { orderNumber } });
+
   if (!order) {
-    console.error("Order not found:", orderNumber);
-    return new NextResponse("FAIL", { status: 200 });
+    console.error("Sipariş bulunamadı:", orderNumber);
+    return NextResponse.redirect(`${baseUrl}/odeme/hata`, { status: 303 });
   }
 
-  // Idempotency: already processed
+  // Idempotency: zaten işlenmişse başarı sayfasına yönlendir
   if (order.paymentStatus === "PAID") {
-    return new NextResponse("OK", { status: 200 });
+    return NextResponse.redirect(
+      `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`,
+      { status: 303 }
+    );
   }
 
   await prisma.$transaction([
@@ -52,25 +52,17 @@ export async function POST(req: Request) {
     }),
   ]);
 
-  // Push to ERP (non-blocking)
   pushOrderToErp(order.id).catch((err) =>
-    console.error("ERP push failed for order:", order.id, err)
+    console.error("ERP push başarısız, sipariş:", order.id, err)
   );
 
-  return new NextResponse("OK", { status: 200 });
+  return NextResponse.redirect(
+    `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`,
+    { status: 303 }
+  );
 }
 
-// GET: Browser redirect after payment (some providers redirect here)
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const orderNumber = searchParams.get("siparis");
-  const status = searchParams.get("durum");
-
-  if (status === "basarili" && orderNumber) {
-    return NextResponse.redirect(
-      `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`
-    );
-  }
-
-  return NextResponse.redirect(`${baseUrl}/odeme/hata`);
+// Kullanıcı cancel_url'den geri dönerse
+export async function GET() {
+  return NextResponse.redirect(`${baseUrl}/odeme/hata`, { status: 303 });
 }

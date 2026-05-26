@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = [
   { key: "contact_address", label: "Adres", value: "Kozan / Adana" },
   { key: "shipping_threshold", label: "Ücretsiz Kargo Limiti (₺)", value: "1500" },
   { key: "shipping_fee", label: "Kargo Ücreti (₺)", value: "99" },
+  { key: "cash_on_delivery_enabled", label: "Kapıda Ödeme", value: "false", type: "toggle" },
   { key: "social_instagram", label: "Instagram URL", value: "" },
   { key: "social_facebook", label: "Facebook URL", value: "" },
   { key: "social_whatsapp", label: "WhatsApp Numarası", value: "" },

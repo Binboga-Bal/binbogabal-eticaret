@@ -36,7 +36,7 @@ export async function PUT(req: Request, { params }: Params) {
         isFeatured: productData.isFeatured,
         isNew: productData.isNew,
         variants: {
-          create: variants.map((v: { erpVariantCode?: string | null; size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string }) => ({
+          create: variants.map((v: { erpVariantCode?: string | null; size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string; maxOrderQuantity?: number | null }) => ({
             erpVariantCode: v.erpVariantCode ?? null,
             size: v.size,
             packagingType: v.packagingType,
@@ -44,6 +44,7 @@ export async function PUT(req: Request, { params }: Params) {
             discountedPrice: v.discountedPrice,
             stock: v.stock,
             sku: v.sku || null,
+            maxOrderQuantity: v.maxOrderQuantity ?? null,
           })),
         },
       },

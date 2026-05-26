@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 
-export const metadata: Metadata = { title: "Ödeme Başarılı | Binboğa Bal" };
+export const metadata: Metadata = { title: "Sipariş Alındı | Binboğa Bal" };
 
 export default async function PaymentSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ siparis?: string }>;
+  searchParams: Promise<{ siparis?: string; yontem?: string }>;
 }) {
-  const { siparis } = await searchParams;
+  const { siparis, yontem } = await searchParams;
+  const isCod = yontem === "kapida";
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
@@ -22,8 +23,9 @@ export default async function PaymentSuccessPage({
 
         <h1 className="text-3xl font-black text-gray-900 mb-3">Siparişiniz Alındı!</h1>
         <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-          Ödemeniz başarıyla tamamlandı. Siparişinizi hazırlayıp en kısa sürede kargoya
-          vereceğiz. Sipariş takip bilgileri e-posta adresinize gönderilecektir.
+          {isCod
+            ? "Siparişiniz onaylandı. Ürünleriniz kapınıza geldiğinde ödeme yapabilirsiniz. Sipariş takip bilgileri e-posta adresinize gönderilecektir."
+            : "Ödemeniz başarıyla tamamlandı. Siparişinizi hazırlayıp en kısa sürede kargoya vereceğiz. Sipariş takip bilgileri e-posta adresinize gönderilecektir."}
         </p>
 
         {siparis && (

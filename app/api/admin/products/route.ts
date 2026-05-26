@@ -35,13 +35,14 @@ export async function POST(req: Request) {
         isFeatured: productData.isFeatured ?? false,
         isNew: productData.isNew ?? false,
         variants: {
-          create: variants.map((v: { size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string }) => ({
+          create: variants.map((v: { size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string; maxOrderQuantity?: number | null }) => ({
             size: v.size,
             packagingType: v.packagingType,
             price: v.price,
             discountedPrice: v.discountedPrice,
             stock: v.stock,
             sku: v.sku || null,
+            maxOrderQuantity: v.maxOrderQuantity ?? null,
           })),
         },
       },

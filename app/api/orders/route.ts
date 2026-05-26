@@ -30,6 +30,17 @@ const orderSchema = z.object({
   total: z.number().positive(),
   couponCode: z.string().nullable().optional(),
   notes: z.string().optional(),
+  paymentMethod: z.enum(["QNB_PAY", "CASH_ON_DELIVERY"]).default("QNB_PAY"),
+  card: z
+    .object({
+      holderName: z.string(),
+      number: z.string(),
+      expiryMonth: z.string(),
+      expiryYear: z.string(),
+      cvv: z.string(),
+      installments: z.number().int().min(1).default(1),
+    })
+    .optional(),
 });
 
 export async function POST(req: Request) {
@@ -79,19 +90,38 @@ export async function POST(req: Request) {
       .catch(() => {});
   }
 
-  // Ödeme başlat
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+  // Kapıda ödeme: doğrudan başarı sayfasına yönlendir
+  if (data.paymentMethod === "CASH_ON_DELIVERY") {
+    await prisma.paymentTransaction.create({
+      data: {
+        orderId: order.id,
+        provider: "CASH_ON_DELIVERY",
+        amount: data.total,
+        status: "PENDING",
+      },
+    });
+
+    return NextResponse.json({
+      redirectUrl: `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(order.orderNumber)}&yontem=kapida`,
+      orderId: order.id,
+    });
+  }
+
+  // Online ödeme: QNBPay Güvenli Ödeme Sayfası (kart verisi bizden geçmez)
   const adapter = getPaymentAdapter("QNB_PAY");
 
   const forwardedFor = req.headers.get("x-forwarded-for");
   const ip = forwardedFor?.split(",")[0]?.trim() ?? "127.0.0.1";
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const paymentResult = await adapter.createPayment({
     orderId: order.id,
     orderNumber: order.orderNumber,
     amount: data.total,
     customer: {
-      name: `${data.shippingAddress.firstName} ${data.shippingAddress.lastName}`,
+      name: data.shippingAddress.firstName,
+      surname: data.shippingAddress.lastName,
       email: data.shippingAddress.email,
       phone: data.shippingAddress.phone,
       ip,
@@ -112,7 +142,7 @@ export async function POST(req: Request) {
     })),
     callbackUrl: `${baseUrl}/api/payment/qnb/callback`,
     cancelUrl: `${baseUrl}/odeme/hata`,
-    successUrl: `${baseUrl}/api/payment/qnb/callback?siparis=${encodeURIComponent(order.orderNumber)}&durum=basarili`,
+    card: data.card,
   });
 
   await prisma.paymentTransaction.create({
@@ -127,8 +157,15 @@ export async function POST(req: Request) {
   });
 
   if (!paymentResult.success) {
-    return NextResponse.json({ error: paymentResult.error ?? "Ödeme başlatılamadı" }, { status: 500 });
+    return NextResponse.json(
+      { error: paymentResult.error ?? "Ödeme başlatılamadı" },
+      { status: 500 }
+    );
   }
 
-  return NextResponse.json({ redirectUrl: paymentResult.redirectUrl, orderId: order.id });
+  return NextResponse.json({
+    redirectUrl: paymentResult.redirectUrl,
+    htmlContent: paymentResult.htmlContent,
+    orderId: order.id,
+  });
 }

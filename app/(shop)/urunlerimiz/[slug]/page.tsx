@@ -1,13 +1,16 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
+import Link from "next/link";
+import { ChevronRight, Truck, Clock, ShieldCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
-import { formatPrice, formatWeight, calculateDiscount } from "@/lib/utils/format";
+import { headerTheme } from "@/lib/theme";
 import { StarRating } from "@/components/ui/StarRating";
 import { Badge } from "@/components/ui/Badge";
 import { ProductVariantSelector } from "@/components/shop/product/ProductVariantSelector";
 import { ProductTabs } from "@/components/shop/product/ProductTabs";
+import { ProductImageGallery } from "@/components/shop/product/ProductImageGallery";
+import { FavoriteButton } from "@/components/shop/product/FavoriteButton";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -68,8 +71,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!rawProduct) notFound();
 
   const product = serializeProduct(rawProduct);
-  const images = product.images;
-  const defaultVariant = product.variants[0];
   const reviews = rawProduct.reviews;
 
   const avgRating =
@@ -78,43 +79,60 @@ export default async function ProductDetailPage({ params }: PageProps) {
       : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12"
+      style={{ paddingTop: headerTheme.waveDepth }}
+    >
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-sm text-gray-500 mb-6 flex-wrap">
+        <Link href="/" className="hover:text-honey-dark transition-colors">
+          Anasayfa
+        </Link>
+        <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
+        <Link href="/urunlerimiz" className="hover:text-honey-dark transition-colors">
+          Ürünlerimiz
+        </Link>
+        {product.categories?.[0] && (
+          <>
+            <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
+            <Link
+              href={`/urunlerimiz?kategori=${product.categories[0].slug}`}
+              className="hover:text-honey-dark transition-colors"
+            >
+              {product.categories[0].name}
+            </Link>
+          </>
+        )}
+        <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
+        <span className="text-gray-800 font-medium truncate max-w-[200px]">{product.name}</span>
+      </nav>
+
+      {/* Ana grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Görseller */}
-        <div className="space-y-4">
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border flex items-center justify-center">
-            {images[0] ? (
-              <Image
-                src={images[0]}
-                alt={product.name}
-                fill
-                className="object-contain p-6"
-                priority
-              />
-            ) : (
-              <span className="text-8xl">🍯</span>
-            )}
-          </div>
-          {images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto">
-              {images.map((img, i) => (
-                <div
-                  key={i}
-                  className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border-2 border-honey-dark cursor-pointer"
-                >
-                  <Image src={img} alt={`${product.name} ${i + 1}`} fill className="object-contain p-2" />
-                </div>
+        {/* Sol: Görsel galerisi (max 3 görsel) */}
+        <ProductImageGallery images={product.images} productName={product.name} />
+
+        {/* Sağ: Ürün bilgileri */}
+        <div className="flex flex-col gap-4">
+          {/* Kategori rozetleri */}
+          {product.categories && product.categories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {product.categories.map((cat) => (
+                <Badge key={cat.id} variant="info">
+                  {cat.name}
+                </Badge>
               ))}
             </div>
           )}
-        </div>
 
-        {/* Ürün bilgileri */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900">{product.name}</h1>
+          {/* Ürün adı */}
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
+            {product.name}
+          </h1>
 
+          {/* Yıldız değerlendirme */}
           {reviews.length > 0 && (
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2">
               <StarRating rating={Math.round(avgRating)} />
               <span className="text-sm font-medium text-gray-600">
                 {avgRating.toFixed(1)} ({reviews.length} yorum)
@@ -122,23 +140,47 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           )}
 
+          {/* Kısa açıklama */}
+          {product.shortDescription && (
+            <p className="text-sm text-gray-600 leading-relaxed border-l-2 border-honey pl-3">
+              {product.shortDescription}
+            </p>
+          )}
+
+          {/* Varyant seçici (fiyat + gram seçimi + sepete ekle) */}
           <ProductVariantSelector product={product} variants={product.variants} />
 
-          {/* Kargo ve güven */}
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span>🚚</span>
-              <span>Üyelere Özel Kargo Ücretsiz</span>
+          {/* Favorilere ekle */}
+          <FavoriteButton productId={product.id} />
+
+          {/* Tahmini teslimat */}
+          <div className="rounded-xl border border-honey-light bg-honey-cream/60 p-4 space-y-2.5">
+            <p className="text-xs font-bold text-honey-dark uppercase tracking-wider mb-1">
+              Teslimat Bilgisi
+            </p>
+            <div className="flex items-start gap-2.5 text-sm text-gray-700">
+              <Truck size={16} className="text-honey-dark flex-shrink-0 mt-0.5" />
+              <span>
+                Siparişiniz <strong>2–4 iş günü</strong> içinde kapınıza teslim edilir
+              </span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span>🔒</span>
-              <span>Güvenli Ödeme Sistemi</span>
+            <div className="flex items-start gap-2.5 text-sm text-gray-700">
+              <Clock size={16} className="text-honey-dark flex-shrink-0 mt-0.5" />
+              <span>
+                Saat <strong>14:00&apos;e kadar</strong> verilen siparişler aynı gün kargoya verilir
+              </span>
+            </div>
+            <div className="flex items-start gap-2.5 text-sm text-gray-700">
+              <ShieldCheck size={16} className="text-honey-dark flex-shrink-0 mt-0.5" />
+              <span>
+                Kooperatif üyelerine <strong>ücretsiz kargo</strong> — Güvenli ödeme sistemi
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs: Açıklama / Hangi Balcıdan */}
+      {/* Sekmeler: Açıklama / Hangi Balcıdan */}
       <div className="mt-12">
         <ProductTabs
           description={product.description ?? ""}
@@ -146,12 +188,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
         />
       </div>
 
-      {/* Video section placeholder */}
+      {/* Video alanı */}
       <div className="mt-10 rounded-2xl overflow-hidden bg-gray-100 aspect-video flex items-center justify-center">
         <p className="text-gray-400">Ürün videosu burada görüntülenecek</p>
       </div>
 
-      {/* Trust bar */}
+      {/* Güven bandı */}
       <div className="mt-10 border border-honey-light rounded-2xl px-6 py-5">
         <div className="flex flex-wrap justify-around gap-6 text-center text-xs text-gray-600">
           <div className="flex flex-col items-center gap-1">
