@@ -476,6 +476,11 @@
       <a href="#step51" class="nav-link"><span class="dot"></span>51 — Çok Alan Arama</a>
       <a href="#step52" class="nav-link"><span class="dot"></span>52 — çam/cam Düzeltmesi</a>
 
+      <div class="nav-section-label">26 Mayıs 2026 — Arama Sonuçları</div>
+      <a href="#step53" class="nav-link"><span class="dot"></span>53 — Overlay Maks 6 + Tümünü Gör</a>
+      <a href="#step54" class="nav-link"><span class="dot"></span>54 — Ürünlerimiz Arama Modu</a>
+      <a href="#step55" class="nav-link"><span class="dot"></span>55 — Tüm Ürünlere Dön Butonu</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -3706,10 +3711,144 @@ OR: [
     </section>
 
 
+    <!-- ═══════════════════════════════ ADIM 53: OVERLAY MAKS 6 + TÜMÜNÜ GÖR -->
+    <section class="section" id="step53">
+      <div class="section-title">
+        <div class="step-num">53</div>
+        <h2>SearchOverlay — Maks 6 Sonuç + "Tümünü Gör" Linki</h2>
+      </div>
+
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Overlay'de gösterilen sonuç sayısı <strong>6 ile sınırlandırıldı</strong>. API hâlâ 12 sonuç döndürüyor; fazlası için ürünlerimiz sayfasına yönlendiren link eklendi.</p>
+        <table style="margin-top:12px;">
+          <tr><th>Özellik</th><th>Eski</th><th>Yeni</th></tr>
+          <tr><td>Gösterilen maks sonuç</td><td>Tümü (API'den gelen)</td><td>6 (<code>results.slice(0, 6)</code>)</td></tr>
+          <tr><td>Fazla sonuç için</td><td>—</td><td>"Tüm sonuçları gör (X ürün) →" linki</td></tr>
+          <tr><td>Link hedefi</td><td>—</td><td><code>/urunlerimiz?q=&lt;sorgu&gt;</code></td></tr>
+          <tr><td>Yeni ikon import</td><td>—</td><td><code>ArrowRight</code> (lucide-react)</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Etkilenen Dosya</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/header/SearchOverlay.tsx</span>
+        </div>
+      </div>
+
+      <pre><span class="cm">// Sonuç grid'i — sadece ilk 6</span>
+{results.<span class="fn">slice</span>(<span class="nm">0</span>, <span class="nm">6</span>).<span class="fn">map</span>((p) =&gt; (
+  &lt;Link href={`/urunlerimiz/${p.slug}`} ... /&gt;
+))}
+
+<span class="cm">// Fazla sonuç varsa link</span>
+{results.length &gt; <span class="nm">6</span> &amp;&amp; (
+  &lt;<span class="tp">Link</span>
+    href={`/urunlerimiz?q=${<span class="fn">encodeURIComponent</span>(query)}`}
+    onClick={onClose}
+  &gt;
+    Tüm sonuçları gör ({results.length} ürün) &lt;<span class="tp">ArrowRight</span> size={<span class="nm">14</span>} /&gt;
+  &lt;/<span class="tp">Link</span>&gt;
+)}</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 54: ÜRÜNLERİMİZ ARAMA MODU -->
+    <section class="section" id="step54">
+      <div class="section-title">
+        <div class="step-num">54</div>
+        <h2>Ürünlerimiz Sayfası — Arama Sonuç Modu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Genel Yaklaşım</h3>
+        <p>
+          <code>/urunlerimiz?q=kestane</code> gibi bir URL geldiğinde sayfa iki farklı görünüme girer:
+        </p>
+        <table style="margin-top:10px;">
+          <tr><th>Durum</th><th>Başlık Alanı</th><th>Filtreler</th></tr>
+          <tr><td><code>q</code> yok</td><td>Hero banner + hızlı filtre butonları</td><td>Yan panel aktif</td></tr>
+          <tr><td><code>q</code> var</td><td>Compact başlık: breadcrumb + sorgu başlığı + ürün sayısı</td><td>Yan panel aktif (birlikte çalışır)</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Prisma Filtresi — <code>q</code> Param</h3>
+        <p>Mevcut <code>where</code> koşullarına eklenen <code>OR</code> bloğu SearchOverlay API ile birebir aynı kapsamı kullanır:</p>
+        <pre style="margin-top:8px;"><span class="cm">// app/(shop)/urunlerimiz/page.tsx</span>
+...(params.q &amp;&amp; {
+  OR: [
+    { name:             { contains: params.q } },
+    { shortDescription: { contains: params.q } },
+    { honeyTypes: { some: { label: { contains: params.q }, isActive: <span class="kw">true</span> } } },
+    { categories: { some: { name:  { contains: params.q }, isActive: <span class="kw">true</span> } } },
+  ],
+}),</pre>
+        <div class="alert alert-info" style="margin-top:10px;">
+          <span class="alert-label">ℹ️</span> <code>q</code> ile diğer filtreler (<code>tur</code>, <code>kategori</code>, <code>bestseller</code> vb.) birlikte çalışır — Prisma AND ile birleştirir.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Arama Başlığı Yapısı (<code>q</code> varken)</h3>
+        <ul>
+          <li>Breadcrumb: Ana Sayfa → Ürünlerimiz → Arama</li>
+          <li><code>&ldquo;{sorgu}&rdquo; için sonuçlar</code> başlığı</li>
+          <li>Bulunan ürün sayısı</li>
+          <li>"Tüm Ürünlere Dön" butonu</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Etkilenen Dosya</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/page.tsx</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 55: TÜM ÜRÜNLERE DÖN BUTONU -->
+    <section class="section" id="step55">
+      <div class="section-title">
+        <div class="step-num">55</div>
+        <h2>"Tüm Ürünlere Dön" Buton Konumu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Konum Kararı</h3>
+        <p>Arama sonuç başlığındaki "Tüm Ürünlere Dön" butonunun konumu iterasyonla belirlendi:</p>
+        <table style="margin-top:8px;">
+          <tr><th>İterasyon</th><th>Düzen</th></tr>
+          <tr><td>1</td><td>Başlık solu — yatay hizalama (<code>flex items-center gap-4</code>)</td></tr>
+          <tr><td>2</td><td>Buton üstte, başlık altta (dikey)</td></tr>
+          <tr><td>3</td><td>Başlık üstte, buton altta (dikey) ← <strong>son karar</strong></td></tr>
+        </table>
+        <div class="alert alert-fix" style="margin-top:10px;">
+          <span class="alert-label">✅ SONUÇ:</span> Başlık + ürün sayısı üstte, "← Tüm Ürünlere Dön" butonu <code>mt-3</code> ile altında.
+        </div>
+      </div>
+
+      <pre>&lt;<span class="tp">div</span> className=<span class="str">"mt-2"</span>&gt;
+  &lt;<span class="tp">h1</span> className=<span class="str">"text-2xl font-black text-gray-800"</span>&gt;
+    &amp;ldquo;{params.q}&amp;rdquo; için sonuçlar
+  &lt;/<span class="tp">h1</span>&gt;
+  &lt;<span class="tp">p</span> className=<span class="str">"text-sm text-gray-500 mt-0.5"</span>&gt;{total} ürün bulundu&lt;/<span class="tp">p</span>&gt;
+  &lt;<span class="tp">Link</span>
+    href=<span class="str">"/urunlerimiz"</span>
+    className=<span class="str">"inline-flex items-center gap-1.5 mt-3 px-3 py-2 ..."</span>
+  &gt;
+    ← Tüm Ürünlere Dön
+  &lt;/<span class="tp">Link</span>&gt;
+&lt;/<span class="tp">div</span>&gt;</pre>
+    </section>
+
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 26 Mayıs 2026 — Adım 52</span>
+      <span>Son güncelleme: 26 Mayıs 2026 — Adım 55</span>
     </div>
 
   </main>

@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: Promise<{
+    q?: string;
     tur?: string;
     kategori?: string;
     bestseller?: string;
@@ -44,6 +45,14 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
+    ...(params.q && {
+      OR: [
+        { name:             { contains: params.q } },
+        { shortDescription: { contains: params.q } },
+        { honeyTypes: { some: { label: { contains: params.q }, isActive: true } } },
+        { categories: { some: { name:  { contains: params.q }, isActive: true } } },
+      ],
+    }),
     ...(params.tur && {
       honeyTypes: { some: { slug: params.tur, isActive: true } },
     }),
@@ -113,79 +122,105 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   return (
     <div>
-      {/* Hero */}
-      <div className="relative h-96 md:h-[520px] overflow-hidden">
-        <Image
-          src="/images/urunlerimiz/urunlerimiz-banner.webp"
-          alt="Ürünlerimiz banner"
-          fill
-          className="object-cover"
-          priority
-        />
-        {/* Karartma gradyanı — sol taraf okunabilirliği */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10" />
-        {/* Slogan */}
-        <div className="absolute inset-0 z-20 flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-xl drop-shadow-2xl">
-              <p className="font-script text-5xl md:text-6xl lg:text-7xl text-white leading-[1.2]">
-                Arıcıdan Aracısız
-              </p>
-              <p className="font-script text-2xl md:text-3xl lg:text-4xl text-honey leading-snug mt-2">
-                Kooperatif Tecrübesiyle
-              </p>
+      {params.q ? (
+        /* Arama sonuçları başlığı */
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+          <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
+            <Link href="/" className="hover:text-honey-dark transition-colors">Ana Sayfa</Link>
+            <span>/</span>
+            <Link href="/urunlerimiz" className="hover:text-honey-dark transition-colors">Ürünlerimiz</Link>
+            <span>/</span>
+            <span className="text-honey-dark font-medium">Arama</span>
+          </nav>
+          <div className="mt-2">
+            <h1 className="text-2xl font-black text-gray-800">
+              &ldquo;{params.q}&rdquo; için sonuçlar
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">{total} ürün bulundu</p>
+            <Link
+              href="/urunlerimiz"
+              className="inline-flex items-center gap-1.5 mt-3 px-3 py-2 text-sm font-medium border border-honey-dark text-honey-dark rounded-lg hover:bg-honey-dark hover:text-white transition-colors"
+            >
+              ← Tüm Ürünlere Dön
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Hero */}
+          <div className="relative h-96 md:h-[520px] overflow-hidden">
+            <Image
+              src="/images/urunlerimiz/urunlerimiz-banner.webp"
+              alt="Ürünlerimiz banner"
+              fill
+              className="object-cover"
+              priority
+            />
+            {/* Karartma gradyanı — sol taraf okunabilirliği */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10" />
+            {/* Slogan */}
+            <div className="absolute inset-0 z-20 flex items-center">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                <div className="max-w-xl drop-shadow-2xl">
+                  <p className="font-script text-5xl md:text-6xl lg:text-7xl text-white leading-[1.2]">
+                    Arıcıdan Aracısız
+                  </p>
+                  <p className="font-script text-2xl md:text-3xl lg:text-4xl text-honey leading-snug mt-2">
+                    Kooperatif Tecrübesiyle
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="absolute bottom-[-1px] left-0 right-0 z-30">
+              <svg viewBox="0 0 1440 40" className="w-full block" preserveAspectRatio="none">
+                <path d="M0,40 C360,0 1080,40 1440,15 L1440,40 Z" fill="white" />
+              </svg>
             </div>
           </div>
-        </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-30">
-          <svg viewBox="0 0 1440 40" className="w-full block" preserveAspectRatio="none">
-            <path d="M0,40 C360,0 1080,40 1440,15 L1440,40 Z" fill="white" />
-          </svg>
-        </div>
-      </div>
 
-      {/* Başlık & Hızlı Filtreler */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
-              <Link href="/" className="hover:text-honey-dark transition-colors">Ana Sayfa</Link>
-              <span>/</span>
-              <span className="text-honey-dark font-medium">Ürünlerimiz</span>
-            </nav>
-            <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
+          {/* Başlık & Hızlı Filtreler */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
+                  <Link href="/" className="hover:text-honey-dark transition-colors">Ana Sayfa</Link>
+                  <span>/</span>
+                  <span className="text-honey-dark font-medium">Ürünlerimiz</span>
+                </nav>
+                <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: "İlk Kez Alacaklar", paramKey: "kategori", paramValue: "ilk-kez-alacaklar-serisi" },
+                  { label: "En Çok Tercih Edilenler", paramKey: "bestseller", paramValue: "1" },
+                  { label: "Avantajlı Setler", paramKey: "kategori", paramValue: "kooperatif-avantajli-urunler-serisi" },
+                ].map(({ label, paramKey, paramValue }) => {
+                  const isActive = params[paramKey as keyof typeof params] === paramValue;
+                  const sp = new URLSearchParams(
+                    Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined)) as Record<string, string>
+                  );
+                  sp.delete("kategori");
+                  sp.delete("bestseller");
+                  if (!isActive) sp.set(paramKey, paramValue);
+                  const href = sp.toString() ? `?${sp.toString()}` : "/urunlerimiz";
+                  return (
+                    <Link
+                      key={label}
+                      href={href}
+                      scroll={false}
+                      className={`px-4 py-2 text-sm font-medium border border-honey-dark rounded-lg transition-colors ${
+                        isActive ? "bg-honey-dark text-white" : "text-honey-dark hover:bg-honey-dark hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: "İlk Kez Alacaklar", paramKey: "kategori", paramValue: "ilk-kez-alacaklar-serisi" },
-              { label: "En Çok Tercih Edilenler", paramKey: "bestseller", paramValue: "1" },
-              { label: "Avantajlı Setler", paramKey: "kategori", paramValue: "kooperatif-avantajli-urunler-serisi" },
-            ].map(({ label, paramKey, paramValue }) => {
-              const isActive = params[paramKey as keyof typeof params] === paramValue;
-              const sp = new URLSearchParams(
-                Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined)) as Record<string, string>
-              );
-              sp.delete("kategori");
-              sp.delete("bestseller");
-              if (!isActive) sp.set(paramKey, paramValue);
-              const href = sp.toString() ? `?${sp.toString()}` : "/urunlerimiz";
-              return (
-                <Link
-                  key={label}
-                  href={href}
-                  scroll={false}
-                  className={`px-4 py-2 text-sm font-medium border border-honey-dark rounded-lg transition-colors ${
-                    isActive ? "bg-honey-dark text-white" : "text-honey-dark hover:bg-honey-dark hover:text-white"
-                  }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-      </div>
+        </>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex gap-8">

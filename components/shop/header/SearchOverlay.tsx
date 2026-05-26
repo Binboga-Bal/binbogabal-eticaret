@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, X, TrendingUp } from "lucide-react";
+import { Search, X, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { headerTheme } from "@/lib/theme";
@@ -269,7 +269,7 @@ export function SearchOverlay({ open, onClose }: Props) {
                         {results.length} ürün bulundu
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                        {results.map((p) => (
+                        {results.slice(0, 6).map((p) => (
                           <Link
                             key={p.id}
                             href={`/urunlerimiz/${p.slug}`}
@@ -301,6 +301,19 @@ export function SearchOverlay({ open, onClose }: Props) {
                           </Link>
                         ))}
                       </div>
+                      {results.length > 6 && (
+                        <div className="mt-3 text-center">
+                          <Link
+                            href={`/urunlerimiz?q=${encodeURIComponent(query)}`}
+                            onClick={onClose}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl transition-colors hover:bg-amber-50"
+                            style={{ color: headerTheme.waveStroke }}
+                          >
+                            Tüm sonuçları gör ({results.length} ürün)
+                            <ArrowRight size={14} />
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center py-10 text-center">
