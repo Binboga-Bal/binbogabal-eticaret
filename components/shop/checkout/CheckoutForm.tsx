@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cart";
 import { formatPrice, formatWeight } from "@/lib/utils/format";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import type { Smart3DFormPayload } from "@/lib/payment/types";
 
 const schema = z.object({
   firstName: z.string().min(2, "Ad gerekli"),
@@ -22,13 +23,80 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-interface CardFields {
-  holderName: string;
-  number: string;
-  expiryMonth: string;
-  expiryYear: string;
+type CardData = {
+  cc_holder_name: string;
+  cc_no: string;
+  expiry_month: string;
+  expiry_year: string;
   cvv: string;
-  installments: number;
+};
+
+function formatCardNumber(raw: string): string {
+  return raw
+    .replace(/\D/g, "")
+    .substring(0, 16)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+}
+
+function validateCard(card: CardData): Record<string, string> {
+  const errors: Record<string, string> = {};
+  if (!card.cc_holder_name.trim())
+    errors.cc_holder_name = "Kart üzerindeki isim gerekli";
+  if (!/^\d{13,19}$/.test(card.cc_no.replace(/\s/g, "")))
+    errors.cc_no = "Geçerli bir kart numarası girin";
+  if (!/^(0[1-9]|1[0-2])$/.test(card.expiry_month))
+    errors.expiry_month = "01–12 arası ay girin";
+  if (!/^\d{2,4}$/.test(card.expiry_year))
+    errors.expiry_year = "Geçerli yıl (YY)";
+  if (!/^\d{3,4}$/.test(card.cvv)) errors.cvv = "3 veya 4 haneli CVV";
+  return errors;
+}
+
+// 🔒 Kart verisi sunucuya hiç gitmez — doğrudan QNBPay'e form POST edilir
+function submitToQNBPay(payload: Smart3DFormPayload, card: CardData) {
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = payload.endpoint;
+  form.style.display = "none";
+
+  const fields: Record<string, string> = {
+    authorization: payload.authorization,
+    merchant_key: payload.merchant_key,
+    ...(payload.pos_id ? { pos_id: payload.pos_id } : {}),
+    currency_code: payload.currency_code,
+    installments_number: payload.installments_number,
+    invoice_id: payload.invoice_id,
+    invoice_description: payload.invoice_description,
+    name: payload.name,
+    surname: payload.surname,
+    total: payload.total,
+    items: payload.items,
+    ip: payload.ip,
+    transaction_type: payload.transaction_type,
+    is_comission_from_user: payload.is_comission_from_user,
+    response_method: payload.response_method,
+    return_url: payload.return_url,
+    cancel_url: payload.cancel_url,
+    hash_key: payload.hash_key,
+    // Kart alanları — yalnızca browser'da yaşar, sunucuya uğramaz
+    cc_holder_name: card.cc_holder_name,
+    cc_no: card.cc_no.replace(/\s/g, ""),
+    expiry_month: card.expiry_month,
+    expiry_year: card.expiry_year,
+    cvv: card.cvv,
+  };
+
+  for (const [name, value] of Object.entries(fields)) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
 export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
@@ -37,14 +105,16 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
   const [paymentMethod, setPaymentMethod] = useState<
     "QNB_PAY" | "CASH_ON_DELIVERY"
   >("QNB_PAY");
-  const [card, setCard] = useState<CardFields>({
-    holderName: "",
-    number: "",
-    expiryMonth: "",
-    expiryYear: "",
+
+  const [card, setCard] = useState<CardData>({
+    cc_holder_name: "",
+    cc_no: "",
+    expiry_month: "",
+    expiry_year: "",
     cvv: "",
-    installments: 1,
   });
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
+
   const { items, subtotal, total, couponCode, couponDiscount, clearCart } =
     useCartStore();
 
@@ -57,55 +127,34 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
   const SHIPPING_FEE = subtotal() >= 1500 ? 0 : 99;
   const grandTotal = total() + SHIPPING_FEE;
 
+  function updateCard(field: keyof CardData, value: string) {
+    setCard((prev) => ({ ...prev, [field]: value }));
+    if (cardErrors[field]) {
+      setCardErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  }
+
   async function onSubmit(data: FormValues) {
+    if (paymentMethod === "QNB_PAY") {
+      const errs = validateCard(card);
+      if (Object.keys(errs).length > 0) {
+        setCardErrors(errs);
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      // ----------------------------------------------------------------
-      // SENARYO A: KAPIDA ÖDEME (Normal Akış)
-      // ----------------------------------------------------------------
-      if (paymentMethod === "CASH_ON_DELIVERY") {
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            shippingAddress: data,
-            items: items.map((i) => ({
-              variantId: i.variantId,
-              quantity: i.quantity,
-              price: i.discountedPrice ?? i.price,
-              productName: i.productName,
-              variantInfo: `${formatWeight(i.size)} - ${i.packagingType}`,
-            })),
-            subtotal: subtotal(),
-            shippingFee: SHIPPING_FEE,
-            discount: couponDiscount,
-            total: grandTotal,
-            couponCode,
-            notes: data.notes,
-            paymentMethod,
-          }),
-        });
-
-        const result = await res.json();
-        if (result.error) throw new Error(result.error);
-
-        clearCart();
-        if (result.redirectUrl) {
-          window.location.href = result.redirectUrl;
-        }
-        return;
-      }
-
-      // ----------------------------------------------------------------
-      // SENARYO B: QNB PAY İLE ÖDEME (Güvenli PCI-DSS Akışı)
-      // ----------------------------------------------------------------
-
-      // 1. ADIM: Kart bilgileri OLMADAN backend'de siparişi başlat ve QNB Hash/Token verilerini üretmesini iste.
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // 🔒 Kart verisi bu body'de YOK — sunucu asla kart görmez
         body: JSON.stringify({
           shippingAddress: data,
           items: items.map((i) => ({
@@ -122,56 +171,23 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
           couponCode,
           notes: data.notes,
           paymentMethod,
-          // 🚨 DIKKAT: card objesini backend'e GÖNDERMİYORUZ! Sunucu kartı hiç görmüyor.
         }),
       });
 
       const result = await res.json();
       if (result.error) throw new Error(result.error);
 
-      // Backend'in bize QNB Pay endpoint'i için hazırladığı parametrelerin (hash_key, app_id, invoice_id vb.) geldiğinden emin oluyoruz
-      if (!result.qnbParameters) {
-        throw new Error("Ödeme parametreleri bankadan alınamadı.");
+      clearCart();
+
+      if (result.formPayload) {
+        // Browser doğrudan QNBPay'e POST eder — kart verisi sunucuya uğramaz
+        submitToQNBPay(result.formPayload as Smart3DFormPayload, card);
+        return;
       }
 
-      // 2. ADIM: DOM üzerinde gizli bir form oluşturup kart bilgileriyle birlikte DOĞRUDAN QNB'ye POST ediyoruz.
-      const form = document.createElement("form");
-      form.method = "POST";
-      // QNB Pay 3D Secure API endpoint'i (Backend'den dinamik gelebilir veya hardcoded eklenebilir)
-      form.action =
-        result.qnbParameters.api_url ||
-        "https://vpos.qnb.com.tr/ccpayment/api/paySmart3D";
-
-      // Bankanın beklediği tüm parametreleri ve local state'teki kart verilerini birleştiriyoruz
-      const qnbFormFields: Record<string, string> = {
-        app_id: result.qnbParameters.app_id,
-        amount: grandTotal.toString(),
-        hash_key: result.qnbParameters.hash_key,
-        invoice_id: result.qnbParameters.invoice_id,
-        callback_url: window.location.origin + "/api/payment/qnb/callback",
-
-        // Kart Bilgileri (Doğrudan tarayıcı belleğinden bankaya gidiyor, senin sunucuna uğramıyor)
-        pan: card.number.replace(/\s/g, ""), // Boşlukları temizle
-        expiry: `${card.expiryMonth.padStart(2, "0")}${card.expiryYear.replace(/\D/g, "")}`, // AAYY Formatı
-        cv2: card.cvv,
-        installments: card.installments.toString(),
-        card_holder_name: card.holderName,
-      };
-
-      // Hidden inputları oluşturup forma append ediyoruz
-      Object.entries(qnbFormFields).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      clearCart(); // Form submit olmadan önce sepeti temizliyoruz
-
-      // 🚀 Tarayıcı verileri doğrudan QNB sunucularına post eder ve 3D sayfasına yönlenir.
-      form.submit();
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl;
+      }
     } catch (err: any) {
       setError(err.message || "Bir hata oluştu. Lütfen tekrar deneyin.");
       setLoading(false);
@@ -186,12 +202,15 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
     );
   }
 
+  const inputCls =
+    "w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey";
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Sol: Teslimat + Ödeme yöntemi */}
+        {/* Sol Panel */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Teslimat bilgileri */}
+          {/* Teslimat Bilgileri */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="font-bold text-gray-800 mb-5">Teslimat Bilgileri</h2>
 
@@ -240,7 +259,7 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
               <textarea
                 {...register("fullAddress")}
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                className={inputCls}
                 placeholder="Mahalle, cadde, sokak, kapı no..."
               />
               {errors.fullAddress && (
@@ -256,12 +275,12 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
               <textarea
                 {...register("notes")}
                 rows={2}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                className={inputCls}
               />
             </div>
           </div>
 
-          {/* Ödeme yöntemi */}
+          {/* Ödeme Yöntemi */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="font-bold text-gray-800 mb-4">Ödeme Yöntemi</h2>
             <div className="space-y-3">
@@ -286,8 +305,7 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
                     Kredi / Banka Kartı
                   </span>
                   <span className="text-xs text-gray-400">
-                    Kart bilgileriniz doğrudan bankanın altyapısı ile güvenli
-                    şekilde işlenir
+                    3D Secure ile güvenli ödeme
                   </span>
                 </div>
                 <div className="ml-auto flex gap-2 flex-shrink-0">
@@ -323,145 +341,149 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
                 </button>
               )}
             </div>
-
-            <p className="text-xs text-gray-400 mt-3">
-              {paymentMethod === "CASH_ON_DELIVERY"
-                ? "Siparişiniz kapınıza geldiğinde nakit veya kartla ödeme yapabilirsiniz."
-                : "Ödemeniz 3D Secure güvencesiyle doğrudan banka tarafında doğrulanacaktır."}
-            </p>
           </div>
 
-          {/* Kart bilgileri — sadece QNB_PAY seçiliyken */}
+          {/* Kart Bilgileri — yalnızca QNB_PAY seçiliyken gösterilir */}
           {paymentMethod === "QNB_PAY" && (
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="font-bold text-gray-800 mb-5">Kart Bilgileri</h2>
-              <div className="space-y-4">
+              <h2 className="font-bold text-gray-800 mb-2">Kart Bilgileri</h2>
+              <p className="text-xs text-gray-500 mb-5">
+                Kart bilgileriniz tarayıcınızdan doğrudan bankaya şifreli olarak
+                iletilir. Sistemimizde işlenmez veya saklanmaz.
+              </p>
+
+              {/* Kart üzerindeki isim */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kart Üzerindeki İsim
+                </label>
+                <input
+                  type="text"
+                  autoComplete="cc-name"
+                  value={card.cc_holder_name}
+                  onChange={(e) =>
+                    updateCard(
+                      "cc_holder_name",
+                      e.target.value.toUpperCase(),
+                    )
+                  }
+                  className={inputCls}
+                  placeholder="AD SOYAD"
+                />
+                {cardErrors.cc_holder_name && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {cardErrors.cc_holder_name}
+                  </p>
+                )}
+              </div>
+
+              {/* Kart numarası */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kart Numarası
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  value={card.cc_no}
+                  onChange={(e) =>
+                    updateCard("cc_no", formatCardNumber(e.target.value))
+                  }
+                  className={`${inputCls} font-mono tracking-widest`}
+                  placeholder="0000 0000 0000 0000"
+                  maxLength={19}
+                />
+                {cardErrors.cc_no && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {cardErrors.cc_no}
+                  </p>
+                )}
+              </div>
+
+              {/* Son kullanma tarihi + CVV */}
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Kart Üzerindeki Ad Soyad
-                  </label>
-                  <input
-                    type="text"
-                    value={card.holderName}
-                    onChange={(e) =>
-                      setCard((c) => ({
-                        ...c,
-                        holderName: e.target.value.toUpperCase(),
-                      }))
-                    }
-                    placeholder="AD SOYAD"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey tracking-widest"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Kart Numarası
+                    Ay
                   </label>
                   <input
                     type="text"
                     inputMode="numeric"
-                    value={card.number}
-                    onChange={(e) => {
-                      const v = e.target.value
-                        .replace(/\D/g, "")
-                        .substring(0, 16);
-                      const formatted = v.replace(/(.{4})/g, "$1 ").trim();
-                      setCard((c) => ({ ...c, number: formatted }));
-                    }}
-                    placeholder="0000 0000 0000 0000"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey tracking-widest"
+                    autoComplete="cc-exp-month"
+                    maxLength={2}
+                    value={card.expiry_month}
+                    onChange={(e) =>
+                      updateCard(
+                        "expiry_month",
+                        e.target.value.replace(/\D/g, "").substring(0, 2),
+                      )
+                    }
+                    className={inputCls}
+                    placeholder="MM"
                   />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ay
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={card.expiryMonth}
-                      onChange={(e) =>
-                        setCard((c) => ({
-                          ...c,
-                          expiryMonth: e.target.value
-                            .replace(/\D/g, "")
-                            .substring(0, 2),
-                        }))
-                      }
-                      placeholder="AA"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey text-center"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Yıl
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={card.expiryYear}
-                      onChange={(e) =>
-                        setCard((c) => ({
-                          ...c,
-                          expiryYear: e.target.value
-                            .replace(/\D/g, "")
-                            .substring(0, 2),
-                        }))
-                      }
-                      placeholder="YY"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey text-center"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      CVV
-                    </label>
-                    <input
-                      type="password"
-                      inputMode="numeric"
-                      value={card.cvv}
-                      onChange={(e) =>
-                        setCard((c) => ({
-                          ...c,
-                          cvv: e.target.value
-                            .replace(/\D/g, "")
-                            .substring(0, 4),
-                        }))
-                      }
-                      placeholder="***"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey text-center"
-                    />
-                  </div>
+                  {cardErrors.expiry_month && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {cardErrors.expiry_month}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Taksit
+                    Yıl
                   </label>
-                  <select
-                    value={card.installments}
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="cc-exp-year"
+                    maxLength={2}
+                    value={card.expiry_year}
                     onChange={(e) =>
-                      setCard((c) => ({
-                        ...c,
-                        installments: Number(e.target.value),
-                      }))
+                      updateCard(
+                        "expiry_year",
+                        e.target.value.replace(/\D/g, "").substring(0, 2),
+                      )
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
-                  >
-                    <option value={1}>Tek Çekim</option>
-                    <option value={2}>2 Taksit</option>
-                    <option value={3}>3 Taksit</option>
-                    <option value={6}>6 Taksit</option>
-                    <option value={9}>9 Taksit</option>
-                    <option value={12}>12 Taksit</option>
-                  </select>
+                    className={inputCls}
+                    placeholder="YY"
+                  />
+                  {cardErrors.expiry_year && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {cardErrors.expiry_year}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CVV
+                  </label>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                    maxLength={4}
+                    value={card.cvv}
+                    onChange={(e) =>
+                      updateCard(
+                        "cvv",
+                        e.target.value.replace(/\D/g, "").substring(0, 4),
+                      )
+                    }
+                    className={inputCls}
+                    placeholder="•••"
+                  />
+                  {cardErrors.cvv && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {cardErrors.cvv}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Sağ: Sipariş özeti */}
+        {/* Sağ Panel: Sipariş Özeti */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 space-y-4">
             <h2 className="font-bold text-gray-800">Sipariş Özeti</h2>
@@ -535,13 +557,13 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
             >
               {paymentMethod === "CASH_ON_DELIVERY"
                 ? "Siparişi Tamamla"
-                : "Güvenli Ödeme Yap"}
+                : "Ödemeyi Tamamla"}
             </Button>
 
             <p className="text-xs text-center text-gray-400">
               {paymentMethod === "CASH_ON_DELIVERY"
                 ? "Ödemenizi teslimat sırasında yapabilirsiniz."
-                : "🔒 Banka Güvenli Ödeme Sayfası — Kart bilgileriniz sitemizde kaydedilmez/işlenmez."}
+                : "Kart bilgileriniz 256-bit SSL ile doğrudan bankaya iletilir."}
             </p>
           </div>
         </div>

@@ -481,6 +481,17 @@
       <a href="#step54" class="nav-link"><span class="dot"></span>54 — Ürünlerimiz Arama Modu</a>
       <a href="#step55" class="nav-link"><span class="dot"></span>55 — Tüm Ürünlere Dön Butonu</a>
 
+      <div class="nav-section-label">26 Mayıs 2026 — Ödeme</div>
+      <a href="#step56" class="nav-link"><span class="dot"></span>56 — PCI-DSS Mimarisi</a>
+      <a href="#step57" class="nav-link"><span class="dot"></span>57 — QNBPay Token Servisi</a>
+      <a href="#step58" class="nav-link"><span class="dot"></span>58 — AES-256-CBC Hash Key</a>
+      <a href="#step59" class="nav-link"><span class="dot"></span>59 — Smart3DFormPayload Tipleri</a>
+      <a href="#step60" class="nav-link"><span class="dot"></span>60 — API Route: Sipariş &amp; Ödeme</a>
+      <a href="#step61" class="nav-link"><span class="dot"></span>61 — CheckoutForm: Kart Client-Only</a>
+      <a href="#step62" class="nav-link"><span class="dot"></span>62 — /odeme/hata Cancel URL</a>
+      <a href="#step63" class="nav-link"><span class="dot"></span>63 — Hata Ayıklama: error_code Serüveni</a>
+      <a href="#step64" class="nav-link"><span class="dot"></span>64 — paySmart3D Aktivasyon Talebi</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -3845,10 +3856,453 @@ OR: [
     </section>
 
 
+    <div class="date-header">
+      <span class="date-pill">📅 26 Mayıs 2026 — Ödeme Entegrasyonu</span>
+      <div class="date-line"></div>
+      <span class="date-count">Adım 56 – 64 · Claude tarafından yazıldı</span>
+    </div>
+
+
+    <!-- ═══════════════════════════════ ADIM 56: PCI-DSS MİMARİSİ -->
+    <section class="section" id="step56">
+      <div class="section-title">
+        <div class="step-num">56</div>
+        <h2>PCI-DSS Uyumlu Ödeme Mimarisi — paySmart3D Seçimi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Gereksinim</h3>
+        <p>
+          Kart verilerinin hiçbir şekilde merchant sunucusuna uğramaması istendi.
+          "Bellekte bile olsa dahi backend'e geçmemeli" ifadesi tasarım kararının temelidir.
+          Bu gereksinim <strong>PCI-DSS SAQ A</strong> uyumluluğunu hedefler —
+          merchant'ın kart veri kapsamı (scope) sıfıra indirilir.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Seçilen Mimari: Browser-to-Bank (paySmart3D)</h3>
+        <ul>
+          <li>Sunucu yalnızca JWT token alır ve hash_key hesaplar — kart görmez</li>
+          <li>Browser, kart verisiyle birlikte doğrudan QNBPay endpoint'ine form POST eder</li>
+          <li>QNBPay 3D Secure akışını yönetir, sonucu <code>return_url</code>'e yönlendirir</li>
+          <li>Eski sitenin server-side entegrasyonuyla bilinçli olarak ayrışır</li>
+        </ul>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ NOT:</span>
+        Eski site (<code>shop.binbogabal.com.tr</code>) kart verisini kendi backend'ine gönderiyor
+        ve farklı bir QNBPay API'si kullanıyor. Yeni implementasyon kasıtlı olarak farklı bir
+        yol izliyor: <strong>paySmart3D</strong> (form-based, browser-to-bank).
+      </div>
+
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/payment/types.ts</span> — Smart3DFormPayload, PaymentResult tipleri<br>
+          <span class="file new">lib/payment/qnb-pay.ts</span> — QNBPayAdapter sınıfı<br>
+          <span class="file mod">app/api/orders/route.ts</span> — Sipariş + ödeme hazırlama<br>
+          <span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> — Client-only kart formu<br>
+          <span class="file new">app/(shop)/odeme/hata/page.tsx</span> — Cancel URL handler<br>
+          <span class="file new">app/api/payment/qnb/callback/route.ts</span> — Return URL handler
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 57: TOKEN SERVİSİ -->
+    <section class="section" id="step57">
+      <div class="section-title">
+        <div class="step-num">57</div>
+        <h2>QNBPay Token Servisi — Server-Side JWT</h2>
+      </div>
+
+      <div class="card">
+        <h3>Neden Server-Side?</h3>
+        <p>
+          QNBPay token almak için <code>app_secret</code> gerekir. Bu değerin tarayıcıya
+          gitmesi PCI-DSS'i ihlal eder. Token endpoint'i sunucuda çağrılır,
+          dönen JWT yalnızca <code>Authorization: Bearer</code> header'ı olarak kullanılır.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Keşfedilen Sorun: Yanıt Yapısı İç İçe</h3>
+        <p>
+          QNBPay'in token yanıtı <code>response.data.token</code> değil,
+          <code>response.data.data.token</code> şeklinde iç içe geliyor.
+        </p>
+      </div>
+
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ ÇÖZÜM:</span>
+        <code>response.data?.data?.token ?? response.data?.token</code> — her iki yapıyı da destekler.
+      </div>
+
+      <pre><span class="cm">// lib/payment/qnb-pay.ts</span>
+<span class="kw">private async</span> <span class="fn">getToken</span>(): <span class="tp">Promise</span>&lt;<span class="tp">string</span>&gt; {
+  <span class="kw">const</span> response = <span class="kw">await</span> axios.<span class="fn">post</span>(
+    <span class="str">`${this.baseUrl}/ccpayment/api/token`</span>,
+    { app_id: <span class="kw">this</span>.appId, app_secret: <span class="kw">this</span>.appSecret },
+    { headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> }, timeout: <span class="nm">10000</span> },
+  );
+
+  <span class="cm">// Yanıt: { status_code: 100, data: { token: "eyJ..." } }</span>
+  <span class="kw">const</span> token = response.data?.data?.token ?? response.data?.token;
+  <span class="kw">if</span> (response.data.status_code !== <span class="nm">100</span> || !token) {
+    <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`Token alınamadı: ${response.data.error_message}`</span>);
+  }
+  <span class="kw">return</span> token;
+}</pre>
+
+      <div class="card">
+        <h3>Domain Hatası: ENOTFOUND provisioning.qnbpay.com.tr</h3>
+        <p>
+          HTML örnek formunda <code>provisioning.qnbpay.com.tr</code> domain'i vardı.
+          Bu domain DNS'te tanımlı değil (NXDOMAIN). Hem token API'si hem de
+          form endpoint'i için doğru domain: <strong>portal.qnbpay.com.tr</strong> (canlı)
+          ve <strong>test.qnbpay.com.tr</strong> (test).
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 58: HASH KEY -->
+    <section class="section" id="step58">
+      <div class="section-title">
+        <div class="step-num">58</div>
+        <h2>AES-256-CBC Hash Key Formülü</h2>
+      </div>
+
+      <div class="card">
+        <h3>Neden Gerekli?</h3>
+        <p>
+          QNBPay, form verilerinin değiştirilmediğini doğrulamak için
+          şifrelenmiş bir <code>hash_key</code> ister. Bu key sunucuda hesaplanır —
+          <code>app_secret</code> tarayıcıya gitmez.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Formül (QNBPay JS örneğinden Node.js'e uyarlandı)</h3>
+        <ol style="padding-left:18px; margin-top:8px;">
+          <li>16 karakterlik rastgele <strong>iv</strong> (SHA1 → hex)</li>
+          <li>4 karakterlik rastgele <strong>salt</strong> (SHA1 → hex)</li>
+          <li><strong>password</strong> = SHA1(app_secret) → hex</li>
+          <li><strong>key</strong> = SHA256(password + salt) → hex, ilk 32 karakter</li>
+          <li><strong>AES-256-CBC</strong> şifreleme: plaintext = <code>total|installments|currency|merchant_key|invoice_id</code></li>
+          <li>Sonuç: <code>iv:salt:encrypted</code>, tüm <code>/</code> → <code>__</code></li>
+        </ol>
+      </div>
+
+      <pre><span class="kw">private</span> <span class="fn">generateHashKey</span>(data: <span class="tp">string</span>): <span class="tp">string</span> {
+  <span class="kw">const</span> iv = crypto.<span class="fn">createHash</span>(<span class="str">"sha1"</span>)
+    .<span class="fn">update</span>(Math.<span class="fn">random</span>().<span class="fn">toString</span>()).<span class="fn">digest</span>(<span class="str">"hex"</span>).<span class="fn">substring</span>(<span class="nm">0</span>, <span class="nm">16</span>);
+
+  <span class="kw">const</span> salt = crypto.<span class="fn">createHash</span>(<span class="str">"sha1"</span>)
+    .<span class="fn">update</span>(Math.<span class="fn">random</span>().<span class="fn">toString</span>()).<span class="fn">digest</span>(<span class="str">"hex"</span>).<span class="fn">substring</span>(<span class="nm">0</span>, <span class="nm">4</span>);
+
+  <span class="kw">const</span> password = crypto.<span class="fn">createHash</span>(<span class="str">"sha1"</span>)
+    .<span class="fn">update</span>(<span class="kw">this</span>.appSecret).<span class="fn">digest</span>(<span class="str">"hex"</span>);
+
+  <span class="kw">const</span> key = crypto.<span class="fn">createHash</span>(<span class="str">"sha256"</span>)
+    .<span class="fn">update</span>(password + salt).<span class="fn">digest</span>(<span class="str">"hex"</span>).<span class="fn">substring</span>(<span class="nm">0</span>, <span class="nm">32</span>);
+
+  <span class="kw">const</span> cipher = crypto.<span class="fn">createCipheriv</span>(
+    <span class="str">"aes-256-cbc"</span>,
+    Buffer.<span class="fn">from</span>(key, <span class="str">"utf8"</span>),
+    Buffer.<span class="fn">from</span>(iv, <span class="str">"utf8"</span>),
+  );
+
+  <span class="kw">const</span> encrypted =
+    cipher.<span class="fn">update</span>(data, <span class="str">"utf8"</span>, <span class="str">"base64"</span>) + cipher.<span class="fn">final</span>(<span class="str">"base64"</span>);
+
+  <span class="kw">return</span> <span class="str">`${iv}:${salt}:${encrypted}`</span>.<span class="fn">replaceAll</span>(<span class="str">"/"</span>, <span class="str">"__"</span>);
+}</pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ ÖNEMLI:</span>
+        Hash'e dahil edilen veri: <code>total|1|TRY|merchant_key|orderNumber</code>.
+        Kart verisi hash'e <strong>dahil değildir</strong> — hash yalnızca sipariş bilgilerini doğrular.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 59: TİP SİSTEMİ -->
+    <section class="section" id="step59">
+      <div class="section-title">
+        <div class="step-num">59</div>
+        <h2>Smart3DFormPayload — Tip Sistemi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Tasarım Kararı</h3>
+        <p>
+          Sunucudan frontend'e giden payload tiplendirildi. Kart alanları
+          (<code>cc_no</code>, <code>cvv</code> vb.) bu interface'e <strong>kesinlikle dahil edilmedi</strong>.
+          Kart alanları yalnızca tarayıcı belleğinde yaşar.
+        </p>
+      </div>
+
+      <pre><span class="cm">// lib/payment/types.ts</span>
+<span class="kw">export interface</span> <span class="tp">Smart3DFormPayload</span> {
+  authorization:         <span class="tp">string</span>;  <span class="cm">// Bearer JWT token</span>
+  merchant_key:          <span class="tp">string</span>;
+  pos_id?:               <span class="tp">string</span>;  <span class="cm">// opsiyonel — env'den gelir</span>
+  currency_code:         <span class="tp">string</span>;
+  installments_number:   <span class="tp">string</span>;
+  invoice_id:            <span class="tp">string</span>;
+  invoice_description:   <span class="tp">string</span>;
+  name:                  <span class="tp">string</span>;
+  surname:               <span class="tp">string</span>;
+  total:                 <span class="tp">string</span>;
+  items:                 <span class="tp">string</span>;  <span class="cm">// JSON string</span>
+  ip:                    <span class="tp">string</span>;
+  transaction_type:      <span class="tp">string</span>;
+  is_comission_from_user:<span class="tp">string</span>;
+  response_method:       <span class="tp">string</span>;
+  return_url:            <span class="tp">string</span>;
+  cancel_url:            <span class="tp">string</span>;
+  hash_key:              <span class="tp">string</span>;
+  endpoint:              <span class="tp">string</span>;  <span class="cm">// QNBPay form action URL</span>
+  <span class="cm">// ❌ cc_no, cvv, expiry* burada YOK</span>
+}</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 60: API ROUTE -->
+    <section class="section" id="step60">
+      <div class="section-title">
+        <div class="step-num">60</div>
+        <h2>API Route: <code>/api/orders</code> — Sipariş ve Ödeme Hazırlama</h2>
+      </div>
+
+      <div class="card">
+        <h3>Akış</h3>
+        <ol style="padding-left:18px; margin-top:8px;">
+          <li>Zod ile body doğrulaması — kart alanı schema'da tanımlı değil</li>
+          <li>Siparişi DB'ye kaydet (<code>PENDING</code> durumunda)</li>
+          <li>Kupon kullanımını artır (varsa)</li>
+          <li><strong>Kapıda Ödeme:</strong> <code>PaymentTransaction</code> oluştur, <code>redirectUrl</code> döndür</li>
+          <li><strong>QNB PAY:</strong> token al → hash üret → <code>formPayload</code> döndür</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>IP Adresi Sorunu</h3>
+        <p>
+          QNBPay yalnızca IPv4 kabul ediyor. Localhost'ta <code>x-forwarded-for</code>
+          gelmez, <code>::1</code> (IPv6) gelirse reddeder. Çözüm: regex ile doğrula,
+          geçersizse gerçek IP'ye fallback.
+        </p>
+      </div>
+
+      <pre><span class="kw">const</span> forwardedFor = req.headers.<span class="fn">get</span>(<span class="str">"x-forwarded-for"</span>);
+<span class="kw">const</span> rawIp = forwardedFor?.<span class="fn">split</span>(<span class="str">","</span>)[<span class="nm">0</span>]?.<span class="fn">trim</span>() ?? <span class="str">""</span>;
+<span class="cm">// QNBPay sadece IPv4 kabul ediyor, localhost/IPv6 gelirse fallback</span>
+<span class="kw">const</span> ip =
+  <span class="nm">/^\d{1,3}(\.\d{1,3}){3}$/</span>.<span class="fn">test</span>(rawIp) &amp;&amp; !rawIp.<span class="fn">startsWith</span>(<span class="str">"127."</span>)
+    ? rawIp
+    : <span class="str">"188.119.7.199"</span>; <span class="cm">// localhost test fallback</span></pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 61: CHECKOUTFORM -->
+    <section class="section" id="step61">
+      <div class="section-title">
+        <div class="step-num">61</div>
+        <h2>CheckoutForm — Kart Verisi Yalnızca Client'ta</h2>
+      </div>
+
+      <div class="card">
+        <h3>Güvenlik Prensibi</h3>
+        <p>
+          Kart verisi (<code>cc_no</code>, <code>cvv</code>, <code>expiry</code>, <code>cc_holder_name</code>)
+          yalnızca React state'inde tutulur. <code>fetch("/api/orders")</code> body'sine
+          hiçbir kart alanı dahil edilmez. Sunucu bu verileri asla görmez.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>submitToQNBPay Fonksiyonu</h3>
+        <p>
+          Sunucudan gelen <code>formPayload</code> ile tarayıcı state'indeki kart bilgisi
+          birleştirilerek, DOM'a gizli bir <code>&lt;form&gt;</code> eklenir ve
+          doğrudan QNBPay endpoint'ine submit edilir.
+        </p>
+      </div>
+
+      <pre><span class="cm">// 🔒 Kart verisi sunucuya hiç gitmez — doğrudan QNBPay'e form POST edilir</span>
+<span class="kw">function</span> <span class="fn">submitToQNBPay</span>(payload: <span class="tp">Smart3DFormPayload</span>, card: <span class="tp">CardData</span>) {
+  <span class="kw">const</span> form = document.<span class="fn">createElement</span>(<span class="str">"form"</span>);
+  form.method = <span class="str">"POST"</span>;
+  form.action = payload.endpoint; <span class="cm">// https://portal.qnbpay.com.tr/ccpayment/api/paySmart3D</span>
+
+  <span class="kw">const</span> fields = {
+    ...payload,  <span class="cm">// merchant_key, authorization, hash_key, items …</span>
+    <span class="cm">// Kart alanları — yalnızca browser'da, sunucuya uğramaz</span>
+    cc_holder_name: card.cc_holder_name,
+    cc_no:          card.cc_no.<span class="fn">replace</span>(<span class="nm">/\s/g</span>, <span class="str">""</span>),
+    expiry_month:   card.expiry_month,
+    expiry_year:    card.expiry_year,
+    cvv:            card.cvv,
+  };
+
+  <span class="kw">for</span> (<span class="kw">const</span> [name, value] <span class="kw">of</span> Object.<span class="fn">entries</span>(fields)) {
+    <span class="kw">if</span> (!value) <span class="kw">continue</span>;
+    <span class="kw">const</span> input = document.<span class="fn">createElement</span>(<span class="str">"input"</span>);
+    input.type = <span class="str">"hidden"</span>;
+    input.name = name;
+    input.value = value;
+    form.<span class="fn">appendChild</span>(input);
+  }
+
+  document.body.<span class="fn">appendChild</span>(form);
+  form.<span class="fn">submit</span>(); <span class="cm">// ← browser direkt QNBPay'e POST atar</span>
+}</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 62: HATA SAYFASI -->
+    <section class="section" id="step62">
+      <div class="section-title">
+        <div class="step-num">62</div>
+        <h2><code>/odeme/hata</code> — Cancel URL DB Güncellemesi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Gereksinim</h3>
+        <p>
+          QNBPay ödeme iptalinde kullanıcıyı <code>cancel_url</code>'e yönlendirir
+          ve query param olarak hata kodu gönderir. Bu sayfada:
+        </p>
+        <ul style="margin-top:8px;">
+          <li><code>PaymentTransaction</code> kaydı <code>FAILED</code> olarak güncellenir</li>
+          <li>Kullanıcıya Türkçe hata mesajı gösterilir</li>
+          <li>İşlem idempotent'tir — aynı sipariş için tekrar çağrılırsa tekrar güncelleme yapmaz</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Gelen Parametreler</h3>
+        <div style="overflow-x:auto; margin-top:8px;">
+          <table>
+            <thead><tr><th>Parametre</th><th>Açıklama</th></tr></thead>
+            <tbody>
+              <tr><td>invoice_id</td><td>Sipariş numarası (BB-XXXXX)</td></tr>
+              <tr><td>error_code</td><td>Hata kodu (14, 1, …)</td></tr>
+              <tr><td>error</td><td>İngilizce hata mesajı</td></tr>
+              <tr><td>payment_status</td><td>0 = başarısız</td></tr>
+              <tr><td>order_no</td><td>QNBPay kendi order ID'si</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 63: HATA AYIKLAMA -->
+    <section class="section" id="step63">
+      <div class="section-title">
+        <div class="step-num">63</div>
+        <h2>Hata Ayıklama Serüveni — error_code Zinciri</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorunlar ve Çözümler Kronolojisi</h3>
+        <div style="overflow-x:auto; margin-top:8px;">
+          <table>
+            <thead><tr><th>Sorun</th><th>Sebep</th><th>Çözüm</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>ENOTFOUND provisioning.qnbpay.com.tr</td>
+                <td>HTML örnek formundaki domain DNS'te yok (NXDOMAIN)</td>
+                <td>portal.qnbpay.com.tr kullanıldı</td>
+              </tr>
+              <tr>
+                <td>Token içinde data.data.token iç içe</td>
+                <td>QNBPay yanıtı beklenenden farklı yapıda</td>
+                <td><code>data?.data?.token ?? data?.token</code> fallback eklendi</td>
+              </tr>
+              <tr>
+                <td>error_code=1 — Invalid IP format</td>
+                <td>Localhost'ta <code>::1</code> (IPv6) gidiyordu</td>
+                <td>Regex ile IPv4 doğrulama, fallback IP</td>
+              </tr>
+              <tr>
+                <td>error_code=14 — Merchant bank identification not found</td>
+                <td>paySmart3D bu merchant için aktif değil</td>
+                <td>QNBPay destek hattına başvuru (Adım 64)</td>
+              </tr>
+              <tr>
+                <td>Dokümansız gerekli alanlar</td>
+                <td>QNBPay dökümanı eksik: transaction_type, response_method, is_comission_from_user, ip</td>
+                <td>Tüm alanlar eklendi, pos_id kaldırıldı (dokümanda yok)</td>
+              </tr>
+              <tr>
+                <td>pos_id eksikliği</td>
+                <td>Postman testi pos_id=122 ile çalışmıştı; paySmart3D formunda gerekebilir</td>
+                <td>QNB_PAY_POS_ID env'den okunarak opsiyonel olarak eklendi</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-label">🔍 KRİTİK BULGU:</span>
+        Eski site server-side QNBPay entegrasyonu kullanıyor
+        (<code>/api/tr/v1/data/b2c/shopping/pay_b2c_cc</code> endpoint'ine kart verisi gönderiyor).
+        Yeni implementasyon paySmart3D kullanıyor; bu API merchant hesabında ayrıca aktive edilmeli.
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 64: AKTİVASYON TALEBİ -->
+    <section class="section" id="step64">
+      <div class="section-title">
+        <div class="step-num">64</div>
+        <h2>QNBPay paySmart3D Aktivasyon Talebi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Durum</h3>
+        <p>
+          Kod implementasyonu tamamlandı. QNBPay tarafında paySmart3D API'sinin
+          merchant hesabı için aktive edilmesi gerekiyor.
+          Aktive edildiğinde mevcut implementasyon değişiklik gerektirmeden çalışacak.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>QNBPay'e İletilecek Destek Talebi</h3>
+        <p><strong>Konu:</strong> paySmart3D API Aktivasyonu Talebi — Merchant ID: 96178</p>
+        <p style="margin-top:8px; line-height:1.8;">
+          "Merchant hesabıma paySmart3D API'sini aktive etmek istiyorum.
+          Şu an server-side entegrasyon kullanıyoruz, tarayıcıdan doğrudan banka
+          form POST'una geçmek istiyoruz. <code>portal.qnbpay.com.tr/ccpayment/api/paySmart3D</code>
+          endpoint'i error_code=14 dönüyor."
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Mevcut Durum Özeti</h3>
+        <ul>
+          <li>Token servisi: <span class="tag tag-green">✓ Çalışıyor</span></li>
+          <li>Hash key formülü: <span class="tag tag-green">✓ Doğrulandı</span></li>
+          <li>Form POST akışı: <span class="tag tag-green">✓ Hazır</span></li>
+          <li>PCI-DSS kart izolasyonu: <span class="tag tag-green">✓ Sağlandı</span></li>
+          <li>paySmart3D aktivasyonu: <span class="tag tag-red">⏳ QNBPay bekliyor</span></li>
+        </ul>
+      </div>
+    </section>
+
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 26 Mayıs 2026 — Adım 55</span>
+      <span>Son güncelleme: 26 Mayıs 2026 — Adım 64 · Claude tarafından yazıldı</span>
     </div>
 
   </main>

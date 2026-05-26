@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QNBPay paySmart3D — Ödeme Akışı Detayı</title>
+  <style>
+    :root {
+      --honey-dark:   #C57930;
+      --honey:        #F9B10B;
+      --honey-bright: #FCD908;
+      --honey-cream:  #FFF8E7;
+      --bg:           #0f1117;
+      --bg2:          #181c27;
+      --bg3:          #1e2333;
+      --border:       #2a3050;
+      --text:         #e2e8f0;
+      --text-muted:   #8892a4;
+      --green:        #22c55e;
+      --red:          #f87171;
+      --blue:         #60a5fa;
+      --purple:       #a78bfa;
+      --teal:         #2dd4bf;
+      --yellow:       #fbbf24;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 28px 0;
+    }
+    .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .sidebar-logo h1 { font-size: 14px; font-weight: 700; color: var(--honey); }
+    .sidebar-logo p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .sidebar nav { padding: 0 12px; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-muted); padding: 12px 12px 6px;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border-radius: 6px; font-size: 13px;
+      color: var(--text-muted); text-decoration: none; transition: all .15s;
+    }
+    .nav-link:hover { background: var(--bg3); color: var(--text); }
+    .nav-link .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--honey-dark); flex-shrink: 0; }
+
+    /* CONTENT */
+    .content { flex: 1; max-width: 960px; padding: 48px 56px; overflow-x: hidden; }
+
+    .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .page-header .badge {
+      display: inline-block; background: rgba(197,121,48,.2); color: var(--honey);
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px; margin-bottom: 12px;
+    }
+    .page-header h1 { font-size: 30px; font-weight: 800; color: #fff; line-height: 1.2; }
+    .page-header p  { margin-top: 10px; color: var(--text-muted); font-size: 15px; }
+
+    .section { margin-bottom: 64px; scroll-margin-top: 32px; }
+    .section-title { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .section-title .icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .section-title h2 { font-size: 20px; font-weight: 700; color: #fff; }
+
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .card p, .card li { font-size: 13.5px; color: var(--text-muted); line-height: 1.7; }
+    .card ul, .card ol { padding-left: 18px; }
+    .card ul li, .card ol li { margin-bottom: 4px; }
+
+    pre {
+      background: #0d1117; border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 20px; overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 12.5px; line-height: 1.7; margin: 12px 0; color: #cdd6f4;
+    }
+    .kw  { color: #cba6f7; }
+    .str { color: #a6e3a1; }
+    .cm  { color: #585b70; font-style: italic; }
+    .fn  { color: #89b4fa; }
+    .nm  { color: #fab387; }
+    .tp  { color: #f38ba8; }
+
+    code {
+      background: rgba(255,255,255,.07); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Cascadia Code', monospace; font-size: 12.5px; color: var(--honey-bright);
+    }
+
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px; margin: 2px;
+    }
+    .tag-green  { background: rgba(34,197,94,.15);  color: var(--green); }
+    .tag-blue   { background: rgba(96,165,250,.15); color: var(--blue); }
+    .tag-purple { background: rgba(167,139,250,.15);color: var(--purple); }
+    .tag-honey  { background: rgba(197,121,48,.2);  color: var(--honey); }
+    .tag-red    { background: rgba(248,113,113,.15);color: var(--red); }
+    .tag-teal   { background: rgba(45,212,191,.15); color: var(--teal); }
+    .tag-yellow { background: rgba(251,191,36,.15); color: var(--yellow); }
+
+    .alert {
+      border-left: 3px solid; border-radius: 0 8px 8px 0;
+      padding: 12px 16px; margin: 12px 0; font-size: 13px;
+    }
+    .alert-warn  { border-color: var(--honey); background: rgba(249,177,11,.06); color: #fbbf24; }
+    .alert-info  { border-color: var(--blue);  background: rgba(96,165,250,.06); color: var(--blue); }
+    .alert-fix   { border-color: var(--green); background: rgba(34,197,94,.06);  color: var(--green); }
+    .alert-sec   { border-color: var(--purple);background: rgba(167,139,250,.06);color: var(--purple); }
+    .alert-label { font-weight: 700; margin-right: 6px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: var(--bg3); padding: 10px 14px; text-align: left;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px; border-bottom: 1px solid rgba(42,48,80,.5);
+      color: var(--text-muted); vertical-align: top;
+    }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+
+    .divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+    /* FLOW DIAGRAM */
+    .flow {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px; margin-bottom: 16px;
+    }
+    .flow-row {
+      display: flex; align-items: stretch; gap: 0; margin-bottom: 0;
+    }
+    .flow-actor {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 110px; flex-shrink: 0;
+    }
+    .flow-actor .actor-box {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px;
+      font-size: 11px; font-weight: 700; text-align: center;
+      white-space: nowrap;
+    }
+    .actor-browser { color: var(--blue); border-color: rgba(96,165,250,.4); }
+    .actor-server  { color: var(--green); border-color: rgba(34,197,94,.4); }
+    .actor-qnb     { color: var(--honey); border-color: rgba(249,177,11,.4); }
+    .actor-bank    { color: var(--purple); border-color: rgba(167,139,250,.4); }
+
+    .flow-steps { flex: 1; padding: 0 8px; }
+
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(42,48,80,.4);
+    }
+    .flow-step:last-child { border-bottom: none; }
+    .flow-step .step-num {
+      min-width: 22px; height: 22px; background: var(--honey-dark);
+      color: #fff; font-size: 10px; font-weight: 800;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .flow-step .step-arrow {
+      font-size: 11px; font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; flex-shrink: 0; margin-top: 3px;
+    }
+    .arrow-browser { background: rgba(96,165,250,.15); color: var(--blue); }
+    .arrow-server  { background: rgba(34,197,94,.15);  color: var(--green); }
+    .arrow-qnb     { background: rgba(249,177,11,.15); color: var(--honey); }
+    .arrow-bank    { background: rgba(167,139,250,.15);color: var(--purple); }
+    .flow-step .step-desc { font-size: 13px; color: var(--text-muted); }
+    .flow-step .step-desc strong { color: var(--text); }
+
+    /* SECURITY BADGE */
+    .sec-badge {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(167,139,250,.08); border: 1px solid rgba(167,139,250,.3);
+      border-radius: 10px; padding: 16px 20px; margin: 16px 0;
+    }
+    .sec-badge .icon { font-size: 24px; flex-shrink: 0; }
+    .sec-badge .title { font-size: 13px; font-weight: 700; color: var(--purple); }
+    .sec-badge .desc  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ENV TABLE */
+    .env-row { display: flex; gap: 0; margin-bottom: 6px; }
+    .env-key {
+      font-family: monospace; font-size: 12px;
+      color: var(--honey-bright); background: rgba(252,217,8,.06);
+      border: 1px solid var(--border); border-right: none;
+      padding: 6px 12px; border-radius: 6px 0 0 6px; white-space: nowrap; min-width: 240px;
+    }
+    .env-val {
+      font-family: monospace; font-size: 12px; color: var(--text-muted);
+      background: var(--bg3); border: 1px solid var(--border);
+      padding: 6px 12px; border-radius: 0 6px 6px 0; flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { padding: 24px 20px; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--honey-dark); }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>💳 QNBPay paySmart3D</h1>
+      <p>Ödeme Akışı Dokümantasyonu</p>
+    </div>
+    <nav>
+      <div class="nav-section-label">Genel Bakış</div>
+      <a href="#overview"   class="nav-link"><span class="dot"></span>Mimari Özet</a>
+      <a href="#pci"        class="nav-link"><span class="dot"></span>PCI-DSS Uyumu</a>
+      <a href="#actors"     class="nav-link"><span class="dot"></span>Aktörler</a>
+
+      <div class="nav-section-label">Akış Adımları</div>
+      <a href="#step-checkout"  class="nav-link"><span class="dot"></span>1 — Ödeme Başlatma</a>
+      <a href="#step-api"       class="nav-link"><span class="dot"></span>2 — API: Sipariş & Token</a>
+      <a href="#step-hash"      class="nav-link"><span class="dot"></span>3 — Hash Key Üretimi</a>
+      <a href="#step-submit"    class="nav-link"><span class="dot"></span>4 — Direkt QNBPay POST</a>
+      <a href="#step-3ds"       class="nav-link"><span class="dot"></span>5 — 3D Secure Akışı</a>
+      <a href="#step-callback"  class="nav-link"><span class="dot"></span>6 — Callback & Doğrulama</a>
+      <a href="#step-cancel"    class="nav-link"><span class="dot"></span>7 — İptal / Hata Akışı</a>
+
+      <div class="nav-section-label">Referans</div>
+      <a href="#env-vars"   class="nav-link"><span class="dot"></span>Ortam Değişkenleri</a>
+      <a href="#form-fields" class="nav-link"><span class="dot"></span>Form Alanları</a>
+      <a href="#files"      class="nav-link"><span class="dot"></span>Dosya Haritası</a>
+      <a href="#errors"     class="nav-link"><span class="dot"></span>Hata Kodları</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="page-header">
+      <div class="badge">Teknik Dokümantasyon</div>
+      <h1>QNBPay paySmart3D<br>Ödeme Akışı Detayı</h1>
+      <p>
+        Binboğa Bal E-Ticaret — PCI-DSS SAQ A uyumlu ödeme entegrasyonu.<br>
+        Kart verisi hiçbir şekilde merchant sunucusuna uğramaz;
+        tarayıcıdan doğrudan QNBPay'e iletilir.
+      </p>
+      <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+        <span class="tag tag-green">PCI-DSS SAQ A</span>
+        <span class="tag tag-blue">paySmart3D</span>
+        <span class="tag tag-honey">QNBPay</span>
+        <span class="tag tag-purple">AES-256-CBC</span>
+        <span class="tag tag-teal">3D Secure</span>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">
+        Tüm implementasyon <strong style="color:var(--honey)">Claude (Anthropic)</strong> tarafından yazılmıştır — 26 Mayıs 2026
+      </div>
+    </div>
+
+
+    <!-- ═══════════ MİMARİ ÖZET -->
+    <section class="section" id="overview">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.1)">🏗️</div>
+        <h2>Mimari Özet</h2>
+      </div>
+
+      <div class="flow">
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:20px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Yüksek Seviye Akış Diyagramı</div>
+
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-arrow arrow-browser">BROWSER</div>
+          <div class="step-desc"><strong>Müşteri sepeti onaylar</strong> — Kart bilgisi yalnızca tarayıcı state'inde tutulur</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-arrow arrow-browser">BROWSER → SERVER</div>
+          <div class="step-desc"><strong>Sipariş verisi gönderilir</strong> — Kart bilgisi <em>dahil değildir</em>. Sadece ürünler, adres, tutar.</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-arrow arrow-server">SERVER → QNBPay</div>
+          <div class="step-desc"><strong>JWT token alınır</strong> — <code>app_id</code> + <code>app_secret</code> ile. Kart verisi yok.</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-arrow arrow-server">SERVER</div>
+          <div class="step-desc"><strong>AES-256-CBC hash_key üretilir</strong> — <code>app_secret</code> sunucuda kalır, tarayıcıya gitmez.</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <div class="step-arrow arrow-server">SERVER → BROWSER</div>
+          <div class="step-desc"><strong>formPayload döndürülür</strong> — token, hash_key, sipariş bilgileri. Kart alanı yok.</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">6</div>
+          <div class="step-arrow arrow-browser">BROWSER → QNBPay</div>
+          <div class="step-desc"><strong>Gizli form POST'u</strong> — formPayload + kart verisi birleştirilerek doğrudan QNBPay'e gönderilir. Sunucu bu isteği hiç görmez.</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">7</div>
+          <div class="step-arrow arrow-qnb">QNBPay → BANK</div>
+          <div class="step-desc"><strong>3D Secure akışı</strong> — QNBPay, kartın bankasına yönlendirir. Müşteri SMS/OTP doğrular.</div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">8</div>
+          <div class="step-arrow arrow-qnb">QNBPay → BROWSER</div>
+          <div class="step-desc"><strong>Sonuç yönlendirmesi</strong> — Başarı → <code>/api/payment/qnb/callback</code> | Hata → <code>/odeme/hata</code></div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-num">9</div>
+          <div class="step-arrow arrow-server">SERVER</div>
+          <div class="step-desc"><strong>DB güncellenir</strong> — <code>PaymentTransaction</code> kaydı <code>COMPLETED</code> veya <code>FAILED</code> yapılır. Sipariş durumu güncellenir.</div>
+        </div>
+      </div>
+
+      <div class="sec-badge">
+        <div class="icon">🔒</div>
+        <div>
+          <div class="title">PCI-DSS SAQ A Uyumu</div>
+          <div class="desc">Kart numarası, CVV ve son kullanma tarihi hiçbir zaman merchant sunucusundan geçmez.
+          Tüm kart verisi yalnızca tarayıcı belleğinde yaşar ve doğrudan QNBPay'e iletilir.</div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ PCI-DSS -->
+    <section class="section" id="pci">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.1)">🛡️</div>
+        <h2>PCI-DSS Uyumu</h2>
+      </div>
+
+      <div class="card">
+        <h3>SAQ A Nedir?</h3>
+        <p>
+          PCI-DSS (Payment Card Industry Data Security Standard) kapsamında,
+          kart verisini hiç işlemeyen, saklamayan veya iletmeyen merchant'lar
+          <strong>SAQ A</strong> kategorisindedir. Bu kategori en düşük denetim yükünü taşır.
+          Merchant'ın tek sorumluluğu, ödeme sayfasının güvenli bir kaynaktan sunulmasıdır.
+        </p>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>Durum</th><th>Açıklama</th><th>Bu Proje</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Kart numarası sunucuda</td>
+              <td>Yüksek risk — SAQ D kapsamı</td>
+              <td><span class="tag tag-green">✓ Hiç gitmez</span></td>
+            </tr>
+            <tr>
+              <td>CVV sunucuda</td>
+              <td>Kesinlikle yasak — hiçbir zaman saklanamaz</td>
+              <td><span class="tag tag-green">✓ Hiç gitmez</span></td>
+            </tr>
+            <tr>
+              <td>app_secret tarayıcıda</td>
+              <td>Yüksek risk — hash manipülasyona açık olur</td>
+              <td><span class="tag tag-green">✓ Sunucuda kalır</span></td>
+            </tr>
+            <tr>
+              <td>Hash key sunucuda hesaplanır</td>
+              <td>Gerekli — app_secret gizli kalmalı</td>
+              <td><span class="tag tag-green">✓ AES-256-CBC</span></td>
+            </tr>
+            <tr>
+              <td>Form doğrudan bankaya POST</td>
+              <td>SAQ A için zorunlu</td>
+              <td><span class="tag tag-green">✓ paySmart3D</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ AKTÖRLER -->
+    <section class="section" id="actors">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">👥</div>
+        <h2>Akıştaki Aktörler</h2>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Aktör</th><th>Rol</th><th>Neye Erişebilir</th><th>Neye Erişemez</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-blue">BROWSER</span></td>
+              <td>Müşteri tarayıcısı</td>
+              <td>Kart verisi (state), formPayload, sonuç sayfaları</td>
+              <td>app_secret, DB, token üretimi</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-green">SUNUCU</span></td>
+              <td>Next.js API Route</td>
+              <td>Sipariş verisi, app_secret, DB, token</td>
+              <td>Kart numarası, CVV, son kullanma tarihi</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-honey">QNBPay</span></td>
+              <td>Ödeme altyapısı</td>
+              <td>Kart verisi (doğrudan), token, hash_key, sipariş bilgisi</td>
+              <td>app_secret (yalnızca hash sonucu görür)</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-purple">BANKA</span></td>
+              <td>Kart bankası (3D Secure)</td>
+              <td>Kart doğrulama bilgisi, OTP akışı</td>
+              <td>Sipariş detayları, merchant'ın iç verileri</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <div class="divider"></div>
+    <h2 style="font-size:22px; font-weight:800; color:#fff; margin-bottom:32px; letter-spacing:-.02em;">
+      Adım Adım Akış
+    </h2>
+
+
+    <!-- ═══════════ ADIM 1: ÖDEME BAŞLATMA -->
+    <section class="section" id="step-checkout">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">🛒</div>
+        <h2>Adım 1 — Müşteri Ödeme Formunu Doldurur</h2>
+      </div>
+
+      <div class="card">
+        <h3>Teslimat Bilgileri</h3>
+        <p>Ad, soyad, e-posta, telefon, şehir, ilçe, adres — bu bilgiler API'ye gönderilir.</p>
+      </div>
+
+      <div class="card">
+        <h3>Kart Bilgileri — Yalnızca Browser State'inde</h3>
+        <p>
+          Kart alanları <code>useState&lt;CardData&gt;</code> ile tutulur.
+          React formu submit edildiğinde bu değerler API body'sine eklenmez.
+        </p>
+      </div>
+
+      <pre><span class="cm">// CheckoutForm.tsx — Kart state'i</span>
+<span class="kw">const</span> [card, setCard] = <span class="fn">useState</span>&lt;<span class="tp">CardData</span>&gt;({
+  cc_holder_name: <span class="str">""</span>,
+  cc_no:          <span class="str">""</span>,
+  expiry_month:   <span class="str">""</span>,
+  expiry_year:    <span class="str">""</span>,
+  cvv:            <span class="str">""</span>,
+});
+
+<span class="cm">// API'ye gönderilen body — kart verisi YOK</span>
+<span class="kw">const</span> body = {
+  shippingAddress: data,   <span class="cm">// ad, soyad, adres…</span>
+  items:           [...],  <span class="cm">// variantId, quantity, price…</span>
+  subtotal, shippingFee, discount, total,
+  couponCode, notes, paymentMethod,
+  <span class="cm">// ❌ cc_no, cvv, expiry burada YOK</span>
+};</pre>
+
+      <div class="card">
+        <h3>Client-Side Kart Doğrulaması</h3>
+        <ul>
+          <li>Kart numarası: 13-19 hane, yalnızca rakam</li>
+          <li>Ay: 01–12 arası</li>
+          <li>Yıl: 2 veya 4 hane rakam</li>
+          <li>CVV: 3 veya 4 hane</li>
+          <li>Kart sahibi adı: boş olamaz</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ ADIM 2: API -->
+    <section class="section" id="step-api">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.1)">⚙️</div>
+        <h2>Adım 2 — API Route: Sipariş ve Token</h2>
+      </div>
+
+      <div class="card">
+        <h3><code>POST /api/orders</code></h3>
+        <ol>
+          <li>Zod şemasıyla body doğrulanır (kart alanı şemada tanımlı değil)</li>
+          <li>Sipariş DB'ye <code>PENDING</code> durumunda kaydedilir</li>
+          <li>Kupon varsa <code>usedCount</code> artırılır</li>
+          <li>QNBPayAdapter'ın <code>createPayment()</code> çağrılır</li>
+          <li><code>formPayload</code> tarayıcıya döndürülür</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>QNBPay Token Alımı (Server-Side)</h3>
+        <p>
+          <code>app_id</code> + <code>app_secret</code> ile
+          <code>portal.qnbpay.com.tr/ccpayment/api/token</code>'a POST yapılır.
+          Dönen JWT, <code>Authorization: Bearer &lt;token&gt;</code> olarak formPayload'a eklenir.
+        </p>
+      </div>
+
+      <pre><span class="cm">// lib/payment/qnb-pay.ts</span>
+<span class="kw">const</span> response = <span class="kw">await</span> axios.<span class="fn">post</span>(
+  <span class="str">`${this.baseUrl}/ccpayment/api/token`</span>,
+  { app_id: <span class="kw">this</span>.appId, app_secret: <span class="kw">this</span>.appSecret },
+  { timeout: <span class="nm">10000</span> },
+);
+<span class="cm">// Yanıt yapısı: { status_code: 100, data: { token: "eyJ..." } }</span>
+<span class="kw">const</span> token = response.data?.data?.token ?? response.data?.token;</pre>
+
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ DİKKAT:</span>
+        <code>app_secret</code> yalnızca sunucuda kullanılır. Tarayıcıya hiçbir zaman gönderilmez.
+        <code>NEXT_PUBLIC_</code> prefix'iyle tanımlanmamalıdır.
+      </div>
+    </section>
+
+
+    <!-- ═══════════ ADIM 3: HASH KEY -->
+    <section class="section" id="step-hash">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.1)">🔐</div>
+        <h2>Adım 3 — Hash Key Üretimi (AES-256-CBC)</h2>
+      </div>
+
+      <div class="card">
+        <h3>Hash'e Dahil Olan Veri</h3>
+        <pre style="margin:0;"><code style="background:none; border:none; color:var(--text);">total | installments | currency_code | merchant_key | invoice_id</code>
+<span class="cm">// Örnek: "199.00|1|TRY|$2y$10$...|BB-MPN2V12A-8GWU"</span></pre>
+      </div>
+
+      <div class="card">
+        <h3>Adımlar</h3>
+        <ol>
+          <li><strong>iv</strong> → SHA1(random) → hex → ilk 16 karakter</li>
+          <li><strong>salt</strong> → SHA1(random) → hex → ilk 4 karakter</li>
+          <li><strong>password</strong> → SHA1(app_secret) → hex</li>
+          <li><strong>key</strong> → SHA256(password + salt) → hex → ilk 32 karakter</li>
+          <li><strong>AES-256-CBC</strong> şifreleme (key + iv ile)</li>
+          <li>Sonuç: <code>iv:salt:base64_encrypted</code>, <code>/</code> → <code>__</code></li>
+        </ol>
+      </div>
+
+      <div class="alert alert-sec">
+        <span class="alert-label">🔒 GÜVENLİK:</span>
+        Hash formülünde kart verisi yoktur. Hash yalnızca tutarın ve sipariş numarasının
+        değiştirilmediğini doğrular. <code>app_secret</code> hash çıktısından geri çözülemez.
+      </div>
+    </section>
+
+
+    <!-- ═══════════ ADIM 4: FORM POST -->
+    <section class="section" id="step-submit">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.1)">📤</div>
+        <h2>Adım 4 — Tarayıcıdan Direkt QNBPay POST</h2>
+      </div>
+
+      <div class="card">
+        <h3>Nasıl Çalışır?</h3>
+        <p>
+          Sunucudan gelen <code>formPayload</code> + tarayıcı state'indeki kart verisi,
+          JS ile DOM'a eklenen gizli bir <code>&lt;form&gt;</code>'a doldurulur.
+          Form <code>form.submit()</code> ile QNBPay endpoint'ine gönderilir.
+          Bu noktada tarayıcı QNBPay'in sayfasına geçer — merchant sunucusu bu isteği görmez.
+        </p>
+      </div>
+
+      <pre><span class="fn">submitToQNBPay</span>(payload, card) {
+  <span class="kw">const</span> form = document.<span class="fn">createElement</span>(<span class="str">"form"</span>);
+  form.method = <span class="str">"POST"</span>;
+  form.action = payload.endpoint;
+  <span class="cm">// → https://portal.qnbpay.com.tr/ccpayment/api/paySmart3D</span>
+
+  <span class="kw">const</span> fields = {
+    authorization:          payload.authorization,     <span class="cm">// Bearer JWT</span>
+    merchant_key:           payload.merchant_key,
+    pos_id:                 payload.pos_id,            <span class="cm">// QNB_PAY_POS_ID env</span>
+    currency_code:          payload.currency_code,     <span class="cm">// TRY</span>
+    installments_number:    payload.installments_number, <span class="cm">// 1</span>
+    invoice_id:             payload.invoice_id,        <span class="cm">// BB-XXXXXX</span>
+    invoice_description:    payload.invoice_description,
+    name:                   payload.name,
+    surname:                payload.surname,
+    total:                  payload.total,             <span class="cm">// "199.00"</span>
+    items:                  payload.items,             <span class="cm">// JSON string</span>
+    ip:                     payload.ip,
+    transaction_type:       <span class="str">"Auth"</span>,
+    is_comission_from_user: <span class="str">"2"</span>,
+    response_method:        <span class="str">"GET"</span>,
+    return_url:             payload.return_url,
+    cancel_url:             payload.cancel_url,
+    hash_key:               payload.hash_key,
+    <span class="cm">// ── Kart alanları — yalnızca buraya gelir, sunucuya uğramaz ──</span>
+    cc_holder_name:         card.cc_holder_name,
+    cc_no:                  card.cc_no.<span class="fn">replace</span>(<span class="nm">/\s/g</span>, <span class="str">""</span>),
+    expiry_month:           card.expiry_month,
+    expiry_year:            card.expiry_year,
+    cvv:                    card.cvv,
+  };
+
+  <span class="cm">// Gizli input'ları form'a ekle, submit et</span>
+  form.<span class="fn">submit</span>();
+}</pre>
+    </section>
+
+
+    <!-- ═══════════ ADIM 5: 3D SECURE -->
+    <section class="section" id="step-3ds">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.1)">🏦</div>
+        <h2>Adım 5 — 3D Secure Akışı</h2>
+      </div>
+
+      <div class="card">
+        <h3>QNBPay'in Rolü</h3>
+        <ol>
+          <li>Form verilerini alır, hash_key'i doğrular</li>
+          <li>Kartın BIN numarasından bankayı tespit eder</li>
+          <li>Kartın bankasının 3D Secure sayfasına yönlendirir</li>
+          <li>Müşteri SMS/OTP kodunu girer</li>
+          <li>Banka doğrular, QNBPay ödemeyi işler</li>
+          <li>Sonucu <code>return_url</code> veya <code>cancel_url</code>'e yönlendirir</li>
+        </ol>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ response_method:</span>
+        <code>GET</code> olarak ayarlandığında QNBPay sonucu query param olarak taşır.
+        <code>POST</code> olarak ayarlandığında form POST eder (production için önerilir).
+        Şu an localhost testi için <code>GET</code> kullanılıyor.
+      </div>
+    </section>
+
+
+    <!-- ═══════════ ADIM 6: CALLBACK -->
+    <section class="section" id="step-callback">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.1)">✅</div>
+        <h2>Adım 6 — Callback: Başarılı Ödeme</h2>
+      </div>
+
+      <div class="card">
+        <h3><code>GET /api/payment/qnb/callback</code></h3>
+        <p>QNBPay başarılı ödeme sonrası tarayıcıyı bu URL'e yönlendirir.</p>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Parametre</th><th>Başarı Değeri</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td>status</td><td>"1"</td><td>İşlem durumu</td></tr>
+            <tr><td>mdStatus</td><td>"1"</td><td>3D Secure doğrulama durumu</td></tr>
+            <tr><td>invoice_id</td><td>BB-XXXXXX</td><td>Sipariş numarası</td></tr>
+            <tr><td>order_id</td><td>QNBPay order ID</td><td>İşlem referansı</td></tr>
+            <tr><td>amount</td><td>Tutar</td><td>Onaylanan tutar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><span class="cm">// app/api/payment/qnb/callback/route.ts</span>
+<span class="kw">const</span> isSuccess = params.status === <span class="str">"1"</span> || params.mdStatus === <span class="str">"1"</span>;
+
+<span class="kw">if</span> (isSuccess) {
+  <span class="cm">// Order durumunu CONFIRMED yap</span>
+  <span class="cm">// PaymentTransaction → COMPLETED</span>
+  <span class="cm">// Müşteriyi /odeme/basari?siparis=... sayfasına yönlendir</span>
+}</pre>
+    </section>
+
+
+    <!-- ═══════════ ADIM 7: İPTAL -->
+    <section class="section" id="step-cancel">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.1)">❌</div>
+        <h2>Adım 7 — İptal / Hata Akışı</h2>
+      </div>
+
+      <div class="card">
+        <h3><code>GET /odeme/hata</code> — cancel_url</h3>
+        <p>
+          QNBPay ödeme başarısız olduğunda veya müşteri iptal ettiğinde bu sayfaya yönlendirir.
+          Server component olarak çalışır: query param'lardan <code>invoice_id</code> ile
+          <code>PaymentTransaction</code> kaydı <code>FAILED</code> yapılır.
+        </p>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>error_code</th><th>Açıklama</th><th>Kullanıcı Mesajı</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Geçersiz IP formatı</td><td>Teknik hata oluştu</td></tr>
+            <tr><td>14</td><td>Merchant bank identification not found</td><td>Ödeme işlenemedi — destek hattını arayın</td></tr>
+            <tr><td>51</td><td>Yetersiz bakiye</td><td>Kartınızda yeterli limit bulunmuyor</td></tr>
+            <tr><td>57</td><td>İzin verilmeyen işlem</td><td>Bu işlem kartınız için onaylanmadı</td></tr>
+            <tr><td>—</td><td>Müşteri iptal etti</td><td>Ödeme işlemini iptal ettiniz</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <div class="divider"></div>
+
+
+    <!-- ═══════════ ENV VARS -->
+    <section class="section" id="env-vars">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(251,191,36,.1)">🔑</div>
+        <h2>Ortam Değişkenleri</h2>
+      </div>
+
+      <div class="env-row"><div class="env-key">QNB_PAY_APP_ID</div><div class="env-val">QNBPay portal'dan alınan app ID</div></div>
+      <div class="env-row"><div class="env-key">QNB_PAY_APP_SECRET</div><div class="env-val">Token almak için kullanılır — ASLA tarayıcıya gitmez</div></div>
+      <div class="env-row"><div class="env-key">QNB_PAY_MERCHANT_KEY</div><div class="env-val">Merchant tanımlayıcısı — hash ve form'a eklenir</div></div>
+      <div class="env-row"><div class="env-key">QNB_PAY_POS_ID</div><div class="env-val">30 (canlı) / 122 (test) — opsiyonel form alanı</div></div>
+      <div class="env-row"><div class="env-key">QNB_PAY_SANDBOX</div><div class="env-val">"true" → test.qnbpay.com.tr | "false" → portal.qnbpay.com.tr</div></div>
+      <div class="env-row"><div class="env-key">NEXT_PUBLIC_APP_URL</div><div class="env-val">return_url ve cancel_url için base URL</div></div>
+
+      <div class="alert alert-sec" style="margin-top:16px;">
+        <span class="alert-label">🔒 GÜVENLİK:</span>
+        <code>QNB_PAY_APP_SECRET</code> hiçbir zaman <code>NEXT_PUBLIC_</code> prefix'iyle tanımlanmamalıdır.
+        Bu değer tarayıcıya sızarsa hash manipülasyonu mümkün olur.
+      </div>
+    </section>
+
+
+    <!-- ═══════════ FORM ALANLARI -->
+    <section class="section" id="form-fields">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">📋</div>
+        <h2>QNBPay paySmart3D Form Alanları</h2>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Alan</th><th>Kaynak</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td>authorization</td><td>Sunucu (token)</td><td>Bearer JWT</td></tr>
+            <tr><td>merchant_key</td><td>Env</td><td>Merchant tanımlayıcısı</td></tr>
+            <tr><td>pos_id</td><td>Env (opsiyonel)</td><td>POS terminal ID</td></tr>
+            <tr><td>currency_code</td><td>Sabit</td><td>TRY</td></tr>
+            <tr><td>installments_number</td><td>Sabit</td><td>1 (tek çekim)</td></tr>
+            <tr><td>invoice_id</td><td>Sipariş</td><td>BB-XXXXXX formatı</td></tr>
+            <tr><td>invoice_description</td><td>Sipariş</td><td>Binboğa Kooperatif Balı - BB-...</td></tr>
+            <tr><td>name</td><td>Adres formu</td><td>Müşteri adı</td></tr>
+            <tr><td>surname</td><td>Adres formu</td><td>Müşteri soyadı</td></tr>
+            <tr><td>total</td><td>Sepet</td><td>"199.00" formatında</td></tr>
+            <tr><td>items</td><td>Sepet</td><td>JSON string: [{name, price, quantity, description}]</td></tr>
+            <tr><td>ip</td><td>Request header</td><td>Müşteri IPv4 adresi</td></tr>
+            <tr><td>transaction_type</td><td>Sabit</td><td>"Auth"</td></tr>
+            <tr><td>is_comission_from_user</td><td>Sabit</td><td>"2"</td></tr>
+            <tr><td>response_method</td><td>Sabit</td><td>"GET" (test) / "POST" (production)</td></tr>
+            <tr><td>return_url</td><td>Env + sabit</td><td>/api/payment/qnb/callback</td></tr>
+            <tr><td>cancel_url</td><td>Env + sabit</td><td>/odeme/hata</td></tr>
+            <tr><td>hash_key</td><td>Sunucu (AES)</td><td>Tutar doğrulama imzası</td></tr>
+            <tr><td style="color:var(--red)">cc_holder_name</td><td style="color:var(--red)">Browser state</td><td style="color:var(--red)">Kart sahibi adı — sunucuya uğramaz</td></tr>
+            <tr><td style="color:var(--red)">cc_no</td><td style="color:var(--red)">Browser state</td><td style="color:var(--red)">Kart numarası — sunucuya uğramaz</td></tr>
+            <tr><td style="color:var(--red)">expiry_month</td><td style="color:var(--red)">Browser state</td><td style="color:var(--red)">Son kullanma ayı — sunucuya uğramaz</td></tr>
+            <tr><td style="color:var(--red)">expiry_year</td><td style="color:var(--red)">Browser state</td><td style="color:var(--red)">Son kullanma yılı — sunucuya uğramaz</td></tr>
+            <tr><td style="color:var(--red)">cvv</td><td style="color:var(--red)">Browser state</td><td style="color:var(--red)">CVV — sunucuya uğramaz</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:var(--red);">
+        Kırmızı satırlar — kart verisi, yalnızca tarayıcıda yaşar
+      </div>
+    </section>
+
+
+    <!-- ═══════════ DOSYA HARİTASI -->
+    <section class="section" id="files">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.1)">📁</div>
+        <h2>Dosya Haritası</h2>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Dosya</th><th>Rol</th></tr></thead>
+          <tbody>
+            <tr><td>lib/payment/types.ts</td><td>Smart3DFormPayload, PaymentResult, PaymentAdapter tipleri</td></tr>
+            <tr><td>lib/payment/qnb-pay.ts</td><td>QNBPayAdapter — token, hash, createPayment, verifyPayment</td></tr>
+            <tr><td>lib/payment/index.ts</td><td>getPaymentAdapter() factory fonksiyonu</td></tr>
+            <tr><td>app/api/orders/route.ts</td><td>POST — sipariş oluştur, ödeme hazırla, formPayload döndür</td></tr>
+            <tr><td>app/api/payment/qnb/callback/route.ts</td><td>GET — başarılı ödeme callback, DB güncelle</td></tr>
+            <tr><td>app/(shop)/odeme/hata/page.tsx</td><td>Server component — cancel_url handler, DB güncelle</td></tr>
+            <tr><td>app/(shop)/odeme/basari/page.tsx</td><td>Başarı sayfası</td></tr>
+            <tr><td>components/shop/checkout/CheckoutForm.tsx</td><td>Kart formu, submitToQNBPay(), client-only kart state'i</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ HATA KODLARI -->
+    <section class="section" id="errors">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.1)">⚠️</div>
+        <h2>QNBPay Hata Kodları</h2>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Kod</th><th>Mesaj</th><th>Olası Sebep</th><th>Çözüm</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Invalid IP format</td>
+              <td>IPv6 (::1) veya geçersiz IP</td>
+              <td>IPv4 doğrulama + fallback IP</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>Merchant bank identification not found</td>
+              <td>paySmart3D merchant için aktif değil</td>
+              <td>QNBPay desteğinden aktivasyon talebi</td>
+            </tr>
+            <tr>
+              <td>51</td>
+              <td>Insufficient funds</td>
+              <td>Kartta yeterli limit yok</td>
+              <td>Kullanıcıya bildir</td>
+            </tr>
+            <tr>
+              <td>57</td>
+              <td>Transaction not permitted</td>
+              <td>Kart online işleme kapalı</td>
+              <td>Kullanıcıya bildir</td>
+            </tr>
+            <tr>
+              <td>mdStatus ≠ 1</td>
+              <td>3D Secure failed</td>
+              <td>OTP hatalı veya iptal edildi</td>
+              <td>Tekrar dene / iptal sayfası</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warn" style="margin-top:16px;">
+        <span class="alert-label">⏳ BEKLEYEN:</span>
+        error_code=14 aktif olarak devam etmektedir. QNBPay'den paySmart3D aktivasyonu
+        beklenmektedir. Aktivasyon sonrası mevcut implementasyon değişiklik gerektirmez.
+      </div>
+    </section>
+
+
+    <!-- FOOTER -->
+    <div style="border-top:1px solid var(--border); padding-top:24px; margin-top:16px; color:var(--text-muted); font-size:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <span>🍯 Binboğa Bal E-Ticaret — QNBPay paySmart3D Ödeme Akışı</span>
+      <span>26 Mayıs 2026 · Claude (Anthropic) tarafından yazıldı</span>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

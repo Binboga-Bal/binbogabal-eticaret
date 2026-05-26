@@ -22,7 +22,7 @@ const orderSchema = z.object({
       price: z.number().positive(),
       productName: z.string(),
       variantInfo: z.string(),
-    })
+    }),
   ),
   subtotal: z.number().positive(),
   shippingFee: z.number().min(0),
@@ -31,16 +31,8 @@ const orderSchema = z.object({
   couponCode: z.string().nullable().optional(),
   notes: z.string().optional(),
   paymentMethod: z.enum(["QNB_PAY", "CASH_ON_DELIVERY"]).default("QNB_PAY"),
-  card: z
-    .object({
-      holderName: z.string(),
-      number: z.string(),
-      expiryMonth: z.string(),
-      expiryYear: z.string(),
-      cvv: z.string(),
-      installments: z.number().int().min(1).default(1),
-    })
-    .optional(),
+  // 🔒 PCI-DSS GÜVENLİĞİ: 'card' şemasını buradan tamamen siliyoruz veya opsiyonel bırakıp kodda hiç kullanmıyoruz.
+  // Frontend artık kart verisi göndermediği için bu alan API'ye hiç gelmeyecek.
 });
 
 export async function POST(req: Request) {
@@ -49,12 +41,16 @@ export async function POST(req: Request) {
 
   const parsed = orderSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Geçersiz sipariş verisi" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Geçersiz sipariş verisi" },
+      { status: 400 },
+    );
   }
 
   const data = parsed.data;
   const orderNumber = generateOrderNumber();
 
+  // 1. ADIM: Siparişi 'ÖDEME_BEKLIYOR' mantığıyla DB'ye kaydet
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -92,7 +88,9 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-  // Kapıda ödeme: doğrudan başarı sayfasına yönlendir
+  // ----------------------------------------------------------------
+  // SENARYO A: KAPIDA ÖDEME
+  // ----------------------------------------------------------------
   if (data.paymentMethod === "CASH_ON_DELIVERY") {
     await prisma.paymentTransaction.create({
       data: {
@@ -109,11 +107,20 @@ export async function POST(req: Request) {
     });
   }
 
-  // Online ödeme: QNBPay Güvenli Ödeme Sayfası (kart verisi bizden geçmez)
+  // ----------------------------------------------------------------
+  // SENARYO B: QNB PAY — paySmart3D (browser-to-bank, PCI-DSS uyumlu)
+  // Sunucu: token alır + hash_key üretir → formPayload döner
+  // Browser: kart verisiyle birlikte doğrudan QNBPay'e POST eder
+  // ----------------------------------------------------------------
   const adapter = getPaymentAdapter("QNB_PAY");
 
   const forwardedFor = req.headers.get("x-forwarded-for");
-  const ip = forwardedFor?.split(",")[0]?.trim() ?? "127.0.0.1";
+  const rawIp = forwardedFor?.split(",")[0]?.trim() ?? "";
+  // QNBPay sadece IPv4 kabul ediyor — localhost veya IPv6 gelirse gerçek IP ile fallback
+  const ip =
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(rawIp) && !rawIp.startsWith("127.")
+      ? rawIp
+      : "188.119.7.199";
 
   const paymentResult = await adapter.createPayment({
     orderId: order.id,
@@ -142,30 +149,31 @@ export async function POST(req: Request) {
     })),
     callbackUrl: `${baseUrl}/api/payment/qnb/callback`,
     cancelUrl: `${baseUrl}/odeme/hata`,
-    card: data.card,
+    // 🔒 Kart verisi parametresini buradan tamamen sildik. Sadece sipariş verileri gidiyor.
   });
 
+  // İşlemi Transaction tablosuna kaydet
   await prisma.paymentTransaction.create({
     data: {
       orderId: order.id,
       provider: "QNB_PAY",
       amount: data.total,
       status: paymentResult.success ? "PENDING" : "FAILED",
-      providerRefId: paymentResult.transactionId,
       errorMessage: paymentResult.error,
     },
   });
 
   if (!paymentResult.success) {
     return NextResponse.json(
-      { error: paymentResult.error ?? "Ödeme başlatılamadı" },
-      { status: 500 }
+      { error: paymentResult.error ?? "Ödeme hazırlanamadı" },
+      { status: 500 },
     );
   }
 
+  // 🔒 PCI-DSS: Kart verisi yoktur. Frontend bu alanlarla + kart bilgileriyle
+  // doğrudan QNBPay endpoint'ine form POST yapar — sunucumuz asla kart görmez.
   return NextResponse.json({
-    redirectUrl: paymentResult.redirectUrl,
-    htmlContent: paymentResult.htmlContent,
     orderId: order.id,
+    formPayload: paymentResult.formPayload,
   });
 }

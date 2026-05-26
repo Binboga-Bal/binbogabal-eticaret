@@ -44,9 +44,33 @@ export interface CreatePaymentParams {
   cancelUrl: string;
 }
 
+// Kart alanları dahil edilmez — browser doğrudan QNBPay'e POST eder
+export interface Smart3DFormPayload {
+  authorization: string;
+  merchant_key: string;
+  pos_id?: string;
+  currency_code: string;
+  installments_number: string;
+  invoice_id: string;
+  invoice_description: string;
+  name: string;
+  surname: string;
+  total: string;
+  items: string;
+  ip: string;
+  transaction_type: string;
+  is_comission_from_user: string;
+  response_method: string;
+  return_url: string;
+  cancel_url: string;
+  hash_key: string;
+  endpoint: string;
+}
+
 export interface PaymentResult {
   success: boolean;
   redirectUrl?: string;
+  formPayload?: Smart3DFormPayload;
   htmlContent?: string;
   transactionId?: string;
   error?: string;
