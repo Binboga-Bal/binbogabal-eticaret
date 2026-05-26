@@ -467,6 +467,15 @@
       <a href="#step44" class="nav-link"><span class="dot"></span>44 — Sıralama Dropdown</a>
       <a href="#step45" class="nav-link"><span class="dot"></span>45 — Fiyat Sıralaması</a>
 
+      <div class="nav-section-label">26 Mayıs 2026 — Arama</div>
+      <a href="#step46" class="nav-link"><span class="dot"></span>46 — SearchOverlay & API</a>
+      <a href="#step47" class="nav-link"><span class="dot"></span>47 — Tasarım Düzenlemeleri</a>
+      <a href="#step48" class="nav-link"><span class="dot"></span>48 — En Çok Arananlar Sağa</a>
+      <a href="#step49" class="nav-link"><span class="dot"></span>49 — Searchbar Başlığı</a>
+      <a href="#step50" class="nav-link"><span class="dot"></span>50 — Typewriter Placeholder</a>
+      <a href="#step51" class="nav-link"><span class="dot"></span>51 — Çok Alan Arama</a>
+      <a href="#step52" class="nav-link"><span class="dot"></span>52 — çam/cam Düzeltmesi</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -3418,10 +3427,289 @@ sp.<span class="fn">delete</span>(<span class="str">"bestseller"</span>);
     </section>
 
 
+    <!-- ════════════════════════════ 26 MAYIS 2026 — ARAMA -->
+    <div class="date-header">
+      <div class="date-pill">26 Mayıs 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 46 – 52 · Arama Overlay</div>
+    </div>
+
+
+    <!-- ═══════════════════════════════ ADIM 46: SEARCHOVERLAY & API -->
+    <section class="section" id="step46">
+      <div class="section-title">
+        <div class="step-num">46</div>
+        <h2>SearchOverlay Bileşeni & Search API</h2>
+      </div>
+
+      <div class="card">
+        <h3>Genel Tasarım</h3>
+        <p>Header'daki arama butonuna tıklandığında ekranın üst yarısını kaplayan, alert-dialog tarzı bir overlay açılır. Panel <code>position: fixed; z-index: 39</code> ile header'ın (<code>z-40</code>) arkasından kayarak gelir; <code>translateY(-100%)</code> → <code>translateY(0)</code> geçişiyle üstten aşağı açılır.</p>
+        <ul style="margin-top: 8px;">
+          <li><strong>Sol sütun (desktop):</strong> "En Çok Arananlar" — bestseller ürünler küçük kart listesi</li>
+          <li><strong>Sağ sütun:</strong> Arama kutusu + canlı sonuçlar (350 ms debounce)</li>
+          <li><strong>Backdrop:</strong> <code>rgba(17,12,5,0.45) blur(4px)</code> — tıklanınca overlay kapanır</li>
+          <li><strong>Escape tuşu</strong> overlay'i kapatır</li>
+          <li>Yükseklik: <code>calc(50vh + HEADER_H)</code> → visible kısım daima 50vh</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/api/search/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── route.ts</span> <span style="color:var(--green);font-size:11px">YENİ — GET /api/search?q=</span><br>
+          <br>
+          <span class="dir">components/shop/header/</span><br>
+          &nbsp;&nbsp;<span class="file new">├── SearchOverlay.tsx</span> <span style="color:var(--green);font-size:11px">YENİ</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── Header.tsx</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ — SearchOverlay entegrasyonu</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>API Route — <code>GET /api/search</code></h3>
+        <ul>
+          <li><code>?q=</code> boşsa → sadece popular (bestseller) ürünleri döner</li>
+          <li>Prisma <code>Decimal</code> alanları <code>Number()</code> ile serialize edilir</li>
+          <li>Sonuçlar <code>isBestseller desc, isFeatured desc</code> sıralı gelir</li>
+          <li>Limit: popular 6, results 12</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Header.tsx Değişikliği</h3>
+        <p>Eski <code>searchOpen</code> durumunda render edilen basit <code>&lt;input&gt;</code> kaldırıldı. Yerine <code>&lt;SearchOverlay open={searchOpen} onClose={() =&gt; setSearchOpen(false)} /&gt;</code> eklendi.</p>
+      </div>
+
+      <pre><span class="cm">// app/api/search/route.ts — temel yapı</span>
+<span class="kw">const</span> results = <span class="kw">await</span> prisma.product.findMany({
+  where: {
+    isActive: <span class="kw">true</span>,
+    OR: [
+      { name:             { contains: q } },
+      { shortDescription: { contains: q } },
+      { honeyTypes: { some: { label: { contains: q }, isActive: <span class="kw">true</span> } } },
+      { categories: { some: { name:  { contains: q }, isActive: <span class="kw">true</span> } } },
+    ],
+  },
+  take: <span class="nm">12</span>,
+  orderBy: [{ isBestseller: <span class="str">"desc"</span> }, { isFeatured: <span class="str">"desc"</span> }],
+});</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 47: TASARIM DÜZENLEMELERİ -->
+    <section class="section" id="step47">
+      <div class="section-title">
+        <div class="step-num">47</div>
+        <h2>Tasarım Düzenlemeleri — Alt Wave Kaldırma & Stil</h2>
+      </div>
+
+      <div class="card">
+        <h3>Yapılan Değişiklikler</h3>
+        <div class="step-list" style="margin-top:12px;">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Alt arch wave SVG kaldırıldı</h4>
+              <p>İlk versiyonda panel'in altına header wave'iyle eşleşen bir SVG arch eklenmişti. Kullanıcı talebi üzerine kaldırıldı. Yerine <code>box-shadow: 0 12px 40px rgba(0,0,0,0.18)</code> eklendi.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Panel arka planı krema tonu</h4>
+              <p><code>background: white</code> → <code>#FDFAF5</code> (hafif ılık beyaz). Bal temasıyla uyumlu.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Arama kutusu görsel iyileştirme</h4>
+              <p><code>rounded-2xl</code>, focus'ta <code>box-shadow: 0 0 0 3px honeyDark18</code> halka efekti, beyaz arka plan, <code>#E8DFC8</code> border.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sonuç kartları</h4>
+              <p><code>bg-white border border-amber-100/60 hover:border-amber-300 hover:shadow-sm</code> — ince border hover efektiyle.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sol sütun kompaktlaştırıldı</h4>
+              <p>Ürün görseli <code>w-9 h-9</code> → <code>w-8 h-8</code>, satır boşlukları <code>space-y-px</code>, yazı boyutları düşürüldü.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 48: EN ÇOK ARANANLAR SAĞA -->
+    <section class="section" id="step48">
+      <div class="section-title">
+        <div class="step-num">48</div>
+        <h2>"En Çok Arananlar" Sütununu Sağa Taşıma</h2>
+      </div>
+
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>İlk tasarımda <strong>sol sütun</strong>: popular ürünler, <strong>sağ sütun</strong>: arama. Kullanıcı talebi üzerine yerler değiştirildi.</p>
+        <ul style="margin-top:8px;">
+          <li><strong>Yeni sol:</strong> Arama kutusu + sonuçlar (<code>flex-1</code>)</li>
+          <li><strong>Dikey ayraç</strong></li>
+          <li><strong>Yeni sağ:</strong> "En Çok Arananlar" aside (<code>w-56 shrink-0</code>)</li>
+        </ul>
+        <p style="margin-top:8px;">Flex sırası: <code>[DIV flex-1] → [DIV divider] → [ASIDE]</code></p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 49: SEARCHBAR BAŞLIĞI -->
+    <section class="section" id="step49">
+      <div class="section-title">
+        <div class="step-num">49</div>
+        <h2>Searchbar Üstüne Başlık Ekleme</h2>
+      </div>
+
+      <div class="card">
+        <h3>Eklenen Element</h3>
+        <p>Arama kutusunun hemen üstüne <code>&lt;h2&gt;</code> başlık eklendi:</p>
+        <pre style="margin:8px 0 0;">&lt;<span class="tp">h2</span> className=<span class="str">"text-lg font-bold text-gray-800 mb-3 tracking-tight"</span>&gt;
+  Ne arıyorsunuz?
+&lt;/<span class="tp">h2</span>&gt;</pre>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 50: TYPEWRITER PLACEHOLDER -->
+    <section class="section" id="step50">
+      <div class="section-title">
+        <div class="step-num">50</div>
+        <h2>Typewriter Placeholder Animasyonu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Eski → Yeni</h3>
+        <table>
+          <tr><th>Özellik</th><th>Eski</th><th>Yeni</th></tr>
+          <tr><td>Animasyon tipi</td><td>Fade in/out geçişi</td><td>Typewriter (harf harf yazma + silme)</td></tr>
+          <tr><td>Veri kaynağı</td><td>Sabit <code>PLACEHOLDER_NAMES</code> dizisi</td><td>API'den gelen bestseller ürün isimleri (<code>popular</code> state)</td></tr>
+          <tr><td>State'ler</td><td><code>phIdx, phVisible</code></td><td><code>displayText, nameIdx, isDeleting</code></td></tr>
+          <tr><td>Yazma hızı</td><td>—</td><td>65ms / karakter</td></tr>
+          <tr><td>Silme hızı</td><td>—</td><td>38ms / karakter</td></tr>
+          <tr><td>İsimler arası bekleme</td><td>2500ms</td><td>1800ms (tam yazıldıktan sonra)</td></tr>
+          <tr><td>İmleç</td><td>Yok</td><td>Yanıp sönen dikey çizgi (<code>tw-blink</code> keyframe)</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Çalışma Mantığı</h3>
+        <ul>
+          <li><code>popular.length === 0</code> ise animasyon başlamaz (API yüklenene kadar bekler)</li>
+          <li>Overlay kapanınca tüm state sıfırlanır (<code>displayText=""</code>, <code>nameIdx=0</code>, <code>isDeleting=false</code>)</li>
+          <li>Input focus'ta placeholder gizlenir, blur'da animasyon devam eder</li>
+        </ul>
+      </div>
+
+      <pre><span class="cm">// Typewriter useEffect özeti</span>
+<span class="kw">const</span> names = popular.map((p) =&gt; p.name);
+<span class="kw">const</span> current = names[nameIdx % names.length];
+
+<span class="kw">if</span> (!isDeleting) {
+  <span class="kw">if</span> (displayText.length &lt; current.length) {
+    <span class="cm">// Bir karakter ekle — 65ms</span>
+    setTimeout(() =&gt; setDisplayText(current.slice(<span class="nm">0</span>, displayText.length + <span class="nm">1</span>)), <span class="nm">65</span>);
+  } <span class="kw">else</span> {
+    <span class="cm">// Tam yazıldı — 1800ms bekle, sonra sil</span>
+    setTimeout(() =&gt; setIsDeleting(<span class="kw">true</span>), <span class="nm">1800</span>);
+  }
+} <span class="kw">else</span> {
+  <span class="kw">if</span> (displayText.length &gt; <span class="nm">0</span>) {
+    <span class="cm">// Bir karakter sil — 38ms</span>
+    setTimeout(() =&gt; setDisplayText((s) =&gt; s.slice(<span class="nm">0</span>, <span class="nm">-1</span>)), <span class="nm">38</span>);
+  } <span class="kw">else</span> {
+    <span class="cm">// Silindi — sonraki isme geç</span>
+    setIsDeleting(<span class="kw">false</span>);
+    setNameIdx((i) =&gt; (i + <span class="nm">1</span>) % names.length);
+  }
+}</pre>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 51: ÇOK ALAN ARAMA -->
+    <section class="section" id="step51">
+      <div class="section-title">
+        <div class="step-num">51</div>
+        <h2>Arama Kapsamının Genişletilmesi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Arama Alanları</h3>
+        <table>
+          <tr><th>Alan</th><th>Model</th><th>Örnek Değer</th></tr>
+          <tr><td><code>name</code></td><td>Product</td><td>"Binboğa Çiçek Balı 850 gr"</td></tr>
+          <tr><td><code>shortDescription</code></td><td>Product</td><td>"Toroslar'ın çiçeklerinden..."</td></tr>
+          <tr><td><code>honeyTypes.label</code></td><td>HoneyType (ilişkili)</td><td>"Çiçek", "Çam", "Kestane"</td></tr>
+          <tr><td><code>categories.name</code></td><td>Category (ilişkili)</td><td>"Organik", "Süzme Bal"</td></tr>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px;">
+          <span class="alert-label">ℹ️ NOT:</span> <code>description</code> (uzun metin) kasıtlı olarak dışarıda bırakıldı — ambalaj bilgileri içerdiğinden yanlış eşleşmelere neden oluyordu (bkz. Adım 52).
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════ ADIM 52: ÇAM/CAM DÜZELTMESİ -->
+    <section class="section" id="step52">
+      <div class="section-title">
+        <div class="step-num">52</div>
+        <h2>Collation Hatası — "çam" Araması "cam kavanoz"u Getiriyordu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem</h3>
+        <p>"çam" (çam balı türü) arandığında, <code>description</code> alanında "cam kavanoz" / "cam şişe" ifadesi geçen ürünler de sonuçlara dahil oluyordu.</p>
+        <div class="alert alert-warn" style="margin-top:10px;">
+          <span class="alert-label">⚠️ KÖKNEDN:</span> MySQL <code>utf8mb4_unicode_ci</code> (veya <code>general_ci</code>) collation'ı
+          <code>ç</code> ile <code>c</code>'yi arama bağlamında eşdeğer sayıyor. <code>LIKE '%çam%'</code> sorgusu <code>cam kavanoz</code> ifadesine de vuruyor.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p><code>description</code> alanı <code>OR</code> listesinden çıkarıldı. Gerekçe:</p>
+        <ul style="margin-top:6px;">
+          <li>Uzun açıklama metinleri ambalaj, hacim, gramaj gibi gürültülü bilgiler içeriyor</li>
+          <li>Ürün adı + kısa açıklama + bal türü + kategori araması yeterli doğrulukta sonuç veriyor</li>
+          <li>Collation'ı sorgu bazında değiştirmek Prisma ORM ile doğrudan desteklenmiyor</li>
+        </ul>
+        <div class="alert alert-fix" style="margin-top:10px;">
+          <span class="alert-label">✅ SONUÇ:</span> "çam" araması artık yalnızca <code>honeyTypes.label = "Çam"</code> eşleşen ürünleri getiriyor, cam kavanoz olan ürünler listede çıkmıyor.
+        </div>
+      </div>
+
+      <pre><span class="cm">// Önceki (hatalı)</span>
+OR: [
+  { name:             { contains: q } },
+  { shortDescription: { contains: q } },
+  <span style="color:var(--red)">{ description:      { contains: q } },  <span class="cm">// ← "cam kavanoz" burada eşleşiyordu</span></span>
+  { honeyTypes: { some: { label: { contains: q } } } },
+  { categories: { some: { name:  { contains: q } } } },
+]
+
+<span class="cm">// Düzeltilmiş</span>
+OR: [
+  { name:             { contains: q } },
+  { shortDescription: { contains: q } },
+  { honeyTypes: { some: { label: { contains: q }, isActive: <span class="kw">true</span> } } },
+  { categories: { some: { name:  { contains: q }, isActive: <span class="kw">true</span> } } },
+]</pre>
+    </section>
+
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 25 Mayıs 2026 — Adım 45</span>
+      <span>Son güncelleme: 26 Mayıs 2026 — Adım 52</span>
     </div>
 
   </main>
