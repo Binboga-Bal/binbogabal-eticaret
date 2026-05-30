@@ -501,6 +501,11 @@
       <a href="#step69" class="nav-link"><span class="dot"></span>69 — Müşteri Yorumları + Pagination</a>
       <a href="#step70" class="nav-link"><span class="dot"></span>70 — Güven Bandı SVG</a>
       <a href="#step71" class="nav-link"><span class="dot"></span>71 — Admin PDF Yönetimi</a>
+      <div class="nav-section-label">30 Mayıs 2026 — Kategori Görselleri</div>
+      <a href="#step75" class="nav-link"><span class="dot"></span>75 — Kategori Resim Yönetimi</a>
+      <a href="#step76" class="nav-link"><span class="dot"></span>76 — Anasayfa Kategori Grid</a>
+      <a href="#step77" class="nav-link"><span class="dot"></span>77 — showOnHome Toggle</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -4576,10 +4581,95 @@ OR: [
       </div>
     </section>
 
+    <!-- SESSION: 30 Mayıs 2026 — Kategori Görselleri & Anasayfa Grid -->
+    <div class="date-header">
+      <span class="date-pill">30 MAYIS 2026 — KATEGORİ GÖRSELLERİ</span>
+      <div class="date-line"></div>
+      <span class="date-count">Adım 75–77</span>
+    </div>
+
+    <section class="section" id="step75">
+      <div class="section-title">
+        <div class="step-num">75</div>
+        <h2>Kategori Resim Yönetimi — Admin Panel</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Admin panelinde <strong>CategoryEditRow</strong> bileşeni oluşturuldu: mevcut kategorilerin yanındaki ikona tıklayarak anında resim yüklenebiliyor (<code>/api/admin/upload</code> → <code>images/categories/</code>)</li>
+          <li><strong>CategoryForm</strong>'a görsel yükleme alanı eklendi: önizleme, "Görseli Değiştir / Kaldır" butonları</li>
+          <li><code>POST /api/admin/categories</code> endpoint'i <code>image</code> alanını kabul edecek şekilde güncellendi</li>
+          <li><code>PATCH /api/admin/categories/[id]</code> ve <code>DELETE</code> endpoint'leri oluşturuldu</li>
+          <li>Admin kategori sayfasına "<em>Görsel eklemek için kategori ikonuna tıklayın</em>" yönlendirmesi eklendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/admin/CategoryEditRow.tsx</span> — inline resim yükleme + patch<br>
+          <span class="file mod">components/admin/CategoryForm.tsx</span> — görsel upload alanı<br>
+          <span class="file mod">app/api/admin/categories/route.ts</span> — image alanı POST'a eklendi<br>
+          <span class="file new">app/api/admin/categories/[id]/route.ts</span> — PATCH &amp; DELETE endpoint<br>
+          <span class="file mod">app/admin/kategoriler/page.tsx</span> — CategoryEditRow entegrasyonu
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step76">
+      <div class="section-title">
+        <div class="step-num">76</div>
+        <h2>Anasayfa Kategori Grid — Tasarım Güncellemesi</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>take: 3</code> limiti kaldırıldı → tüm aktif kategoriler listeleniyor (showOnHome filtresiyle)</li>
+          <li>Grid: <code>grid-cols-2 sm:grid-cols-3 lg:grid-cols-4</code>, <code>gap-4</code>, <code>aspect-[5/3]</code></li>
+          <li>Arka plan <code>bg-white</code> → <code>bg-gray-50</code> ile hafif kontrast</li>
+          <li>Başlık tipografisi güncellendi; sağa "Tüm Ürünler →" linki eklendi</li>
+          <li>Kart hover efekti: <code>shadow-sm → shadow-lg</code> yükselme animasyonu</li>
+          <li>Gradient daha doğal: <code>from-black/70 via-black/10 to-transparent</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/home/CategoryGrid.tsx</span> — grid tasarımı &amp; filtre
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step77">
+      <div class="section-title">
+        <div class="step-num">77</div>
+        <h2>showOnHome Toggle — Anasayfada Göster/Gizle</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Prisma şemasına <code>Category.showOnHome Boolean @default(false)</code> alanı eklendi, <code>db:push</code> ile DB'ye uygulandı</li>
+          <li>Anasayfa yalnızca <code>showOnHome: true</code> kategorileri gösteriyor, maksimum 8 adet</li>
+          <li>Admin panelinde her kategorinin yanında <strong>"Anasayfa / Gizli"</strong> toggle butonu: tıklayınca otomatik PATCH isteği atıyor</li>
+          <li>Yeni kategori formuna "Anasayfada Göster" checkbox'ı eklendi</li>
+          <li>Tüm mevcut kategoriler <code>showOnHome: true</code> olarak güncellendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">prisma/schema.prisma</span> — showOnHome alanı<br>
+          <span class="file mod">components/shop/home/CategoryGrid.tsx</span> — showOnHome filtresi + take 8<br>
+          <span class="file mod">components/admin/CategoryEditRow.tsx</span> — toggle butonu<br>
+          <span class="file mod">components/admin/CategoryForm.tsx</span> — showOnHome checkbox<br>
+          <span class="file mod">app/api/admin/categories/[id]/route.ts</span> — showOnHome PATCH desteği
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 30 Mayıs 2026 — Adım 74 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 30 Mayıs 2026 — Adım 77 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

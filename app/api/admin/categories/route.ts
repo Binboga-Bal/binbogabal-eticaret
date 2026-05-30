@@ -8,13 +8,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
   }
 
-  const { name, slug, description, isActive } = await req.json();
+  const { name, slug, description, isActive, image } = await req.json();
 
   const existing = await prisma.category.findUnique({ where: { slug } });
   if (existing) return NextResponse.json({ error: "Bu slug zaten kullanımda" }, { status: 400 });
 
   const category = await prisma.category.create({
-    data: { name, slug, description: description || null, isActive },
+    data: { name, slug, description: description || null, isActive, image: image || null },
   });
 
   return NextResponse.json(category);
