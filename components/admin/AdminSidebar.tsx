@@ -15,6 +15,7 @@ import {
   Settings,
   ChevronDown,
   Layers,
+  Image,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -43,6 +44,7 @@ const navItems: NavItem[] = [
       { href: "/admin/icerik/faq", label: "SSS" },
     ],
   },
+  { href: "/admin/bannerlar", label: "Görsel Yönetimi", icon: <Image size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
   { href: "/admin/erp-sync", label: "ERP Senkron.", icon: <RefreshCw size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
   { href: "/admin/ayarlar", label: "Ayarlar", icon: <Settings size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
 ];

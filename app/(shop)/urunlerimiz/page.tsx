@@ -37,7 +37,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
 
-  const [honeyTypes, allCategories] = await Promise.all([
+  const [honeyTypes, allCategories, bannerSetting] = await Promise.all([
     prisma.honeyType.findMany({
       where: { isActive: true },
       orderBy: { order: "asc" },
@@ -47,7 +47,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       where: { isActive: true },
       select: { slug: true, name: true },
     }),
+    prisma.siteSetting.findUnique({ where: { key: "banner_urunlerimiz" } }),
   ]);
+
+  const bannerImage = bannerSetting?.value ?? "/images/urunlerimiz/urunlerimiz-banner.webp";
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
@@ -195,7 +198,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           {/* Hero */}
           <div className="relative h-96 md:h-[520px] overflow-hidden">
             <Image
-              src="/images/urunlerimiz/urunlerimiz-banner.webp"
+              src={bannerImage}
               alt="Ürünlerimiz banner"
               fill
               className="object-cover"

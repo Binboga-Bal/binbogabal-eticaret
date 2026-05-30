@@ -7,7 +7,7 @@ import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { CartDrawer } from "../cart/CartDrawer";
 import { SearchOverlay } from "./SearchOverlay";
-import { headerTheme } from "@/lib/theme";
+import { headerTheme, footerTheme } from "@/lib/theme";
 
 const navLinks = [
   { href: "/urunlerimiz",          label: "ÜRÜNLERİMİZ" },
@@ -60,7 +60,7 @@ const archBorderPath = [
   `L ${VB_W} ${headerTheme.navHeight}`,
 ].join(" ");
 
-export function Header() {
+export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartOpen, setCartOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -202,7 +202,7 @@ export function Header() {
             aria-label="Anasayfa"
           >
             <Image
-              src="/images/logo.png"
+              src={logoSrc}
               alt="Binboğa Kooperatif Balı"
               width={headerTheme.logoWidth}
               height={headerTheme.logoHeight}

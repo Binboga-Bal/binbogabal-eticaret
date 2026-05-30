@@ -1,9 +1,14 @@
 import Image from "next/image";
 import { trustBadgesTheme } from "@/lib/theme";
 
-const badges = trustBadgesTheme.badges;
+const baseBadges = trustBadgesTheme.badges;
 
-export function TrustBadges() {
+interface TrustBadgesProps {
+  images?: (string | null)[];
+}
+
+export function TrustBadges({ images = [] }: TrustBadgesProps) {
+  const badges = baseBadges.map((b, i) => ({ ...b, image: images[i] ?? b.image }));
   return (
     <section className="bg-gradient-to-b from-white to-honey-cream py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

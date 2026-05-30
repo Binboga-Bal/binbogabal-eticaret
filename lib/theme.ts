@@ -352,6 +352,28 @@ export const homeBannersTheme = {
 // § 12 — FOOTER
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// § 13 — BAL REHBERİ SAYFASI
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const balRehberiTheme = {
+  banner: {
+    image: "/images/bal-rehberi/bal-rehberi-banner.png",
+    /** Banner yüksekliği (Tailwind arbitrary değeri veya sınıf) */
+    height: "30.3rem",
+    /** Görselin dikey hizalaması — objectPosition için (örn. "center 10%") */
+    objectPosition: "center top",
+    /** Karartma katmanı opaklığı (0–1) */
+    overlayOpacity: 0,
+  },
+  guvenceBolumu: {
+    /** Arka plan görseli opaklığı (0–1) */
+    imageOpacity: 0.4,
+    /** Bölüm dikey padding — Tailwind sınıfı */
+    paddingY: "py-24",
+  },
+} as const;
+
 export const footerTheme = {
   logo: {
     src: "/images/logo.png",

@@ -27,9 +27,17 @@ interface Slide {
   accentLine?: string;
 }
 
-const slides: Slide[] = sliderTheme.slides as unknown as Slide[];
+const baseSlides: Slide[] = sliderTheme.slides as unknown as Slide[];
 
-export function HeroSlider() {
+interface HeroSliderProps {
+  images?: (string | null)[];
+}
+
+export function HeroSlider({ images = [] }: HeroSliderProps) {
+  const slides = baseSlides.map((slide, i) => ({
+    ...slide,
+    image: images[i] ?? slide.image,
+  }));
   // minHeight: Swiper fade modunda slides position:absolute olduğu için
   // container yüksekliği JS çalışana kadar 0 kalabilir; arch zone + içerik için yer garantile
   return (

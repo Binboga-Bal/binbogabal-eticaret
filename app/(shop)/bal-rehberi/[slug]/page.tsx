@@ -42,7 +42,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
       <Link
         href="/bal-rehberi"
         className="inline-flex items-center gap-1 text-sm text-honey-dark font-medium hover:underline mb-6"
@@ -61,6 +61,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         <span className="bg-honey-bright text-gray-800 text-xs font-bold px-3 py-1 rounded">
           BAL REHBERİ
         </span>
+        <span className="text-sm text-honey-dark font-semibold">Binboğa Kooperatif Balı</span>
         {post.publishedAt && (
           <span className="text-xs text-gray-400">{formatDate(post.publishedAt)}</span>
         )}

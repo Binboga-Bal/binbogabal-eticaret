@@ -32,7 +32,7 @@ const socialLinks = [
   { href: "https://twitter.com/binbogabal", icon: Twitter, label: "Twitter" },
 ];
 
-export function Footer() {
+export function Footer({ logoSrc = footerTheme.logo.src }: { logoSrc?: string }) {
   return (
     <footer className="bg-honey-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
@@ -42,7 +42,7 @@ export function Footer() {
             <div className="mb-4">
               <Link href="/">
                 <Image
-                  src={footerTheme.logo.src}
+                  src={logoSrc}
                   alt="Binboğa Bal Logo"
                   width={footerTheme.logo.width}
                   height={footerTheme.logo.height}

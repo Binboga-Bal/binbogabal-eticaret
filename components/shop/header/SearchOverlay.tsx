@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, X, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { headerTheme } from "@/lib/theme";
+import { headerTheme, footerTheme } from "@/lib/theme";
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
 
@@ -33,7 +33,7 @@ function getFirstImage(images: unknown): string {
       return (images[0] as { url: string }).url;
     }
   }
-  return "/images/logo.png";
+  return footerTheme.logo.src;
 }
 
 function formatPrice(variant?: { price: number; discountedPrice: number | null }): string | null {

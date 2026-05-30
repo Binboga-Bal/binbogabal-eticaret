@@ -1,9 +1,14 @@
 import Image from "next/image";
 import { processFlowTheme } from "@/lib/theme";
 
-const { steps, heading, hexagonClip: HEXAGON_CLIP } = processFlowTheme;
+const { steps: baseSteps, heading, hexagonClip: HEXAGON_CLIP } = processFlowTheme;
 
-export function ProcessFlow() {
+interface ProcessFlowProps {
+  images?: (string | null)[];
+}
+
+export function ProcessFlow({ images = [] }: ProcessFlowProps) {
+  const steps = baseSteps.map((s, i) => ({ ...s, image: images[i] ?? s.image }));
   return (
     <section className="py-16 bg-honey-light/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

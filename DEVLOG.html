@@ -4466,10 +4466,120 @@ OR: [
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SESSION: 30 Mayıs 2026 — Bal Rehberi & Görsel Yönetimi       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <section class="section" id="step72">
+      <div class="section-title">
+        <div class="step-num">72</div>
+        <h2>Bal Rehberi — Banner Görseli &amp; Theme Entegrasyonu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Bal Rehberi sayfasının hero banner bölümü yeniden yapılandırıldı. Eski dekoratif daire animasyonları kaldırıldı; gerçek görsel (<code>/images/bal-rehberi/bal-rehberi-banner.webp</code>) CSS <code>background-image</code> olarak uygulandı. Tüm banner parametreleri <code>lib/theme.ts → balRehberiTheme</code> altında merkezi hale getirildi.</p>
+        <ul>
+          <li><code>height</code>: banner yüksekliği</li>
+          <li><code>objectPosition</code>: görselin yatay/dikey hizası</li>
+          <li><code>overlayOpacity</code>: karartma opaklığı</li>
+        </ul>
+        <p>Görsel DB'den okunuyor (<code>banner_bal_rehberi</code> key); yoksa theme fallback kullanılıyor.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/bal-rehberi/page.tsx</span> — banner CSS background, DB okuma<br>
+          <span class="file mod">lib/theme.ts</span> — balRehberiTheme eklendi
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step73">
+      <div class="section-title">
+        <div class="step-num">73</div>
+        <h2>Admin — Görsel Yönetimi Paneli (Tüm Sabit Görseller)</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Admin paneline <strong>/admin/bannerlar</strong> → "Görsel Yönetimi" sayfası eklendi. Sitedeki tüm sabit görseller 5 grup altında tek ekrandan yönetilebilir hale getirildi.</p>
+        <ul>
+          <li><strong>Site Logosu</strong> (1 görsel, 230×150 px) — header, footer, arama tek kaynaktan</li>
+          <li><strong>Hero Slider</strong> (3 görsel, 1920×700 px)</li>
+          <li><strong>Anasayfa Bölüm Bannerleri</strong> (2 görsel, 1920×600 px) — Hikayemiz &amp; Hakkımızda</li>
+          <li><strong>Sayfa Bannerleri</strong> (4 görsel, 1920×600 px) — Bal Rehberi, Hakkımızda, Ürünlerimiz, İletişim</li>
+          <li><strong>Güven Rozetleri</strong> (4 görsel, 400×400 px)</li>
+          <li><strong>Süreç Adımları</strong> (4 görsel, 400×400 px)</li>
+        </ul>
+        <p>Her görsel: mevcut önizleme, sürükle-bırak yükleme, çözünürlük uyarısı (1920×600 kuralı), DB'ye kayıt. Yanlış boyut yüklemeyi engellemez, sadece uyarır.</p>
+      </div>
+      <div class="card">
+        <h3>Mimari</h3>
+        <p>Görseller <code>SiteSetting</code> tablosunda key-value olarak saklanır. Her sayfa/bileşen önce DB'yi kontrol eder, yoksa <code>theme.ts</code> fallback'ini kullanır. Böylece kod değişikliği gerekmeden admin panelinden güncellenebilir.</p>
+        <p><strong>DB key formatı:</strong> <code>img_slider_1</code>, <code>img_badge_1</code>, <code>banner_bal_rehberi</code>, <code>img_logo</code> vb.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/admin/bannerlar/page.tsx</span> — görsel yönetimi sayfası<br>
+          <span class="file new">components/admin/BannerManager.tsx</span> — gruplu upload UI<br>
+          <span class="file mod">components/admin/AdminSidebar.tsx</span> — "Görsel Yönetimi" nav girişi<br>
+          <span class="file mod">app/(shop)/page.tsx</span> — tüm görsel ayarları DB'den çekilip bileşenlere prop olarak geçiliyor<br>
+          <span class="file mod">components/shop/home/HeroSlider.tsx</span> — images prop eklendi<br>
+          <span class="file mod">components/shop/home/TrustBadges.tsx</span> — images prop eklendi<br>
+          <span class="file mod">components/shop/home/ProcessFlow.tsx</span> — images prop eklendi<br>
+          <span class="file mod">app/(shop)/layout.tsx</span> — async, DB'den logo okuyup Header &amp; Footer'a geçiyor<br>
+          <span class="file mod">components/shop/header/Header.tsx</span> — logoSrc prop<br>
+          <span class="file mod">components/shop/footer/Footer.tsx</span> — logoSrc prop<br>
+          <span class="file mod">components/shop/header/SearchOverlay.tsx</span> — footerTheme.logo.src fallback<br>
+          <span class="file mod">app/(shop)/urunlerimiz/page.tsx</span> — banner DB'den okunuyor
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step74">
+      <div class="section-title">
+        <div class="step-num">74</div>
+        <h2>Bal Rehberi — İçerik &amp; Tasarım Güncellemeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Hero banner yazıları güncellendi: "BAL REHBERİ" etiketi kaldırıldı, başlık siyah ve büyütüldü, yazılar alt kısma hizalandı</li>
+          <li>Makale kartları tamamen yeniden tasarlandı: yatay kart yapısı (görsel sol/sağ alternatif), border + hover shadow, minimal "Konunun Devamını Oku →" linki</li>
+          <li>Turuncu yazar alanı başlığı tekrar etmek yerine "Binboğa Kooperatif Balı" yazar adını gösteriyor</li>
+          <li>Sayfa altına <strong>Bilgi Banner</strong> (kooperatif güvencesi görselli arka plan) eklendi — <code>img_bal_rehberi_guvence</code> key ile admin'den yönetilebilir, opaklık ve padding theme.ts'ten kontrol edilebilir</li>
+          <li><strong>Popüler Rehberler</strong> grid ve <strong>CTA bölümü</strong> (Ürünleri İncele / Kooperatif Hikayesi) eklendi</li>
+          <li>Blog detay sayfası: wave için üst padding artırıldı, yazar adı ve tarih başlık altına eklendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>DB — Yeni Blog Yazıları</h3>
+        <p>4 yeni blog yazısı eklendi:</p>
+        <ul>
+          <li>Çocuklar İçin Bal</li>
+          <li>Balın Faydaları Nelerdir?</li>
+          <li>Mevsime Göre Bal Seçimi</li>
+          <li>Bal Nasıl Saklanır?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Theme Kontrolleri</h3>
+        <p><code>balRehberiTheme.guvenceBolumu</code> altında: <code>imageOpacity</code> (görsel opaklığı), <code>paddingY</code> (bölüm yüksekliği).</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/bal-rehberi/page.tsx</span> — banner, kart tasarımı, bilgi bölümü, CTA<br>
+          <span class="file mod">app/(shop)/bal-rehberi/[slug]/page.tsx</span> — pt-20, yazar adı<br>
+          <span class="file mod">lib/theme.ts</span> — balRehberiTheme.guvenceBolumu eklendi
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 30 Mayıs 2026 — Adım 71 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 30 Mayıs 2026 — Adım 74 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

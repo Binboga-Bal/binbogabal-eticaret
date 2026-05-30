@@ -53,24 +53,39 @@ async function getFaqs() {
   });
 }
 
+const IMAGE_KEYS = [
+  "img_slider_1", "img_slider_2", "img_slider_3",
+  "img_home_hikayemiz", "img_home_hakkimizda",
+  "img_badge_1", "img_badge_2", "img_badge_3", "img_badge_4",
+  "img_process_1", "img_process_2", "img_process_3", "img_process_4",
+];
+
 export default async function HomePage() {
-  const [rawBestsellers, rawFeatured, faqs] = await Promise.all([
+  const [rawBestsellers, rawFeatured, faqs, imgSettings] = await Promise.all([
     getBestsellers(),
     getFeaturedProducts(),
     getFaqs(),
+    prisma.siteSetting.findMany({ where: { key: { in: IMAGE_KEYS } } }),
   ]);
 
   const bestsellers = rawBestsellers.map(serializeProduct);
   const featured = rawFeatured.map(serializeProduct);
+  const imgs = Object.fromEntries(imgSettings.map((s) => [s.key, s.value]));
+
+  const sliderImages = [imgs.img_slider_1, imgs.img_slider_2, imgs.img_slider_3];
+  const badgeImages = [imgs.img_badge_1, imgs.img_badge_2, imgs.img_badge_3, imgs.img_badge_4];
+  const processImages = [imgs.img_process_1, imgs.img_process_2, imgs.img_process_3, imgs.img_process_4];
+  const hikayemizImage = imgs.img_home_hikayemiz ?? homeBannersTheme.hikayemiz.image;
+  const hakkimizdaImage = imgs.img_home_hakkimizda ?? homeBannersTheme.hakkimizda.image;
 
   return (
     <>
-      <HeroSlider />
-      <TrustBadges />
+      <HeroSlider images={sliderImages} />
+      <TrustBadges images={badgeImages} />
 
       <CategoryGrid />
 
-      <ProcessFlow />
+      <ProcessFlow images={processImages} />
 
       {/* Çok Satanlar */}
       {bestsellers.length > 0 && (
@@ -97,7 +112,7 @@ export default async function HomePage() {
       {/* Hikayemiz */}
       <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
         <Image
-          src={homeBannersTheme.hikayemiz.image}
+          src={hikayemizImage}
           alt="Hikayemiz arkaplan"
           fill
           className="object-cover object-center"
@@ -140,7 +155,7 @@ export default async function HomePage() {
       {/* Hakkımızda banner */}
       <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
         <Image
-          src={homeBannersTheme.hakkimizda.image}
+          src={hakkimizdaImage}
           alt="Hakkımızda arkaplan"
           fill
           className="object-cover object-center"
