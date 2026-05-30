@@ -135,6 +135,9 @@ model Product {
   isBestseller     Boolean   @default(false)
   isNew            Boolean   @default(false)
   erpProductCode   String?   @unique
+  tasteNotes        Json?     // string[]
+  usageSuggestions  Json?     // ("kahvalti"|"cay"|"tatli"|"smoothie"|"pisen"|"atistirmalik")[]
+  analysisReportUrl String?   // public URL to PDF
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

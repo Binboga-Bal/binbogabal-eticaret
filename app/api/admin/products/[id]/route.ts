@@ -35,6 +35,9 @@ export async function PUT(req: Request, { params }: Params) {
         isBestseller: productData.isBestseller,
         isFeatured: productData.isFeatured,
         isNew: productData.isNew,
+        tasteNotes: Array.isArray(productData.tasteNotes) ? productData.tasteNotes.filter(Boolean) : [],
+        usageSuggestions: Array.isArray(productData.usageSuggestions) ? productData.usageSuggestions : [],
+        analysisReportUrl: productData.analysisReportUrl ?? null,
         variants: {
           create: variants.map((v: { erpVariantCode?: string | null; size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string; maxOrderQuantity?: number | null }) => ({
             erpVariantCode: v.erpVariantCode ?? null,

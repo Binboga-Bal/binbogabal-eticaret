@@ -11,6 +11,15 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Trash2, Upload, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/utils/serialize";
 
+const USAGE_OPTIONS = [
+  { key: "kahvalti", label: "Kahvaltı" },
+  { key: "cay", label: "Çay" },
+  { key: "tatli", label: "Tatlı" },
+  { key: "smoothie", label: "Smoothie" },
+  { key: "pisen", label: "Pişen Tarif" },
+  { key: "atistirmalik", label: "Atıştırmalık" },
+] as const;
+
 const schema = z.object({
   name: z.string().min(2, "Ad gerekli"),
   slug: z.string().min(2, "Slug gerekli"),
@@ -55,6 +64,18 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   const [selectedHoneyTypeIds, setSelectedHoneyTypeIds] = useState<string[]>(
     product?.honeyTypes?.map((t) => t.id) ?? []
   );
+  const [tasteNotes, setTasteNotes] = useState<string[]>(
+    (product?.tasteNotes as string[] | null) ?? []
+  );
+  const [selectedUsage, setSelectedUsage] = useState<string[]>(
+    (product?.usageSuggestions as string[] | null) ?? []
+  );
+  const [analysisReportUrl, setAnalysisReportUrl] = useState<string>(
+    (product as { analysisReportUrl?: string | null })?.analysisReportUrl ?? ""
+  );
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const pdfRef = useRef<HTMLInputElement>(null);
+
   const [variants, setVariants] = useState<VariantRow[]>(
     product?.variants.map((v) => ({
       id: v.id,
@@ -102,6 +123,21 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
     setImages((prev) => prev.filter((u) => u !== url));
   }
 
+  async function handlePdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPdf(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("folder", "documents");
+    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    setUploadingPdf(false);
+    if (data.url) setAnalysisReportUrl(data.url as string);
+    else setError(data.error ?? "PDF yükleme hatası");
+    e.target.value = "";
+  }
+
   function addVariant() {
     setVariants((v) => [...v, { size: 450, packagingType: "GLASS", price: 0, discountedPrice: null, stock: 0, sku: "", maxOrderQuantity: null }]);
   }
@@ -121,7 +157,7 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
     const res = await fetch(product ? `/api/admin/products/${product.id}` : "/api/admin/products", {
       method: product ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, variants, images, categoryIds: selectedCategoryIds, honeyTypeIds: selectedHoneyTypeIds }),
+      body: JSON.stringify({ ...data, variants, images, categoryIds: selectedCategoryIds, honeyTypeIds: selectedHoneyTypeIds, tasteNotes, usageSuggestions: selectedUsage, analysisReportUrl: analysisReportUrl || null }),
     });
 
     const result = await res.json();
@@ -280,6 +316,125 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
           </div>
         )}
         <p className="text-xs text-gray-400 mt-2">İlk görsel ana görsel olarak kullanılır. JPEG, PNG veya WebP, maks 5MB.</p>
+      </div>
+
+      {/* Analiz Raporu */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <h2 className="font-bold text-gray-800">Analiz Raporu (PDF)</h2>
+        <div className="flex items-start gap-4">
+          {/* Mevcut dosya */}
+          <div className="flex-1 min-w-0">
+            {analysisReportUrl ? (
+              <div className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" strokeLinejoin="round" />
+                  <polyline points="14,2 14,8 20,8" strokeLinejoin="round" />
+                  <line x1="9" y1="13" x2="15" y2="13" />
+                  <line x1="9" y1="17" x2="13" y2="17" />
+                </svg>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-green-800 truncate">
+                    {analysisReportUrl.split("/").pop()}
+                  </p>
+                  <a href={analysisReportUrl} target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-green-600 hover:underline">
+                    Önizle →
+                  </a>
+                </div>
+                <button type="button" onClick={() => setAnalysisReportUrl("")}
+                  className="text-red-400 hover:text-red-600 p-1">
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => pdfRef.current?.click()}
+                className="border-2 border-dashed border-gray-200 rounded-xl h-16 flex items-center justify-center gap-2 text-gray-400 cursor-pointer hover:border-honey hover:text-honey transition-colors"
+              >
+                <Upload size={18} />
+                <span className="text-sm">{uploadingPdf ? "Yükleniyor..." : "PDF yüklemek için tıklayın"}</span>
+              </div>
+            )}
+            <input ref={pdfRef} type="file" accept=".pdf" className="hidden" onChange={handlePdfUpload} />
+          </div>
+          {analysisReportUrl && (
+            <Button type="button" size="sm" variant="outline" onClick={() => pdfRef.current?.click()} loading={uploadingPdf}>
+              <Upload size={14} /> Değiştir
+            </Button>
+          )}
+        </div>
+        <p className="text-xs text-gray-400">Yalnızca PDF formatı desteklenir. Bu rapor ürün detay sayfasında görüntülenecektir.</p>
+      </div>
+
+      {/* Tat Profili ve Kullanım Önerileri */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
+        <h2 className="font-bold text-gray-800">Tat Profili ve Kullanım Önerileri</h2>
+
+        {/* Tat notları */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tat Notları
+            <span className="ml-1 font-normal text-gray-400 text-xs">(her satır ayrı madde)</span>
+          </label>
+          <div className="space-y-2">
+            {tasteNotes.map((note, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  value={note}
+                  onChange={(e) =>
+                    setTasteNotes((prev) =>
+                      prev.map((n, idx) => (idx === i ? e.target.value : n))
+                    )
+                  }
+                  placeholder={`Not ${i + 1}`}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                />
+                <button
+                  type="button"
+                  onClick={() => setTasteNotes((prev) => prev.filter((_, idx) => idx !== i))}
+                  className="text-red-400 hover:text-red-600 p-1"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setTasteNotes((prev) => [...prev, ""])}
+              className="flex items-center gap-1.5 text-sm text-honey-dark hover:text-honey font-medium"
+            >
+              <Plus size={14} /> Not Ekle
+            </button>
+          </div>
+        </div>
+
+        {/* Kullanım önerileri */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Kullanım Önerileri</label>
+          <div className="flex flex-wrap gap-2">
+            {USAGE_OPTIONS.map((opt) => {
+              const active = selectedUsage.includes(opt.key);
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() =>
+                    setSelectedUsage((prev) =>
+                      active ? prev.filter((k) => k !== opt.key) : [...prev, opt.key]
+                    )
+                  }
+                  className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    active
+                      ? "bg-honey border-honey text-white"
+                      : "bg-white border-gray-200 text-gray-600 hover:border-honey"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Varyantlar */}

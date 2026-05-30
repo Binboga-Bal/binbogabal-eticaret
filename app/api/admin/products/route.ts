@@ -34,6 +34,9 @@ export async function POST(req: Request) {
         isBestseller: productData.isBestseller ?? false,
         isFeatured: productData.isFeatured ?? false,
         isNew: productData.isNew ?? false,
+        tasteNotes: Array.isArray(productData.tasteNotes) ? productData.tasteNotes.filter(Boolean) : [],
+        usageSuggestions: Array.isArray(productData.usageSuggestions) ? productData.usageSuggestions : [],
+        analysisReportUrl: productData.analysisReportUrl ?? null,
         variants: {
           create: variants.map((v: { size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string; maxOrderQuantity?: number | null }) => ({
             size: v.size,

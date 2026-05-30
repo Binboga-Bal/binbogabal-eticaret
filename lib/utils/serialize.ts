@@ -17,6 +17,8 @@ export type SerializedProduct = Omit<Product, "createdAt" | "updatedAt"> & {
   variants: SerializedVariant[];
   categories?: { id: string; name: string; slug: string }[];
   honeyTypes?: { id: string; slug: string; label: string }[];
+  tasteNotes?: string[] | null;
+  usageSuggestions?: string[] | null;
 };
 
 export function serializeVariant(v: ProductVariant): SerializedVariant {
