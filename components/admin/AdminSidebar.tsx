@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Layers,
   Image,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -35,6 +36,7 @@ const navItems: NavItem[] = [
   { href: "/admin/siparisler", label: "Siparişler", icon: <ShoppingBag size={18} /> },
   { href: "/admin/musteriler", label: "Müşteriler", icon: <Users size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
   { href: "/admin/kampanyalar", label: "Kampanyalar", icon: <Percent size={18} /> },
+  { href: "/admin/yorumlar", label: "Yorumlar", icon: <Star size={18} /> },
   {
     href: "/admin/icerik",
     label: "İçerik",

@@ -506,6 +506,12 @@
       <a href="#step76" class="nav-link"><span class="dot"></span>76 — Anasayfa Kategori Grid</a>
       <a href="#step77" class="nav-link"><span class="dot"></span>77 — showOnHome Toggle</a>
 
+      <div class="nav-section-label">30 Mayıs 2026 — Hesabım & Admin</div>
+      <a href="#step87" class="nav-link"><span class="dot"></span>87 — Çıkış Dialog Overlay</a>
+      <a href="#step88" class="nav-link"><span class="dot"></span>88 — Toplam Harcama Filtresi</a>
+      <a href="#step89" class="nav-link"><span class="dot"></span>89 — FavoriteButton API Entegrasyonu</a>
+      <a href="#step90" class="nav-link"><span class="dot"></span>90 — Admin Yorum Yönetimi</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -4969,10 +4975,112 @@ OR: [
       </div>
     </section>
 
+    <!-- SESSION: 30 Mayıs 2026 — Hesabım & Admin -->
+    <div class="date-header">
+      <span class="date-pill">30 MAYIS 2026 — HESABIM &amp; ADMİN</span>
+      <div class="date-line"></div>
+      <span class="date-count">Adım 87–90</span>
+    </div>
+
+    <section class="section" id="step87">
+      <div class="section-title">
+        <div class="step-num">87</div>
+        <h2>Çıkış Yap — Custom Dialog Overlay</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>hesabim/layout.tsx</code>'teki <code>&lt;Link href="/api/auth/signout"&gt;</code> kaldırıldı — NextAuth'un kendi onay ekranı yerine custom overlay dialog kullanılıyor</li>
+          <li><code>LogoutButton</code> client component oluşturuldu: tıklayınca sayfa üzerinde backdrop-blur overlay açılıyor, "İptal" ile kapatılabilir, "Çıkış Yap" ile <code>signOut({ callbackUrl: "/" })</code> çağrılır</li>
+          <li>Dialog: ikon, açıklama metni, loading state ("Çıkılıyor…") destekli</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/shop/LogoutButton.tsx</span> — dialog overlay bileşeni<br>
+          <span class="file mod">app/(shop)/hesabim/layout.tsx</span> — Link → LogoutButton
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step88">
+      <div class="section-title">
+        <div class="step-num">88</div>
+        <h2>Toplam Harcama — Sadece Onaylanan Siparişler</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Dashboard'daki "Toplam Harcama" kartı artık yalnızca <code>CONFIRMED</code>, <code>PROCESSING</code>, <code>SHIPPED</code>, <code>DELIVERED</code> durumundaki siparişlerin toplamını gösteriyor</li>
+          <li><code>PENDING</code>, <code>CANCELLED</code>, <code>REFUNDED</code> gibi durumlar hesaba katılmıyor</li>
+          <li>Ayrı bir <code>confirmedOrders</code> sorgusu eklendi; <code>allOrders</code> sipariş sayısı için korundu</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/hesabim/page.tsx</span> — confirmedOrders sorgusu + totalSpent hesabı
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step89">
+      <div class="section-title">
+        <div class="step-num">89</div>
+        <h2>FavoriteButton — localStorage → API Entegrasyonu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>FavoriteButton</code> daha önce yalnızca <code>localStorage</code>'a yazıyordu; Favorilerim sayfası veritabanından okuduğu için favoriler görünmüyordu</li>
+          <li>Bileşen API tabanlı hale getirildi: mount'ta <code>GET /api/customer/favorites</code> ile mevcut durum çekiliyor</li>
+          <li>Ekleme <code>POST /api/customer/favorites</code>, kaldırma <code>DELETE /api/customer/favorites/[productId]</code> ile yapılıyor</li>
+          <li>Giriş yapılmamışsa API 401 döndüğünde <code>/hesabim/giris</code>'e yönlendirme</li>
+          <li><code>useSession</code> kullanımı kaldırıldı (projede <code>SessionProvider</code> sarmalanmamış olduğundan runtime hata veriyordu)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/product/FavoriteButton.tsx</span> — localStorage kaldırıldı, API entegrasyonu
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step90">
+      <div class="section-title">
+        <div class="step-num">90</div>
+        <h2>Admin — Yorum Yönetimi Paneli</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Admin panelinde yorum yönetimi yoktu; tüm altyapı sıfırdan oluşturuldu</li>
+          <li><code>GET /api/admin/reviews</code> — status filtresi (pending/approved/all) + sayfalama</li>
+          <li><code>PATCH /api/admin/reviews/[id]</code> — onaylama/onay kaldırma, admin yanıtı kaydetme</li>
+          <li><code>DELETE /api/admin/reviews/[id]</code> — yorum silme</li>
+          <li><code>/admin/yorumlar</code> sayfası: Bekleyenler / Onaylananlar / Tümü sekmeleri, yıldız gösterimi, ürün linki, sayfalama</li>
+          <li><code>ReviewActions</code> client component: onayla, onayı kaldır, yanıt yaz (inline textarea), sil butonları; işlem sonrası <code>router.refresh()</code></li>
+          <li>Admin sidebar'a "Yorumlar" (<code>Star</code> ikonu) linki eklendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/api/admin/reviews/route.ts</span> — GET (liste)<br>
+          <span class="file new">app/api/admin/reviews/[id]/route.ts</span> — PATCH &amp; DELETE<br>
+          <span class="file new">app/admin/yorumlar/page.tsx</span> — liste sayfası<br>
+          <span class="file new">app/admin/yorumlar/ReviewActions.tsx</span> — aksiyon butonları<br>
+          <span class="file mod">components/admin/AdminSidebar.tsx</span> — Yorumlar linki eklendi
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 30 Mayıs 2026 — Adım 86 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 30 Mayıs 2026 — Adım 90 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
