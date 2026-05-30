@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getPaymentAdapter } from "@/lib/payment";
 import { generateOrderNumber } from "@/lib/utils/format";
+import { sendOrderConfirmedEmail } from "@/lib/mail/mail.service";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -100,6 +101,36 @@ export async function POST(req: Request) {
         status: "PENDING",
       },
     });
+
+    // Kapıda ödemede sipariş onay maili hemen gönder
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { email: true, name: true },
+      });
+      if (user) {
+        await sendOrderConfirmedEmail(
+          session.user.id,
+          user.email,
+          user.name ?? data.shippingAddress.firstName,
+          order.orderNumber,
+          order.id,
+          data.items.map((i) => ({ productName: i.productName, variantInfo: i.variantInfo, quantity: i.quantity, price: i.price })),
+          data.total,
+        ).catch((err) => console.error("[orders] kapida mail hata:", err));
+      }
+    } else {
+      // Misafir kullanıcı — adresteki e-postaya gönder
+      await sendOrderConfirmedEmail(
+        "",
+        data.shippingAddress.email,
+        data.shippingAddress.firstName,
+        order.orderNumber,
+        order.id,
+        data.items.map((i) => ({ productName: i.productName, variantInfo: i.variantInfo, quantity: i.quantity, price: i.price })),
+        data.total,
+      ).catch((err) => console.error("[orders] kapida guest mail hata:", err));
+    }
 
     return NextResponse.json({
       redirectUrl: `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(order.orderNumber)}&yontem=kapida`,

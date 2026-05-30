@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { randomUUID } from "crypto";
+import { sendVerifyEmail, sendWelcomeEmail } from "@/lib/mail/mail.service";
 
 const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().optional(),
   password: z.string().min(8),
+  kvkkConsent: z.boolean().refine((v) => v === true, { message: "KVKK onayı zorunludur" }),
+  newsletterConsent: z.boolean().optional(),
+  smsConsent: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -18,19 +23,46 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Geçersiz form verisi" }, { status: 400 });
   }
 
-  const { name, email, phone, password } = parsed.data;
+  const { name, email, phone, password, kvkkConsent, newsletterConsent, smsConsent } = parsed.data;
+  const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? undefined;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı" }, { status: 400 });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const passwordHash = await bcrypt.hash(password, 12);
+  const emailVerifyToken = randomUUID();
 
   const user = await prisma.user.create({
-    data: { name, email, phone: phone ?? null, password: hashedPassword, role: "CUSTOMER" },
+    data: {
+      name,
+      email,
+      phone: phone ?? null,
+      password: passwordHash,
+      role: "CUSTOMER",
+      emailVerifyToken,
+      consentLogs: {
+        create: [
+          { type: "kvkk", granted: kvkkConsent, ip },
+          { type: "newsletter", granted: newsletterConsent ?? false, ip },
+          { type: "sms", granted: smsConsent ?? false, ip },
+        ],
+      },
+      notificationPreference: {
+        create: {
+          newsletter: newsletterConsent ?? false,
+          smsNotifications: smsConsent ?? false,
+        },
+      },
+    },
     select: { id: true, email: true, name: true },
   });
 
-  return NextResponse.json(user);
+  await sendVerifyEmail(user.email, user.name ?? "Müşterimiz", emailVerifyToken)
+    .catch((err) => console.error("[register] sendVerifyEmail hata:", err));
+  await sendWelcomeEmail(user.email, user.name ?? "Müşterimiz")
+    .catch((err) => console.error("[register] sendWelcomeEmail hata:", err));
+
+  return NextResponse.json({ message: "Kayıt başarılı. E-postanızı doğrulayın." });
 }

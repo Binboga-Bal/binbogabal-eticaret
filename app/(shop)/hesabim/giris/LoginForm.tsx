@@ -33,18 +33,17 @@ export default function LoginForm() {
       return;
     }
 
-    router.push(from);
+    window.location.href = from;
   }
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-black text-gray-900">Hesabıma Giriş</h1>
-          <p className="text-sm text-gray-500 mt-2">Binboğa Kooperatif Balı hesabınıza giriş yapın</p>
-        </div>
+    <div>
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-black text-gray-900">Hesabıma Giriş</h1>
+        <p className="text-sm text-gray-500 mt-2">Binboğa Kooperatif Balı hesabınıza giriş yapın</p>
+      </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="E-posta"
@@ -76,7 +75,6 @@ export default function LoginForm() {
               Ücretsiz kayıt olun
             </Link>
           </div>
-        </div>
       </div>
     </div>
   );

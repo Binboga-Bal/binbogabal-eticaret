@@ -4666,10 +4666,313 @@ OR: [
       </div>
     </section>
 
+    <!-- SESSION: 30 Mayıs 2026 — Müşteri Modülü -->
+    <div class="date-header">
+      <span class="date-pill">30 MAYIS 2026 — MÜŞTERİ MODÜLÜ</span>
+      <div class="date-line"></div>
+      <span class="date-count">Adım 78–95</span>
+    </div>
+
+    <section class="section" id="step78">
+      <div class="section-title">
+        <div class="step-num">78</div>
+        <h2>Prisma Schema — Müşteri Modülü Alanları</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>User</code> modeline eklendi: <code>emailVerifyToken</code>, <code>resetToken</code>, <code>resetTokenExpiry</code>, <code>avatarUrl</code>, <code>phoneVerified</code>, <code>scheduledDeleteAt</code></li>
+          <li><code>Session</code> modeline <code>ipAddress</code>, <code>userAgent</code> eklendi</li>
+          <li><code>Address</code> modeline <code>taxNumber</code>, <code>taxOffice</code>, <code>isBilling</code>, <code>createdAt</code> eklendi</li>
+          <li><code>Order</code> modeline <code>cargoTrackingNo</code>, <code>cargoCompany</code>, <code>cancelReason</code>, <code>refundReason</code>, <code>reviewRequested</code> eklendi</li>
+          <li><code>OrderItem</code> modeline <code>image</code>, <code>reviewed</code> eklendi</li>
+          <li><code>Review</code> modeline <code>orderId</code>, <code>orderItemId</code>, <code>title</code>, <code>images</code>, <code>adminReply</code>, <code>updatedAt</code> eklendi</li>
+          <li>Yeni tablolar: <strong>Favorite</strong>, <strong>CustomerCoupon</strong>, <strong>NotificationPreference</strong>, <strong>ConsentLog</strong></li>
+          <li><code>Coupon</code> → <code>CustomerCoupon</code> ilişkisi eklendi</li>
+          <li><code>OrderStatus</code> enum'a <code>REFUND_REQUESTED</code> eklendi</li>
+          <li><code>prisma db push --accept-data-loss</code> ile veritabanına uygulandı</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">prisma/schema.prisma</span> — tüm şema güncellemeleri
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step79">
+      <div class="section-title">
+        <div class="step-num">79</div>
+        <h2>Resend Mail Sistemi</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>pnpm add resend @react-email/render</code> kuruldu</li>
+          <li><code>React 19</code> uyumsuzluğu nedeniyle <code>react:</code> yerine <code>html: await render()</code> kullanıldı</li>
+          <li>8 mail şablonu oluşturuldu: verify-email, welcome, password-reset, password-changed, order-confirmed, order-status-changed, favorite-discount, coupon-expiry, review-request</li>
+          <li><code>lib/mail/mail.service.ts</code> — tüm mail gönderim fonksiyonları, <code>NotificationPreference</code> kontrolü dahil</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/mail/resend.ts</span><br>
+          <span class="file new">lib/mail/mail.service.ts</span><br>
+          <span class="file new">lib/mail/templates/verify-email.tsx</span><br>
+          <span class="file new">lib/mail/templates/welcome.tsx</span><br>
+          <span class="file new">lib/mail/templates/password-reset.tsx</span><br>
+          <span class="file new">lib/mail/templates/password-changed.tsx</span><br>
+          <span class="file new">lib/mail/templates/order-confirmed.tsx</span><br>
+          <span class="file new">lib/mail/templates/order-status-changed.tsx</span><br>
+          <span class="file new">lib/mail/templates/favorite-discount.tsx</span><br>
+          <span class="file new">lib/mail/templates/coupon-expiry.tsx</span><br>
+          <span class="file new">lib/mail/templates/review-request.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step80">
+      <div class="section-title">
+        <div class="step-num">80</div>
+        <h2>Auth Route'ları — E-posta Doğrulama & Şifre Sıfırlama</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>POST /api/auth/register</code> güncellendi: KVKK/newsletter/SMS consent kaydı (<code>ConsentLog</code>), e-posta doğrulama maili, <code>NotificationPreference</code> oluşturma</li>
+          <li><code>GET /api/auth/verify-email?token=</code> — token ile e-posta doğrulama, <code>/hesabim?verified=1</code> redirect</li>
+          <li><code>POST /api/auth/forgot-password</code> — 1 saatlik <code>resetToken</code> üretip mail gönderir, güvenlik için her durumda aynı mesaj</li>
+          <li><code>POST /api/auth/reset-password</code> — token doğrulama + bcrypt hash + şifre değişim maili</li>
+          <li><code>POST /api/auth/resend-verify</code> — doğrulama mailini yeniden gönderir</li>
+          <li><code>lib/customer-auth.ts</code> — <code>getCurrentUser()</code>, <code>unauthorized()</code>, <code>forbidden()</code> helper'ları</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/api/auth/register/route.ts</span><br>
+          <span class="file new">app/api/auth/verify-email/route.ts</span><br>
+          <span class="file new">app/api/auth/forgot-password/route.ts</span><br>
+          <span class="file new">app/api/auth/reset-password/route.ts</span><br>
+          <span class="file new">app/api/auth/resend-verify/route.ts</span><br>
+          <span class="file new">lib/customer-auth.ts</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step81">
+      <div class="section-title">
+        <div class="step-num">81</div>
+        <h2>API Route'ları — /api/customer/*</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><strong>Profil:</strong> GET/PUT <code>/api/customer/me</code>, PUT şifre, DELETE (soft delete + <code>scheduledDeleteAt</code>)</li>
+          <li><strong>Adres:</strong> CRUD + <code>PATCH set-default</code> — sahiplik kontrolü (403)</li>
+          <li><strong>Sipariş:</strong> liste, detay, iptal (yalnızca PENDING/CONFIRMED), iade talebi, bekleyen yorumlar</li>
+          <li><strong>Favori:</strong> liste, ekle (upsert), sil</li>
+          <li><strong>Kupon:</strong> liste, validate (min tutar, süre, limit kontrolü)</li>
+          <li><strong>Yorum:</strong> liste, oluştur (satın alınan ürün kontrolü), güncelle (güncelleme sonrası tekrar onay)</li>
+          <li><strong>Bildirim:</strong> GET/PUT <code>/api/customer/notifications/preferences</code></li>
+          <li>Tüm route'lar <code>getCurrentUser()</code> ile korunuyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/api/customer/me/route.ts</span><br>
+          <span class="file new">app/api/customer/me/password/route.ts</span><br>
+          <span class="file new">app/api/customer/addresses/route.ts</span><br>
+          <span class="file new">app/api/customer/addresses/[id]/route.ts</span><br>
+          <span class="file new">app/api/customer/addresses/[id]/set-default/route.ts</span><br>
+          <span class="file new">app/api/customer/orders/route.ts</span><br>
+          <span class="file new">app/api/customer/orders/[id]/route.ts</span><br>
+          <span class="file new">app/api/customer/orders/[id]/cancel/route.ts</span><br>
+          <span class="file new">app/api/customer/orders/[id]/refund-request/route.ts</span><br>
+          <span class="file new">app/api/customer/orders/[id]/pending-reviews/route.ts</span><br>
+          <span class="file new">app/api/customer/favorites/route.ts</span><br>
+          <span class="file new">app/api/customer/favorites/[productId]/route.ts</span><br>
+          <span class="file new">app/api/customer/coupons/route.ts</span><br>
+          <span class="file new">app/api/customer/coupons/validate/route.ts</span><br>
+          <span class="file new">app/api/customer/reviews/route.ts</span><br>
+          <span class="file new">app/api/customer/reviews/[id]/route.ts</span><br>
+          <span class="file new">app/api/customer/notifications/preferences/route.ts</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step82">
+      <div class="section-title">
+        <div class="step-num">82</div>
+        <h2>Frontend — Hesabım Sayfaları</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><strong>Layout:</strong> sidebar nav, e-posta doğrulama banner, session yoksa sade render</li>
+          <li><strong>Dashboard:</strong> toplam sipariş/bekleyen/harcama sayaçları, son 3 sipariş, yorum/kupon uyarı kartları</li>
+          <li><strong>Siparişler:</strong> liste + detay (timeline, kargo bilgisi, ürünler, tutar özeti, iptal butonu)</li>
+          <li><strong>Adresler:</strong> liste, yeni ekle, düzenle, sil — ortak <code>AddressForm</code> bileşeni</li>
+          <li><strong>Favoriler:</strong> ürün kartları, tek tıkla kaldır</li>
+          <li><strong>Kuponlar:</strong> kopyala butonu, süre uyarısı (3 gün kırmızı)</li>
+          <li><strong>Yorumlar:</strong> liste + bekleyen yorumlar formu (yıldız seçici)</li>
+          <li><strong>Bildirimler:</strong> toggle switch'ler</li>
+          <li><strong>Güvenlik:</strong> şifre değiştirme formu</li>
+          <li><strong>Auth sayfaları:</strong> şifremi unuttum, şifre sıfırla güncellendi; kayıt formuna KVKK/newsletter/SMS checkbox'ları eklendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/hesabim/layout.tsx</span> — sidebar + banner<br>
+          <span class="file mod">app/(shop)/hesabim/page.tsx</span> — dashboard<br>
+          <span class="file new">app/(shop)/hesabim/profilim/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/siparislerim/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/siparislerim/[id]/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/siparislerim/[id]/CancelOrderButton.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/adreslerim/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/adreslerim/AddressForm.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/adreslerim/DeleteAddressButton.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/adreslerim/yeni/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/adreslerim/[id]/duzenle/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/favorilerim/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/favorilerim/RemoveFavoriteButton.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/kuponlarim/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/kuponlarim/CopyButton.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/yorumlarim/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/yorumlarim/bekleyenler/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/yorumlarim/bekleyenler/PendingReviewForm.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/bildirimler/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/bildirimler/NotificationsForm.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/guvenlik/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/sifremi-unuttum/page.tsx</span><br>
+          <span class="file new">app/(shop)/hesabim/sifre-sifirla/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/kayit/page.tsx</span> — KVKK consent<br>
+          <span class="file new">components/shop/EmailVerifyBanner.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step83">
+      <div class="section-title">
+        <div class="step-num">83</div>
+        <h2>Cron Job'lar & Middleware</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>GET /api/cron/favorite-discounts</code> — indirimli favoriler için saatlik mail (Bearer korumalı)</li>
+          <li><code>GET /api/cron/coupon-expiry</code> — 3 gün içinde dolacak kuponlar için günlük mail</li>
+          <li><code>GET /api/cron/review-requests</code> — teslim edilmiş + <code>reviewRequested=false</code> siparişler için günlük mail</li>
+          <li><code>middleware.ts</code> güncellendi: <code>/hesabim/*</code> koruması eklendi, public sayfalar (<code>giris</code>, <code>kayit</code> vb.) hariç tutuldu</li>
+          <li>cPanel Cron Jobs ile entegrasyon: <code>curl -H "Authorization: Bearer $CRON_SECRET"</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/api/cron/favorite-discounts/route.ts</span><br>
+          <span class="file new">app/api/cron/coupon-expiry/route.ts</span><br>
+          <span class="file new">app/api/cron/review-requests/route.ts</span><br>
+          <span class="file mod">middleware.ts</span> — /hesabim/* koruma<br>
+          <span class="file mod">.env.example</span> — RESEND_API_KEY, MAIL_FROM, CRON_SECRET eklendi
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step84">
+      <div class="section-title">
+        <div class="step-num">84</div>
+        <h2>Sipariş & İptal Mail Entegrasyonu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li><code>POST /api/orders</code> — kapıda ödeme seçilince sipariş onay maili (üye + misafir)</li>
+          <li><code>POST /api/payment/qnb/callback</code> — QNB ödeme başarılı olunca sipariş onay maili</li>
+          <li><code>POST /api/customer/orders/[id]/cancel</code> — müşteri iptal edince durum değişim maili</li>
+          <li><code>PATCH /api/admin/orders/[id]/status</code> güncellendi: her durum değişikliğinde mail, <code>cargoTrackingNo</code>/<code>cargoCompany</code> desteği eklendi, misafir siparişleri de destekleniyor</li>
+          <li><code>getPreference()</code> fonksiyonuna misafir (boş userId) desteği eklendi</li>
+          <li>Mail gönderim hataları sessiz yutulmak yerine <code>console.error</code> ile loglanıyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/api/orders/route.ts</span> — kapıda ödeme mail<br>
+          <span class="file mod">app/api/payment/qnb/callback/route.ts</span> — QNB callback mail<br>
+          <span class="file mod">app/api/customer/orders/[id]/cancel/route.ts</span> — iptal mail<br>
+          <span class="file mod">app/api/admin/orders/[id]/status/route.ts</span> — durum mail + cargo<br>
+          <span class="file mod">lib/mail/mail.service.ts</span> — misafir desteği, render fix
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step85">
+      <div class="section-title">
+        <div class="step-num">85</div>
+        <h2>Ödeme Sayfası — Kayıtlı Adres Seçici</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Ödeme sayfası (server component) oturum açık kullanıcının adreslerini çekip <code>CheckoutForm</code>'a prop olarak geçiyor</li>
+          <li><code>CheckoutForm</code>'a adres seçici eklendi: kayıtlı adresler kart grid olarak gösteriliyor, tıklanınca form alanları otomatik dolduruluyor</li>
+          <li>Varsayılan adres sayfa açılışında seçili geliyor (<code>useEffect</code> ile form doldurma)</li>
+          <li>"+ Yeni Adres Gir" seçeneği ile form sıfırlanabiliyor</li>
+          <li><code>userEmail</code> prop'u ile e-posta alanı otomatik dolduruluyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/odeme/page.tsx</span> — adres + email fetch<br>
+          <span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> — adres seçici UI
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step86">
+      <div class="section-title">
+        <div class="step-num">86</div>
+        <h2>Bug Düzeltmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Düzeltilen Sorunlar</h3>
+        <ul>
+          <li><strong>Sonsuz döngü:</strong> <code>hesabim/layout.tsx</code>'te <code>redirect()</code> kaldırıldı — layout auth sayfalarını da kapsıyordu, session yokken <code>{children}</code> render ediliyor</li>
+          <li><strong>Dashboard ilk yüklemede bozuk:</strong> <code>router.push()</code> → <code>window.location.href</code> — tam sayfa yükleme yapıldı, server component'ler yeni session'ı görüyor</li>
+          <li><strong>Mail gönderilmiyor:</strong> <code>render is not a function</code> — React 19 uyumsuzluğu, <code>@react-email/render</code> ile manuel render'a geçildi; verify URL <code>/hesabim/e-posta-dogrula</code> → <code>/api/auth/verify-email</code> düzeltildi</li>
+          <li><strong>Wave üstüne binme:</strong> <code>waveDepth: 90px</code> hesaplanarak etkilenen tüm sayfalara (<code>odeme/basari</code>, <code>odeme/hata</code>, hesabım auth sayfaları) <code>pt-28</code> eklendi</li>
+          <li><strong><code>metadata</code> + <code>"use client"</code> çakışması:</strong> <code>profilim/page.tsx</code>'ten <code>export const metadata = undefined</code> kaldırıldı</li>
+          <li><strong>AddressForm TS hatası:</strong> <code>field()</code> helper'ında tip güvenli erişim düzeltildi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/hesabim/layout.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/giris/LoginForm.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/kayit/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/profilim/page.tsx</span><br>
+          <span class="file mod">app/(shop)/odeme/basari/page.tsx</span><br>
+          <span class="file mod">app/(shop)/odeme/hata/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/sifremi-unuttum/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/sifre-sifirla/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/giris/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/adreslerim/AddressForm.tsx</span><br>
+          <span class="file mod">lib/mail/mail.service.ts</span>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 30 Mayıs 2026 — Adım 77 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 30 Mayıs 2026 — Adım 86 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

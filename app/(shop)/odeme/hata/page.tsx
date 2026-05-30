@@ -68,8 +68,8 @@ export default async function PaymentFailurePage({
     !errorCode && !params.payment_status && !invoiceId;
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
-      <div className="max-w-md w-full text-center">
+    <div className="px-4 pt-28 pb-16">
+      <div className="max-w-md w-full mx-auto text-center">
         <div className="flex justify-center mb-6">
           <div className="bg-red-100 rounded-full p-4">
             <XCircle size={48} className="text-red-500" />

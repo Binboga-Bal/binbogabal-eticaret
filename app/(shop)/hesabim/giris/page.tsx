@@ -5,7 +5,7 @@ export const metadata = { title: "Giriş Yap | Binboğa Bal" };
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="text-gray-400">Yükleniyor...</div></div>}>
+    <Suspense fallback={<div className="pt-16 text-center text-gray-400">Yükleniyor...</div>}>
       <LoginForm />
     </Suspense>
   );

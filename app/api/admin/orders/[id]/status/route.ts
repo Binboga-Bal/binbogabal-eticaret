@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendOrderStatusChangedEmail } from "@/lib/mail/mail.service";
 import type { OrderStatus } from "@prisma/client";
 
 const VALID: OrderStatus[] = [
-  "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED",
+  "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUND_REQUESTED", "REFUNDED",
 ];
 
 export async function PATCH(
@@ -17,7 +18,7 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { status } = await req.json();
+  const { status, cargoTrackingNo, cargoCompany } = await req.json();
 
   if (!VALID.includes(status)) {
     return NextResponse.json({ error: "Geçersiz durum" }, { status: 400 });
@@ -25,9 +26,40 @@ export async function PATCH(
 
   const order = await prisma.order.update({
     where: { id },
-    data: { status: status as OrderStatus },
-    select: { id: true, status: true },
+    data: {
+      status: status as OrderStatus,
+      ...(cargoTrackingNo && { cargoTrackingNo }),
+      ...(cargoCompany && { cargoCompany }),
+    },
+    include: { user: { select: { id: true, email: true, name: true } } },
   });
 
-  return NextResponse.json(order);
+  // Müşteriye bilgilendirme maili gönder
+  if (order.user) {
+    await sendOrderStatusChangedEmail(
+      order.user.id,
+      order.user.email,
+      order.user.name ?? "Müşterimiz",
+      order.orderNumber,
+      order.id,
+      status,
+      order.cargoTrackingNo ?? undefined,
+      order.cargoCompany ?? undefined,
+    ).catch((err) => console.error("[admin-status] mail hata:", err));
+  } else if (order.guestEmail) {
+    // Misafir kullanıcı
+    const shippingAddr = order.shippingAddress as Record<string, string>;
+    await sendOrderStatusChangedEmail(
+      "",
+      order.guestEmail,
+      shippingAddr.firstName ?? "Müşterimiz",
+      order.orderNumber,
+      order.id,
+      status,
+      order.cargoTrackingNo ?? undefined,
+      order.cargoCompany ?? undefined,
+    ).catch((err) => console.error("[admin-status] guest mail hata:", err));
+  }
+
+  return NextResponse.json({ id: order.id, status: order.status });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -99,9 +99,32 @@ function submitToQNBPay(payload: Smart3DFormPayload, card: CardData) {
   form.submit();
 }
 
-export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
+interface SavedAddress {
+  id: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  city: string;
+  district: string;
+  fullAddress: string;
+  isDefault: boolean;
+}
+
+export function CheckoutForm({
+  codEnabled = false,
+  savedAddresses = [],
+  userEmail = "",
+}: {
+  codEnabled?: boolean;
+  savedAddresses?: SavedAddress[];
+  userEmail?: string;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    savedAddresses.find((a) => a.isDefault)?.id ?? savedAddresses[0]?.id ?? null
+  );
   const [paymentMethod, setPaymentMethod] = useState<
     "QNB_PAY" | "CASH_ON_DELIVERY"
   >("QNB_PAY");
@@ -121,8 +144,30 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  // Seçili adres değişince formu doldur
+  function applyAddress(addressId: string | null) {
+    setSelectedAddressId(addressId);
+    if (!addressId) return;
+    const addr = savedAddresses.find((a) => a.id === addressId);
+    if (!addr) return;
+    setValue("firstName", addr.firstName);
+    setValue("lastName", addr.lastName);
+    setValue("phone", addr.phone);
+    setValue("city", addr.city);
+    setValue("district", addr.district);
+    setValue("fullAddress", addr.fullAddress);
+    if (userEmail) setValue("email", userEmail);
+  }
+
+  // İlk yüklemede varsayılan adres varsa uygula
+  useEffect(() => {
+    if (selectedAddressId) applyAddress(selectedAddressId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const SHIPPING_FEE = subtotal() >= 1500 ? 0 : 99;
   const grandTotal = total() + SHIPPING_FEE;
@@ -210,9 +255,61 @@ export function CheckoutForm({ codEnabled = false }: { codEnabled?: boolean }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sol Panel */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Kayıtlı Adresler */}
+          {savedAddresses.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <h2 className="font-bold text-gray-800 mb-4">Kayıtlı Adreslerim</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {savedAddresses.map((addr) => (
+                  <button
+                    key={addr.id}
+                    type="button"
+                    onClick={() => applyAddress(addr.id)}
+                    className={`text-left p-4 rounded-xl border-2 transition-colors ${
+                      selectedAddressId === addr.id
+                        ? "border-honey-dark bg-honey-cream"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-bold text-gray-800">{addr.title}</p>
+                      {addr.isDefault && (
+                        <span className="text-xs bg-honey-light text-honey-dark px-2 py-0.5 rounded-full font-semibold">
+                          Varsayılan
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">{addr.firstName} {addr.lastName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{addr.fullAddress}</p>
+                    <p className="text-xs text-gray-500">{addr.district}, {addr.city}</p>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedAddressId(null);
+                    (["firstName","lastName","phone","city","district","fullAddress"] as const).forEach(
+                      (f) => setValue(f, "")
+                    );
+                  }}
+                  className={`text-left p-4 rounded-xl border-2 border-dashed transition-colors ${
+                    selectedAddressId === null
+                      ? "border-honey-dark bg-honey-cream"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <p className="text-sm font-bold text-gray-600">+ Yeni Adres Gir</p>
+                  <p className="text-xs text-gray-400 mt-1">Farklı bir adrese gönder</p>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Teslimat Bilgileri */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h2 className="font-bold text-gray-800 mb-5">Teslimat Bilgileri</h2>
+            <h2 className="font-bold text-gray-800 mb-5">
+              {savedAddresses.length > 0 ? "Teslimat Detayları" : "Teslimat Bilgileri"}
+            </h2>
 
             <div className="grid grid-cols-2 gap-4">
               <Input

@@ -10,22 +10,32 @@ datasource db {
 // ─── KULLANICILAR ────────────────────────────────────────────────────────────
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?
-  name          String?
-  phone         String?
-  role          UserRole  @default(CUSTOMER)
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  emailVerified       DateTime?
+  emailVerifyToken    String?   @unique
+  password            String?
+  name                String?
+  phone               String?
+  phoneVerified       Boolean   @default(false)
+  avatarUrl           String?
+  resetToken          String?   @unique
+  resetTokenExpiry    DateTime?
+  role                UserRole  @default(CUSTOMER)
+  isActive            Boolean   @default(true)
+  scheduledDeleteAt   DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  addresses     Address[]
-  orders        Order[]
-  reviews       Review[]
-  sessions      Session[]
-  accounts      Account[]
+  addresses             Address[]
+  orders                Order[]
+  reviews               Review[]
+  sessions              Session[]
+  accounts              Account[]
+  favorites             Favorite[]
+  customerCoupons       CustomerCoupon[]
+  notificationPreference NotificationPreference?
+  consentLogs           ConsentLog[]
 
   @@map("users")
 }
@@ -55,6 +65,8 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  ipAddress    String?
+  userAgent    String?
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
@@ -79,18 +91,22 @@ enum UserRole {
 // ─── ADRESLER ────────────────────────────────────────────────────────────────
 
 model Address {
-  id         String  @id @default(cuid())
-  userId     String
-  title      String
-  firstName  String
-  lastName   String
-  phone      String
-  city       String
-  district   String
+  id           String  @id @default(cuid())
+  userId       String
+  title        String
+  firstName    String
+  lastName     String
+  phone        String
+  city         String
+  district     String
   neighborhood String?
-  fullAddress String  @db.Text
-  zipCode    String?
-  isDefault  Boolean @default(false)
+  fullAddress  String  @db.Text
+  zipCode      String?
+  taxNumber    String?
+  taxOffice    String?
+  isDefault    Boolean @default(false)
+  isBilling    Boolean @default(false)
+  createdAt    DateTime @default(now())
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders Order[]
@@ -115,7 +131,7 @@ model Category {
 
   parent   Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children Category[] @relation("CategoryChildren")
-  products Product[]  // implicit many-to-many
+  products Product[]
 
   @@map("categories")
 }
@@ -130,22 +146,23 @@ model Product {
   description      String?   @db.LongText
   metaTitle        String?
   metaDescription  String?
-  images           Json      // string[]
+  images           Json
   isActive         Boolean   @default(true)
   isFeatured       Boolean   @default(false)
   isBestseller     Boolean   @default(false)
   isNew            Boolean   @default(false)
   erpProductCode   String?   @unique
-  tasteNotes        Json?     // string[]
-  usageSuggestions  Json?     // ("kahvalti"|"cay"|"tatli"|"smoothie"|"pisen"|"atistirmalik")[]
-  analysisReportUrl String?   // public URL to PDF
+  tasteNotes        Json?
+  usageSuggestions  Json?
+  analysisReportUrl String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
   categories Category[]
   honeyTypes HoneyType[]
   variants   ProductVariant[]
-  reviews   Review[]
+  reviews    Review[]
+  favorites  Favorite[]
 
   @@map("products")
 }
@@ -167,7 +184,7 @@ model HoneyType {
 model ProductVariant {
   id              String          @id @default(cuid())
   productId       String
-  size            Int             // gram
+  size            Int
   packagingType   PackagingType   @default(GLASS)
   price           Decimal         @db.Decimal(10, 2)
   discountedPrice Decimal?        @db.Decimal(10, 2)
@@ -193,24 +210,29 @@ enum PackagingType {
 // ─── SİPARİŞLER ──────────────────────────────────────────────────────────────
 
 model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  userId          String?
-  guestEmail      String?
-  guestPhone      String?
-  addressId       String?
-  shippingAddress Json          // snapshot
-  status          OrderStatus   @default(PENDING)
-  paymentStatus   PaymentStatus @default(PENDING)
-  subtotal        Decimal       @db.Decimal(10, 2)
-  shippingFee     Decimal       @db.Decimal(10, 2) @default(0)
-  discount        Decimal       @db.Decimal(10, 2) @default(0)
-  total           Decimal       @db.Decimal(10, 2)
-  couponCode      String?
-  notes           String?       @db.Text
-  erpOrderCode    String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  orderNumber      String        @unique
+  userId           String?
+  guestEmail       String?
+  guestPhone       String?
+  addressId        String?
+  shippingAddress  Json
+  status           OrderStatus   @default(PENDING)
+  paymentStatus    PaymentStatus @default(PENDING)
+  subtotal         Decimal       @db.Decimal(10, 2)
+  shippingFee      Decimal       @db.Decimal(10, 2) @default(0)
+  discount         Decimal       @db.Decimal(10, 2) @default(0)
+  total            Decimal       @db.Decimal(10, 2)
+  couponCode       String?
+  cargoTrackingNo  String?
+  cargoCompany     String?
+  notes            String?       @db.Text
+  cancelReason     String?       @db.Text
+  refundReason     String?       @db.Text
+  reviewRequested  Boolean       @default(false)
+  erpOrderCode     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   user         User?                @relation(fields: [userId], references: [id])
   address      Address?             @relation(fields: [addressId], references: [id])
@@ -221,13 +243,15 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  variantId String
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2)
-  productName  String
-  variantInfo  String
+  id          String  @id @default(cuid())
+  orderId     String
+  variantId   String
+  quantity    Int
+  price       Decimal @db.Decimal(10, 2)
+  productName String
+  variantInfo String
+  image       String?
+  reviewed    Boolean @default(false)
 
   order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   variant ProductVariant @relation(fields: [variantId], references: [id])
@@ -242,6 +266,7 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  REFUND_REQUESTED
   REFUNDED
 }
 
@@ -291,19 +316,21 @@ enum TransactionStatus {
 // ─── KUPONLAR ────────────────────────────────────────────────────────────────
 
 model Coupon {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  description   String?
-  discountType  DiscountType @default(PERCENTAGE)
-  discountValue Decimal      @db.Decimal(10, 2)
-  minOrderAmount Decimal?    @db.Decimal(10, 2)
-  maxDiscount   Decimal?     @db.Decimal(10, 2)
-  maxUses       Int?
-  usedCount     Int          @default(0)
-  isActive      Boolean      @default(true)
-  startsAt      DateTime?
-  expiresAt     DateTime?
-  createdAt     DateTime     @default(now())
+  id             String           @id @default(cuid())
+  code           String           @unique
+  description    String?
+  discountType   DiscountType     @default(PERCENTAGE)
+  discountValue  Decimal          @db.Decimal(10, 2)
+  minOrderAmount Decimal?         @db.Decimal(10, 2)
+  maxDiscount    Decimal?         @db.Decimal(10, 2)
+  maxUses        Int?
+  usedCount      Int              @default(0)
+  isActive       Boolean          @default(true)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime         @default(now())
+
+  customerCoupons CustomerCoupon[]
 
   @@map("coupons")
 }
@@ -312,6 +339,92 @@ enum DiscountType {
   PERCENTAGE
   FIXED
   FREE_SHIPPING
+}
+
+model CustomerCoupon {
+  id          String    @id @default(cuid())
+  userId      String
+  couponId    String
+  usedAt      DateTime?
+  usedInOrder String?
+  assignedAt  DateTime  @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, couponId])
+  @@map("customer_coupons")
+}
+
+// ─── FAVORİLER ───────────────────────────────────────────────────────────────
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+// ─── BİLDİRİM TERCİHLERİ ─────────────────────────────────────────────────────
+
+model NotificationPreference {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  orderUpdates      Boolean @default(true)
+  favoriteDiscounts Boolean @default(true)
+  couponReminders   Boolean @default(true)
+  reviewRequests    Boolean @default(true)
+  newsletter        Boolean @default(false)
+  smsNotifications  Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+// ─── KVKK ONAY LOGLARI ───────────────────────────────────────────────────────
+
+model ConsentLog {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "kvkk" | "newsletter" | "sms"
+  granted   Boolean
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consent_logs")
+}
+
+// ─── DEĞERLENDİRMELER ────────────────────────────────────────────────────────
+
+model Review {
+  id          String   @id @default(cuid())
+  productId   String
+  userId      String
+  orderId     String?
+  orderItemId String?
+  rating      Int
+  title       String?
+  comment     String?  @db.Text
+  images      Json?    // string[]
+  isApproved  Boolean  @default(false)
+  adminReply  String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([productId, userId])
+  @@map("reviews")
 }
 
 // ─── BLOG / İÇERİK ───────────────────────────────────────────────────────────
@@ -343,24 +456,6 @@ model FAQ {
   createdAt DateTime @default(now())
 
   @@map("faqs")
-}
-
-// ─── DEĞERLENDİRMELER ────────────────────────────────────────────────────────
-
-model Review {
-  id        String   @id @default(cuid())
-  productId String
-  userId    String
-  rating    Int      // 1-5
-  comment   String?  @db.Text
-  isApproved Boolean @default(false)
-  createdAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id])
-
-  @@unique([productId, userId])
-  @@map("reviews")
 }
 
 // ─── DIA ERP SYNC ────────────────────────────────────────────────────────────

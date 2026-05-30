@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { QNBPayAdapter } from "@/lib/payment";
 import { pushOrderToErp } from "@/lib/dia-erp/sync";
+import { sendOrderConfirmedEmail } from "@/lib/mail/mail.service";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -55,6 +56,31 @@ export async function POST(req: Request) {
   pushOrderToErp(order.id).catch((err) =>
     console.error("ERP push başarısız, sipariş:", order.id, err)
   );
+
+  // Sipariş onay maili gönder
+  const fullOrder = await prisma.order.findUnique({
+    where: { id: order.id },
+    include: { items: true, user: { select: { id: true, email: true, name: true } } },
+  });
+  if (fullOrder) {
+    const toEmail = fullOrder.user?.email ?? (fullOrder.shippingAddress as Record<string, string>).email;
+    const toName = fullOrder.user?.name ?? (fullOrder.shippingAddress as Record<string, string>).firstName ?? "Müşterimiz";
+    const userId = fullOrder.user?.id ?? "";
+    await sendOrderConfirmedEmail(
+      userId,
+      toEmail,
+      toName,
+      fullOrder.orderNumber,
+      fullOrder.id,
+      fullOrder.items.map((i) => ({
+        productName: i.productName,
+        variantInfo: i.variantInfo,
+        quantity: i.quantity,
+        price: Number(i.price),
+      })),
+      Number(fullOrder.total),
+    ).catch((err) => console.error("[qnb-callback] mail hata:", err));
+  }
 
   return NextResponse.redirect(
     `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`,
