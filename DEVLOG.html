@@ -492,6 +492,15 @@
       <a href="#step63" class="nav-link"><span class="dot"></span>63 — Hata Ayıklama: error_code Serüveni</a>
       <a href="#step64" class="nav-link"><span class="dot"></span>64 — paySmart3D Aktivasyon Talebi</a>
 
+
+      <div class="nav-section-label">30 Mayıs 2026 — Ürün Detay</div>
+      <a href="#step65" class="nav-link"><span class="dot"></span>65 — Özellik Kartları</a>
+      <a href="#step66" class="nav-link"><span class="dot"></span>66 — Ürün Hikayesi Bölümü</a>
+      <a href="#step67" class="nav-link"><span class="dot"></span>67 — Tat Profili &amp; Kullanım Önerileri</a>
+      <a href="#step68" class="nav-link"><span class="dot"></span>68 — Analiz Raporu PDF</a>
+      <a href="#step69" class="nav-link"><span class="dot"></span>69 — Müşteri Yorumları + Pagination</a>
+      <a href="#step70" class="nav-link"><span class="dot"></span>70 — Güven Bandı SVG</a>
+      <a href="#step71" class="nav-link"><span class="dot"></span>71 — Admin PDF Yönetimi</a>
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -4299,123 +4308,169 @@ OR: [
     </section>
 
 
+
+    <!-- ═══════════════════════════════ 30 MAYIS 2026 — ÜRÜN DETAY -->
+
+    <section class="section" id="step65">
+      <div class="section-title">
+        <div class="step-num">65</div>
+        <h2>Özellik Kartları — Ürün Açıklamasından Önce</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Ürün detay sayfasında ürün açıklamasının üstüne 3 özellik kartı eklendi: <strong>Kooperatif Üretimi</strong> (1972'ten beri), <strong>Güvenli Paketleme</strong>, <strong>Müşteri Memnuniyeti</strong> (%100 garanti). Lucide-react ikonları (ThumbsUp, Package, Heart), krem arka plan <code>#F8F3EE</code>, border + rounded-2xl kart düzeni.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/[slug]/page.tsx</span> — 3 kart grid'i eklendi
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step66">
+      <div class="section-title">
+        <div class="step-num">66</div>
+        <h2>Ürün Hikayesi Bölümü</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Tab view'dan sonra, her ürün sayfasında sabit görünen "Ürün Hikayesi" bölümü eklendi. Sol: başlık + 3 paragraf metin. Sağ: <code>about-us.webp</code> görseli üzerinde altın altıgen rozet ("1700 Kooperatif Ailesi"). Arka plan <code>#FFF8EE</code>, <code>clipPath</code> ile altıgen şekli.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/[slug]/page.tsx</span> — Ürün Hikayesi section
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step67">
+      <div class="section-title">
+        <div class="step-num">67</div>
+        <h2>ProductTasteProfile — Tat Profili &amp; Kullanım Önerileri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Yeni bileşen oluşturuldu. Sol: başlık + bullet tat notları + kullanım kartları (ikon + etiket). Sağ: görsel. Ürüne özel veri yoksa 3 varsayılan tat notu ve <code>["kahvalti","cay","tatli"]</code> gösterilir.</p>
+        <ul>
+          <li>6 kullanım etiketi: <code>kahvalti</code>, <code>cay</code>, <code>tatli</code>, <code>smoothie</code>, <code>pisen</code>, <code>atistirmalik</code></li>
+          <li>Schema: <code>tasteNotes Json?</code>, <code>usageSuggestions Json?</code> eklendi</li>
+          <li>Admin formuna dinamik liste + tag seçimi kartı eklendi</li>
+          <li>PUT/POST API'larına alanlar eklendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/shop/product/ProductTasteProfile.tsx</span> — yeni bileşen<br>
+          <span class="file mod">prisma/schema.prisma</span> — tasteNotes, usageSuggestions<br>
+          <span class="file mod">lib/utils/serialize.ts</span> — SerializedProduct tip güncellemesi<br>
+          <span class="file mod">components/admin/ProductEditForm.tsx</span> — Tat Profili kartı<br>
+          <span class="file mod">app/api/admin/products/[id]/route.ts</span><br>
+          <span class="file mod">app/api/admin/products/route.ts</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step68">
+      <div class="section-title">
+        <div class="step-num">68</div>
+        <h2>Analiz Raporu PDF — PDFKit Üretim &amp; Modal Viewer</h2>
+      </div>
+      <div class="card">
+        <h3>PDF Üretimi</h3>
+        <p>PDFKit ile profesyonel bal kalite analiz raporu üretildi. Arial TTF gömülerek Türkçe karakter desteği sağlandı. Tek sayfa A4, tam layout hesabı (footer 762–812pt, sayfa sınırı 841pt). 12 analiz parametresi: rutubet, HMF, diastaz, früktoz/glükoz/sakaroz, elektriksel iletkenlik, pH, su içermeyen madde, renk (Pfund), toplam asitlik, prolin, polen.</p>
+      </div>
+      <div class="card">
+        <h3>PdfViewerOverlay Bileşeni</h3>
+        <p>Modal dialog stili PDF viewer: <code>max-w-4xl h-[90vh]</code>, beyaz kart, köşe yuvarlak. Başlık çubuğu: İndir + Yeni Sekmede Aç butonları, ESC ile kapatma, backdrop tıklamayla kapatma. ProductTabs'a "Analiz Raporu" sekmesi eklendi.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">scripts/generate-analysis-pdf.mjs</span> — PDF üretim scripti<br>
+          <span class="file new">public/documents/ornek-analiz-raporu.pdf</span> — örnek rapor<br>
+          <span class="file new">components/shop/product/PdfViewerOverlay.tsx</span> — modal viewer<br>
+          <span class="file mod">components/shop/product/ProductTabs.tsx</span> — Analiz Raporu sekmesi
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step69">
+      <div class="section-title">
+        <div class="step-num">69</div>
+        <h2>Müşteri Yorumları Sekmesi + 4'erli Pagination + Seed</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>"Hangi Balcıdan" sekmesi kaldırıldı. Yıldız puanlı Müşteri Yorumları sekmesi eklendi. Özet kart: büyük ortalama puan + 5→1 yıldız bar chart. Her yorum: avatar (ilk harf dairesi), isim, tarih, yıldız satırı, yorum metni. Sayfa başına 4 yorum, Önceki/Sonraki + sayfa numarası butonları. Sekme başlığında yorum sayısı: <code>Müşteri Yorumları (7)</code>.</p>
+      </div>
+      <div class="card">
+        <h3>Seed</h3>
+        <p>31 aktif ürüne toplam 217 örnek yorum eklendi (ürün başına 7). 4–5 yıldız, son 180 gün içine dağıtılmış tarihler, gerçekçi Türkçe metinler.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/product/ProductTabs.tsx</span> — yorum sekmesi + pagination<br>
+          <span class="file mod">app/(shop)/urunlerimiz/[slug]/page.tsx</span> — reviews prop geçişi<br>
+          <span class="file new">scripts/seed-reviews.mjs</span> — örnek yorum seed scripti
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step70">
+      <div class="section-title">
+        <div class="step-num">70</div>
+        <h2>Güven Bandı — Custom SVG İkonlar &amp; SVG Arı Ayırıcı</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Emoji tabanlı güven bandı tamamen custom SVG çizgi ikonlarına taşındı. Referans tasarımla birebir eşleştirildi.</p>
+        <ul>
+          <li>Sol: iç içe altıgen (honeycomb) SVG + bold "KOOPERATİF GÜCÜ / HEPİMİZ İÇİN DEĞER ÜRETİR." + dikey ayırıcı</li>
+          <li>Arıcı: siperlikli şapka, peçe çizgisi (dashed), kollar, gövde — custom SVG</li>
+          <li>Kalkan + tik, kullanıcı silüeti, yaprak — custom SVG</li>
+          <li>İkonlar arası "+" ayırıcılar, içerik <code>justify-center</code> ile ortalandı</li>
+          <li>Alt ayırıcı: çizgiler arasında SVG arı (kanatlar, şeritler, antenler, iğne)</li>
+          <li>İkon boyutları: <code>w-12 h-12</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/[slug]/page.tsx</span> — güven bandı yeniden yazıldı
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step71">
+      <div class="section-title">
+        <div class="step-num">71</div>
+        <h2>Admin — Analiz Raporu PDF Yönetimi</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Admin ürün düzenleme sayfasına Analiz Raporu (PDF) kartı eklendi. PDF yükleme (<code>/api/admin/upload</code> → <code>documents/</code> klasörü), mevcut dosyayı önizleme linki ile gösterme, X ile kaldırma, "Değiştir" ile yenisini seçme. Kaydedilince <code>analysisReportUrl</code> DB'ye yazılır; ürün detay sayfası önce DB URL'ini, yoksa örnek raporu kullanır.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">prisma/schema.prisma</span> — analysisReportUrl String?<br>
+          <span class="file mod">lib/utils/serialize.ts</span> — SerializedProduct tip güncellemesi<br>
+          <span class="file mod">components/admin/ProductEditForm.tsx</span> — PDF upload kartı<br>
+          <span class="file mod">app/api/admin/products/[id]/route.ts</span><br>
+          <span class="file mod">app/api/admin/products/route.ts</span>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 26 Mayıs 2026 — Adım 64 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 30 Mayıs 2026 — Adım 71 · Claude tarafından yazıldı</span>
     </div>
-
-  
-    <!-- SESSION 2026-05-30 -->
-    <section class="day-section" id="2026-05-30">
-      <div class="day-header">
-        <span class="day-date">30 Mayis 2026</span>
-        <span class="day-label">Urun Detay Sayfasi — Kapsamli Gelistirmeler</span>
-      </div>
-
-      <div class="commit-block">
-        <div class="commit-meta">
-          <span class="commit-hash">0969f66</span>
-          <span class="commit-time">~10:00</span>
-          <span class="tag feat">feat</span>
-        </div>
-        <div class="commit-title">Ozellik Kartlari — Urun Aciklamasindan Once</div>
-        <div class="commit-body">
-          <p>Urun detay sayfasinda aciklamanin ustune 3 kart: <strong>Kooperatif Uretimi</strong>, <strong>Guvenli Paketleme</strong>, <strong>Musteri Memnuniyeti</strong>. Lucide ikonlari, krem arka plan.</p>
-          <div class="files"><span class="file">app/(shop)/urunlerimiz/[slug]/page.tsx</span></div>
-        </div>
-      </div>
-
-      <div class="commit-block">
-        <div class="commit-meta">
-          <span class="commit-hash">0969f66</span>
-          <span class="commit-time">~10:20</span>
-          <span class="tag feat">feat</span>
-        </div>
-        <div class="commit-title">Urun Hikayesi Bolumu</div>
-        <div class="commit-body">
-          <p>Tab view'dan sonra sabit gorunen bolum. Sol metin + sag gorsel + altin altigen rozet (1700 Kooperatif Ailesi). Arka plan #FFF8EE.</p>
-          <div class="files"><span class="file">app/(shop)/urunlerimiz/[slug]/page.tsx</span></div>
-        </div>
-      </div>
-
-      <div class="commit-block">
-        <div class="commit-meta">
-          <span class="commit-hash">0969f66</span>
-          <span class="commit-time">~10:45</span>
-          <span class="tag feat">feat</span>
-          <span class="tag schema">schema</span>
-        </div>
-        <div class="commit-title">ProductTasteProfile — Tat Profili ve Kullanim Onerileri</div>
-        <div class="commit-body">
-          <p>Yeni bilesen: bullet tat notlari + 6 kullanim etiketi (kahvalti, cay, tatli, smoothie, pisen, atistirmalik). Veri yoksa varsayilan icerik gosterilir.</p>
-          <p>Schema: tasteNotes Json?, usageSuggestions Json?. Admin formuna Tat Profili karti eklendi.</p>
-          <div class="files">
-            <span class="file">components/shop/product/ProductTasteProfile.tsx</span>
-            <span class="file">prisma/schema.prisma</span>
-            <span class="file">components/admin/ProductEditForm.tsx</span>
-            <span class="file">lib/utils/serialize.ts</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit-block">
-        <div class="commit-meta">
-          <span class="commit-hash">0969f66</span>
-          <span class="commit-time">~11:15</span>
-          <span class="tag feat">feat</span>
-        </div>
-        <div class="commit-title">Analiz Raporu PDF — PDFKit Uretim ve Modal Viewer</div>
-        <div class="commit-body">
-          <p>Arial TTF gomulu, tek sayfa A4 PDF. 12 parametre: rutubet, HMF, diastaz, seker, pH, renk (Pfund), prolin, polen vb. Modal dialog stili PdfViewerOverlay (ESC, indir, yeni sekme). ProductTabs'a Analiz Raporu sekmesi eklendi.</p>
-          <div class="files">
-            <span class="file">public/documents/ornek-analiz-raporu.pdf</span>
-            <span class="file">scripts/generate-analysis-pdf.mjs</span>
-            <span class="file">components/shop/product/PdfViewerOverlay.tsx</span>
-            <span class="file">components/shop/product/ProductTabs.tsx</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit-block">
-        <div class="commit-meta">
-          <span class="commit-hash">0969f66</span>
-          <span class="commit-time">~11:50</span>
-          <span class="tag feat">feat</span>
-          <span class="tag data">data</span>
-        </div>
-        <div class="commit-title">Musteri Yorumlari Sekmesi + 4'erli Pagination + Seed</div>
-        <div class="commit-body">
-          <p>Hangi Balcidan kaldiridi. Yildiz puanli yorumlar sekmesi eklendi: ortalama puan + bar chart ozeti, 4'erli pagination (Onceki/Sonraki + sayfa numarasi). 31 urune 217 ornek yorum seed edildi.</p>
-          <div class="files">
-            <span class="file">components/shop/product/ProductTabs.tsx</span>
-            <span class="file">scripts/seed-reviews.mjs</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit-block">
-        <div class="commit-meta">
-          <span class="commit-hash">0969f66</span>
-          <span class="commit-time">~12:45</span>
-          <span class="tag style">style</span>
-          <span class="tag schema">schema</span>
-        </div>
-        <div class="commit-title">Guven Bandi SVG + Admin PDF Yonetimi</div>
-        <div class="commit-body">
-          <p>Guven bandi emojiden custom SVG ikonlara tasindi: siperlkli arici, kalkan+tik, kullanici, yaprak. Alt ayirici SVG ari (kanatlar, seritler, antenler, igne). Admin formuna analiz raporu PDF yukleme karti eklendi; analysisReportUrl String? schema'ya eklendi.</p>
-          <div class="files">
-            <span class="file">app/(shop)/urunlerimiz/[slug]/page.tsx</span>
-            <span class="file">components/admin/ProductEditForm.tsx</span>
-            <span class="file">app/api/admin/products/[id]/route.ts</span>
-            <span class="file">app/api/admin/products/route.ts</span>
-            <span class="file">prisma/schema.prisma</span>
-          </div>
-        </div>
-      </div>
-
-    </section>
-
   </main>
 </div>
 
