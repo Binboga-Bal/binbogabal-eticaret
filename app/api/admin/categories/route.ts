@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export async function GET(req: Request) {
+  const session = await auth();
+  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
+    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  }
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q") ?? "";
+  const categories = await prisma.category.findMany({
+    where: q ? { name: { contains: q } } : undefined,
+    select: { id: true, name: true, image: true },
+    orderBy: { name: "asc" },
+  });
+  return NextResponse.json(categories);
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {

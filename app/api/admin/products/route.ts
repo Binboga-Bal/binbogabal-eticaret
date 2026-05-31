@@ -2,6 +2,23 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/utils/slug";
+
+export async function GET(req: Request) {
+  const session = await auth();
+  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
+    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  }
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q") ?? "";
+  const products = await prisma.product.findMany({
+    where: q ? { name: { contains: q } } : undefined,
+    select: { id: true, name: true, images: true },
+    orderBy: { name: "asc" },
+    take: 60,
+  });
+  return NextResponse.json(products);
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {

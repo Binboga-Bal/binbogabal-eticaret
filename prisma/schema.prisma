@@ -158,11 +158,12 @@ model Product {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  categories Category[]
-  honeyTypes HoneyType[]
-  variants   ProductVariant[]
-  reviews    Review[]
-  favorites  Favorite[]
+  categories       Category[]
+  honeyTypes       HoneyType[]
+  variants         ProductVariant[]
+  reviews          Review[]
+  favorites        Favorite[]
+  volumeDiscounts  VolumeDiscountProduct[]
 
   @@map("products")
 }
@@ -769,6 +770,33 @@ enum SyncStatus {
   RUNNING
   SUCCESS
   FAILED
+}
+
+// ─── HACİM İNDİRİMİ ──────────────────────────────────────────────────────────
+
+model VolumeDiscount {
+  id        String                  @id @default(cuid())
+  name      String
+  isActive  Boolean                 @default(true)
+  // [{minQty: number, discountPercent: number}] — artan sırada
+  tiers     Json
+  products  VolumeDiscountProduct[]
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+
+  @@map("volume_discounts")
+}
+
+model VolumeDiscountProduct {
+  id               String         @id @default(cuid())
+  volumeDiscountId String
+  productId        String
+
+  volumeDiscount VolumeDiscount @relation(fields: [volumeDiscountId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([volumeDiscountId, productId])
+  @@map("volume_discount_products")
 }
 
 // ─── SITE AYARLARI ───────────────────────────────────────────────────────────

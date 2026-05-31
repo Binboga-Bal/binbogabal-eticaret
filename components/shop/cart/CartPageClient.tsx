@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cart";
 import { useCampaignEvaluator } from "@/hooks/useCampaignEvaluator";
 import { formatPrice, formatWeight } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
+import { VolumeDiscountBar } from "@/components/shop/cart/VolumeDiscountBar";
 
 const SHIPPING_THRESHOLD = 1500;
 
@@ -169,6 +170,9 @@ export function CartPageClient() {
           <ChevronRight size={14} className="rotate-180" />
           Alışverişe Devam Et
         </Link>
+
+        {/* Hacim indirimi çubuğu */}
+        <VolumeDiscountBar />
       </div>
 
       {/* Sağ — Özet */}

@@ -3,6 +3,7 @@ import { evaluateCampaigns } from "@/lib/campaign/engine";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import type { EvaluationContext, CartItem } from "@/lib/campaign/types";
+import { evaluateVolumeDiscounts } from "@/lib/campaign/volume-discount";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -63,14 +64,24 @@ export async function POST(req: Request) {
     }
   }
 
-  const result = await evaluateCampaigns({
-    cart,
-    customer,
-    couponCode,
-    device: device as "mobile" | "desktop" | undefined,
-    city,
-    paymentMethod,
-  });
+  const [campaignResult, volumeResult] = await Promise.all([
+    evaluateCampaigns({
+      cart,
+      customer,
+      couponCode,
+      device: device as "mobile" | "desktop" | undefined,
+      city,
+      paymentMethod,
+    }),
+    evaluateVolumeDiscounts(cart),
+  ]);
 
-  return NextResponse.json(result);
+  // Volume discount sonuçlarını kampanya sonucuna ekle
+  const merged = {
+    ...campaignResult,
+    totalDiscount: campaignResult.totalDiscount + volumeResult.totalDiscount,
+    appliedCampaigns: [...campaignResult.appliedCampaigns, ...volumeResult.appliedCampaigns],
+  };
+
+  return NextResponse.json(merged);
 }

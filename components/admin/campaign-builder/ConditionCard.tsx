@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X } from "lucide-react";
+import { GripVertical, X, ChevronDown } from "lucide-react";
 import type { ConditionItem } from "./CampaignBuilder";
+import { EntityPickerDialog } from "./EntityPickerDialog";
 
 const CONDITION_LABELS: Record<string, string> = {
   MIN_CART_AMOUNT: "Min. Sepet Tutarı",
@@ -41,6 +43,7 @@ interface Props {
 }
 
 export function ConditionCard({ item, onUpdate, onRemove, onGroupChange }: Props) {
+  const [picker, setPicker] = useState<"product" | "category" | null>(null);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
   const style = {
@@ -185,29 +188,86 @@ export function ConditionCard({ item, onUpdate, onRemove, onGroupChange }: Props
           </div>
         )}
 
-        {(item.type === "GEOGRAPHIC" || item.type === "SPECIFIC_PRODUCTS" || item.type === "SPECIFIC_CATEGORIES") && (
+        {item.type === "GEOGRAPHIC" && (
           <textarea
-            placeholder={
-              item.type === "GEOGRAPHIC" ? "İstanbul, Ankara (virgülle)"
-              : item.type === "SPECIFIC_PRODUCTS" ? "Ürün ID'leri (virgülle)"
-              : "Kategori ID'leri (virgülle)"
-            }
-            value={
-              item.type === "GEOGRAPHIC"
-                ? ((val.cities as string[]) ?? []).join(", ")
-                : item.type === "SPECIFIC_PRODUCTS"
-                ? ((val.productIds as string[]) ?? []).join(", ")
-                : ((val.categoryIds as string[]) ?? []).join(", ")
-            }
-            onChange={(e) => {
-              const arr = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
-              if (item.type === "GEOGRAPHIC") setVal("cities", arr);
-              else if (item.type === "SPECIFIC_PRODUCTS") setVal("productIds", arr);
-              else setVal("categoryIds", arr);
-            }}
+            placeholder="İstanbul, Ankara (virgülle)"
+            value={((val.cities as string[]) ?? []).join(", ")}
+            onChange={(e) => setVal("cities", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
             rows={2}
             className="w-full border border-gray-200 rounded-lg px-2 py-1 text-xs resize-none"
           />
+        )}
+
+        {item.type === "SPECIFIC_PRODUCTS" && (
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setPicker("product")}
+              className="w-full flex items-center justify-between border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-left hover:border-honey/50 hover:bg-honey-cream/20 transition-colors"
+            >
+              <span className="text-gray-600">
+                {((val.productIds as string[]) ?? []).length > 0
+                  ? `${((val.productIds as string[]) ?? []).length} ürün seçili`
+                  : "Ürün seç..."}
+              </span>
+              <ChevronDown size={12} className="text-gray-400" />
+            </button>
+            {((val.productIds as string[]) ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {((val.productIds as string[]) ?? []).map((id) => (
+                  <span
+                    key={id}
+                    className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] font-mono px-1.5 py-0.5 rounded"
+                  >
+                    {id.slice(0, 8)}…
+                    <button
+                      type="button"
+                      onClick={() => setVal("productIds", ((val.productIds as string[]) ?? []).filter((i) => i !== id))}
+                      className="hover:text-red-500"
+                    >
+                      <X size={9} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {item.type === "SPECIFIC_CATEGORIES" && (
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setPicker("category")}
+              className="w-full flex items-center justify-between border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-left hover:border-honey/50 hover:bg-honey-cream/20 transition-colors"
+            >
+              <span className="text-gray-600">
+                {((val.categoryIds as string[]) ?? []).length > 0
+                  ? `${((val.categoryIds as string[]) ?? []).length} kategori seçili`
+                  : "Kategori seç..."}
+              </span>
+              <ChevronDown size={12} className="text-gray-400" />
+            </button>
+            {((val.categoryIds as string[]) ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {((val.categoryIds as string[]) ?? []).map((id) => (
+                  <span
+                    key={id}
+                    className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-[10px] font-mono px-1.5 py-0.5 rounded"
+                  >
+                    {id.slice(0, 8)}…
+                    <button
+                      type="button"
+                      onClick={() => setVal("categoryIds", ((val.categoryIds as string[]) ?? []).filter((i) => i !== id))}
+                      className="hover:text-red-500"
+                    >
+                      <X size={9} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {item.type === "FIRST_ORDER" && (
@@ -222,6 +282,22 @@ export function ConditionCard({ item, onUpdate, onRemove, onGroupChange }: Props
       <div className="mt-2 text-[10px] text-gray-400">
         Grup {item.logicGroup} — {item.logicGroup === 0 ? "Ana koşul (AND)" : `Alternatif grup ${item.logicGroup} (OR)`}
       </div>
+
+      {picker && (
+        <EntityPickerDialog
+          type={picker}
+          selectedIds={
+            picker === "product"
+              ? ((val.productIds as string[]) ?? [])
+              : ((val.categoryIds as string[]) ?? [])
+          }
+          onConfirm={(ids) => {
+            if (picker === "product") setVal("productIds", ids);
+            else setVal("categoryIds", ids);
+          }}
+          onClose={() => setPicker(null)}
+        />
+      )}
     </div>
   );
 }

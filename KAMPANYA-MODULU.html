@@ -148,6 +148,10 @@
     <a href="#cart-int"    class="nav-link">Sepet Entegrasyonu</a>
     <a href="#display"     class="nav-link">Gösterim Bileşenleri</a>
 
+    <div class="nav-section">Hacim İndirimi</div>
+    <a href="#volume"      class="nav-link">VolumeDiscount Modülü</a>
+    <a href="#volume-cart" class="nav-link">Sepet Entegrasyonu</a>
+
     <div class="nav-section">Referans</div>
     <a href="#env"         class="nav-link">Env Değişkenleri</a>
     <a href="#security"    class="nav-link">Güvenlik</a>
@@ -923,7 +927,11 @@ REDIS_URL=redis://...                    # Şu an kullanılmıyor, ileride cache
         <tr><td>Prisma schema + DB sync</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
         <tr><td>Kampanya motoru (tüm tipler)</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
         <tr><td>Öncelik & çakışma kuralları</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
-        <tr><td>Sürükle-bırak builder</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Sürükle-bırak builder (DnD fix)</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>EntityPickerDialog (ürün/kategori seçici)</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>CampaignActions dropdown portal fix</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Hacim indirimi (VolumeDiscount) modülü</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>VolumeDiscount → kampanya motoru entegrasyonu</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
         <tr><td>Kampanya takvimi</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
         <tr><td>Sepet kampanya entegrasyonu</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
         <tr><td>Kupon kodu doğrulama + rate limit</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
@@ -943,9 +951,96 @@ REDIS_URL=redis://...                    # Şu an kullanılmıyor, ileride cache
     </div>
   </section>
 
+  <!-- VolumeDiscount -->
+  <section class="section" id="volume">
+    <div class="section-title"><div class="icon">📦</div><h2>Hacim İndirimi (VolumeDiscount) Modülü</h2></div>
+    <div class="card">
+      <h3>Amaç</h3>
+      <p>Belirli sayıda ürün sepete eklendiğinde otomatik yüzde indirimi uygular. Kampanya builder'ından bağımsız, kendi admin sayfası ve DB modeli vardır.</p>
+      <ul>
+        <li><strong>Kademeli yapı:</strong> 3+ ürün → %5, 5+ ürün → %10, 10+ ürün → %15 gibi sıralı kademeler tanımlanır.</li>
+        <li><strong>Kapsam:</strong> Belirli ürünler seçilebilir; boş bırakılırsa tüm ürünler geçerlidir.</li>
+        <li><strong>Motor entegrasyonu:</strong> <code>/api/campaigns/evaluate</code> çağrıldığında <code>evaluateVolumeDiscounts()</code> paralel çalışır; sonuç <code>appliedCampaigns</code> listesine eklenir ve <code>totalDiscount</code>'a yansır.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Prisma Modelleri</h3>
+      <pre><code>model VolumeDiscount {
+  id        String                  @id @default(cuid())
+  name      String
+  isActive  Boolean                 @default(true)
+  tiers     Json   // [{minQty: number, discountPercent: number}]
+  products  VolumeDiscountProduct[]
+}
+
+model VolumeDiscountProduct {
+  id               String  @id @default(cuid())
+  volumeDiscountId String
+  productId        String
+  @@unique([volumeDiscountId, productId])
+}</code></pre>
+    </div>
+    <div class="card">
+      <h3>API Routes</h3>
+      <table>
+        <tr><th>Method</th><th>Endpoint</th><th>Açıklama</th></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td><code>/api/admin/volume-discounts</code></td><td>Tüm kuralları listele (admin)</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td><code>/api/admin/volume-discounts</code></td><td>Yeni kural oluştur</td></tr>
+        <tr><td><span class="api-method PUT">PUT</span></td><td><code>/api/admin/volume-discounts/[id]</code></td><td>Güncelle</td></tr>
+        <tr><td><span class="api-method DELETE">DELETE</span></td><td><code>/api/admin/volume-discounts/[id]</code></td><td>Sil</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td><code>/api/volume-discounts</code></td><td>Aktif kurallar + ürünler (public, sepet için)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Dosyalar</h3>
+      <div class="file-tree">
+        <span class="file new">prisma/schema.prisma</span> — VolumeDiscount + VolumeDiscountProduct modelleri<br>
+        <span class="file new">lib/campaign/volume-discount.ts</span> — evaluateVolumeDiscounts() fonksiyonu<br>
+        <span class="file mod">app/api/campaigns/evaluate/route.ts</span> — Promise.all ile motor entegrasyonu<br>
+        <span class="file new">app/api/admin/volume-discounts/route.ts</span> — GET + POST<br>
+        <span class="file new">app/api/admin/volume-discounts/[id]/route.ts</span> — PUT + DELETE<br>
+        <span class="file new">app/api/volume-discounts/route.ts</span> — public, suggestedProducts fallback<br>
+        <span class="file new">app/admin/hacim-indirimleri/page.tsx</span> — Admin sayfası<br>
+        <span class="file new">components/admin/VolumeDiscountManager.tsx</span> — CRUD UI + kademe editörü
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="volume-cart">
+    <div class="section-title"><div class="icon">🛒</div><h2>VolumeDiscount Sepet Entegrasyonu</h2></div>
+    <div class="card">
+      <h3>VolumeDiscountBar Bileşeni</h3>
+      <p><code>components/shop/cart/VolumeDiscountBar.tsx</code> — Sepet sayfasında ürün listesinin altında render edilir.</p>
+      <ul>
+        <li>Aktif kuralları <code>/api/volume-discounts</code>'tan çeker.</li>
+        <li>Sepetteki kapsanan ürün adedini hesaplar, progress bar gösterir.</li>
+        <li>Kademe etiketleri: aktif olanlar bal sarısı, henüz ulaşılamamış olanlar gri.</li>
+        <li>Ürünler 3'lü ızgara olarak listelenir; <strong>+ butonu</strong> ile direkt sepete eklenir.</li>
+        <li>Kural "tüm ürünler" modundaysa API <code>suggestedProducts</code> (bestseller/featured) döner.</li>
+        <li>Sepette olan ürünler yeşil ✓ ile işaretlenir, listenin sonuna alınır.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>İndirim Hesaplama Akışı</h3>
+      <div class="flow">
+        <div class="flow-step">Sepet değişir</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">useCampaignEvaluator (400ms debounce)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">POST /api/campaigns/evaluate</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">evaluateCampaigns() + evaluateVolumeDiscounts()</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Merged result → store.setCampaignResult()</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">CartPageClient re-render → toplam güncellenir</div>
+      </div>
+    </div>
+  </section>
+
   <div style="border-top:1px solid var(--border);padding-top:20px;margin-top:12px;color:var(--text-muted);font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
     <span>🍯 Binboğa Bal — Kampanya Modülü Teknik Dökümantasyonu</span>
-    <span>31 Mayıs 2026 — v1.0 · Claude tarafından yazıldı</span>
+    <span>31 Mayıs 2026 — v1.1 · Claude tarafından yazıldı</span>
   </div>
 </main>
 </div>

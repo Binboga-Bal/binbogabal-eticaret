@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NextImage from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -45,6 +46,7 @@ const navItems: NavItem[] = [
       { href: "/admin/kampanyalar/calendar", label: "Takvim" },
       { href: "/admin/kampanyalar/coupons", label: "Kuponlar" },
       { href: "/admin/kampanyalar/reports", label: "Raporlar" },
+      { href: "/admin/hacim-indirimleri", label: "Hacim İndirimleri" },
     ],
   },
   { href: "/admin/yorumlar", label: "Yorumlar", icon: <Star size={18} /> },
@@ -64,9 +66,10 @@ const navItems: NavItem[] = [
 
 interface AdminSidebarProps {
   role: string;
+  logoUrl?: string | null;
 }
 
-export function AdminSidebar({ role }: AdminSidebarProps) {
+export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -77,9 +80,17 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
   return (
     <aside className="w-60 bg-white border-r border-gray-200 flex flex-col">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-gray-100">
-        <div className="text-honey-dark font-black text-base">KOOPERATİF BALI</div>
-        <div className="text-xs text-gray-400 mt-0.5">Admin Paneli</div>
+      <div className="px-5 py-4 border-b border-gray-100 flex flex-col items-center">
+        <NextImage
+          src={logoUrl ?? "/images/logo.png"}
+          alt="Binboğa Kooperatif Balı"
+          width={140}
+          height={48}
+          className="object-contain"
+          priority
+          unoptimized={!!logoUrl}
+        />
+        <div className="text-xs font-semibold text-gray-500 tracking-wide mt-1.5">Admin Paneli</div>
       </div>
 
       {/* Nav */}

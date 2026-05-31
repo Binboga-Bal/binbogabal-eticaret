@@ -152,7 +152,7 @@ export function CampaignBuilder({ initialData }: { initialData?: Partial<Campaig
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
-      onDragEnd={(e) => handleCanvasDragEnd(e, conditions, actions, setConditions, setActions)}
+      onDragEnd={(e) => handleCanvasDragEnd(e, conditions, actions, setConditions, setActions, addCondition, addAction)}
     >
     <div className="flex gap-6 h-[calc(100vh-120px)]">
       {/* Sol panel */}

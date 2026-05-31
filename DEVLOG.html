@@ -5671,10 +5671,179 @@ OR: [
       </div>
     </section>
 
+    <!-- ADIM 110 -->
+    <section id="step110" class="step-section">
+      <div class="section-title">
+        <div class="step-num">110</div>
+        <h2>Campaign Builder — DnD Context Düzeltmesi + useDroppable Drop Zone</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <ul>
+          <li><code>DndContext</code> yalnızca <code>BuilderCanvas</code> içindeydi. Sol panel bileşenleri (<code>ConditionPanel</code>, <code>ActionPanel</code>) context dışında kaldığından <code>useDraggable</code> çalışmıyordu.</li>
+          <li><code>handleDragEnd</code> panel kaynaklı sürüklemeleri erken çıkışla yok sayıyordu.</li>
+          <li>Canvas'ta <code>useDroppable</code> alanı tanımlanmamıştı; bırakma hedefi yoktu.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li><code>DndContext</code> + <code>useSensors</code> <code>CampaignBuilder</code>'a taşındı — tüm layout tek context altında.</li>
+          <li><code>BuilderCanvas</code>'a <code>useDroppable</code> ile <code>"conditions-drop"</code> ve <code>"actions-drop"</code> alanları eklendi; sürükleme üzerindeyken renk değişir.</li>
+          <li><code>handleCanvasDragEnd</code> artık panel öğesi bırakıldığında <code>addCondition</code> / <code>addAction</code> callback'lerini çağırır.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/admin/campaign-builder/BuilderCanvas.tsx</span> — DndContext → useDroppable<br>
+          <span class="file mod">components/admin/campaign-builder/CampaignBuilder.tsx</span> — DndContext + sensors taşındı
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 111 -->
+    <section id="step111" class="step-section">
+      <div class="section-title">
+        <div class="step-num">111</div>
+        <h2>EntityPickerDialog — Ürün/Kategori Seçici Modal</h2>
+      </div>
+      <div class="card">
+        <h3>Motivasyon</h3>
+        <p><code>SPECIFIC_PRODUCTS</code> ve <code>SPECIFIC_CATEGORIES</code> koşullarında ID girmek pratik değildi. Veritabanındaki kayıtlar arama destekli modal ile görsel olarak seçilebilir hale getirildi.</p>
+      </div>
+      <div class="card">
+        <h3>Yapılanlar</h3>
+        <ul>
+          <li><code>GET /api/admin/products?q=</code> ve <code>GET /api/admin/categories?q=</code> endpoint'leri eklendi.</li>
+          <li><strong>EntityPickerDialog:</strong> Backdrop + modal, gerçek zamanlı arama (AbortController), thumbnail + ad + ID, çoklu checkbox, "X seçili" sayacı, İptal/Onayla.</li>
+          <li><strong>ConditionCard:</strong> Textarea → "X ürün seçili" buton + kaldırılabilir tag'ler.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/admin/campaign-builder/EntityPickerDialog.tsx</span><br>
+          <span class="file mod">components/admin/campaign-builder/ConditionCard.tsx</span><br>
+          <span class="file mod">app/api/admin/products/route.ts</span> — GET eklendi<br>
+          <span class="file mod">app/api/admin/categories/route.ts</span> — GET eklendi
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 112 -->
+    <section id="step112" class="step-section">
+      <div class="section-title">
+        <div class="step-num">112</div>
+        <h2>CampaignActions Dropdown — createPortal ile Overflow Fix</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun &amp; Çözüm</h3>
+        <ul>
+          <li><strong>Sorun:</strong> Tablo üst elementi <code>overflow-hidden + overflow-x-auto</code>; <code>absolute</code> dropdown kesilip bozuk görünüyordu.</li>
+          <li><strong>Çözüm:</strong> <code>createPortal</code> ile menü <code>document.body</code>'e render edildi. Butonun <code>getBoundingClientRect()</code>'ından hesaplanan koordinatlarla yerleşim. Scroll/resize'da otomatik kapanma.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/admin/campaign/CampaignActions.tsx</span> — createPortal + getBoundingClientRect
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 113 -->
+    <section id="step113" class="step-section">
+      <div class="section-title">
+        <div class="step-num">113</div>
+        <h2>Admin Panel UI — Logo, Header Rengi, Sidebar Nav Aktif Stili</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılanlar</h3>
+        <ul>
+          <li><strong>Sidebar logo:</strong> "KOOPERATİF BALI" metni kaldırıldı. <code>SiteSetting.img_logo</code> DB'den okunup prop olarak geçirilir; fallback <code>/images/logo.png</code>. Logo ortalandı, "Admin Paneli" <code>font-semibold tracking-wide</code> ile netleştirildi.</li>
+          <li><strong>Header:</strong> <code>bg-white</code> → <code>bg-slate-800 border-slate-700</code>. Tüm metin/ikon renkleri slate tonlarına uyarlandı.</li>
+          <li><strong>Sidebar aktif nav:</strong> <code>bg-honey-cream/text-honey-dark</code> → <code>bg-slate-800/text-white</code>. Hover <code>bg-slate-100</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/admin/layout.tsx</span> — logo DB query<br>
+          <span class="file mod">components/admin/AdminSidebar.tsx</span> — NextImage + logoUrl prop<br>
+          <span class="file mod">components/admin/AdminHeader.tsx</span> — bg-slate-800 palette<br>
+          <span class="file mod">styles/globals.css</span> — .admin-nav-link.active
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 114 -->
+    <section id="step114" class="step-section">
+      <div class="section-title">
+        <div class="step-num">114</div>
+        <h2>Hacim İndirimi (VolumeDiscount) Modülü</h2>
+      </div>
+      <div class="card">
+        <h3>Özellik</h3>
+        <p>N ürün sepete eklenince otomatik yüzde indirimi uygulayan bağımsız modül. Admin panelinde kural + kademeler tanımlanır; sepet sayfasında progress bar ve ürün kartlarıyla kullanıcıya gösterilir.</p>
+      </div>
+      <div class="card">
+        <h3>Yapılanlar</h3>
+        <ul>
+          <li><strong>Schema:</strong> <code>VolumeDiscount</code> + <code>VolumeDiscountProduct</code> modelleri, <code>Product</code>'a <code>volumeDiscounts</code> ilişkisi. <code>pnpm db:push</code> ile DB sync.</li>
+          <li><strong>Admin API:</strong> GET/POST <code>/api/admin/volume-discounts</code>, PUT/DELETE <code>/api/admin/volume-discounts/[id]</code>.</li>
+          <li><strong>Public API:</strong> <code>GET /api/volume-discounts</code> — aktif kurallar + variant fiyatları. "Tüm ürünler" modunda <code>suggestedProducts</code> fallback (bestseller/featured).</li>
+          <li><strong>Admin sayfası:</strong> <code>/admin/hacim-indirimleri</code> → <code>VolumeDiscountManager</code>. CRUD, toggle, kademe editörü, EntityPickerDialog entegrasyonu.</li>
+          <li><strong>VolumeDiscountBar:</strong> Sepet sayfasında progress bar, kademe badge'leri, 3'lü ürün ızgarası, + butonu ile sepete ekle, ✓ işareti.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">prisma/schema.prisma</span><br>
+          <span class="file new">app/api/admin/volume-discounts/route.ts</span><br>
+          <span class="file new">app/api/admin/volume-discounts/[id]/route.ts</span><br>
+          <span class="file new">app/api/volume-discounts/route.ts</span><br>
+          <span class="file new">app/admin/hacim-indirimleri/page.tsx</span><br>
+          <span class="file new">components/admin/VolumeDiscountManager.tsx</span><br>
+          <span class="file new">components/shop/cart/VolumeDiscountBar.tsx</span><br>
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span><br>
+          <span class="file mod">components/admin/AdminSidebar.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 115 -->
+    <section id="step115" class="step-section">
+      <div class="section-title">
+        <div class="step-num">115</div>
+        <h2>VolumeDiscount → Kampanya Motoru Entegrasyonu (İndirim Tutarı Fix)</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p><code>VolumeDiscountBar</code> "indirim aktif" mesajı gösteriyordu ancak sepet toplamına yansımıyordu. <code>VolumeDiscount</code> kampanya motoruyla (<code>/api/campaigns/evaluate</code>) hiç konuşmuyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li><strong><code>lib/campaign/volume-discount.ts</code></strong> — <code>evaluateVolumeDiscounts(cart)</code>: aktif kuralları çeker, kapsanan ürün adedi → en yüksek geçerli kademe → indirim = kapsanan subtotal × oran. <code>AppliedCampaign</code> formatında döner.</li>
+          <li><strong><code>/api/campaigns/evaluate</code></strong> — <code>Promise.all([evaluateCampaigns(), evaluateVolumeDiscounts()])</code>; sonuçlar merge: <code>totalDiscount</code> ve <code>appliedCampaigns</code> birleştirilir.</li>
+          <li>Sepet özeti "Kampanya İndirimi" satırı volume discount tutarını da içerir; <code>grandTotal</code> doğru hesaplanır.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/campaign/volume-discount.ts</span> — evaluateVolumeDiscounts()<br>
+          <span class="file mod">app/api/campaigns/evaluate/route.ts</span> — Promise.all merge
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 31 Mayıs 2026 — Adım 109 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 31 Mayıs 2026 — Adım 115 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
