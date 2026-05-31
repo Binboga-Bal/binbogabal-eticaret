@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
-import { headerTheme } from "@/lib/theme";
+import { Container } from "@/components/layout/Container";
 import { StarRating } from "@/components/ui/StarRating";
 import { Badge } from "@/components/ui/Badge";
 import { ProductVariantSelector } from "@/components/shop/product/ProductVariantSelector";
@@ -94,10 +94,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       : 0;
 
   return (
-    <div
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12"
-      style={{ paddingTop: headerTheme.waveDepth }}
-    >
+    <Container className="py-12">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-gray-500 mb-6 flex-wrap">
         <Link href="/" className="hover:text-honey-dark transition-colors">
@@ -127,16 +124,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </span>
       </nav>
 
-      {/* Ana grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Sol: Görsel galerisi (max 3 görsel) */}
+      {/* Ana grid — mobil: tek kolon; lg+: iki kolon; sağ kolon sticky */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-start">
+        {/* Sol: Görsel galerisi */}
         <ProductImageGallery
           images={product.images}
           productName={product.name}
         />
 
-        {/* Sağ: Ürün bilgileri */}
-        <div className="flex flex-col gap-4">
+        {/* Sağ: Ürün bilgileri — lg'de sticky */}
+        <div className="flex flex-col gap-4 lg:sticky lg:top-32">
           {/* Kategori rozetleri */}
           {product.categories && product.categories.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -149,7 +146,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           )}
 
           {/* Ürün adı */}
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
+          <h1 className="text-fluid-2xl font-black text-gray-900 leading-tight">
             {product.name}
           </h1>
 
@@ -544,6 +541,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ShoppingCart, Search, User, Menu, X, ChevronRight } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { SearchOverlay } from "./SearchOverlay";
 import { headerTheme, footerTheme } from "@/lib/theme";
+import { useScrollPosition } from "@/hooks/useScrollPosition";
 
 const navLinks = [
   { href: "/urunlerimiz",          label: "ÜRÜNLERİMİZ" },
@@ -36,21 +37,17 @@ const navLinks = [
 const VB_W = 1440;
 const VB_H = headerTheme.navHeight + headerTheme.waveDepth;
 
-// Beyaz header alanını dolduran kapalı SVG path
 const headerPath = [
   `M 0 0`,
   `L ${VB_W} 0`,
   `L ${VB_W} ${headerTheme.navHeight}`,
   `L ${headerTheme.archRight} ${headerTheme.navHeight}`,
-  // sağdan merkeze inen bezier
   `C ${headerTheme.archRight - 80} ${headerTheme.navHeight}, ${VB_W / 2 + 60} ${VB_H}, ${VB_W / 2} ${VB_H}`,
-  // merkezden sola çıkan bezier
   `C ${VB_W / 2 - 60} ${VB_H}, ${headerTheme.archLeft + 80} ${headerTheme.navHeight}, ${headerTheme.archLeft} ${headerTheme.navHeight}`,
   `L 0 ${headerTheme.navHeight}`,
   `Z`,
 ].join(" ");
 
-// Arch alt kenarını çizen açık path — marka rengiyle çizilir
 const archBorderPath = [
   `M 0 ${headerTheme.navHeight}`,
   `L ${headerTheme.archLeft} ${headerTheme.navHeight}`,
@@ -60,36 +57,72 @@ const archBorderPath = [
 ].join(" ");
 
 export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const itemCount = useCartStore((s) => s.itemCount());
+  const [drawerOpen, setDrawerOpen]   = useState(false);
+  const [searchOpen, setSearchOpen]   = useState(false);
+  const itemCount  = useCartStore((s) => s.itemCount());
+  const scrollY    = useScrollPosition();
+  const isScrolled = scrollY > 20;
+
+  // Drawer açıkken body scroll kilitle
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [drawerOpen]);
+
+  // Escape ile drawer kapat
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setDrawerOpen(false); setSearchOpen(false); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   return (
     <>
       {/* ── FIXED KAPSAYICI ─────────────────────────────────────────── */}
-      {/* fixed: header akıştan çıkar, içerik altından başlayabilir  */}
-      <div className="fixed top-0 left-0 right-0 z-40" style={{ pointerEvents: "none" }}>
+      {/*
+        Scroll'da tüm blok (duyuru + wave + logo) translateY ile
+        announcementHeight kadar yukarı kayar. Logo wave içindeki
+        konumunu hiç değiştirmez.
+      */}
+      <div
+        className="fixed top-0 left-0 right-0 z-40 transition-transform duration-300"
+        style={{
+          transform:     isScrolled ? `translateY(-${headerTheme.announcementHeight}px)` : "translateY(0)",
+          pointerEvents: "none",
+        }}
+      >
 
-        {/* Duyuru bandı — renk ve yükseklik headerTheme'den */}
+        {/* Duyuru bandı */}
         <div
-          className="relative z-10 flex items-center justify-center text-xs px-4 text-center"
+          className="absolute left-0 right-0 flex items-center justify-center text-xs px-4 text-center"
           style={{
+            top:           0,
             height:        headerTheme.announcementHeight,
             background:    headerTheme.announcementBg,
             color:         headerTheme.announcementText,
             pointerEvents: "auto",
+            zIndex:        10,
           }}
         >
-          Kooperatif Üyelerine Ücretsiz Kargo! &nbsp;|&nbsp; 0 (322) 515 89 10
+          Kooperatif Üyelerine Ücretsiz Kargo!&nbsp;|&nbsp;0 (322) 515 89 10
         </div>
 
-        {/* ── HEADER (SVG arka plan + nav + logo) ─────────────────────── */}
+        {/* ── HEADER (SVG arka plan + nav + logo) — hiç hareket etmez ─── */}
         <div
-          className="relative"
-          style={{ height: VB_H, overflow: "visible", pointerEvents: "none" }}
+          className="absolute left-0 right-0"
+          style={{
+            top:           headerTheme.announcementHeight,
+            height:        VB_H,
+            overflow:      "visible",
+            pointerEvents: "none",
+          }}
         >
-          {/* Beyaz header şekli (SVG)
-              overflow="visible" → arch tipindeki stroke viewBox sınırında kırpılmaz */}
           <svg
             viewBox={`0 0 ${VB_W} ${VB_H}`}
             overflow="visible"
@@ -97,10 +130,7 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
             className="absolute inset-0 w-full h-full"
             style={{ display: "block", pointerEvents: "none" }}
           >
-            {/* Beyaz dolgu */}
             <path d={headerPath} fill={headerTheme.waveFill} />
-
-            {/* Arch kenar çizgisi — marka rengi (honeyDark) ile görünür */}
             <path
               d={archBorderPath}
               fill="none"
@@ -109,18 +139,18 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
             />
           </svg>
 
-          {/* ── NAV SATIRI ───────────────────────────────────────────── */}
+          {/* ── NAV SATIRI ─────────────────────────────────────────────── */}
           <div
-            className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center"
+            className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 3xl:px-16 flex items-center"
             style={{ height: headerTheme.navHeight, pointerEvents: "auto" }}
           >
-            {/* Sol nav */}
-            <nav className="hidden md:flex items-center gap-8 flex-1">
+            {/* Sol nav — desktop */}
+            <nav className="hidden md:flex items-center gap-6 lg:gap-8 flex-1">
               {navLinks.slice(0, 2).map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="text-sm font-semibold text-gray-700 hover:text-honey-dark transition-colors tracking-wider uppercase"
+                  className="text-xs lg:text-sm font-semibold text-gray-700 hover:text-honey-dark transition-colors tracking-wider uppercase whitespace-nowrap"
                 >
                   {l.label}
                 </Link>
@@ -131,37 +161,40 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
             <div className="flex-shrink-0" style={{ width: headerTheme.logoWidth + 48 }} />
 
             {/* Sağ nav + ikonlar */}
-            <div className="flex items-center gap-6 flex-1 justify-end">
-              <nav className="hidden md:flex items-center gap-8">
+            <div className="flex items-center gap-4 lg:gap-6 flex-1 justify-end">
+              <nav className="hidden md:flex items-center gap-6 lg:gap-8">
                 {navLinks.slice(2).map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
-                    className="text-sm font-semibold text-gray-700 hover:text-honey-dark transition-colors tracking-wider uppercase"
+                    className="text-xs lg:text-sm font-semibold text-gray-700 hover:text-honey-dark transition-colors tracking-wider uppercase whitespace-nowrap"
                   >
                     {l.label}
                   </Link>
                 ))}
               </nav>
 
-              <div className="flex items-center gap-1">
+              {/* İkon grubu */}
+              <div className="flex items-center gap-0.5">
                 <Link
                   href="/hesabim"
-                  className="p-2 text-gray-600 hover:text-honey-dark transition-colors"
+                  className="p-2.5 text-gray-600 hover:text-honey-dark transition-colors rounded-xl hover:bg-honey-light/30"
                   aria-label="Hesabım"
                 >
                   <User size={20} />
                 </Link>
                 <button
                   onClick={() => setSearchOpen(!searchOpen)}
-                  className={`p-2 rounded-xl transition-colors ${searchOpen ? "bg-honey-light text-gray-600" : "text-gray-600 hover:text-honey-dark"}`}
+                  className={`p-2.5 rounded-xl transition-colors ${
+                    searchOpen ? "bg-honey-light text-gray-600" : "text-gray-600 hover:text-honey-dark hover:bg-honey-light/30"
+                  }`}
                   aria-label="Ara"
                 >
                   <Search size={20} />
                 </button>
                 <Link
                   href="/sepet"
-                  className="relative p-2 text-gray-600 hover:text-honey-dark transition-colors"
+                  className="relative p-2.5 text-gray-600 hover:text-honey-dark transition-colors rounded-xl hover:bg-honey-light/30"
                   aria-label="Sepet"
                 >
                   <ShoppingCart size={20} />
@@ -171,30 +204,32 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
                     </span>
                   )}
                 </Link>
+
+                {/* Hamburger — yalnızca mobil */}
                 <button
-                  className="md:hidden p-2 text-gray-600"
-                  onClick={() => setMobileOpen(!mobileOpen)}
-                  aria-label="Menü"
+                  className="md:hidden p-2.5 text-gray-600 hover:text-honey-dark transition-colors rounded-xl"
+                  onClick={() => setDrawerOpen(true)}
+                  aria-label="Menüyü Aç"
                 >
-                  {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+                  <Menu size={22} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* ── LOGO ─────────────────────────────────────────────────── */}
-          {/* paddingBottom = logoBottomPad → flex center, wave dibinden uzaklaşır */}
+          {/* ── LOGO ── SVG container içinde, top:0 → her zaman arch'ın tepesinde */}
           <Link
             href="/"
             className="absolute left-1/2 z-20 focus:outline-none"
-            style={{ pointerEvents: "auto",
-              top: 0,
-              transform: "translateX(-50%)",
-              width: headerTheme.logoWidth,
-              height: VB_H,
-              paddingBottom: headerTheme.logoBottomPad,
-              display: "flex",
-              alignItems: "center",
+            style={{
+              pointerEvents:  "auto",
+              top:            0,
+              transform:      "translateX(-50%)",
+              width:          headerTheme.logoWidth,
+              height:         VB_H,
+              paddingBottom:  headerTheme.logoBottomPad,
+              display:        "flex",
+              alignItems:     "center",
               justifyContent: "center",
             }}
             aria-label="Anasayfa"
@@ -210,25 +245,99 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
             />
           </Link>
         </div>
-        {/* ─────────────────────────────────────────────────────────────── */}
-
-        {/* Mobil nav */}
-        {mobileOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-1 relative z-10" style={{ pointerEvents: "auto" }}>
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setMobileOpen(false)}
-                className="block text-sm font-semibold text-gray-700 hover:text-honey-dark py-2.5 border-b border-gray-50 last:border-0"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
       {/* ──────────────────────────────────────────────────────────────── */}
+
+      {/* ── MOBİL DRAWER OVERLAY ───────────────────────────────────────── */}
+      {/* Arka plan örtüsü */}
+      <div
+        aria-hidden
+        onClick={() => setDrawerOpen(false)}
+        className="fixed inset-0 bg-black/50 z-50 md:hidden transition-opacity duration-300"
+        style={{
+          opacity:       drawerOpen ? 1 : 0,
+          pointerEvents: drawerOpen ? "auto" : "none",
+        }}
+      />
+
+      {/* Drawer paneli — soldan kayar */}
+      <aside
+        className="fixed top-0 left-0 h-full w-[300px] max-w-[85vw] bg-white z-50 md:hidden shadow-2xl flex flex-col transition-transform duration-300 ease-out"
+        style={{ transform: drawerOpen ? "translateX(0)" : "translateX(-100%)" }}
+        aria-label="Gezinti menüsü"
+      >
+        {/* Drawer başlık */}
+        <div
+          className="flex items-center justify-between px-5 py-4 border-b border-gray-100"
+          style={{ background: headerTheme.announcementBg }}
+        >
+          <Link href="/" onClick={() => setDrawerOpen(false)}>
+            <Image
+              src={logoSrc}
+              alt="Binboğa"
+              width={100}
+              height={50}
+              className="object-contain h-10 w-auto"
+            />
+          </Link>
+          <button
+            onClick={() => setDrawerOpen(false)}
+            className="p-2 text-white/80 hover:text-white transition-colors rounded-lg"
+            aria-label="Menüyü Kapat"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Navigasyon linkleri */}
+        <nav className="flex-1 overflow-y-auto py-4">
+          {navLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setDrawerOpen(false)}
+              className="flex items-center justify-between px-5 py-3.5 text-sm font-semibold text-gray-700 hover:text-honey-dark hover:bg-honey-cream/50 transition-colors border-b border-gray-50 last:border-0"
+            >
+              {l.label}
+              <ChevronRight size={16} className="text-gray-300" />
+            </Link>
+          ))}
+        </nav>
+
+        {/* Alt kısım — Hesap & Sepet */}
+        <div className="border-t border-gray-100 p-4 space-y-2">
+          <Link
+            href="/hesabim"
+            onClick={() => setDrawerOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-honey-cream/50 transition-colors"
+          >
+            <User size={18} className="text-honey-dark" />
+            Hesabım
+          </Link>
+          <Link
+            href="/sepet"
+            onClick={() => setDrawerOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-honey-cream/50 transition-colors"
+          >
+            <ShoppingCart size={18} className="text-honey-dark" />
+            Sepetim
+            {itemCount > 0 && (
+              <span className="ml-auto bg-honey-dark text-white text-xs rounded-full px-2 py-0.5 font-bold">
+                {itemCount}
+              </span>
+            )}
+          </Link>
+        </div>
+
+        {/* Duyuru bandı alt */}
+        <div
+          className="px-5 py-3 text-xs text-center"
+          style={{ background: headerTheme.announcementBg, color: headerTheme.announcementText }}
+        >
+          0 (322) 515 89 10
+        </div>
+      </aside>
+      {/* ──────────────────────────────────────────────────────────────────── */}
 
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

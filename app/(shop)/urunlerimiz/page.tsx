@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/shop/product/ProductCard";
 import { ProductFilter } from "@/components/shop/product/ProductFilter";
 import { SortSelect } from "@/components/shop/product/SortSelect";
 import type { PackagingType, Prisma } from "@prisma/client";
+import { Container } from "@/components/layout/Container";
 
 export const metadata: Metadata = {
   title: "Ürünlerimiz",
@@ -178,10 +179,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     <div>
       {params.q ? (
         /* Arama sonuçları başlığı */
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <Container className="pt-8 pb-4">
           <Breadcrumb />
           <div className="mt-2">
-            <h1 className="text-2xl font-black text-gray-800">
+            <h1 className="text-fluid-2xl font-black text-gray-800">
               &ldquo;{params.q}&rdquo; için sonuçlar
             </h1>
             <p className="text-sm text-gray-500 mt-0.5">{total} ürün bulundu</p>
@@ -192,32 +193,31 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               ← Tüm Ürünlere Dön
             </Link>
           </div>
-        </div>
+        </Container>
       ) : (
         <>
           {/* Hero */}
-          <div className="relative h-96 md:h-[520px] overflow-hidden">
+          <div className="relative h-72 xs:h-80 md:h-[520px] 3xl:aspect-[21/9] 3xl:h-auto overflow-hidden">
             <Image
               src={bannerImage}
               alt="Ürünlerimiz banner"
               fill
+              sizes="100vw"
               className="object-cover"
               priority
             />
-            {/* Karartma gradyanı — sol taraf okunabilirliği */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10" />
-            {/* Slogan */}
             <div className="absolute inset-0 z-20 flex items-center">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              <Container className="w-full">
                 <div className="max-w-xl drop-shadow-2xl">
-                  <p className="font-script text-5xl md:text-6xl lg:text-7xl text-white leading-[1.2]">
+                  <p className="font-script text-fluid-3xl text-white leading-[1.2]">
                     Arıcıdan Aracısız
                   </p>
-                  <p className="font-script text-2xl md:text-3xl lg:text-4xl text-honey leading-snug mt-2">
+                  <p className="font-script text-fluid-xl text-honey leading-snug mt-2">
                     Kooperatif Tecrübesiyle
                   </p>
                 </div>
-              </div>
+              </Container>
             </div>
             <div className="absolute bottom-[-1px] left-0 right-0 z-30">
               <svg viewBox="0 0 1440 40" className="w-full block" preserveAspectRatio="none">
@@ -227,13 +227,13 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           </div>
 
           {/* Başlık & Hızlı Filtreler */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+          <Container className="pt-8 pb-4">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
                 <Breadcrumb />
                 {params.kategori && allCategories.find((c) => c.slug === params.kategori) ? (
                   <>
-                    <h1 className="text-[1.75rem] font-black text-gray-800 mt-3">
+                    <h1 className="text-fluid-2xl font-black text-gray-800 mt-3">
                       {allCategories.find((c) => c.slug === params.kategori)!.name}
                       {" "}— Ürünlerimiz
                     </h1>
@@ -245,7 +245,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                     </Link>
                   </>
                 ) : (
-                  <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
+                  <h1 className="text-fluid-2xl font-black text-gray-800">Ürünlerimiz</h1>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -277,11 +277,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 })}
               </div>
             </div>
-          </div>
+          </Container>
         </>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <Container className="py-10">
         <div className="flex gap-8">
           <ProductFilter honeyTypes={honeyTypes} />
 
@@ -298,7 +298,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <p className="text-lg">Bu filtreye uygun ürün bulunamadı.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-8 gap-3 sm:gap-4 lg:gap-5 3xl:gap-6">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -325,7 +325,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             )}
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { Container } from "@/components/layout/Container";
 
 export async function CategoryGrid() {
   const categories = await prisma.category.findMany({
@@ -12,16 +13,17 @@ export async function CategoryGrid() {
   if (categories.length === 0) return null;
 
   return (
-    <section className="py-10 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="section-padding bg-gray-50">
+      <Container size="wide">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-black text-gray-900 tracking-tight">Ürün Kategorileri</h2>
-          <span className="text-sm text-honey-dark font-semibold hover:underline cursor-pointer">
+          <h2 className="text-fluid-xl font-black text-gray-900 tracking-tight">Ürün Kategorileri</h2>
+          <Link href="/urunlerimiz" className="text-sm text-honey-dark font-semibold hover:underline">
             Tüm Ürünler →
-          </span>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {/* Grid: xs:2 sm:3 lg:4 3xl:5 4xl:6 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 3xl:grid-cols-5 4xl:grid-cols-6 gap-3 sm:gap-4 3xl:gap-6">
           {categories.map((cat) => (
             <Link
               key={cat.id}
@@ -33,6 +35,7 @@ export async function CategoryGrid() {
                   src={cat.image}
                   alt={cat.name}
                   fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               ) : (
@@ -45,7 +48,7 @@ export async function CategoryGrid() {
             </Link>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -94,7 +94,8 @@ export function CartPageClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    /* pb-24: mobilde sticky bottom bar için alan */
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start pb-24 lg:pb-0">
       {/* Sol — Ürünler */}
       <div className="lg:col-span-2 space-y-3">
         {items.map((item) => {
@@ -175,8 +176,8 @@ export function CartPageClient() {
         <VolumeDiscountBar />
       </div>
 
-      {/* Sağ — Özet */}
-      <div className="lg:col-span-1">
+      {/* Sağ — Özet (desktop) */}
+      <div className="hidden lg:block lg:col-span-1">
         <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-28 space-y-5">
           <h2 className="font-black text-gray-900 text-lg">Sipariş Özeti</h2>
 
@@ -300,6 +301,26 @@ export function CartPageClient() {
           </div>
 
           <Link href="/odeme" className="block mt-2">
+            <Button className="w-full gap-2" size="lg">
+              Ödemeye Geç <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── MOBİL STICKY BOTTOM BAR ────────────────────────────────────────── */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div>
+            <p className="text-xs text-gray-500">Toplam</p>
+            <p className="text-xl font-black text-honey-dark">{formatPrice(grandTotal)}</p>
+            {shippingFee === 0 && (
+              <p className="text-[10px] text-green-600 font-medium">Kargo ücretsiz</p>
+            )}
+          </div>
+          <Link href="/odeme" className="flex-1 max-w-[200px]">
             <Button className="w-full gap-2" size="lg">
               Ödemeye Geç <ArrowRight size={16} />
             </Button>

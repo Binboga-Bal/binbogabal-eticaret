@@ -3,8 +3,6 @@ import { Footer } from "@/components/shop/footer/Footer";
 import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
 
-const MAIN_PT = headerTheme.solidHeight; // 125 px
-
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
   const logoSetting = await prisma.siteSetting.findUnique({ where: { key: "img_logo" } });
   const logoSrc = logoSetting?.value ?? footerTheme.logo.src;
@@ -12,7 +10,8 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   return (
     <>
       <Header logoSrc={logoSrc} />
-      <main style={{ paddingTop: MAIN_PT }}>{children}</main>
+      {/* paddingTop = duyuru bandı + nav — wave (waveDepth) içeriğin üstüne biner */}
+      <main style={{ paddingTop: headerTheme.announcementHeight + headerTheme.navHeight }}>{children}</main>
       <Footer logoSrc={logoSrc} />
     </>
   );

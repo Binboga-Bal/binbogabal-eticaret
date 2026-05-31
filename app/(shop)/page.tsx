@@ -10,6 +10,7 @@ import { ProductCarousel } from "@/components/shop/home/ProductCarousel";
 import { homeBannersTheme } from "@/lib/theme";
 import Link from "next/link";
 import Image from "next/image";
+import { Container } from "@/components/layout/Container";
 
 export const metadata: Metadata = {
   title: "Kozan'dan Doğal Bal | Binboğa Kooperatif Balı",
@@ -89,11 +90,11 @@ export default async function HomePage() {
 
       {/* Çok Satanlar */}
       {bestsellers.length > 0 && (
-        <section className="py-12 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="section-padding bg-white">
+          <Container size="wide">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <span className="bg-honey-medium text-white text-lg font-bold px-4 py-2 pr-8 rounded">
+                <span className="bg-honey-medium text-white text-fluid-lg font-bold px-4 py-2 pr-8 rounded">
                   ÇOK SATANLAR
                 </span>
               </div>
@@ -105,12 +106,12 @@ export default async function HomePage() {
               </Link>
             </div>
             <ProductCarousel products={bestsellers} />
-          </div>
+          </Container>
         </section>
       )}
 
       {/* Hikayemiz */}
-      <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
+      <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] 3xl:min-h-[600px] flex items-center">
         <Image
           src={hikayemizImage}
           alt="Hikayemiz arkaplan"
@@ -118,26 +119,28 @@ export default async function HomePage() {
           className="object-cover object-center"
           sizes="100vw"
         />
-        <div className="relative w-full py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-lg">
-            <h2 className="text-white font-black text-3xl mb-2">{homeBannersTheme.hikayemiz.heading}</h2>
-            <p className="text-honey-bright font-bold text-lg mb-4">{homeBannersTheme.hikayemiz.subheading}</p>
-            <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
-              {homeBannersTheme.hikayemiz.body}
-            </p>
-            <Link href={homeBannersTheme.hikayemiz.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
-              {homeBannersTheme.hikayemiz.btn.label}
-            </Link>
-          </div>
+        <div className="relative w-full py-16 md:py-24">
+          <Container size="wide">
+            <div className="max-w-lg">
+              <h2 className="text-white font-black text-fluid-2xl mb-2">{homeBannersTheme.hikayemiz.heading}</h2>
+              <p className="text-honey-bright font-bold text-fluid-lg mb-4">{homeBannersTheme.hikayemiz.subheading}</p>
+              <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
+                {homeBannersTheme.hikayemiz.body}
+              </p>
+              <Link href={homeBannersTheme.hikayemiz.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
+                {homeBannersTheme.hikayemiz.btn.label}
+              </Link>
+            </div>
+          </Container>
         </div>
       </section>
 
       {/* Avantajlı Ürünler */}
       {featured.length > 0 && (
-        <section className="py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="section-padding bg-gray-50">
+          <Container size="wide">
             <div className="flex items-center justify-between mb-8">
-              <span className="bg-honey-medium text-white text-lg font-bold px-4 py-2 pr-8 rounded">
+              <span className="bg-honey-medium text-white text-fluid-lg font-bold px-4 py-2 pr-8 rounded">
                 AVANTAJLI ÜRÜNLER
               </span>
               <Link
@@ -148,12 +151,12 @@ export default async function HomePage() {
               </Link>
             </div>
             <ProductCarousel products={featured} />
-          </div>
+          </Container>
         </section>
       )}
 
       {/* Hakkımızda banner */}
-      <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
+      <section className="relative overflow-hidden min-h-[420px] md:min-h-[500px] 3xl:min-h-[600px] flex items-center">
         <Image
           src={hakkimizdaImage}
           alt="Hakkımızda arkaplan"
@@ -161,17 +164,19 @@ export default async function HomePage() {
           className="object-cover object-center"
           sizes="100vw"
         />
-        <div className="relative w-full py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
-          <div className="max-w-lg">
-            <h2 className="text-white font-black text-3xl mb-2">{homeBannersTheme.hakkimizda.heading}</h2>
-            <p className="text-honey-bright font-bold text-lg mb-4">{homeBannersTheme.hakkimizda.subheading}</p>
-            <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
-              {homeBannersTheme.hakkimizda.body}
-            </p>
-            <Link href={homeBannersTheme.hakkimizda.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
-              {homeBannersTheme.hakkimizda.btn.label}
-            </Link>
-          </div>
+        <div className="relative w-full py-16 md:py-24">
+          <Container size="wide" className="flex justify-end">
+            <div className="max-w-lg">
+              <h2 className="text-white font-black text-fluid-2xl mb-2">{homeBannersTheme.hakkimizda.heading}</h2>
+              <p className="text-honey-bright font-bold text-fluid-lg mb-4">{homeBannersTheme.hakkimizda.subheading}</p>
+              <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
+                {homeBannersTheme.hakkimizda.body}
+              </p>
+              <Link href={homeBannersTheme.hakkimizda.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
+                {homeBannersTheme.hakkimizda.btn.label}
+              </Link>
+            </div>
+          </Container>
         </div>
       </section>
 

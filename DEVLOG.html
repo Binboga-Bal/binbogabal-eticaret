@@ -537,6 +537,22 @@
       <a href="#step108" class="nav-link"><span class="dot"></span>108 — Müşteri Tarafı UI</a>
       <a href="#step109" class="nav-link"><span class="dot"></span>109 — Sepet Entegrasyonu</a>
 
+      <div class="nav-section-label">31 Mayıs 2026 — Responsive Design</div>
+      <a href="#step116" class="nav-link"><span class="dot"></span>116 — Tailwind Config (xs–5xl)</a>
+      <a href="#step117" class="nav-link"><span class="dot"></span>117 — globals.css Temeli</a>
+      <a href="#step118" class="nav-link"><span class="dot"></span>118 — Z-Index Sistemi</a>
+      <a href="#step119" class="nav-link"><span class="dot"></span>119 — Hooks (4 Adet)</a>
+      <a href="#step120" class="nav-link"><span class="dot"></span>120 — Container Bileşeni</a>
+      <a href="#step121" class="nav-link"><span class="dot"></span>121 — Header Mobil Drawer</a>
+      <a href="#step122" class="nav-link"><span class="dot"></span>122 — Header Scroll Davranışı</a>
+      <a href="#step123" class="nav-link"><span class="dot"></span>123 — Footer Widescreen</a>
+      <a href="#step124" class="nav-link"><span class="dot"></span>124 — Ürün Grid (xs→5xl)</a>
+      <a href="#step125" class="nav-link"><span class="dot"></span>125 — Ürün Detay Sticky</a>
+      <a href="#step126" class="nav-link"><span class="dot"></span>126 — Sepet Sticky Bar</a>
+      <a href="#step127" class="nav-link"><span class="dot"></span>127 — Müşteri Paneli Tab Nav</a>
+      <a href="#step128" class="nav-link"><span class="dot"></span>128 — Anasayfa Widescreen</a>
+      <a href="#step129" class="nav-link"><span class="dot"></span>129 — Wave Overlap Düzeltmesi</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -3153,6 +3169,305 @@ sp.<span class="fn">delete</span>(<span class="str">"bestseller"</span>);
 
     <div class="divider"></div>
 
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         31 MAYIS 2026 — RESPONSIVE DESIGN SİSTEMİ (Adım 116–129)
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="date-header">
+      <div class="date-pill">31 Mayıs 2026 — Responsive Design</div>
+      <div class="date-line"></div>
+      <div class="date-count">14 adım · xs → 5xl · Mobile-First</div>
+    </div>
+
+    <!-- 116 -->
+    <section class="section" id="step116">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">📏</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">116</span>Tailwind Config — xs–5xl Breakpoint Sistemi</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Mevcut config yalnızca Tailwind varsayılan breakpoint'leri (<code>sm md lg xl 2xl</code>) içeriyordu. 375px altı mobil, Full HD (1920px), 2K (2560px) ve 4K (3840px) için hiçbir breakpoint yoktu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p><code>tailwind.config.ts</code>'e <code>xs</code>, <code>3xl</code>, <code>4xl</code>, <code>5xl</code> eklendi. <code>fluid-*</code> font boyutları (<code>clamp()</code> tabanlı), <code>maxWidth</code> token'ları (<code>content/wide/ultrawide</code>) ve fluid spacing sistemi eklendi.</p>
+      </div>
+      <pre><span class="cm">// Yeni breakpoint'ler</span>
+xs:    <span class="str">"375px"</span>   <span class="cm">// iPhone SE</span>
+<span class="str">"3xl"</span>: <span class="str">"1920px"</span>  <span class="cm">// Full HD</span>
+<span class="str">"4xl"</span>: <span class="str">"2560px"</span>  <span class="cm">// 2K</span>
+<span class="str">"5xl"</span>: <span class="str">"3840px"</span>  <span class="cm">// 4K / 43"+</span>
+
+<span class="cm">// Fluid typography (clamp)</span>
+<span class="str">"fluid-3xl"</span>: [<span class="str">"clamp(2rem, 5vw, 4.5rem)"</span>, { lineHeight: <span class="str">"1.2"</span> }]</pre>
+      <div class="alert alert-fix">
+        <span class="alert-label">Dosya:</span> <code>tailwind.config.ts</code>
+      </div>
+    </section>
+
+    <!-- 117 -->
+    <section class="section" id="step117">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🎨</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">117</span>globals.css — Temel Responsive Kurallar</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan Değişiklikler</h3>
+        <ul>
+          <li><code>html, body { overflow-x: hidden }</code> — yatay scroll önlendi</li>
+          <li><code>input, select, textarea { font-size: max(16px, 1rem) }</code> — iOS Safari zoom fix</li>
+          <li><code>button, a, [role="button"] { min-height: 44px }</code> — WCAG 2.5.5 dokunma hedefi</li>
+          <li><code>.section-padding</code> utility — <code>py-8 md:py-12 lg:py-16 3xl:py-24</code></li>
+          <li><code>.table-responsive</code> utility — tablo yatay scroll wrapper</li>
+          <li><code>.section-title</code> → <code>text-fluid-2xl</code> ile fluid</li>
+        </ul>
+      </div>
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ Not:</span>
+        Paragraf içi linkler (<code>p a, li a</code>) için <code>min-height: unset; display: inline</code> override'ı eklendi — aksi halde metin akışı bozuluyordu.
+      </div>
+    </section>
+
+    <!-- 118 -->
+    <section class="section" id="step118">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">🗂️</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">118</span>lib/z-index.ts — Tutarlı Z-Index Sistemi</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Z-index değerleri tüm bileşenlere dağılmış, hardcoded inline <code>style</code>'larda yazılıyordu. Modal üstüne toast bindi, drawer header'ın altında kaldı gibi sorunlar çıkıyordu.</p>
+      </div>
+      <pre><span class="kw">export const</span> Z = {
+  base:     <span class="nm">0</span>,
+  dropdown: <span class="nm">10</span>,
+  sticky:   <span class="nm">20</span>,
+  overlay:  <span class="nm">30</span>,
+  modal:    <span class="nm">40</span>,
+  toast:    <span class="nm">50</span>,
+  tooltip:  <span class="nm">60</span>,
+} <span class="kw">as const</span>;</pre>
+    </section>
+
+    <!-- 119 -->
+    <section class="section" id="step119">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🪝</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">119</span>hooks/ — 4 Responsive Hook</h2>
+      </div>
+      <div class="card">
+        <h3>Oluşturulan Hook'lar</h3>
+        <ul>
+          <li><strong>useMediaQuery</strong> — SSR-safe, <code>window.matchMedia</code> wrapper</li>
+          <li><strong>useBreakpoint</strong> — mevcut Tailwind breakpoint adını döner (<code>"xs"|"sm"|...|"5xl"</code>)</li>
+          <li><strong>useScrollPosition</strong> — pasif listener ile scroll Y pozisyonu</li>
+          <li><strong>useWindowSize</strong> — <code>{width, height}</code> pencere boyutu</li>
+        </ul>
+      </div>
+      <div class="alert alert-info">
+        <span class="alert-label">📌 Kural:</span>
+        SSR'da tüm hook'lar güvenli varsayılan döner (<code>false</code>, <code>"xs"</code>, <code>0</code>). Hydration sonrası doğru değeri alır.
+      </div>
+    </section>
+
+    <!-- 120 -->
+    <section class="section" id="step120">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">📦</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">120</span>Container Bileşeni</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Her sayfa ve bileşende <code>max-w-7xl mx-auto px-4 sm:px-6 lg:px-8</code> tekrar ediyordu. Widescreen için ek padding yoktu; 4K ekranlarda içerik tam genişliğe yayılıyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm — <code>components/layout/Container.tsx</code></h3>
+        <p>4 boyut seçeneği (<code>content/wide/ultrawide/full</code>) ve xs→5xl responsive padding skalası. Tüm sayfalarda <code>&lt;Container&gt;</code> kullanımı zorunlu hale getirildi.</p>
+      </div>
+      <pre><span class="cm">// Padding skalası</span>
+px-4 md:px-6 lg:px-8 xl:px-12 3xl:px-16 4xl:px-24 5xl:px-32</pre>
+    </section>
+
+    <!-- 121 -->
+    <section class="section" id="step121">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(197,121,48,.2)">🧭</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">121</span>Header — Mobil Drawer</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Mobil menü, header'ın altında açılan basit bir <code>div</code> bloğuydu. Overlay yoktu, body scroll kilitlenmiyordu, erişilebilirlik eksikti.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li><code>position: fixed</code>, soldan kayan panel — <code>w-[300px] max-w-[85vw]</code></li>
+          <li>Arka plan overlay — tıklanınca kapanır</li>
+          <li>Escape tuşu desteği</li>
+          <li>Açıkken <code>document.body.style.overflow = "hidden"</code></li>
+          <li>Alt bölümde Hesabım + Sepet linkleri, sepet badge'i</li>
+          <li>Drawer header'ında <code>announcementBg</code> rengi + logo</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 122 -->
+    <section class="section" id="step122">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(197,121,48,.2)">📜</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">122</span>Header — Scroll Davranışı (Duyuru Bandı)</h2>
+      </div>
+      <div class="card">
+        <h3>Gereksinim</h3>
+        <p>Scroll'da yalnızca turuncu duyuru bandı kaybolsun; wave arch ve logo hiç hareket etmesin.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm — 3 İterasyon Sonrası Bulundu</h3>
+        <p>Tüm fixed container <code>translateY(-announcementHeight)</code> ile yukarı kayar. Duyuru bandı (40px) görünmez olur; wave + logo birbirine göre hiç hareket etmez çünkü birlikte taşınırlar.</p>
+      </div>
+      <pre><span class="cm">// Header.tsx — fixed wrapper</span>
+<span class="kw">transform</span>: isScrolled
+  ? <span class="str">`translateY(-${headerTheme.announcementHeight}px)`</span>
+  : <span class="str">"translateY(0)"</span>
+
+<span class="cm">// layout.tsx — paddingTop</span>
+<span class="kw">paddingTop</span>: announcementHeight + navHeight  <span class="cm">// wave içeriğe biner</span></pre>
+      <div class="alert alert-warn">
+        <span class="alert-label">🔁 İterasyon:</span>
+        3 farklı yaklaşım denendi — (1) koşullu DOM render, (2) SVG container clip, (3) tüm bloğu translateY. Sadece 3. yöntem logo + wave'i sabit tuttu.
+      </div>
+    </section>
+
+    <!-- 123 -->
+    <section class="section" id="step123">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🦶</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">123</span>Footer — Widescreen Kolon + Container</h2>
+      </div>
+      <div class="card">
+        <p><code>Container size="wide"</code> ile sarıldı. Grid: <code>lg:grid-cols-4 → 3xl:grid-cols-5</code>. Sosyal medya ikonları circle buton stiline dönüştürüldü. Logo bloğu <code>3xl:col-span-2</code> ile genişledi.</p>
+      </div>
+    </section>
+
+    <!-- 124 -->
+    <section class="section" id="step124">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🛍️</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">124</span>Ürün Grid — xs:1 → 5xl:8 Kolon</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Grid yalnızca <code>grid-cols-2 md:grid-cols-3</code> içeriyordu. Mobilde tek kolon yoktu, widescreen için hiçbir tanım yoktu.</p>
+      </div>
+      <pre><span class="cm">// Yeni grid sistemi</span>
+grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-8</pre>
+      <div class="card" style="margin-top:12px;">
+        <h3>ProductCard İyileştirmeleri</h3>
+        <ul>
+          <li><code>aspect-square</code> → <code>aspect-[3/4]</code> (ürün görselleri için doğal oran)</li>
+          <li><code>sizes</code> prop eklendi — doğru çözünürlükte görsel yüklenir</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 125 -->
+    <section class="section" id="step125">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.15)">📄</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">125</span>Ürün Detay — Sağ Kolon Sticky</h2>
+      </div>
+      <div class="card">
+        <p>Detay sayfası <code>Container</code> ile sarıldı. Sağ ürün bilgi kolonu <code>lg:sticky lg:top-32</code> ile scroll'da yerinde kalır. Başlık <code>text-fluid-2xl</code>'e geçirildi. Layout <code>grid-cols-1 lg:grid-cols-2 lg:items-start</code>.</p>
+      </div>
+    </section>
+
+    <!-- 126 -->
+    <section class="section" id="step126">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(251,146,60,.15)">🛒</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">126</span>Sepet — Mobil Sticky Bottom Bar</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Mobilde sipariş özeti (fiyat + ödeme butonu) sayfanın çok altında kalıyordu. Kullanıcı scroll etmek zorundaydı.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li>Desktop özet panel: <code>hidden lg:block</code> — yalnızca desktop'ta görünür</li>
+          <li>Mobil sticky bar: <code>fixed bottom-0 lg:hidden</code> — fiyat + Ödemeye Geç butonu</li>
+          <li><code>env(safe-area-inset-bottom)</code> ile iPhone notch saygısı</li>
+          <li>Ürün listesine <code>pb-24 lg:pb-0</code> ile sticky bar alanı açıldı</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 127 -->
+    <section class="section" id="step127">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">👤</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">127</span>Müşteri Paneli — Mobil Tab Navigasyon</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Hesabım layout'u mobilde sidebar'ı <code>hidden md:block</code> ile tamamen gizliyordu. Mobil kullanıcı alt sayfalara erişemiyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li><code>HesabimNav</code>'a <code>mobile</code> prop eklendi</li>
+          <li>Mobil: yatay scroll pill tab'ları (<code>overflow-x: auto; min-width: max-content</code>)</li>
+          <li>Aktif sekme <code>bg-honey-dark text-white</code></li>
+          <li>Layout'ta alt kısma <code>LogoutButton</code> eklendi</li>
+          <li>Layout <code>Container</code> ile sarıldı</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 128 -->
+    <section class="section" id="step128">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🏠</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">128</span>Anasayfa Bölümleri — Widescreen Güncelleme</h2>
+      </div>
+      <div class="card">
+        <p>Anasayfa (<code>page.tsx</code>), <code>CategoryGrid</code>, <code>TrustBadges</code> bileşenleri:</p>
+        <ul>
+          <li><code>max-w-7xl mx-auto px-4...</code> → <code>&lt;Container size="wide"&gt;</code></li>
+          <li>Hardcoded font boyutları → <code>text-fluid-*</code></li>
+          <li>Hikayemiz/Hakkımızda banner'ları: <code>3xl:min-h-[600px]</code></li>
+          <li>CategoryGrid: <code>3xl:grid-cols-5 4xl:grid-cols-6</code></li>
+          <li>TrustBadges görselleri: <code>3xl:w-48 3xl:h-48</code></li>
+          <li>Her Image'e <code>sizes</code> prop eklendi</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 129 -->
+    <section class="section" id="step129">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(197,121,48,.2)">〰️</div>
+        <h2><span class="step-num" style="background:var(--honey-dark);color:#fff;font-size:11px;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;">129</span>Wave Overlap — İçeriğe Binme Düzeltmesi</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Header'ın wave (arch) kısmı ile içerik arasında beyaz boşluk oluşuyordu. Wave, hero görselin üstüne binmiyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>Layout'taki <code>paddingTop</code> hesabı güncellendi: <code>waveDepth</code> dahil edilmeyerek içerik wave'in altından başlatıldı. Wave artık her zaman içeriğin üstüne biner.</p>
+      </div>
+      <pre><span class="cm">// app/(shop)/layout.tsx</span>
+<span class="cm">// Önce (boşluk vardı):</span>
+paddingTop: announcementHeight + navHeight + waveDepth  <span class="cm">// 212px</span>
+
+<span class="cm">// Sonra (wave üste biner):</span>
+paddingTop: announcementHeight + navHeight              <span class="cm">// 122px</span></pre>
+    </section>
+
+    <div class="divider"></div>
 
     <!-- ═══════════════════════════════ TEMA REF -->
     <section class="section" id="theme-ref">

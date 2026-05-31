@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binboğa Bal — Responsive Design Dokümantasyonu</title>
+  <style>
+    :root {
+      --honey-dark:   #C57930;
+      --honey-medium: #D67503;
+      --honey:        #F9B10B;
+      --honey-bright: #FCD908;
+      --honey-light:  #FCE7A5;
+      --honey-cream:  #FFF8E7;
+      --bg:           #0f1117;
+      --bg2:          #181c27;
+      --bg3:          #1e2333;
+      --border:       #2a3050;
+      --text:         #e2e8f0;
+      --text-muted:   #8892a4;
+      --green:        #22c55e;
+      --red:          #f87171;
+      --blue:         #60a5fa;
+      --purple:       #a78bfa;
+      --teal:         #2dd4bf;
+      --orange:       #fb923c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .layout { display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 280px; flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      position: sticky; top: 0; height: 100vh;
+      overflow-y: auto; padding: 28px 0;
+    }
+    .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .sidebar-logo h1 { font-size: 15px; font-weight: 700; color: var(--honey); }
+    .sidebar-logo p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .sidebar nav { padding: 0 12px; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-muted); padding: 12px 12px 6px;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border-radius: 6px; font-size: 13px;
+      color: var(--text-muted); text-decoration: none; transition: all .15s;
+    }
+    .nav-link:hover { background: var(--bg3); color: var(--text); }
+    .nav-link.active { background: rgba(197,121,48,.15); color: var(--honey); }
+    .nav-link .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--honey-medium); flex-shrink: 0; }
+
+    /* MAIN */
+    .content { flex: 1; max-width: 1000px; padding: 48px 56px; overflow-x: hidden; }
+
+    .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .page-header .badge {
+      display: inline-block; background: rgba(197,121,48,.2); color: var(--honey);
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px; margin-bottom: 12px;
+    }
+    .page-header h1 { font-size: 32px; font-weight: 800; color: #fff; line-height: 1.2; }
+    .page-header p  { margin-top: 10px; color: var(--text-muted); font-size: 15px; }
+
+    .section { margin-bottom: 64px; scroll-margin-top: 32px; }
+    .section-title { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .section-title .icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .section-title h2 { font-size: 20px; font-weight: 700; color: #fff; }
+
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .card p, .card li { font-size: 13.5px; color: var(--text-muted); line-height: 1.7; }
+    .card ul { padding-left: 18px; }
+    .card ul li { margin-bottom: 5px; }
+
+    pre {
+      background: #0d1117; border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 20px; overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 12.5px; line-height: 1.7; margin: 12px 0; color: #cdd6f4;
+    }
+    .kw  { color: #cba6f7; }
+    .str { color: #a6e3a1; }
+    .cm  { color: #585b70; font-style: italic; }
+    .fn  { color: #89b4fa; }
+    .nm  { color: #fab387; }
+    .tp  { color: #f38ba8; }
+    code {
+      background: rgba(255,255,255,.07); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Cascadia Code', monospace; font-size: 12.5px; color: var(--honey-bright);
+    }
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px; margin: 2px;
+    }
+    .tag-green  { background: rgba(34,197,94,.15);  color: var(--green); }
+    .tag-blue   { background: rgba(96,165,250,.15); color: var(--blue); }
+    .tag-purple { background: rgba(167,139,250,.15);color: var(--purple); }
+    .tag-honey  { background: rgba(197,121,48,.2);  color: var(--honey); }
+    .tag-red    { background: rgba(248,113,113,.15);color: var(--red); }
+    .tag-teal   { background: rgba(45,212,191,.15); color: var(--teal); }
+    .tag-orange { background: rgba(251,146,60,.15); color: var(--orange); }
+
+    .alert {
+      border-left: 3px solid; border-radius: 0 8px 8px 0;
+      padding: 12px 16px; margin: 12px 0; font-size: 13px;
+    }
+    .alert-warn  { border-color: var(--honey);  background: rgba(249,177,11,.06);  color: #fbbf24; }
+    .alert-info  { border-color: var(--blue);   background: rgba(96,165,250,.06);  color: var(--blue); }
+    .alert-fix   { border-color: var(--green);  background: rgba(34,197,94,.06);   color: var(--green); }
+    .alert-tip   { border-color: var(--purple); background: rgba(167,139,250,.06); color: var(--purple); }
+    .alert-label { font-weight: 700; margin-right: 6px; }
+
+    /* BREAKPOINT VİZÜEL */
+    .bp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+    .bp-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .bp-card .bp-name { font-size: 18px; font-weight: 800; color: #fff; font-family: monospace; }
+    .bp-card .bp-px   { font-size: 12px; color: var(--honey); margin: 2px 0; font-family: monospace; }
+    .bp-card .bp-desc { font-size: 12px; color: var(--text-muted); }
+    .bp-card.xs  { border-top: 3px solid #94a3b8; }
+    .bp-card.sm  { border-top: 3px solid #60a5fa; }
+    .bp-card.md  { border-top: 3px solid #34d399; }
+    .bp-card.lg  { border-top: 3px solid #a78bfa; }
+    .bp-card.xl  { border-top: 3px solid #f59e0b; }
+    .bp-card.xxl { border-top: 3px solid #fb923c; }
+    .bp-card.xxxl { border-top: 3px solid #f87171; }
+    .bp-card.xxxxl { border-top: 3px solid #e879f9; }
+    .bp-card.xxxxxl { border-top: 3px solid #22d3ee; }
+
+    /* GRID VİZÜEL */
+    .grid-demo { display: flex; gap: 6px; margin: 12px 0; flex-wrap: wrap; align-items: flex-end; }
+    .grid-col {
+      background: rgba(197,121,48,.2); border: 1px solid var(--honey-dark);
+      border-radius: 4px; height: 32px; display: flex; align-items: center;
+      justify-content: center; font-size: 10px; color: var(--honey);
+      font-weight: 700; flex: 1; min-width: 20px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: var(--bg3); padding: 10px 14px; text-align: left;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    td { padding: 10px 14px; border-bottom: 1px solid rgba(42,48,80,.5); color: var(--text-muted); vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+
+    .divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+    .file-tree {
+      background: #0d1117; border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 20px; font-family: monospace; font-size: 13px; line-height: 1.9;
+    }
+    .file-tree .dir  { color: var(--blue); font-weight: 600; }
+    .file-tree .file { color: var(--text-muted); }
+    .file-tree .file.new { color: var(--green); }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--honey-dark); }
+
+    @media (max-width: 768px) { .sidebar { display: none; } .content { padding: 24px 20px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>🍯 Binboğa Bal</h1>
+      <p>Responsive Design — Dokümantasyon</p>
+    </div>
+    <nav>
+      <div class="nav-section-label">Genel Bakış</div>
+      <a href="#intro"       class="nav-link"><span class="dot"></span>Giriş & Prensipler</a>
+      <a href="#breakpoints" class="nav-link"><span class="dot"></span>Breakpoint Sistemi</a>
+      <a href="#container"   class="nav-link"><span class="dot"></span>Container Bileşeni</a>
+      <a href="#typography"  class="nav-link"><span class="dot"></span>Fluid Typography</a>
+      <a href="#spacing"     class="nav-link"><span class="dot"></span>Spacing & Padding</a>
+      <a href="#zindex"      class="nav-link"><span class="dot"></span>Z-Index Sistemi</a>
+
+      <div class="nav-section-label">Hooks</div>
+      <a href="#hooks"           class="nav-link"><span class="dot"></span>useMediaQuery</a>
+      <a href="#hooks"           class="nav-link"><span class="dot"></span>useBreakpoint</a>
+      <a href="#hooks"           class="nav-link"><span class="dot"></span>useScrollPosition</a>
+      <a href="#hooks"           class="nav-link"><span class="dot"></span>useWindowSize</a>
+
+      <div class="nav-section-label">Bileşenler</div>
+      <a href="#header"      class="nav-link"><span class="dot"></span>Header / Navigation</a>
+      <a href="#footer"      class="nav-link"><span class="dot"></span>Footer</a>
+      <a href="#product-grid"class="nav-link"><span class="dot"></span>Ürün Grid</a>
+      <a href="#product-card"class="nav-link"><span class="dot"></span>Ürün Kartı</a>
+      <a href="#product-detail" class="nav-link"><span class="dot"></span>Ürün Detay</a>
+      <a href="#cart"        class="nav-link"><span class="dot"></span>Sepet</a>
+      <a href="#checkout"    class="nav-link"><span class="dot"></span>Checkout</a>
+      <a href="#hesabim"     class="nav-link"><span class="dot"></span>Müşteri Paneli</a>
+
+      <div class="nav-section-label">Kurallar</div>
+      <a href="#images"      class="nav-link"><span class="dot"></span>Görsel Optimizasyon</a>
+      <a href="#touch"       class="nav-link"><span class="dot"></span>Dokunma Hedefleri</a>
+      <a href="#overflow"    class="nav-link"><span class="dot"></span>Overflow & Scroll</a>
+      <a href="#widescreen"  class="nav-link"><span class="dot"></span>Widescreen (3xl–5xl)</a>
+      <a href="#ios"         class="nav-link"><span class="dot"></span>iOS Safari Sorunları</a>
+
+      <div class="nav-section-label">Test</div>
+      <a href="#test"        class="nav-link"><span class="dot"></span>Test Listesi</a>
+      <a href="#checklist"   class="nav-link"><span class="dot"></span>Kontrol Listesi</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="content">
+
+    <div class="page-header">
+      <div class="badge">Responsive Design</div>
+      <h1>Binboğa Bal<br>Responsive Design Dokümantasyonu</h1>
+      <p>Mobile-first yaklaşımla xs (375px) → 5xl (3840px / 4K) arasında tutarlı, okunabilir ve erişilebilir bir deneyim sunan responsive tasarım sistemi.</p>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="tag tag-blue">Tailwind CSS</span>
+        <span class="tag tag-purple">Mobile-First</span>
+        <span class="tag tag-green">xs → 5xl</span>
+        <span class="tag tag-honey">Fluid Typography</span>
+        <span class="tag tag-teal">clamp()</span>
+        <span class="tag tag-orange">Widescreen</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ GİRİŞ -->
+    <section id="intro" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">📐</div>
+        <h2>Giriş & Prensipler</h2>
+      </div>
+      <div class="card">
+        <h3>Mobile-First Yaklaşım</h3>
+        <p>Tüm stiller önce mobil (375px) için yazılır, ardından büyük ekranlar için genişletilir. Tailwind'in varsayılan yönü de bu şekildedir — prefix'siz class mobil için, prefix'li class (md:, lg: vb.) daha büyük ekranlar içindir.</p>
+      </div>
+      <div class="card">
+        <h3>Temel Prensipler</h3>
+        <ul>
+          <li><strong>İçerik asla 100vw genişliğinde uzamamalı</strong> — max-width ile sınırlanmalı</li>
+          <li><strong>Hiçbir ekranda yatay scroll olmamalı</strong> — body'de overflow-x: hidden</li>
+          <li><strong>Tüm tıklanabilir öğeler min 44×44px</strong> — iOS/Android guideline</li>
+          <li><strong>iOS Safari'de input zoom olmamalı</strong> — font-size minimum 16px</li>
+          <li><strong>Görseller bozulmaz</strong> — aspect-ratio korumalı, Next.js Image + sizes prop</li>
+          <li><strong>Widescreen'de dengeli boşluk</strong> — clamp() ile orantılı padding</li>
+        </ul>
+      </div>
+      <div class="alert alert-info">
+        <span class="alert-label">📁 Dosya Yapısı:</span>
+        Tüm responsive altyapısı <code>tailwind.config.ts</code>, <code>styles/globals.css</code>,
+        <code>components/layout/Container.tsx</code> ve <code>hooks/</code> klasöründe toplanmıştır.
+      </div>
+      <div class="file-tree">
+        <div><span class="dir">hooks/</span></div>
+        <div>&nbsp;&nbsp;<span class="file new">useMediaQuery.ts</span>   <span style="color:#585b70">← SSR-safe media query</span></div>
+        <div>&nbsp;&nbsp;<span class="file new">useBreakpoint.ts</span>   <span style="color:#585b70">← xs|sm|md|lg|xl|2xl|3xl|4xl|5xl</span></div>
+        <div>&nbsp;&nbsp;<span class="file new">useScrollPosition.ts</span> <span style="color:#585b70">← scroll Y</span></div>
+        <div>&nbsp;&nbsp;<span class="file new">useWindowSize.ts</span>   <span style="color:#585b70">← {width, height}</span></div>
+        <div><span class="dir">components/layout/</span></div>
+        <div>&nbsp;&nbsp;<span class="file new">Container.tsx</span>       <span style="color:#585b70">← global sarmalayıcı</span></div>
+        <div><span class="dir">lib/</span></div>
+        <div>&nbsp;&nbsp;<span class="file new">z-index.ts</span>          <span style="color:#585b70">← Z sabitleri</span></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ BREAKPOINTS -->
+    <section id="breakpoints" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">📏</div>
+        <h2>Breakpoint Sistemi</h2>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:16px;">
+        Tailwind varsayılanlarına <code>xs</code>, <code>3xl</code>, <code>4xl</code>, <code>5xl</code> eklendi.
+      </p>
+      <div class="bp-grid">
+        <div class="bp-card xs">
+          <div class="bp-name">xs</div>
+          <div class="bp-px">≥ 375px</div>
+          <div class="bp-desc">iPhone SE, küçük Android</div>
+        </div>
+        <div class="bp-card sm">
+          <div class="bp-name">sm</div>
+          <div class="bp-px">≥ 640px</div>
+          <div class="bp-desc">Büyük telefon / küçük tablet</div>
+        </div>
+        <div class="bp-card md">
+          <div class="bp-name">md</div>
+          <div class="bp-px">≥ 768px</div>
+          <div class="bp-desc">iPad portrait</div>
+        </div>
+        <div class="bp-card lg">
+          <div class="bp-name">lg</div>
+          <div class="bp-px">≥ 1024px</div>
+          <div class="bp-desc">iPad landscape / küçük laptop</div>
+        </div>
+        <div class="bp-card xl">
+          <div class="bp-name">xl</div>
+          <div class="bp-px">≥ 1280px</div>
+          <div class="bp-desc">Standart laptop</div>
+        </div>
+        <div class="bp-card xxl">
+          <div class="bp-name">2xl</div>
+          <div class="bp-px">≥ 1536px</div>
+          <div class="bp-desc">Büyük masaüstü</div>
+        </div>
+        <div class="bp-card xxxl">
+          <div class="bp-name">3xl</div>
+          <div class="bp-px">≥ 1920px</div>
+          <div class="bp-desc">Full HD monitör</div>
+        </div>
+        <div class="bp-card xxxxl">
+          <div class="bp-name">4xl</div>
+          <div class="bp-px">≥ 2560px</div>
+          <div class="bp-desc">2K / 27" monitör</div>
+        </div>
+        <div class="bp-card xxxxxl">
+          <div class="bp-name">5xl</div>
+          <div class="bp-px">≥ 3840px</div>
+          <div class="bp-desc">4K / 43"+ TV & monitör</div>
+        </div>
+      </div>
+      <pre><span class="cm">// tailwind.config.ts — screens</span>
+<span class="kw">screens</span>: {
+  <span class="str">xs</span>:    <span class="str">"375px"</span>,   <span class="cm">// yeni</span>
+  <span class="str">sm</span>:    <span class="str">"640px"</span>,
+  <span class="str">md</span>:    <span class="str">"768px"</span>,
+  <span class="str">lg</span>:    <span class="str">"1024px"</span>,
+  <span class="str">xl</span>:    <span class="str">"1280px"</span>,
+  <span class="str">"2xl"</span>: <span class="str">"1536px"</span>,
+  <span class="str">"3xl"</span>: <span class="str">"1920px"</span>,  <span class="cm">// yeni — Full HD</span>
+  <span class="str">"4xl"</span>: <span class="str">"2560px"</span>,  <span class="cm">// yeni — 2K</span>
+  <span class="str">"5xl"</span>: <span class="str">"3840px"</span>,  <span class="cm">// yeni — 4K</span>
+}</pre>
+    </section>
+
+    <!-- ══════════════════════════════════════════ CONTAINER -->
+    <section id="container" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">📦</div>
+        <h2>Container Bileşeni</h2>
+      </div>
+      <div class="card">
+        <h3>Kullanım</h3>
+        <p>Tüm sayfalarda tutarlı max-width ve padding için <code>&lt;Container&gt;</code> kullanılır. <code>max-w-7xl mx-auto px-4 sm:px-6 lg:px-8</code> kalıbının yerini alır.</p>
+      </div>
+      <pre><span class="cm">// components/layout/Container.tsx</span>
+<span class="kw">type</span> <span class="tp">ContainerSize</span> = <span class="str">"content"</span> | <span class="str">"wide"</span> | <span class="str">"ultrawide"</span> | <span class="str">"full"</span>
+
+<span class="cm">// content   → max-w-content  (1280px) ← varsayılan</span>
+<span class="cm">// wide      → max-w-wide     (1536px)</span>
+<span class="cm">// ultrawide → max-w-ultrawide(1920px)</span>
+<span class="cm">// full      → max-w-full     (100%)</span>
+
+<span class="cm">// Padding skalası:</span>
+<span class="cm">// xs/sm  → px-4   (16px)</span>
+<span class="cm">// md     → px-6   (24px)</span>
+<span class="cm">// lg     → px-8   (32px)</span>
+<span class="cm">// xl     → px-12  (48px)</span>
+<span class="cm">// 3xl    → px-16  (64px)  ← Full HD</span>
+<span class="cm">// 4xl    → px-24  (96px)  ← 2K</span>
+<span class="cm">// 5xl    → px-32  (128px) ← 4K</span></pre>
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ Kural:</span>
+        Asla <code>max-w-7xl mx-auto px-4 sm:px-6 lg:px-8</code> yazmayın — bunun yerine <code>&lt;Container&gt;</code> kullanın.
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ TYPOGRAPHY -->
+    <section id="typography" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">✍️</div>
+        <h2>Fluid Typography</h2>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:16px;">
+        <code>clamp()</code> ile font boyutları ekran genişliğine orantılı büyür — küçük ekranda okunabilir, büyük ekranda çok büyük olmaz.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Class</th><th>Küçük Ekran</th><th>Büyük Ekran</th><th>Kullanım</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>text-fluid-sm</code></td><td>0.75rem</td><td>0.875rem</td><td>İkincil metin, etiketler</td></tr>
+          <tr><td><code>text-fluid-base</code></td><td>0.875rem</td><td>1rem</td><td>Gövde metni</td></tr>
+          <tr><td><code>text-fluid-lg</code></td><td>1rem</td><td>1.25rem</td><td>Öne çıkan metin, H4</td></tr>
+          <tr><td><code>text-fluid-xl</code></td><td>1.25rem</td><td>2rem</td><td>Alt başlık, H3</td></tr>
+          <tr><td><code>text-fluid-2xl</code></td><td>1.5rem</td><td>3rem</td><td>Bölüm başlığı, H2</td></tr>
+          <tr><td><code>text-fluid-3xl</code></td><td>2rem</td><td>4.5rem</td><td>Hero başlık, H1</td></tr>
+        </tbody>
+      </table>
+      <pre><span class="cm">// Kullanım örneği</span>
+&lt;<span class="fn">h1</span> <span class="kw">className</span>=<span class="str">"text-fluid-3xl font-black"</span>&gt;Hero Başlık&lt;/<span class="fn">h1</span>&gt;
+&lt;<span class="fn">h2</span> <span class="kw">className</span>=<span class="str">"text-fluid-2xl font-bold"</span>&gt;Bölüm Başlığı&lt;/<span class="fn">h2</span>&gt;
+&lt;<span class="fn">p</span>  <span class="kw">className</span>=<span class="str">"text-fluid-base"</span>&gt;Gövde metni&lt;/<span class="fn">p</span>&gt;</pre>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SPACING -->
+    <section id="spacing" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.15)">📐</div>
+        <h2>Spacing & Padding Sistemi</h2>
+      </div>
+      <table>
+        <thead><tr><th>Token</th><th>Değer (clamp)</th><th>Kullanım</th></tr></thead>
+        <tbody>
+          <tr><td><code>fluid-sm</code></td><td>clamp(0.5rem, 1vw, 1rem)</td><td>Küçük boşluklar</td></tr>
+          <tr><td><code>fluid-md</code></td><td>clamp(1rem, 2vw, 2rem)</td><td>Orta boşluklar</td></tr>
+          <tr><td><code>fluid-lg</code></td><td>clamp(1.5rem, 3vw, 4rem)</td><td>Büyük boşluklar</td></tr>
+          <tr><td><code>fluid-xl</code></td><td>clamp(2rem, 5vw, 8rem)</td><td>Section gap</td></tr>
+        </tbody>
+      </table>
+      <div class="card" style="margin-top:16px;">
+        <h3>Section Padding Skalası</h3>
+        <pre><span class="cm">/* Bölüm dikey padding */</span>
+<span class="kw">py-8 md:py-12 lg:py-16 3xl:py-24</span>
+
+<span class="cm">/* .section-padding utility class */</span>
+<span class="kw">.section-padding</span> {
+  @<span class="fn">apply</span> <span class="str">py-8 md:py-12 lg:py-16 3xl:py-24</span>;
+}
+
+<span class="cm">/* Grid gap */</span>
+<span class="kw">gap-3 sm:gap-4 lg:gap-5 3xl:gap-6 4xl:gap-8</span></pre>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ Z-INDEX -->
+    <section id="zindex" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">🗂️</div>
+        <h2>Z-Index Sistemi</h2>
+      </div>
+      <pre><span class="cm">// lib/z-index.ts</span>
+<span class="kw">export const</span> <span class="nm">Z</span> = {
+  base:     <span class="nm">0</span>,    <span class="cm">// Normal içerik</span>
+  dropdown: <span class="nm">10</span>,   <span class="cm">// Dropdown menüler</span>
+  sticky:   <span class="nm">20</span>,   <span class="cm">// Sticky nav, sidebar</span>
+  overlay:  <span class="nm">30</span>,   <span class="cm">// Arka plan overlay</span>
+  modal:    <span class="nm">40</span>,   <span class="cm">// Modal, dialog</span>
+  toast:    <span class="nm">50</span>,   <span class="cm">// Bildirim toast'ları</span>
+  tooltip:  <span class="nm">60</span>,   <span class="cm">// Tooltip</span>
+} <span class="kw">as const</span>;</pre>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════ HOOKS -->
+    <section id="hooks" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🪝</div>
+        <h2>Responsive Hooks</h2>
+      </div>
+      <div class="alert alert-warn">
+        <span class="alert-label">⚠️ Kural:</span>
+        Hook'lar yalnızca JS'te breakpoint bazlı <strong>davranış</strong> değişikliği için kullanılır. Görsel responsive için her zaman <strong>Tailwind sınıfları</strong> tercih edilmeli.
+      </div>
+
+      <div class="card">
+        <h3>useMediaQuery</h3>
+        <pre><span class="cm">// SSR-safe — sunucuda her zaman false döner</span>
+<span class="kw">const</span> isMobile = <span class="fn">useMediaQuery</span>(<span class="str">"(max-width: 768px)"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <h3>useBreakpoint</h3>
+        <pre><span class="cm">// Mevcut breakpoint adını döner</span>
+<span class="kw">const</span> bp = <span class="fn">useBreakpoint</span>()
+<span class="cm">// "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl"</span>
+
+<span class="kw">const</span> isMobile     = [<span class="str">"xs"</span>, <span class="str">"sm"</span>].includes(bp)
+<span class="kw">const</span> isWidescreen = [<span class="str">"3xl"</span>, <span class="str">"4xl"</span>, <span class="str">"5xl"</span>].includes(bp)</pre>
+      </div>
+
+      <div class="card">
+        <h3>useScrollPosition</h3>
+        <pre><span class="kw">const</span> scrollY = <span class="fn">useScrollPosition</span>()
+<span class="cm">// Sayfa Y scroll pozisyonu (px) — SSR'da 0</span></pre>
+      </div>
+
+      <div class="card">
+        <h3>useWindowSize</h3>
+        <pre><span class="kw">const</span> { width, height } = <span class="fn">useWindowSize</span>()
+<span class="cm">// Pencere boyutu — SSR'da {width: 0, height: 0}</span></pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════ HEADER -->
+    <section id="header" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(197,121,48,.2)">🧭</div>
+        <h2>Header / Navigation</h2>
+      </div>
+
+      <table>
+        <thead><tr><th>Ekran</th><th>Davranış</th></tr></thead>
+        <tbody>
+          <tr><td>&lt; md (768px)</td><td>Logo ortada, hamburger sağda → drawer (soldan kayar) açılır</td></tr>
+          <tr><td>md – xl</td><td>Sol nav (2 link) + sağ nav (2 link) + ikonlar görünür</td></tr>
+          <tr><td>xl+</td><td>Tam genişlik, tüm linkler görünür, gap artar</td></tr>
+          <tr><td>Scroll davranışı</td><td>Tüm header (duyuru + wave + logo) translateY ile yukarı kayar; duyuru bandı görünmez olur, wave + logo yerinde kalır</td></tr>
+        </tbody>
+      </table>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Scroll Davranışı — Teknik</h3>
+        <pre><span class="cm">// Tüm fixed container scrollY > 20 olduğunda kayar</span>
+<span class="str">transform</span>: isScrolled
+  ? <span class="str">`translateY(-${headerTheme.announcementHeight}px)`</span>
+  : <span class="str">"translateY(0)"</span>
+
+<span class="cm">// Duyuru bandı = 40px → tüm blok 40px yukarı kayar</span>
+<span class="cm">// Wave + logo birbirine göre hiç hareket etmez</span></pre>
+      </div>
+
+      <div class="card">
+        <h3>Mobil Drawer</h3>
+        <ul>
+          <li>Soldan kayan <code>position: fixed</code> panel, <code>w-[300px] max-w-[85vw]</code></li>
+          <li>Arka plan overlay — tıklanınca kapanır</li>
+          <li>Escape tuşuyla kapanır</li>
+          <li>Açıkken <code>document.body.style.overflow = "hidden"</code></li>
+          <li>Alt kısımda: Hesabım + Sepet linkleri, sepet badge'i</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ FOOTER -->
+    <section id="footer" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🦶</div>
+        <h2>Footer</h2>
+      </div>
+      <table>
+        <thead><tr><th>Breakpoint</th><th>Grid</th></tr></thead>
+        <tbody>
+          <tr><td>mobil (&lt; md)</td><td>1 kolon</td></tr>
+          <tr><td>md</td><td>2 kolon</td></tr>
+          <tr><td>lg</td><td>4 kolon</td></tr>
+          <tr><td>3xl+</td><td>5 kolon (logo+sosyal alanı genişler)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════ ÜRÜN GRİD -->
+    <section id="product-grid" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🛍️</div>
+        <h2>Ürün Grid Sistemi</h2>
+      </div>
+      <table>
+        <thead><tr><th>Breakpoint</th><th>Kolon Sayısı</th><th>Cihaz</th></tr></thead>
+        <tbody>
+          <tr><td>default</td><td>1</td><td>375px altı</td></tr>
+          <tr><td>xs (375px)</td><td>1</td><td>iPhone SE</td></tr>
+          <tr><td>sm (640px)</td><td>2</td><td>Büyük telefon</td></tr>
+          <tr><td>lg (1024px)</td><td>3</td><td>Tablet landscape</td></tr>
+          <tr><td>xl (1280px)</td><td>4</td><td>Laptop</td></tr>
+          <tr><td>3xl (1920px)</td><td>5</td><td>Full HD</td></tr>
+          <tr><td>4xl (2560px)</td><td>6</td><td>2K</td></tr>
+          <tr><td>5xl (3840px)</td><td>8</td><td>4K / 43"</td></tr>
+        </tbody>
+      </table>
+      <pre><span class="cm">// Tailwind class'ı</span>
+<span class="str">grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-8
+gap-3 sm:gap-4 lg:gap-5 3xl:gap-6</span></pre>
+    </section>
+
+    <!-- ══════════════════════════════════════════ ÜRÜN KARTI -->
+    <section id="product-card" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🃏</div>
+        <h2>Ürün Kartı</h2>
+      </div>
+      <div class="card">
+        <h3>Görsel Oranı</h3>
+        <p><code>aspect-[3/4]</code> — tüm breakpoint'lerde sabit oran. <code>object-contain p-4</code> ile görsel bozulmaz.</p>
+      </div>
+      <div class="card">
+        <h3>Next.js Image sizes Prop</h3>
+        <pre><span class="str">sizes</span>=<span class="str">"(max-width: 375px) 100vw,
+       (max-width: 640px) 50vw,
+       (max-width: 1024px) 33vw,
+       (max-width: 1536px) 25vw,
+       (max-width: 1920px) 20vw,
+       16vw"</span></pre>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ ÜRÜN DETAY -->
+    <section id="product-detail" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.15)">📄</div>
+        <h2>Ürün Detay Sayfası</h2>
+      </div>
+      <table>
+        <thead><tr><th>Ekran</th><th>Layout</th></tr></thead>
+        <tbody>
+          <tr><td>&lt; lg</td><td>Tek kolon — görsel üst, bilgiler alt</td></tr>
+          <tr><td>lg+</td><td>İki kolon — görsel sol, bilgiler sağ (<code>lg:sticky lg:top-32</code>)</td></tr>
+          <tr><td>3xl+</td><td>İki kolon, Container ile ortalanmış</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SEPET -->
+    <section id="cart" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(251,146,60,.15)">🛒</div>
+        <h2>Sepet</h2>
+      </div>
+      <table>
+        <thead><tr><th>Ekran</th><th>Layout</th></tr></thead>
+        <tbody>
+          <tr><td>&lt; lg</td><td>Tek kolon, ürün listesi. Altta <strong>sticky bottom bar</strong> (fiyat + Ödemeye Geç). <code>pb-24</code> ile alan açılır.</td></tr>
+          <tr><td>lg+</td><td>İki kolon: ürünler (2/3) + sipariş özeti (1/3, <code>sticky top-28</code>)</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-tip">
+        <span class="alert-label">💡 Teknik:</span>
+        Mobil sticky bar <code>env(safe-area-inset-bottom)</code> ile iPhone notch/home bar boşluğuna saygı gösterir.
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ CHECKOUT -->
+    <section id="checkout" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">💳</div>
+        <h2>Checkout</h2>
+      </div>
+      <div class="card">
+        <p><code>Container size="wide"</code> ile sarılmış — form çok geniş uzamaz. Tüm input'lar <code>w-full</code>. Max-width ile form okunabilir kalır.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ HESABİM -->
+    <section id="hesabim" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">👤</div>
+        <h2>Müşteri Paneli (Hesabım)</h2>
+      </div>
+      <table>
+        <thead><tr><th>Ekran</th><th>Navigasyon</th><th>İçerik</th></tr></thead>
+        <tbody>
+          <tr><td>&lt; md</td><td>Üstte yatay scroll tab bar (pill butonlar)</td><td>Tam genişlik, alt LogoutButton</td></tr>
+          <tr><td>md+</td><td>Sol sidebar (w-56), sticky</td><td>Sağda flex-1 içerik alanı</td></tr>
+          <tr><td>3xl+</td><td>Sol sidebar (w-64)</td><td>Container ile sınırlı</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════ GÖRSEL -->
+    <section id="images" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🖼️</div>
+        <h2>Görsel Optimizasyon</h2>
+      </div>
+      <div class="card">
+        <h3>Kurallar</h3>
+        <ul>
+          <li>Tüm <code>&lt;Image&gt;</code> bileşenlerine <code>sizes</code> prop zorunlu</li>
+          <li>Hero görselleri: <code>priority={true}</code> + <code>sizes="100vw"</code></li>
+          <li>Ürün görselleri: <code>loading="lazy"</code> (default), aspect-ratio korumalı</li>
+          <li>Kategori görselleri: <code>sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Aspect Ratio Standartları</h3>
+        <table>
+          <thead><tr><th>Alan</th><th>Oran</th></tr></thead>
+          <tbody>
+            <tr><td>Hero banner (mobil)</td><td>16/9</td></tr>
+            <tr><td>Hero banner (3xl+)</td><td>21/9</td></tr>
+            <tr><td>Ürün görseli</td><td>3/4 (tüm boyutlarda sabit)</td></tr>
+            <tr><td>Kategori kartı</td><td>5/3</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ DOKUNMA -->
+    <section id="touch" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">👆</div>
+        <h2>Dokunma Hedefleri (Accessibility)</h2>
+      </div>
+      <div class="alert alert-fix">
+        <span class="alert-label">✓ Kural:</span>
+        Tüm tıklanabilir öğeler minimum <strong>44×44px</strong> (iOS/Android HIG guideline, WCAG 2.5.5)
+      </div>
+      <div class="card">
+        <ul>
+          <li><code>Button</code> bileşeni: <code>min-h-[44px]</code> tüm boyutlarda</li>
+          <li><code>Input</code> bileşeni: <code>min-h-[44px]</code></li>
+          <li>Nav linkleri: <code>py-2.5</code> ile dokunma alanı genişletildi</li>
+          <li>İkon butonlar: <code>p-2.5</code> (40px+ tıklama alanı)</li>
+          <li>CSS'de <code>button, a, [role="button"]</code> için global <code>min-height: 44px</code></li>
+          <li>Paragraf içi linklerde bu kural override edilir (<code>display: inline</code>)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ OVERFLOW -->
+    <section id="overflow" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.15)">↔️</div>
+        <h2>Overflow & Scroll</h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li><strong>Yatay scroll asla olmamalı</strong> — <code>html, body { overflow-x: hidden }</code></li>
+          <li>Uzun tablolar: <code>.table-responsive</code> wrapper (<code>overflow-x-auto</code>)</li>
+          <li>Hesabım mobil nav: <code>overflow-x: auto</code> + <code>minWidth: max-content</code></li>
+          <li>Modal/drawer: <code>overflow-y-auto max-h-[90vh]</code></li>
+          <li>Carousel: <code>overflow-hidden + scroll-snap</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ WIDESCREEN -->
+    <section id="widescreen" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(251,146,60,.15)">🖥️</div>
+        <h2>Widescreen (3xl – 5xl)</h2>
+      </div>
+      <div class="card">
+        <h3>Temel Kurallar</h3>
+        <ul>
+          <li>İçerik asla <code>100vw</code> genişliğinde uzamaz — Container max-width ile sınırlanır</li>
+          <li>Kenar boşlukları orantılı büyür: <code>3xl:px-16 → 4xl:px-24 → 5xl:px-32</code></li>
+          <li>Grid kolonları artar: <code>3xl:grid-cols-5 → 4xl:grid-cols-6 → 5xl:grid-cols-8</code></li>
+          <li>Font boyutları fluid scale ile okunabilir kalır</li>
+          <li>Hero banner <code>3xl:aspect-[21/9]</code> ile sinematik oran</li>
+          <li>Footer 5 kolona çıkar, sosyal alanı genişler</li>
+          <li>Müşteri paneli sidebar <code>w-64</code>'e genişler</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ iOS -->
+    <section id="ios" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🍎</div>
+        <h2>iOS Safari Sorunları & Çözümleri</h2>
+      </div>
+      <div class="card">
+        <h3>Input Zoom Sorunu</h3>
+        <p>iOS Safari, <code>font-size &lt; 16px</code> olan input'lara focus olunca sayfayı zoom'lar.</p>
+        <pre><span class="cm">/* globals.css — global fix */</span>
+<span class="fn">input</span>, <span class="fn">select</span>, <span class="fn">textarea</span> {
+  <span class="kw">font-size</span>: <span class="fn">max</span>(<span class="nm">16px</span>, <span class="nm">1rem</span>);
+}
+
+<span class="cm">/* Input bileşeni */</span>
+<span class="str">"text-[16px] sm:text-sm"</span>  <span class="cm">← mobilde 16px, desktop'ta küçük</span></pre>
+      </div>
+      <div class="card">
+        <h3>Safe Area (Notch / Home Bar)</h3>
+        <pre><span class="cm">/* Mobil sticky bottom bar */</span>
+<span class="kw">paddingBottom</span>: <span class="str">"env(safe-area-inset-bottom, 0px)"</span></pre>
+      </div>
+      <div class="card">
+        <h3>Momentum Scroll</h3>
+        <pre><span class="cm">/* globals.css */</span>
+<span class="fn">body</span> { -webkit-overflow-scrolling: touch; }</pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════ TEST -->
+    <section id="test" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🧪</div>
+        <h2>Test Matrisi</h2>
+      </div>
+      <table>
+        <thead><tr><th>Cihaz</th><th>Genişlik</th><th>Öncelik</th></tr></thead>
+        <tbody>
+          <tr><td>iPhone SE</td><td>375px</td><td><span class="tag tag-red">Kritik</span></td></tr>
+          <tr><td>iPhone 14 Pro</td><td>393px</td><td><span class="tag tag-red">Kritik</span></td></tr>
+          <tr><td>iPad Mini</td><td>768px</td><td><span class="tag tag-honey">Yüksek</span></td></tr>
+          <tr><td>iPad Pro</td><td>1024px</td><td><span class="tag tag-honey">Yüksek</span></td></tr>
+          <tr><td>Laptop</td><td>1280px</td><td><span class="tag tag-blue">Orta</span></td></tr>
+          <tr><td>Full HD</td><td>1920px</td><td><span class="tag tag-blue">Orta</span></td></tr>
+          <tr><td>2K</td><td>2560px</td><td><span class="tag tag-teal">Düşük</span></td></tr>
+          <tr><td>4K / 43"</td><td>3840px</td><td><span class="tag tag-teal">Düşük</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════ CHECKLIST -->
+    <section id="checklist" class="section">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">✅</div>
+        <h2>Kontrol Listesi</h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li>✅ Tailwind config xs–5xl breakpoint içeriyor</li>
+          <li>✅ fluid-* typography tüm başlıklarda kullanılıyor</li>
+          <li>✅ Container bileşeni tüm sayfalarda tutarlı</li>
+          <li>✅ Header mobilde drawer, desktop'ta tam nav çalışıyor</li>
+          <li>✅ Scroll'da duyuru bandı kaybolur, wave + logo yerinde kalır</li>
+          <li>✅ Ürün grid xs'te 1 kolon, 5xl'de 8 kolon</li>
+          <li>✅ Ürün kartı aspect-[3/4], sizes prop mevcut</li>
+          <li>✅ Ürün detayda lg+ sağ kolon sticky</li>
+          <li>✅ Sepette mobil sticky bottom bar çalışıyor</li>
+          <li>✅ Hesabım mobilde üst tab nav çalışıyor</li>
+          <li>✅ Hiçbir ekranda yatay scroll yok (overflow-x: hidden)</li>
+          <li>✅ 3xl+ içerik ortalanmış, kenar boşlukları dengeli</li>
+          <li>✅ Tüm dokunma hedefleri min 44px</li>
+          <li>✅ iOS Safari form zoom sorunu yok (font-size: 16px)</li>
+          <li>✅ pnpm build başarılı, TypeScript hatası yok</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
