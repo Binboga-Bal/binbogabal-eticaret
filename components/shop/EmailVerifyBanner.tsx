@@ -36,7 +36,7 @@ export function EmailVerifyBanner({ email }: Props) {
         left: 0,
         right: 0,
         height: HEIGHT,
-        zIndex: 39,
+        zIndex: 37,
         display: "flex",
         alignItems: "flex-end",
         paddingBottom: 14,

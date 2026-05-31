@@ -33,9 +33,22 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/admin/urunler", label: "Ürünler", icon: <Package size={18} /> },
-  { href: "/admin/kategoriler", label: "Kategoriler", icon: <Layers size={18} /> },
-  { href: "/admin/siparisler", label: "Siparişler", icon: <ShoppingBag size={18} /> },
-  { href: "/admin/musteriler", label: "Müşteriler", icon: <Users size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
+  {
+    href: "/admin/kategoriler",
+    label: "Kategoriler",
+    icon: <Layers size={18} />,
+  },
+  {
+    href: "/admin/siparisler",
+    label: "Siparişler",
+    icon: <ShoppingBag size={18} />,
+  },
+  {
+    href: "/admin/musteriler",
+    label: "Müşteriler",
+    icon: <Users size={18} />,
+    roles: ["ADMIN", "SUPERADMIN"],
+  },
   {
     href: "/admin/kampanyalar",
     label: "Kampanyalar",
@@ -59,9 +72,24 @@ const navItems: NavItem[] = [
       { href: "/admin/icerik/faq", label: "SSS" },
     ],
   },
-  { href: "/admin/bannerlar", label: "Görsel Yönetimi", icon: <Image size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
-  { href: "/admin/erp-sync", label: "ERP Senkron.", icon: <RefreshCw size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
-  { href: "/admin/ayarlar", label: "Ayarlar", icon: <Settings size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
+  {
+    href: "/admin/bannerlar",
+    label: "Görsel Yönetimi",
+    icon: <Image size={18} />,
+    roles: ["ADMIN", "SUPERADMIN"],
+  },
+  {
+    href: "/admin/erp-sync",
+    label: "ERP Senkron.",
+    icon: <RefreshCw size={18} />,
+    roles: ["ADMIN", "SUPERADMIN"],
+  },
+  {
+    href: "/admin/ayarlar",
+    label: "Ayarlar",
+    icon: <Settings size={18} />,
+    roles: ["ADMIN", "SUPERADMIN"],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -74,7 +102,7 @@ export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const visibleItems = navItems.filter(
-    (item) => !item.roles || item.roles.includes(role)
+    (item) => !item.roles || item.roles.includes(role),
   );
 
   return (
@@ -90,7 +118,9 @@ export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
           priority
           unoptimized={!!logoUrl}
         />
-        <div className="text-xs font-semibold text-gray-500 tracking-wide mt-1.5">Admin Paneli</div>
+        <div className="text-xs font-semibold text-gray-500 tracking-wide mt-1.5">
+          Admin Paneli
+        </div>
       </div>
 
       {/* Nav */}
@@ -109,19 +139,25 @@ export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
                 <button
                   onClick={() => setExpanded(isExpanded ? null : item.href)}
                   className={cn(
-                    "admin-nav-link w-full",
-                    isActive && "active"
+                    "admin-nav-link w-full justify-start",
+                    isActive && "active",
                   )}
                 >
                   {item.icon}
                   <span className="flex-1 text-left">{item.label}</span>
                   <ChevronDown
                     size={14}
-                    className={cn("transition-transform", isExpanded && "rotate-180")}
+                    className={cn(
+                      "transition-transform",
+                      isExpanded && "rotate-180",
+                    )}
                   />
                 </button>
               ) : (
-                <Link href={item.href} className={cn("admin-nav-link", isActive && "active")}>
+                <Link
+                  href={item.href}
+                  className={cn("admin-nav-link", isActive && "active")}
+                >
                   {item.icon}
                   {item.label}
                 </Link>
@@ -135,7 +171,7 @@ export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
                       href={child.href}
                       className={cn(
                         "admin-nav-link text-xs",
-                        pathname === child.href && "active"
+                        pathname === child.href && "active",
                       )}
                     >
                       {child.label}

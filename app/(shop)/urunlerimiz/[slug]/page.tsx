@@ -342,9 +342,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
 */}
       {/* Güven bandı */}
       <div className="mt-10">
-        <div className="border border-gray-200 rounded-2xl px-7 py-6 flex flex-wrap items-center justify-center gap-y-5">
+        <div className="border border-gray-200 rounded-2xl px-4 sm:px-7 py-6 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-y-5">
           {/* Sol: Kooperatif gücü */}
-          <div className="flex items-center gap-3 pr-7 border-r border-gray-200 mr-7 flex-shrink-0">
+          <div className="flex items-center gap-3 pb-4 sm:pb-0 sm:pr-7 border-b sm:border-b-0 sm:border-r border-gray-200 sm:mr-7 flex-shrink-0 w-full sm:w-auto justify-center sm:justify-start">
             <svg
               viewBox="0 0 44 50"
               className="w-14 h-14 flex-shrink-0"
@@ -367,7 +367,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
 
           {/* Sağ: 4 değer */}
-          <div className="flex flex-wrap items-center gap-4 flex-1 justify-evenly min-w-0">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-4 flex-1 justify-evenly min-w-0 w-full sm:w-auto">
             {[
               {
                 /* Arıcı kıyafetli kişi: yuvarlak kafa, siperlikli şapka, gövde */
@@ -457,7 +457,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-4">
                 {i > 0 && (
-                  <span className="text-gray-300 text-xl font-light select-none leading-none">
+                  <span className="hidden sm:inline text-gray-300 text-xl font-light select-none leading-none">
                     +
                   </span>
                 )}

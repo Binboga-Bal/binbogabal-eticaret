@@ -53,7 +53,7 @@ export function ProductFilter({ honeyTypes }: Props) {
   };
 
   return (
-    <aside className="w-64 flex-shrink-0">
+    <aside className="hidden md:block w-64 flex-shrink-0">
       <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 sticky top-[130px]">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-gray-800">Filtrele</h3>

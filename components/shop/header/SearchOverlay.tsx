@@ -49,6 +49,10 @@ interface Props {
   onClose: () => void;
 }
 
+// Mobile wave derinliği (Header.tsx MOBILE.waveDepth ile aynı)
+const MOBILE_WAVE_DEPTH = 45;
+const MOBILE_HEADER_H   = headerTheme.announcementHeight + headerTheme.navHeight + MOBILE_WAVE_DEPTH;
+
 export function SearchOverlay({ open, onClose }: Props) {
   const [query, setQuery]       = useState("");
   const [results, setResults]   = useState<ProductHit[]>([]);
@@ -57,6 +61,14 @@ export function SearchOverlay({ open, onClose }: Props) {
   const [displayText, setDisplayText] = useState("");
   const [nameIdx, setNameIdx]     = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isMobile, setIsMobile]   = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const [focused, setFocused]     = useState(false);
   const inputRef   = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -172,7 +184,7 @@ export function SearchOverlay({ open, onClose }: Props) {
           left: 0,
           right: 0,
           zIndex: 39,
-          height: `calc(50vh + ${HEADER_H}px)`,
+          height: isMobile ? `calc(70vh + ${MOBILE_HEADER_H}px)` : `calc(50vh + ${HEADER_H}px)`,
           background: "#FDFAF5",
           transform: open ? "translateY(0)" : "translateY(-100%)",
           transition: open
@@ -186,14 +198,14 @@ export function SearchOverlay({ open, onClose }: Props) {
         <div
           style={{
             position: "absolute",
-            top: HEADER_H + 6,
+            top: isMobile ? MOBILE_HEADER_H - 10 : HEADER_H - 44,
             left: 0,
             right: 0,
             bottom: 0,
             overflowY: "auto",
           }}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex gap-8">
 
               {/* ── SOL: Arama kutusu + sonuçlar ─────────────────────── */}
@@ -201,15 +213,15 @@ export function SearchOverlay({ open, onClose }: Props) {
 
                 {/* Başlık + Kapat */}
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-bold text-gray-800 tracking-tight">
+                  <h2 className="text-sm sm:text-lg font-bold text-gray-800 tracking-tight">
                     Ne arıyorsunuz?
                   </h2>
                   <button
                     onClick={onClose}
-                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-xl px-3 py-1.5 transition-colors"
+                    className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-xl px-2.5 sm:px-3 py-1.5 transition-colors"
                   >
-                    <X size={14} />
-                    Kapat
+                    <X size={13} />
+                    <span className="sm:inline">Kapat</span>
                   </button>
                 </div>
 
@@ -244,7 +256,7 @@ export function SearchOverlay({ open, onClose }: Props) {
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
                     placeholder=""
-                    className="w-full pl-12 pr-11 py-3 text-sm rounded-2xl border focus:outline-none transition-all duration-200"
+                    className="w-full pl-12 pr-11 py-3 text-sm rounded-2xl border focus:outline-none transition-all duration-200 text-[16px] sm:text-sm"
                     style={{
                       borderColor: focused ? headerTheme.waveStroke : "#E8DFC8",
                       background: "white",
@@ -283,9 +295,9 @@ export function SearchOverlay({ open, onClose }: Props) {
                             key={p.id}
                             href={`/urunlerimiz/${p.slug}`}
                             onClick={onClose}
-                            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-amber-100/60 hover:border-amber-300 hover:shadow-sm transition-all group"
+                            className="flex items-start gap-2 p-2 sm:gap-2.5 sm:p-2.5 rounded-xl bg-white border border-amber-100/60 hover:border-amber-300 hover:shadow-sm transition-all group"
                           >
-                            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-gray-50">
+                            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg overflow-hidden shrink-0 bg-gray-50">
                               <Image
                                 src={getFirstImage(p.images)}
                                 alt={p.name}

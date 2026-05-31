@@ -44,7 +44,7 @@ export function ProductCardActions({ product, variant }: Props) {
       </div>
 
       {/* Butonlar */}
-      <div className="flex gap-1.5">
+      <div className="flex flex-col sm:flex-row gap-1.5">
         <AddToCartButton
           product={product}
           variant={variant}

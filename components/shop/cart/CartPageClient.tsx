@@ -103,7 +103,7 @@ export function CartPageClient({ bannerEnabled = false }: { bannerEnabled?: bool
 
   return (
     /* pb-24: mobilde sticky bottom bar için alan */
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24 lg:pb-0" style={bannerVisible ? { marginTop: 24 } : undefined}>
+    <div className={`grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24 lg:pb-0 ${bannerVisible ? "mt-[72px] sm:mt-6" : ""}`}>
       {/* Sol — Ürünler */}
       <div className="lg:col-span-2 space-y-3">
         <h1 className="text-fluid-xl font-black text-gray-900 mb-6">Alışveriş Sepeti</h1>
@@ -325,6 +325,9 @@ export function CartPageClient({ bannerEnabled = false }: { bannerEnabled?: bool
           <div>
             <p className="text-xs text-gray-500">Toplam</p>
             <p className="text-xl font-black text-honey-dark">{formatPrice(grandTotal)}</p>
+            {campaignDiscount > 0 && (
+              <p className="text-[10px] text-green-600 font-medium">−{formatPrice(campaignDiscount)} kampanya indirimi</p>
+            )}
             {shippingFee === 0 && (
               <p className="text-[10px] text-green-600 font-medium">Kargo ücretsiz</p>
             )}

@@ -61,8 +61,9 @@ export function CartBanner({ textLeft, textRight, color }: CartBannerProps) {
         top: TOP,
         left: 0,
         right: 0,
-        height: HEIGHT,
-        zIndex: 39,
+        minHeight: HEIGHT,
+        height: "auto",
+        zIndex: 37,
         display: "flex",
         alignItems: "center",
         transform: isScrolled ? `translateY(-${headerTheme.announcementHeight}px)` : "translateY(0)",
@@ -70,29 +71,26 @@ export function CartBanner({ textLeft, textRight, color }: CartBannerProps) {
       }}
       className={`${c.bg} border-b ${c.border} px-4 shadow-sm`}
     >
-      <div className="max-w-6xl mx-auto w-full flex items-center justify-between gap-4">
-        {/* Sol */}
-        <div className={`flex items-center gap-2 text-sm font-medium ${c.text}`}>
-          <Tag size={15} className={`${c.icon} shrink-0`} />
-          <span>{textLeft}</span>
+      <div className="max-w-6xl mx-auto w-full flex items-center justify-between gap-2 pt-[58px] pb-3 sm:pt-0 sm:pb-0">
+        <div className={`flex items-start sm:items-center gap-2 text-xs sm:text-sm font-medium ${c.text} min-w-0`}>
+          <Tag size={14} className={`${c.icon} shrink-0 mt-0.5 sm:mt-0`} />
+          <div className="min-w-0">
+            <span className="block sm:inline">{textLeft}</span>
+            {textRight && (
+              <span className={`block sm:inline sm:ml-3 text-xs sm:text-sm font-medium ${c.text} opacity-80`}>{textRight}</span>
+            )}
+          </div>
         </div>
-
-        {/* Sağ */}
-        <div className="flex items-center gap-3">
-          {textRight && (
-            <span className={`text-sm font-medium ${c.text}`}>{textRight}</span>
-          )}
-          <button
-            onClick={() => {
-              setVisible(false);
-              window.dispatchEvent(new CustomEvent("cart-banner-dismissed"));
-            }}
-            className={`${c.btn} transition-colors shrink-0`}
-            aria-label="Kapat"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            setVisible(false);
+            window.dispatchEvent(new CustomEvent("cart-banner-dismissed"));
+          }}
+          className={`${c.btn} transition-colors shrink-0`}
+          aria-label="Kapat"
+        >
+          <X size={16} />
+        </button>
       </div>
     </div>
   );

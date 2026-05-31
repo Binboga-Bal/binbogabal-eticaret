@@ -89,7 +89,7 @@ export function ProductTabs({ description, shortDescription, analysisReportUrl, 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "px-6 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors",
+                  "px-3 sm:px-6 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition-colors flex-1 sm:flex-none text-center",
                   activeTab === tab.id
                     ? "border-honey-dark text-honey-dark"
                     : "border-transparent text-gray-500 hover:text-gray-700"

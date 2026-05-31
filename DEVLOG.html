@@ -569,6 +569,8 @@
       <a href="#step140" class="nav-link"><span class="dot"></span>140 — Önerilen Ürünler UI</a>
       <a href="#step141" class="nav-link"><span class="dot"></span>141 — Viewport Meta Export</a>
       <a href="#step142" class="nav-link"><span class="dot"></span>142 — Checkout Minimalist Tasarım</a>
+      <a href="#step143" class="nav-link"><span class="dot"></span>143 — Search Overlay İyileştirmeleri</a>
+      <a href="#step144" class="nav-link"><span class="dot"></span>144 — Mobil Responsive Kapsamlı Düzeltmeler</a>
 
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -6531,10 +6533,101 @@ html, body { overflow-x: clip; }</code></pre>
       </div>
     </section>
 
+    <section id="step143" class="section">
+      <div class="section-title">
+        <div class="step-num">143</div>
+        <h2>Search Overlay — Mobil & UX İyileştirmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Sonuç görselleri sola hizalandı:</strong> <code>items-center</code> → <code>items-start</code> — uzun ürün adlarında resim üste sabit kalır.</li>
+          <li><strong>Z-index düzeltmesi:</strong> <code>EmailVerifyBanner</code> ve <code>CartBanner</code> z-index <code>39</code> → <code>37</code>; SearchOverlay her zaman bu bannerlerin üstünde görünür.</li>
+          <li><strong>Header boşluğu:</strong> İçerik alanı <code>HEADER_H + 6</code> → <code>HEADER_H - 44</code> ile wave'e daha yakın başlatıldı.</li>
+          <li><strong>Görsel boyutu büyütüldü:</strong> Sonuç kartlarında resim <code>40px</code> → <code>56px</code>.</li>
+          <li><strong>iOS zoom engellendi:</strong> Arama input font-size <code>16px</code>'e çıkarıldı — iOS Safari zoom tetiklenmiyor.</li>
+          <li><strong>Mobil responsive:</strong> <code>isMobile</code> state ile overlay yüksekliği ve <code>top</code> offset mobil wave depth'e (<code>MOBILE_HEADER_H</code>) göre ayrı hesaplanıyor; padding kompaktlaştırıldı; başlık ve kapat butonu küçültüldü.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/header/SearchOverlay.tsx</span> — isMobile state, MOBILE_HEADER_H, overlay height, content top, font-size 16px<br>
+          <span class="file mod">components/shop/EmailVerifyBanner.tsx</span> — zIndex 39 → 37<br>
+          <span class="file mod">components/shop/cart/CartBanner.tsx</span> — zIndex 39 → 37
+        </div>
+      </div>
+    </section>
+
+    <section id="step144" class="section">
+      <div class="section-title">
+        <div class="step-num">144</div>
+        <h2>Kapsamlı Mobil Responsive Düzeltmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Header — Mobil Wave & Logo</h3>
+        <ul>
+          <li><strong>Responsive SVG arch:</strong> <code>buildPaths()</code> fonksiyonu <code>ctrl</code> ve <code>ctrlB</code> parametreli hale getirildi. Desktop orijinal değerleri (<code>ctrl=80, ctrlB=60</code>) korunurken mobil için ayrı <code>MOBILE</code> parametresi (<code>waveDepth:45, archLeft:390, archRight:1050</code>) ve orantılı <code>ctrl</code> hesabı uygulandı.</li>
+          <li><strong>Mobil logo küçüldü:</strong> <code>isMobile</code> state ile logo <code>230×150px</code> → <code>155×100px</code>.</li>
+          <li><strong>Üst çizgi:</strong> Duyuru bandı kayınca (<code>isScrolled</code>) header üstüne wave rengi ve kalınlığında <code>borderTop</code> ekleniyor.</li>
+          <li><strong>Nav padding:</strong> Nav satırına <code>paddingTop: 8px</code> eklendi.</li>
+          <li><strong>Mobil ikon düzeni:</strong> Sol tarafa hamburger + hesabım, sağ tarafa arama + sepet taşındı.</li>
+          <li><strong>Sağ kenar boşluğu:</strong> Logo placeholder genişliği mobilde <code>logoW+28</code> ile ayarlandı — gerçek cihazlarda sepet ikonu kenara yapışmıyordu.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Ürünlerimiz Sayfası</h3>
+        <ul>
+          <li><strong>Filtre gizlendi:</strong> <code>ProductFilter</code> mobilde <code>hidden md:block</code>.</li>
+          <li><strong>Hızlı filtreler:</strong> Yatay scroll edilebilir, <code>rounded-full</code> pill tasarım, <code>whitespace-nowrap</code>.</li>
+          <li><strong>Grid:</strong> <code>grid-cols-1 xs:grid-cols-2</code> → <code>grid-cols-2</code> — mobilde kesinlikle 2 kolonlu.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Ürün Kartı & Ürün Detay</h3>
+        <ul>
+          <li><strong>Sepete Ekle / Hemen Al:</strong> Mobilde <code>flex-col</code> (alt alta), desktop'ta <code>flex-row</code>.</li>
+          <li><strong>ProductTabs:</strong> Tab başlıkları mobilde <code>flex-1 text-center text-xs px-3</code> — üst üste binme sorunu çözüldü.</li>
+          <li><strong>Kooperatif Gücü bölümü:</strong> Mobilde başlık tam genişlik + <code>border-b</code>, 4 değer <code>grid-cols-2</code> (2×2), <code>+</code> ayırıcılar mobilde gizlendi.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Sepet Sayfası</h3>
+        <ul>
+          <li><strong>CartBanner mobil:</strong> Sol/sağ metin alt alta (<code>flex-col sm:flex-row</code>), <code>pt-[58px] pb-3</code> ile wave altına taşındı, <code>height: auto</code> yapıldı.</li>
+          <li><strong>Kampanya indirimi:</strong> Mobil sticky bottom bar'da kampanya indirim tutarı gösterildi.</li>
+          <li><strong>Önerilen ürünler grid:</strong> <code>grid-cols-4</code> → <code>grid-cols-2 sm:grid-cols-4</code>.</li>
+          <li><strong>Önerilen ürün butonu:</strong> Mobilde <code>24×24px</code>, desktop'ta <code>32×32px</code>.</li>
+          <li><strong>Banner margin:</strong> Banner görünürken içerik alanı <code>mt-[72px] sm:mt-6</code> ile aşağı itildi.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Viewport & Genel</h3>
+        <ul>
+          <li><strong>viewport-fit=cover:</strong> <code>app/layout.tsx</code>'e <code>viewportFit: "cover"</code> eklendi — iOS safe area inset desteği aktif.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/header/Header.tsx</span> — isMobile, buildPaths, MOBILE arch, logo boyutu, üst çizgi, ikon düzeni<br>
+          <span class="file mod">components/shop/product/ProductFilter.tsx</span> — hidden md:block<br>
+          <span class="file mod">components/shop/product/ProductCardActions.tsx</span> — flex-col sm:flex-row<br>
+          <span class="file mod">components/shop/product/ProductTabs.tsx</span> — flex-1 text-center xs padding<br>
+          <span class="file mod">components/shop/cart/CartBanner.tsx</span> — mobil padding, height auto, zIndex 37<br>
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span> — kampanya indirimi sticky bar, banner margin<br>
+          <span class="file mod">components/shop/cart/VolumeDiscountBar.tsx</span> — grid-cols-2 sm:grid-cols-4, buton boyutu<br>
+          <span class="file mod">app/(shop)/urunlerimiz/page.tsx</span> — filtre gizle, hızlı filtreler, grid-cols-2<br>
+          <span class="file mod">app/(shop)/urunlerimiz/[slug]/page.tsx</span> — Kooperatif Gücü mobil layout<br>
+          <span class="file mod">app/layout.tsx</span> — viewportFit: "cover"
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 31 Mayıs 2026 — Adım 142 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 1 Haziran 2026 — Adım 144 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

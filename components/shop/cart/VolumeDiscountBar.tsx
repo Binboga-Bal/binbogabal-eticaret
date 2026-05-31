@@ -155,7 +155,7 @@ export function VolumeDiscountBar() {
                 <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide mb-2">
                   {rule.products.length > 0 ? "Kapsanan Ürünler" : "Önerilen Ürünler"}
                 </p>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {sortedProducts.map((product) => {
                     const variant = product.variants[0];
                     if (!variant) return null;
@@ -190,11 +190,11 @@ export function VolumeDiscountBar() {
                         <button
                           onClick={() => handleAdd(product)}
                           disabled={addingId === variant.id}
-                          className="absolute -top-2 -right-2 rounded-full bg-honey text-white flex items-center justify-center hover:bg-honey-dark transition-colors disabled:opacity-60 z-10"
-                          style={{ width: 32, height: 32 }}
+                          className="absolute -top-2 -right-2 rounded-full bg-honey text-white flex items-center justify-center hover:bg-honey-dark transition-colors disabled:opacity-60 z-10 w-6 h-6 sm:w-8 sm:h-8"
                           title="Sepete Ekle"
                         >
-                          <Plus size={20} strokeWidth={2.5} />
+                          <Plus size={14} strokeWidth={2.5} className="sm:hidden" />
+                          <Plus size={20} strokeWidth={2.5} className="hidden sm:block" />
                         </button>
                       </div>
                     );
