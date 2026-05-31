@@ -14,10 +14,29 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface AppliedCampaign {
+  campaignId: string;
+  campaignName: string;
+  type: string;
+  discountAmount: number;
+  freeShipping: boolean;
+  message: string;
+}
+
+export interface CampaignResult {
+  appliedCampaigns: AppliedCampaign[];
+  totalDiscount: number;
+  freeShipping: boolean;
+  giftProducts: { productId: string; quantity: number; name: string }[];
+  cashbackPoints: number;
+  messages: string[];
+}
+
 interface CartState {
   items: CartItem[];
   couponCode: string | null;
   couponDiscount: number;
+  campaignResult: CampaignResult | null;
 
   addItem: (item: CartItem) => void;
   removeItem: (variantId: string) => void;
@@ -25,6 +44,7 @@ interface CartState {
   clearCart: () => void;
   applyCoupon: (code: string, discount: number) => void;
   removeCoupon: () => void;
+  setCampaignResult: (result: CampaignResult | null) => void;
 
   subtotal: () => number;
   total: () => number;
@@ -37,6 +57,7 @@ export const useCartStore = create<CartState>()(
       items: [],
       couponCode: null,
       couponDiscount: 0,
+      campaignResult: null,
 
       addItem: (newItem) =>
         set((state) => {
@@ -56,6 +77,7 @@ export const useCartStore = create<CartState>()(
       removeItem: (variantId) =>
         set((state) => ({
           items: state.items.filter((i) => i.variantId !== variantId),
+          campaignResult: null,
         })),
 
       updateQuantity: (variantId, quantity) =>
@@ -66,14 +88,17 @@ export const useCartStore = create<CartState>()(
               : state.items.map((i) =>
                   i.variantId === variantId ? { ...i, quantity } : i
                 ),
+          campaignResult: null,
         })),
 
-      clearCart: () => set({ items: [], couponCode: null, couponDiscount: 0 }),
+      clearCart: () => set({ items: [], couponCode: null, couponDiscount: 0, campaignResult: null }),
 
       applyCoupon: (code, discount) =>
-        set({ couponCode: code, couponDiscount: discount }),
+        set({ couponCode: code, couponDiscount: discount, campaignResult: null }),
 
-      removeCoupon: () => set({ couponCode: null, couponDiscount: 0 }),
+      removeCoupon: () => set({ couponCode: null, couponDiscount: 0, campaignResult: null }),
+
+      setCampaignResult: (result) => set({ campaignResult: result }),
 
       subtotal: () =>
         get().items.reduce((sum, item) => {
@@ -84,7 +109,11 @@ export const useCartStore = create<CartState>()(
       total: () => {
         const state = get();
         const sub = state.subtotal();
-        return Math.max(0, sub - state.couponDiscount);
+        // Kampanya motoru sonucu varsa onu kullan, yoksa eski couponDiscount'a geri dön
+        const discount = state.campaignResult
+          ? state.campaignResult.totalDiscount
+          : state.couponDiscount;
+        return Math.max(0, sub - discount);
       },
 
       itemCount: () => get().items.reduce((sum, item) => sum + item.quantity, 0),

@@ -313,24 +313,309 @@ enum TransactionStatus {
   REFUNDED
 }
 
-// ─── KUPONLAR ────────────────────────────────────────────────────────────────
+// ─── KAMPANYALAR ─────────────────────────────────────────────────────────────
+
+model Campaign {
+  id                String           @id @default(cuid())
+  name              String
+  slug              String           @unique
+  description       String?          @db.Text
+  internalNote      String?          @db.Text
+  type              CampaignType
+  status            CampaignStatus   @default(DRAFT)
+  priority          Int              @default(0)
+  stackable         Boolean          @default(false)
+  maxDiscountAmount Decimal?         @db.Decimal(10, 2)
+  budgetLimit       Decimal?         @db.Decimal(10, 2)
+  budgetUsed        Decimal          @default(0) @db.Decimal(10, 2)
+  imageUrl          String?
+  ogImageUrl        String?
+  startsAt          DateTime
+  endsAt            DateTime?
+  timezone          String           @default("Europe/Istanbul")
+  requiresApproval  Boolean          @default(false)
+  approvedBy        String?
+  approvedAt        DateTime?
+  createdBy         String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  conditions    CampaignCondition[]
+  actions       CampaignAction[]
+  segments      CampaignSegment[]
+  targets       CampaignTarget[]
+  coupons       Coupon[]
+  abTests       CampaignABTest[]
+  usages        CampaignUsage[]
+  displays      CampaignDisplay[]
+  notifications CampaignNotification[]
+  translations  CampaignTranslation[]
+  auditLogs     CampaignAuditLog[]
+  templates     CampaignTemplate[]
+
+  @@map("campaigns")
+}
+
+enum CampaignType {
+  COUPON
+  CART_DISCOUNT
+  PRODUCT_DISCOUNT
+  FREE_SHIPPING
+  BUY_X_PAY_Y
+  GIFT_PRODUCT
+  FLASH_SALE
+  CASHBACK
+  BIRTHDAY
+  WIN_BACK
+  ABANDONED_CART
+}
+
+enum CampaignStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  PAUSED
+  ENDED
+  CANCELLED
+}
+
+model CampaignCondition {
+  id         String        @id @default(cuid())
+  campaignId String
+  campaign   Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type       ConditionType
+  operator   String
+  value      Json
+  logicGroup Int           @default(0)
+  sortOrder  Int           @default(0)
+
+  @@map("campaign_conditions")
+}
+
+enum ConditionType {
+  MIN_CART_AMOUNT
+  MIN_ITEM_COUNT
+  SPECIFIC_PRODUCTS
+  SPECIFIC_CATEGORIES
+  SPECIFIC_BRANDS
+  CUSTOMER_SEGMENT
+  CUSTOMER_ORDER_COUNT
+  CUSTOMER_TOTAL_SPEND
+  FIRST_ORDER
+  DAY_OF_WEEK
+  TIME_OF_DAY
+  GEOGRAPHIC
+  DEVICE_TYPE
+  PAYMENT_METHOD
+  BIRTHDAY_MONTH
+  DAYS_SINCE_LAST_ORDER
+}
+
+model CampaignAction {
+  id         String     @id @default(cuid())
+  campaignId String
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type       ActionType
+  value      Json
+  sortOrder  Int        @default(0)
+
+  @@map("campaign_actions")
+}
+
+enum ActionType {
+  PERCENTAGE_DISCOUNT
+  FIXED_DISCOUNT
+  FREE_SHIPPING
+  BUY_X_PAY_Y
+  GIFT_PRODUCT
+  CASHBACK_POINTS
+  FREE_PRODUCT
+  CATEGORY_DISCOUNT
+}
+
+model CampaignSegment {
+  id         String      @id @default(cuid())
+  campaignId String
+  campaign   Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type       SegmentType
+  value      Json
+
+  @@map("campaign_segments")
+}
+
+enum SegmentType {
+  ALL_CUSTOMERS
+  NEW_CUSTOMERS
+  VIP_CUSTOMERS
+  INACTIVE_CUSTOMERS
+  BIRTHDAY_THIS_MONTH
+  SPECIFIC_CUSTOMERS
+  CUSTOMER_TAG
+  GEOGRAPHIC_SEGMENT
+}
+
+model CampaignTarget {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  targetType String
+  targetId   String
+  discount   Decimal? @db.Decimal(10, 2)
+
+  @@map("campaign_targets")
+}
+
+model CampaignUsage {
+  id             String   @id @default(cuid())
+  campaignId     String
+  campaign       Campaign @relation(fields: [campaignId], references: [id])
+  customerId     String?
+  orderId        String?
+  couponId       String?
+  coupon         Coupon?  @relation(fields: [couponId], references: [id])
+  discountAmount Decimal  @db.Decimal(10, 2)
+  abVariant      String?
+  usedAt         DateTime @default(now())
+
+  @@index([campaignId])
+  @@index([customerId])
+  @@index([usedAt])
+  @@map("campaign_usages")
+}
+
+model CampaignDisplay {
+  id            String      @id @default(cuid())
+  campaignId    String
+  campaign      Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type          DisplayType
+  placement     String
+  imageUrl      String?
+  title         String?
+  subtitle      String?
+  ctaText       String?
+  ctaUrl        String?
+  bgColor       String?
+  textColor     String?
+  showCountdown Boolean     @default(false)
+  sortOrder     Int         @default(0)
+  isActive      Boolean     @default(true)
+
+  @@map("campaign_displays")
+}
+
+enum DisplayType {
+  BANNER
+  POPUP
+  FLOATING_BAR
+  PRODUCT_BADGE
+  CART_MESSAGE
+}
+
+model CampaignABTest {
+  id           String   @id @default(cuid())
+  campaignId   String
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  variantName  String
+  trafficSplit Int
+  discountValue Decimal @db.Decimal(10, 2)
+  impressions  Int      @default(0)
+  conversions  Int      @default(0)
+  revenue      Decimal  @default(0) @db.Decimal(10, 2)
+  isWinner     Boolean  @default(false)
+
+  @@map("campaign_ab_tests")
+}
+
+model CampaignNotification {
+  id            String           @id @default(cuid())
+  campaignId    String
+  campaign      Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type          NotificationType
+  scheduledAt   DateTime?
+  sentAt        DateTime?
+  channel       String
+  subject       String?
+  body          String?          @db.Text
+  targetSegment String?
+  status        String           @default("PENDING")
+
+  @@map("campaign_notifications")
+}
+
+enum NotificationType {
+  CAMPAIGN_START
+  CAMPAIGN_REMINDER
+  CAMPAIGN_END
+  FAVORITE_DISCOUNT
+  ABANDONED_CART
+  BIRTHDAY_COUPON
+  WIN_BACK_COUPON
+}
+
+model CampaignTranslation {
+  id          String   @id @default(cuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String
+  description String?  @db.Text
+  ctaText     String?
+
+  @@unique([campaignId, locale])
+  @@map("campaign_translations")
+}
+
+model CampaignTemplate {
+  id          String    @id @default(cuid())
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+  name        String
+  description String?
+  config      Json
+  isSystem    Boolean   @default(false)
+  createdBy   String
+  createdAt   DateTime  @default(now())
+
+  @@map("campaign_templates")
+}
+
+model CampaignAuditLog {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  adminId    String
+  action     String
+  changes    Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@map("campaign_audit_logs")
+}
+
+// ─── KUPONLAR ─────────────────────────────────────────────────────────────────
 
 model Coupon {
-  id             String           @id @default(cuid())
-  code           String           @unique
-  description    String?
-  discountType   DiscountType     @default(PERCENTAGE)
-  discountValue  Decimal          @db.Decimal(10, 2)
-  minOrderAmount Decimal?         @db.Decimal(10, 2)
-  maxDiscount    Decimal?         @db.Decimal(10, 2)
-  maxUses        Int?
-  usedCount      Int              @default(0)
-  isActive       Boolean          @default(true)
-  startsAt       DateTime?
-  expiresAt      DateTime?
-  createdAt      DateTime         @default(now())
+  id               String           @id @default(cuid())
+  campaignId       String?
+  campaign         Campaign?        @relation(fields: [campaignId], references: [id])
+  code             String           @unique
+  description      String?
+  discountType     DiscountType     @default(PERCENTAGE)
+  discountValue    Decimal          @db.Decimal(10, 2)
+  minOrderAmount   Decimal?         @db.Decimal(10, 2)
+  maxDiscount      Decimal?         @db.Decimal(10, 2)
+  maxUses          Int?
+  perCustomerLimit Int?             @default(1)
+  usedCount        Int              @default(0)
+  isActive         Boolean          @default(true)
+  isBulk           Boolean          @default(false)
+  startsAt         DateTime?
+  expiresAt        DateTime?
+  createdAt        DateTime         @default(now())
 
   customerCoupons CustomerCoupon[]
+  usages          CampaignUsage[]
 
   @@map("coupons")
 }

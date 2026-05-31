@@ -2,41 +2,75 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag, Tag, ArrowRight, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { Minus, Plus, Trash2, ShoppingBag, Tag, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cart";
+import { useCampaignEvaluator } from "@/hooks/useCampaignEvaluator";
 import { formatPrice, formatWeight } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 
 const SHIPPING_THRESHOLD = 1500;
 
 export function CartPageClient() {
-  const { items, removeItem, updateQuantity, subtotal, total, couponCode, couponDiscount, applyCoupon, removeCoupon } =
-    useCartStore();
+  const {
+    items,
+    removeItem,
+    updateQuantity,
+    subtotal,
+    total,
+    couponCode,
+    couponDiscount,
+    applyCoupon,
+    removeCoupon,
+    campaignResult,
+    setCampaignResult,
+  } = useCartStore();
+
   const [couponInput, setCouponInput] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
+  const [evaluating, setEvaluating] = useState(false);
+
+  // Kampanya motoru bağlan
+  useCampaignEvaluator();
+
+  // İlk yüklemede değerlendirme çalışırken loading göster
+  useEffect(() => {
+    if (items.length === 0) return;
+    if (!campaignResult) setEvaluating(true);
+    else setEvaluating(false);
+  }, [items.length, campaignResult]);
 
   async function handleApplyCoupon() {
     if (!couponInput.trim()) return;
     setCouponLoading(true);
     setCouponError("");
-    const res = await fetch("/api/cart/coupon", {
+
+    // Kupon kodu store'a alınır; useCampaignEvaluator otomatik yeniden değerlendirir
+    // Önce hızlı doğrulama yap
+    const res = await fetch("/api/campaigns/coupon/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: couponInput, subtotal: subtotal() }),
+      body: JSON.stringify({ code: couponInput.trim().toUpperCase(), orderAmount: subtotal() }),
     });
     const data = await res.json();
-    if (data.discount) {
-      applyCoupon(couponInput, data.discount);
-      setCouponInput("");
-    } else {
-      setCouponError(data.error ?? "Geçersiz kupon kodu");
-    }
     setCouponLoading(false);
+
+    if (!res.ok) {
+      setCouponError(data.error ?? "Geçersiz kupon kodu");
+      return;
+    }
+
+    // Geçerliyse store'a yaz — evaluator yeniden tetiklenir
+    applyCoupon(data.coupon.code, data.discount);
+    setCouponInput("");
+    setCampaignResult(null); // sıfırla, evaluator yeniden hesaplar
   }
 
-  const shippingFee = subtotal() >= SHIPPING_THRESHOLD ? 0 : 99;
+  const campaignDiscount = campaignResult?.totalDiscount ?? 0;
+  const campaignFreeShipping = campaignResult?.freeShipping ?? false;
+
+  const shippingFee = campaignFreeShipping || subtotal() >= SHIPPING_THRESHOLD ? 0 : 99;
   const grandTotal = total() + shippingFee;
   const shippingProgress = Math.min((subtotal() / SHIPPING_THRESHOLD) * 100, 100);
   const remaining = SHIPPING_THRESHOLD - subtotal();
@@ -72,7 +106,6 @@ export function CartPageClient() {
               key={item.variantId}
               className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-5 hover:border-honey/40 hover:shadow-sm transition-all"
             >
-              {/* Ürün görseli */}
               <div className="relative w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                 <Image
                   src={item.productImage || "/placeholder.jpg"}
@@ -82,7 +115,6 @@ export function CartPageClient() {
                 />
               </div>
 
-              {/* Detaylar */}
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between gap-2">
                   <div>
@@ -100,7 +132,6 @@ export function CartPageClient() {
                   </button>
                 </div>
 
-                {/* Birim fiyat */}
                 <div className="flex items-center gap-2 mt-2">
                   {hasDiscount && (
                     <span className="text-xs text-gray-400 line-through">{formatPrice(item.price)}</span>
@@ -108,7 +139,6 @@ export function CartPageClient() {
                   <span className="text-xs text-gray-500">Birim: {formatPrice(unitPrice)}</span>
                 </div>
 
-                {/* Miktar + toplam */}
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
                     <button
@@ -125,7 +155,6 @@ export function CartPageClient() {
                       <Plus size={13} />
                     </button>
                   </div>
-
                   <span className="font-black text-honey-dark text-lg">{formatPrice(lineTotal)}</span>
                 </div>
               </div>
@@ -166,13 +195,60 @@ export function CartPageClient() {
             )}
           </div>
 
+          {/* Kampanya mesajları */}
+          {evaluating && items.length > 0 && (
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <Loader2 size={12} className="animate-spin" />
+              İndirimler hesaplanıyor...
+            </div>
+          )}
+
+          {campaignResult && campaignResult.appliedCampaigns.length > 0 && (
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-bold text-green-800 uppercase tracking-wide">Uygulanan İndirimler</p>
+              {campaignResult.appliedCampaigns.map((c, i) => (
+                <div key={i} className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-green-800">{c.campaignName}</p>
+                    {c.message && <p className="text-xs text-green-600 mt-0.5">{c.message}</p>}
+                  </div>
+                  {c.discountAmount > 0 && (
+                    <span className="text-sm font-bold text-green-700 flex-shrink-0">
+                      -{formatPrice(c.discountAmount)}
+                    </span>
+                  )}
+                  {c.freeShipping && !c.discountAmount && (
+                    <span className="text-xs font-bold text-green-700 flex-shrink-0">Ücretsiz kargo</span>
+                  )}
+                </div>
+              ))}
+              {campaignResult.giftProducts.length > 0 && (
+                <div className="pt-1 border-t border-green-200 space-y-0.5">
+                  {campaignResult.giftProducts.map((g, i) => (
+                    <p key={i} className="text-xs text-green-700">🎁 {g.quantity}x {g.name} hediye eklendi</p>
+                  ))}
+                </div>
+              )}
+              {campaignResult.cashbackPoints > 0 && (
+                <p className="text-xs text-green-700">⭐ +{campaignResult.cashbackPoints} puan kazanacaksınız</p>
+              )}
+            </div>
+          )}
+
           {/* Fiyat detayları */}
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">Ara Toplam</span>
               <span className="font-medium text-gray-800">{formatPrice(subtotal())}</span>
             </div>
-            {couponDiscount > 0 && (
+            {campaignDiscount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Kampanya İndirimi</span>
+                <span className="font-semibold">−{formatPrice(campaignDiscount)}</span>
+              </div>
+            )}
+            {/* Eski kupon sistemi geri dönüş (campaign sonucu yoksa) */}
+            {!campaignResult && couponDiscount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span>Kupon İndirimi</span>
                 <span className="font-semibold">−{formatPrice(couponDiscount)}</span>
@@ -191,7 +267,7 @@ export function CartPageClient() {
             <span className="font-black text-honey-dark text-2xl">{formatPrice(grandTotal)}</span>
           </div>
 
-          {/* Kupon */}
+          {/* Kupon girişi */}
           <div>
             {couponCode ? (
               <div className="flex items-center justify-between bg-green-50 border border-green-100 text-green-700 rounded-xl px-4 py-2.5 text-sm">
@@ -206,10 +282,10 @@ export function CartPageClient() {
               <div className="flex gap-2 w-full min-w-0">
                 <input
                   value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
+                  onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); }}
                   onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
                   placeholder="Kupon kodu"
-                  className="min-w-0 flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey/50 focus:border-honey"
+                  className="min-w-0 flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey/50 focus:border-honey font-mono"
                 />
                 <Button size="sm" variant="outline" loading={couponLoading} onClick={handleApplyCoupon} className="flex-shrink-0">
                   Uygula

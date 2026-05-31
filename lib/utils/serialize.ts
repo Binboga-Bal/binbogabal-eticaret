@@ -57,6 +57,8 @@ export function serializeProduct(
     images,
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
+    tasteNotes: Array.isArray(product.tasteNotes) ? product.tasteNotes as string[] : null,
+    usageSuggestions: Array.isArray(product.usageSuggestions) ? product.usageSuggestions as string[] : null,
     variants: product.variants.map(serializeVariant),
     categories: product.categories?.map(({ id, name, slug }) => ({ id, name, slug })),
     honeyTypes: product.honeyTypes?.map(({ id, slug, label }) => ({ id, slug, label })),

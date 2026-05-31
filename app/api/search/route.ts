@@ -14,10 +14,15 @@ const productSelect = {
   },
 };
 
-function serialize(products: Awaited<ReturnType<typeof prisma.product.findMany>>) {
+type ProductResult = { id: string; name: string; slug: string; images: unknown; variants: { price: unknown; discountedPrice: unknown }[] };
+
+function serialize(products: ProductResult[]) {
   return products.map((p) => ({
-    ...(p as typeof productSelect & typeof p),
-    variants: (p.variants as { price: unknown; discountedPrice: unknown }[]).map((v) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    images: p.images,
+    variants: p.variants.map((v) => ({
       price: Number(v.price),
       discountedPrice: v.discountedPrice !== null ? Number(v.discountedPrice) : null,
     })),
@@ -35,7 +40,7 @@ export async function GET(request: Request) {
   });
 
   if (!q) {
-    return NextResponse.json({ results: [], popular: serialize(popular) });
+    return NextResponse.json({ results: [], popular: serialize(popular as ProductResult[]) });
   }
 
   /*
@@ -64,5 +69,5 @@ export async function GET(request: Request) {
     ],
   });
 
-  return NextResponse.json({ results: serialize(results), popular: serialize(popular) });
+  return NextResponse.json({ results: serialize(results as ProductResult[]), popular: serialize(popular as ProductResult[]) });
 }

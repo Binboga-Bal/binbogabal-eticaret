@@ -527,6 +527,16 @@
       <a href="#step100" class="nav-link"><span class="dot"></span>100 — Sepet: Direkt Yönlendirme</a>
       <a href="#step101" class="nav-link"><span class="dot"></span>101 — Sepet Sayfası Yeniden Tasarım</a>
 
+      <div class="nav-section-label">31 Mayıs 2026 — Kampanya Modülü</div>
+      <a href="#step102" class="nav-link"><span class="dot"></span>102 — Schema: 13 Yeni Model</a>
+      <a href="#step103" class="nav-link"><span class="dot"></span>103 — Kampanya Motoru</a>
+      <a href="#step104" class="nav-link"><span class="dot"></span>104 — Admin API (18 Route)</a>
+      <a href="#step105" class="nav-link"><span class="dot"></span>105 — Campaign Builder (DnD)</a>
+      <a href="#step106" class="nav-link"><span class="dot"></span>106 — Admin Sayfaları</a>
+      <a href="#step107" class="nav-link"><span class="dot"></span>107 — Cron Job'lar (7 Adet)</a>
+      <a href="#step108" class="nav-link"><span class="dot"></span>108 — Müşteri Tarafı UI</a>
+      <a href="#step109" class="nav-link"><span class="dot"></span>109 — Sepet Entegrasyonu</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -5363,10 +5373,308 @@ OR: [
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════════════
+         31 MAYIS 2026 — KAMPANYA MODÜLÜ (Adım 102–109)
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="session-header" style="background:linear-gradient(135deg,rgba(197,121,48,.12),rgba(249,177,11,.08));border:1px solid rgba(197,121,48,.25);border-radius:12px;padding:20px 24px;margin-bottom:32px;margin-top:8px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--honey);margin-bottom:6px;">31 Mayıs 2026 · Session</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;">Kampanya & Kupon Modülü — Tam Uygulama</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">Prisma schema'dan sepet entegrasyonuna kadar eksiksiz kampanya motoru · Adım 102–109</div>
+      <div style="display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;">
+        <div style="font-size:12px;color:var(--text-muted);"><strong style="color:var(--text)">13</strong> yeni DB modeli</div>
+        <div style="font-size:12px;color:var(--text-muted);"><strong style="color:var(--text)">60+</strong> yeni dosya</div>
+        <div style="font-size:12px;color:var(--text-muted);"><strong style="color:var(--text)">26</strong> API route</div>
+        <div style="font-size:12px;color:var(--text-muted);"><strong style="color:var(--text)">7</strong> cron job</div>
+        <div style="font-size:12px;color:var(--text-muted);"><strong style="color:var(--green)">✓</strong> TypeScript sıfır hata</div>
+        <div style="font-size:12px;color:var(--text-muted);"><strong style="color:var(--green)">✓</strong> pnpm build başarılı</div>
+      </div>
+    </div>
+
+    <!-- ADIM 102 -->
+    <section id="step102" class="step-section">
+      <div class="section-title">
+        <div class="step-num">102</div>
+        <h2>Prisma Schema — 13 Yeni Model + Coupon Genişletme</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan</h3>
+        <ul>
+          <li><code>Campaign</code> ana modeli: type, status, priority, stackable, budgetLimit, requiresApproval, approvedBy, ogImageUrl, timezone dahil tüm alanlar</li>
+          <li>Alt modeller: <code>CampaignCondition</code>, <code>CampaignAction</code>, <code>CampaignSegment</code>, <code>CampaignTarget</code>, <code>CampaignUsage</code>, <code>CampaignDisplay</code>, <code>CampaignABTest</code>, <code>CampaignNotification</code>, <code>CampaignTranslation</code>, <code>CampaignTemplate</code>, <code>CampaignAuditLog</code></li>
+          <li>Mevcut <code>Coupon</code> modeli genişletildi: <code>campaignId</code>, <code>perCustomerLimit</code>, <code>isBulk</code> eklendi; mevcut <code>FREE_SHIPPING</code> DiscountType korundu</li>
+          <li>9 yeni enum: <code>CampaignType</code> (11 değer), <code>CampaignStatus</code> (7), <code>ConditionType</code> (16), <code>ActionType</code> (8), <code>SegmentType</code> (8), <code>DisplayType</code> (5), <code>NotificationType</code> (7)</li>
+          <li><code>CampaignUsage</code>'a 3 index eklendi: campaignId, customerId, usedAt</li>
+          <li><code>pnpm db:push</code> ile MySQL'e senkronize edildi</li>
+          <li><code>pnpm add @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities</code> kuruldu</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">prisma/schema.prisma</span> — ~220 satır eklendi<br>
+          <span class="file mod">package.json</span> — @dnd-kit paketleri eklendi
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 103 -->
+    <section id="step103" class="step-section">
+      <div class="section-title">
+        <div class="step-num">103</div>
+        <h2>Kampanya Motoru — Core Engine (8 Dosya)</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan</h3>
+        <ul>
+          <li><strong>engine.ts</strong>: Aktif kampanyaları 5 dk in-memory cache ile yükler. Kupon kodu varsa kupon kampanyasını "sentetik kampanya" olarak oluşturur. Koşul→segment→çakışma→aksiyon pipeline'ı çalıştırır. <code>invalidateCampaignCache()</code> ile cache temizlenir.</li>
+          <li><strong>condition-evaluator.ts</strong>: 16 koşul tipi. Aynı <code>logicGroup</code> = AND, farklı grup = OR. Saat aralığı, gün, coğrafi, ödeme yöntemi dahil tüm operatörler.</li>
+          <li><strong>action-executor.ts</strong>: 8 aksiyon. BUY_X_PAY_Y en ucuz ürünleri bedava sayar. <code>maxDiscountAmount</code> tavan uygulaması.</li>
+          <li><strong>segment-matcher.ts</strong>: 8 segment. VIP (min harcama eşiği), inactive (90+ gün), yeni müşteri (30 gün), doğum ayı vb.</li>
+          <li><strong>conflict-resolver.ts</strong>: Öncelik büyükten küçüğe sırala, non-stackable kampanya uygulandıktan sonra diğer non-stackable'ları durdur.</li>
+          <li><strong>ab-router.ts</strong>: Müşteri ID hash'i (31 çarpanı mod 100) ile deterministik varyant seçimi. Aynı müşteri her zaman aynı varyanta düşer.</li>
+          <li><strong>coupon-generator.ts</strong>: 100'lük batch, karışan harfler hariç (0,O,I,L), benzersizlik DB kontrolü.</li>
+          <li><strong>rate-limiter.ts</strong>: IP bazlı 10/15dk in-memory Map. Başarılı doğrulamada sıfırla.</li>
+          <li><strong>types.ts</strong>: <code>CartItem</code>, <code>EvaluationContext</code>, <code>CampaignResult</code>, <code>CampaignWithRelations</code> tip tanımları.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/campaign/engine.ts</span><br>
+          <span class="file new">lib/campaign/condition-evaluator.ts</span><br>
+          <span class="file new">lib/campaign/action-executor.ts</span><br>
+          <span class="file new">lib/campaign/segment-matcher.ts</span><br>
+          <span class="file new">lib/campaign/conflict-resolver.ts</span><br>
+          <span class="file new">lib/campaign/ab-router.ts</span><br>
+          <span class="file new">lib/campaign/coupon-generator.ts</span><br>
+          <span class="file new">lib/campaign/rate-limiter.ts</span><br>
+          <span class="file new">lib/campaign/types.ts</span><br>
+          <span class="file new">services/campaign.service.ts</span> — CRUD, approve/pause/resume/duplicate, stats, audit log
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 104 -->
+    <section id="step104" class="step-section">
+      <div class="section-title">
+        <div class="step-num">104</div>
+        <h2>Admin API Route'ları — 18 Endpoint + Public API</h2>
+      </div>
+      <div class="card">
+        <h3>Admin Route'lar (JWT korumalı)</h3>
+        <ul>
+          <li>Kampanya CRUD: GET liste (filtre+pagination), POST oluştur, GET/PUT/DELETE detay</li>
+          <li>Durum yönetimi: <code>/approve</code>, <code>/pause</code>, <code>/resume</code>, <code>/duplicate</code></li>
+          <li>Analitik: <code>/stats</code> (günlük kullanım, bütçe, A/B), <code>/audit-log</code></li>
+          <li>Gösterim: <code>/displays</code> CRUD, <code>/displays/reorder</code> PATCH (sortOrder)</li>
+          <li>A/B test: <code>/ab-tests</code> GET+POST, <code>/ab-tests/declare-winner</code></li>
+          <li>Raporlama: <code>/report/overview</code> — toplam kullanım, indirim, top kampanyalar</li>
+          <li>Kupon: <code>/bulk-generate</code> (max 10.000), <code>/assign</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Public Route'lar</h3>
+        <ul>
+          <li><code>POST /api/campaigns/evaluate</code> — sepet değerlendirme (categoryIds sunucuda zenginleştirilir, müşteri profili oturumdan)</li>
+          <li><code>GET /api/campaigns/active</code> — aktif kampanya listesi (displays dahil)</li>
+          <li><code>GET /api/campaigns/[slug]</code> — landing page verisi</li>
+          <li><code>POST /api/campaigns/coupon/validate</code> — rate limited kupon doğrulama</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ADIM 105 -->
+    <section id="step105" class="step-section">
+      <div class="section-title">
+        <div class="step-num">105</div>
+        <h2>Campaign Builder — Sürükle &amp; Bırak UI (@dnd-kit)</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan</h3>
+        <ul>
+          <li><strong>CampaignBuilder.tsx</strong>: Ana wrapper. Form alanları (ad, slug, tip, öncelik, stackable, requiresApproval, tarihler, bütçe). Taslak / Yayınla / Onaya Gönder kayıt seçenekleri.</li>
+          <li><strong>ConditionPanel.tsx</strong>: Sol panel — 12 koşul tipi, <code>useDraggable</code>, tıkla-ekle + sürükle desteği.</li>
+          <li><strong>ActionPanel.tsx</strong>: Sol panel — 8 aksiyon tipi, aynı UX.</li>
+          <li><strong>BuilderCanvas.tsx</strong>: <code>DndContext</code> + <code>SortableContext</code>. Canvas içi sıralama, panel→canvas droplama. <code>handleCanvasDragEnd</code> helper'ı extract edildi (linter uyarısını çözdü).</li>
+          <li><strong>ConditionCard.tsx</strong>: Tip'e göre farklı form alanları (saat aralığı, gün seçici, şehir listesi, ID girişi). Logic group numarası değiştirilebilir.</li>
+          <li><strong>ActionCard.tsx</strong>: Tip'e göre alan seti (BUY_X_PAY_Y için X/Y alanları, Cashback için puan veya yüzde seçimi).</li>
+          <li><strong>PreviewPanel.tsx</strong>: Gerçek zamanlı Türkçe özet text üretimi. IF/THEN ağaç görünümü. AND/OR grup göstergesi.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/admin/campaign-builder/CampaignBuilder.tsx</span><br>
+          <span class="file new">components/admin/campaign-builder/BuilderCanvas.tsx</span><br>
+          <span class="file new">components/admin/campaign-builder/ConditionPanel.tsx</span><br>
+          <span class="file new">components/admin/campaign-builder/ActionPanel.tsx</span><br>
+          <span class="file new">components/admin/campaign-builder/ConditionCard.tsx</span><br>
+          <span class="file new">components/admin/campaign-builder/ActionCard.tsx</span><br>
+          <span class="file new">components/admin/campaign-builder/PreviewPanel.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 106 -->
+    <section id="step106" class="step-section">
+      <div class="section-title">
+        <div class="step-num">106</div>
+        <h2>Admin Sayfaları — Liste, Takvim, Stats, A/B Test, Kupon, Raporlar</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan</h3>
+        <ul>
+          <li><strong>Kampanya Listesi</strong>: Özet kartlar (aktif sayı, toplam kullanım, toplam indirim). Tablo: tip etiketi, durum badge, tarih aralığı, kullanım/kupon sayısı, inline aksiyon menüsü.</li>
+          <li><strong>Sidebar güncellendi</strong>: Kampanya menüsü alt menülerle genişletildi (Takvim, Kuponlar, Raporlar).</li>
+          <li><strong>Kampanya Takvimi</strong>: Aylık (pazartesi başlangıç) ve liste görünümü. Tip bazlı renk kodlaması (7 renk). Bugün vurgusu (honey rengi daire).</li>
+          <li><strong>İstatistikler sayfası</strong>: 4 metrik kart, günlük kullanım bar grafiği, bütçe progress bar (kırmızı %90+), A/B test sonuç tablosu kazanan rozeti ile.</li>
+          <li><strong>A/B Test sayfası</strong>: Client component. Varyant listesi, yeni varyant ekleme formu, kazanan seçme butonu.</li>
+          <li><strong>Kupon sayfası</strong>: Son 50 kupon + kampanya bağlantısı. Bulk kupon formu (BulkCouponForm).</li>
+          <li><strong>Raporlar sayfası</strong>: En çok kullanılan 10 kampanya tablosu, son 20 kullanım akışı.</li>
+          <li><strong>CampaignStatusBadge</strong>: 7 status için renk eşlemesi. <strong>CampaignActions</strong>: Dropdown ile approve/pause/resume/klonla/iptal.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/admin/kampanyalar/page.tsx</span> — tam yeniden yazım<br>
+          <span class="file new">app/admin/kampanyalar/new/page.tsx</span><br>
+          <span class="file new">app/admin/kampanyalar/calendar/page.tsx</span><br>
+          <span class="file new">app/admin/kampanyalar/coupons/page.tsx</span><br>
+          <span class="file new">app/admin/kampanyalar/reports/page.tsx</span><br>
+          <span class="file new">app/admin/kampanyalar/[id]/page.tsx</span><br>
+          <span class="file new">app/admin/kampanyalar/[id]/stats/page.tsx</span><br>
+          <span class="file new">app/admin/kampanyalar/[id]/ab-test/page.tsx</span><br>
+          <span class="file new">components/admin/campaign/CampaignStatusBadge.tsx</span><br>
+          <span class="file new">components/admin/campaign/CampaignActions.tsx</span><br>
+          <span class="file new">components/admin/campaign/CampaignCalendar.tsx</span><br>
+          <span class="file new">components/admin/campaign/BulkCouponForm.tsx</span><br>
+          <span class="file mod">components/admin/AdminSidebar.tsx</span> — kampanya alt menüsü
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 107 -->
+    <section id="step107" class="step-section">
+      <div class="section-title">
+        <div class="step-num">107</div>
+        <h2>Cron Job'lar — 7 Zamanlanmış Görev</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan</h3>
+        <ul>
+          <li><strong>campaign-activate</strong>: Dakikada bir. <code>startsAt ≤ now</code> olan APPROVED ve DRAFT (requiresApproval=false) kampanyaları → ACTIVE. Cache'i temizler.</li>
+          <li><strong>campaign-expire</strong>: Dakikada bir. <code>endsAt &lt; now</code> olan ACTIVE kampanyaları → ENDED.</li>
+          <li><strong>campaign-reminders</strong>: Saatlik. Bitimine 3 saat kalan kampanyalar için <code>resend.batch.send()</code> ile toplu mail. Tekrar gönderimi önlemek için <code>CampaignNotification</code> kaydı oluşturulur.</li>
+          <li><strong>campaign-budget-check</strong>: Saatlik. <code>budgetUsed ≥ budgetLimit</code> olan ACTIVE kampanyalar → PAUSED.</li>
+          <li><strong>birthday-coupons</strong>: Günlük. Aktif BIRTHDAY kampanyası için bu ay doğum günü olan kullanıcılara <code>generateBulkCoupons()</code> ile kupon üretip <code>CustomerCoupon</code>'a atar.</li>
+          <li><strong>win-back</strong>: Günlük. 90+ gün sipariş vermemiş aktif kullanıcılara geri kazanım kuponu atar (bu ay zaten gönderilmişse atla).</li>
+          <li><strong>abandoned-cart</strong>: Saatlik. 2+ saat PENDING kalan siparişleri tespit eder (sepet DB'ye kaydedilince tam otomasyona geçecek).</li>
+          <li>Tümü <code>Authorization: Bearer CRON_SECRET</code> header kontrolü yapar.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/api/cron/campaign-activate/route.ts</span><br>
+          <span class="file new">app/api/cron/campaign-expire/route.ts</span><br>
+          <span class="file new">app/api/cron/campaign-reminders/route.ts</span><br>
+          <span class="file new">app/api/cron/campaign-budget-check/route.ts</span><br>
+          <span class="file new">app/api/cron/birthday-coupons/route.ts</span><br>
+          <span class="file new">app/api/cron/win-back/route.ts</span><br>
+          <span class="file new">app/api/cron/abandoned-cart/route.ts</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 108 -->
+    <section id="step108" class="step-section">
+      <div class="section-title">
+        <div class="step-num">108</div>
+        <h2>Müşteri Tarafı Bileşenleri — Display, Badge, Timer</h2>
+      </div>
+      <div class="card">
+        <h3>Yapılan</h3>
+        <ul>
+          <li><strong>CountdownTimer</strong>: 1 saniyelik <code>setInterval</code>. SS:DD:SS formatı (saat 0 ise gizlenir). Sona erince "Sona erdi" gösterir.</li>
+          <li><strong>CampaignBadge</strong>: Tip bazlı arka plan rengi. Flash Sale için inline geri sayım. Özel <code>label</code> prop'u ile override edilebilir.</li>
+          <li><strong>CampaignBanner</strong>: <code>CampaignDisplay</code> kaydından render. bgColor/textColor admin'den özelleştirilebilir. imageUrl varsa opacity-20 arka plan görseli. showCountdown ile timer entegre.</li>
+          <li><strong>FloatingBar</strong>: Fixed top-0. Oturum boyunca dismiss edilebilir (useState). CTA butonu desteği.</li>
+          <li><strong>CouponInput</strong>: Mevcut kupon varsa yeşil satır + kaldır butonu. Yoksa input + uygula. Enter ile gönderim. Hata mesajı satırı.</li>
+          <li><strong>DiscountBreakdown</strong>: Uygulanan her kampanya için satır. Hediye ürün ve cashback gösterimi. Toplam indirim vurgulu alt satır.</li>
+          <li><strong>FreeShippingProgress</strong>: Kalan tutar metin + honey gradient bar. Ücretsiz kargo kazanılınca yeşil teyit mesajı.</li>
+          <li><strong>Kampanya Landing Page</strong>: <code>/kampanya</code> tüm aktif kampanyalar grid'i. <code>/kampanya/[slug]</code> SEO meta + banner + CountdownTimer + CTA.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/campaign-display/CountdownTimer.tsx</span><br>
+          <span class="file new">components/campaign-display/CampaignBadge.tsx</span><br>
+          <span class="file new">components/campaign-display/CampaignBanner.tsx</span><br>
+          <span class="file new">components/campaign-display/FloatingBar.tsx</span><br>
+          <span class="file new">components/cart/CouponInput.tsx</span><br>
+          <span class="file new">components/cart/DiscountBreakdown.tsx</span><br>
+          <span class="file new">components/cart/FreeShippingProgress.tsx</span><br>
+          <span class="file new">app/kampanya/page.tsx</span><br>
+          <span class="file new">app/kampanya/[slug]/page.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 109 -->
+    <section id="step109" class="step-section">
+      <div class="section-title">
+        <div class="step-num">109</div>
+        <h2>Sepet Kampanya Entegrasyonu + TypeScript &amp; Build Düzeltmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Entegrasyon Sorunu ve Çözümü</h3>
+        <ul>
+          <li><strong>Sorun:</strong> <code>CartPageClient</code> eski <code>/api/cart/coupon</code> route'unu kullanıyordu, kampanya motoru sepete hiç bağlı değildi. Otomatik kampanyalar, free shipping, BUY_X_PAY_Y çalışmıyordu.</li>
+          <li><strong>Çözüm 1 — evaluate endpoint zenginleştirme:</strong> <code>/api/campaigns/evaluate</code> artık <code>productId</code>→<code>categoryIds</code> eşlemesini DB'den yükler; istemci categoryIds göndermek zorunda değil.</li>
+          <li><strong>Çözüm 2 — CartStore genişletme:</strong> <code>campaignResult: CampaignResult | null</code> ve <code>setCampaignResult()</code> eklendi. <code>total()</code> fonksiyonu önce campaignResult, yoksa eski couponDiscount'u kullanır (geriye dönük uyumluluk).</li>
+          <li><strong>Çözüm 3 — useCampaignEvaluator hook:</strong> Sepet item'ları veya couponCode değişince 400ms debounce ile <code>/api/campaigns/evaluate</code> çağırır. Sonucu <code>setCampaignResult()</code> ile store'a yazar.</li>
+          <li><strong>Çözüm 4 — CartPageClient güncelleme:</strong> Hook bağlıca eklendi. Loading spinner (değerlendirme sırasında). Yeşil indirim breakdown paneli. Kampanya free shipping → kargo ücreti sıfırlanır.</li>
+          <li><strong>Çözüm 5 — CartDrawer:</strong> <code>total()</code> + kampanya indirim satırı eklendi.</li>
+          <li><strong>Çözüm 6 — CheckoutForm:</strong> <code>appliedCampaignIds[]</code> sipariş payload'una eklendi. <code>effectiveDiscount</code> = campaign sonucu varsa o, yoksa eski coupon. <code>campaign free shipping</code> kargo ücreti hesabında dikkate alındı.</li>
+          <li><strong>Çözüm 7 — orders/route.ts:</strong> Her kampanya için <code>CampaignUsage</code> kaydı oluşturulur, <code>budgetUsed</code> güncellenir.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>TypeScript &amp; Build Düzeltmeleri</h3>
+        <ul>
+          <li><code>lib/campaign/types.ts</code> — <code>abTests.discountValue: Decimal | number</code> (Prisma Decimal uyumu)</li>
+          <li><code>lib/campaign/engine.ts</code> — <code>as unknown as CampaignWithRelations</code> çift cast; <code>budgetUsed</code> Decimal cast</li>
+          <li><code>services/campaign.service.ts</code> — <code>JsonValue</code>→<code>Prisma.InputJsonValue</code> cast (duplicate koşullar için)</li>
+          <li><code>app/api/search/route.ts</code> — pre-existing spread type hatası düzeltildi (<code>ProductResult</code> ara tipi)</li>
+          <li><code>lib/utils/serialize.ts</code> — pre-existing <code>tasteNotes/usageSuggestions JsonValue</code> hatası düzeltildi</li>
+          <li><strong>Sonuç:</strong> <code>pnpm exec tsc --noEmit</code> sıfır hata, <code>pnpm build</code> başarılı</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">store/cart.ts</span> — campaignResult state + setCampaignResult + total() güncelleme<br>
+          <span class="file new">hooks/useCampaignEvaluator.ts</span> — debounced kampanya değerlendirme hook'u<br>
+          <span class="file mod">app/api/campaigns/evaluate/route.ts</span> — categoryIds DB zenginleştirme<br>
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span> — kampanya motoru + UI entegrasyonu<br>
+          <span class="file mod">components/shop/cart/CartDrawer.tsx</span> — total() + kampanya indirim satırı<br>
+          <span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> — appliedCampaignIds + effectiveDiscount<br>
+          <span class="file mod">app/api/orders/route.ts</span> — CampaignUsage kaydı + budgetUsed güncelleme<br>
+          <span class="file mod">lib/campaign/types.ts</span> — Decimal | number uyumu<br>
+          <span class="file mod">lib/campaign/engine.ts</span> — TypeScript cast düzeltmeleri<br>
+          <span class="file mod">services/campaign.service.ts</span> — InputJsonValue cast<br>
+          <span class="file mod">app/api/search/route.ts</span> — pre-existing hata düzeltmesi<br>
+          <span class="file mod">lib/utils/serialize.ts</span> — pre-existing hata düzeltmesi
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 31 Mayıs 2026 — Adım 101 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 31 Mayıs 2026 — Adım 109 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

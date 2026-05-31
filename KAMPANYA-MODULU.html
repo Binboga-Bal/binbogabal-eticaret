@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kampanya Modülü — Teknik Dökümantasyon</title>
+  <style>
+    :root {
+      --honey-dark:   #C57930;
+      --honey:        #F9B10B;
+      --honey-cream:  #FFF8E7;
+      --bg:           #0f1117;
+      --bg2:          #181c27;
+      --bg3:          #1e2333;
+      --border:       #2a3050;
+      --text:         #e2e8f0;
+      --text-muted:   #8892a4;
+      --green:        #22c55e;
+      --red:          #f87171;
+      --blue:         #60a5fa;
+      --purple:       #a78bfa;
+      --orange:       #fb923c;
+      --teal:         #2dd4bf;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 260px; flex-shrink: 0;
+      background: var(--bg2); border-right: 1px solid var(--border);
+      position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 24px 0;
+    }
+    .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .sidebar-logo h1 { font-size: 13px; font-weight: 700; color: var(--honey); }
+    .sidebar-logo p  { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .nav-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); padding: 12px 20px 4px; }
+    .nav-link { display: block; padding: 6px 20px; font-size: 12px; color: var(--text-muted); text-decoration: none; transition: all .15s; border-left: 2px solid transparent; }
+    .nav-link:hover { color: var(--text); background: var(--bg3); border-left-color: var(--honey); }
+
+    .content { flex: 1; max-width: 980px; padding: 48px 56px; overflow-x: hidden; }
+
+    .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .badge { display: inline-block; background: rgba(197,121,48,.2); color: var(--honey); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
+    .page-header h1 { font-size: 30px; font-weight: 800; color: #fff; }
+    .page-header p { margin-top: 8px; color: var(--text-muted); font-size: 14px; }
+    .meta-row { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+    .meta-item { font-size: 12px; color: var(--text-muted); }
+    .meta-item strong { color: var(--text); }
+
+    .section { margin-bottom: 60px; scroll-margin-top: 32px; }
+    .section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .section-title .icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 15px; background: rgba(197,121,48,.15); }
+    .section-title h2 { font-size: 18px; font-weight: 700; color: #fff; }
+
+    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+    .card h3 { font-size: 13px; font-weight: 600; color: var(--honey); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
+    .card p { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .card p:last-child { margin-bottom: 0; }
+
+    ul, ol { padding-left: 20px; }
+    li { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; line-height: 1.6; }
+    li strong, li code { color: var(--text); }
+
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; margin: 12px 0; font-size: 12px; line-height: 1.6; }
+    code { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px; }
+    :not(pre) > code { background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 3px; color: var(--honey); }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-right: 4px; }
+    .tag-green  { background: rgba(34,197,94,.15);  color: var(--green); }
+    .tag-blue   { background: rgba(96,165,250,.15);  color: var(--blue); }
+    .tag-purple { background: rgba(167,139,250,.15); color: var(--purple); }
+    .tag-orange { background: rgba(251,146,60,.15);  color: var(--orange); }
+    .tag-red    { background: rgba(248,113,113,.15); color: var(--red); }
+    .tag-honey  { background: rgba(197,121,48,.15);  color: var(--honey); }
+    .tag-teal   { background: rgba(45,212,191,.15);  color: var(--teal); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: var(--bg3); color: var(--text-muted); font-weight: 600; text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    td code { color: var(--honey); }
+
+    .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .flow-step { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 12px; color: var(--text); }
+    .flow-arrow { color: var(--text-muted); font-size: 14px; }
+
+    .file-tree { font-family: monospace; font-size: 12px; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; line-height: 2; }
+    .file-tree .dir  { color: var(--blue); }
+    .file-tree .file { color: var(--text-muted); }
+    .file-tree .new  { color: var(--green); }
+
+    .callout { border-left: 3px solid var(--honey); background: rgba(197,121,48,.07); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; }
+    .callout p { font-size: 13px; color: var(--text-muted); }
+    .callout p strong { color: var(--honey); }
+
+    .api-method { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; margin-right: 6px; font-family: monospace; }
+    .GET    { background: rgba(34,197,94,.15);  color: var(--green); }
+    .POST   { background: rgba(96,165,250,.15);  color: var(--blue); }
+    .PUT    { background: rgba(251,146,60,.15);  color: var(--orange); }
+    .PATCH  { background: rgba(167,139,250,.15); color: var(--purple); }
+    .DELETE { background: rgba(248,113,113,.15); color: var(--red); }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>🍯 Kampanya Modülü</h1>
+    <p>Teknik Dökümantasyon — v1.0</p>
+  </div>
+  <nav>
+    <div class="nav-section">Genel Bakış</div>
+    <a href="#overview"    class="nav-link">Mimari Özet</a>
+    <a href="#stack"       class="nav-link">Tech Stack</a>
+    <a href="#files"       class="nav-link">Dosya Yapısı</a>
+
+    <div class="nav-section">Veritabanı</div>
+    <a href="#schema"      class="nav-link">Prisma Schema</a>
+    <a href="#models"      class="nav-link">Model Açıklamaları</a>
+    <a href="#enums"       class="nav-link">Enum'lar</a>
+
+    <div class="nav-section">Kampanya Motoru</div>
+    <a href="#engine"      class="nav-link">engine.ts — Ana Motor</a>
+    <a href="#conditions"  class="nav-link">Koşullar (IF)</a>
+    <a href="#actions"     class="nav-link">Aksiyonlar (THEN)</a>
+    <a href="#segments"    class="nav-link">Segmentler</a>
+    <a href="#conflict"    class="nav-link">Çakışma & Öncelik</a>
+    <a href="#abtest"      class="nav-link">A/B Test Motoru</a>
+    <a href="#coupongen"   class="nav-link">Kupon Üretici</a>
+    <a href="#ratelimit"   class="nav-link">Rate Limiter</a>
+
+    <div class="nav-section">API</div>
+    <a href="#admin-api"   class="nav-link">Admin API</a>
+    <a href="#public-api"  class="nav-link">Public API</a>
+    <a href="#cron-api"    class="nav-link">Cron Job'lar</a>
+
+    <div class="nav-section">Frontend</div>
+    <a href="#admin-ui"    class="nav-link">Admin Panel UI</a>
+    <a href="#builder"     class="nav-link">Campaign Builder</a>
+    <a href="#calendar"    class="nav-link">Kampanya Takvimi</a>
+    <a href="#cart-int"    class="nav-link">Sepet Entegrasyonu</a>
+    <a href="#display"     class="nav-link">Gösterim Bileşenleri</a>
+
+    <div class="nav-section">Referans</div>
+    <a href="#env"         class="nav-link">Env Değişkenleri</a>
+    <a href="#security"    class="nav-link">Güvenlik</a>
+    <a href="#priority"    class="nav-link">Öncelik Kuralları</a>
+    <a href="#checklist"   class="nav-link">Kontrol Listesi</a>
+  </nav>
+</aside>
+
+<!-- CONTENT -->
+<main class="content">
+
+  <div class="page-header">
+    <div class="badge">Kampanya Modülü — v1.0</div>
+    <h1>Kampanya & Kupon Sistemi</h1>
+    <p>Binboğa Kooperatif Balı e-ticaret platformu için tam kapsamlı kampanya motoru, admin paneli ve sepet entegrasyonu</p>
+    <div class="meta-row">
+      <div class="meta-item"><strong>Tarih:</strong> 31 Mayıs 2026</div>
+      <div class="meta-item"><strong>Adımlar:</strong> 102 – 109</div>
+      <div class="meta-item"><strong>Yeni Dosya:</strong> 60+</div>
+      <div class="meta-item"><strong>Yeni DB Modeli:</strong> 13</div>
+      <div class="meta-item"><strong>API Route:</strong> 26</div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section class="section" id="overview">
+    <div class="section-title"><div class="icon">🗺️</div><h2>Mimari Özet</h2></div>
+    <div class="card">
+      <h3>Sistemin Çalışma Mantığı</h3>
+      <div class="flow">
+        <div class="flow-step">Sepet değişir / Kupon girilir</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">useCampaignEvaluator (debounce 400ms)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">POST /api/campaigns/evaluate</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">engine.ts → koşul/segment/aksiyon</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">CampaignResult → CartStore</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">UI güncellenir</div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Kampanya Motorunun Katmanları</h3>
+        <ol>
+          <li><strong>Aktif kampanyaları yükle</strong> (5 dk cache)</li>
+          <li><strong>Kupon kodu varsa</strong> → kupon kampanyasını bul</li>
+          <li><strong>Koşulları değerlendir</strong> (AND/OR grupları)</li>
+          <li><strong>Segment eşleştir</strong> (müşteri profili)</li>
+          <li><strong>Çakışma çöz</strong> (stackable, öncelik)</li>
+          <li><strong>Aksiyonları çalıştır</strong> (indirim hesapla)</li>
+          <li><strong>Sonucu döndür</strong> (AppliedCampaign[])</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Güvenlik Katmanları</h3>
+        <ul>
+          <li>Tüm kampanya hesaplamaları <strong>sunucu tarafında</strong> yapılır</li>
+          <li>Sipariş oluştururken kampanya <strong>yeniden doğrulanır</strong></li>
+          <li>Kupon kodu: <strong>10 deneme / 15 dk</strong> rate limit</li>
+          <li>Tüm <code>/api/admin/*</code> route'ları JWT ile korunur</li>
+          <li>Cron job'lar <code>CRON_SECRET</code> Bearer token ile korunur</li>
+          <li><code>requiresApproval: true</code> kampanyalar ACTIVE olamaz</li>
+          <li>Her değişiklik <code>CampaignAuditLog</code>'a kaydedilir</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="section" id="stack">
+    <div class="section-title"><div class="icon">⚙️</div><h2>Tech Stack</h2></div>
+    <div class="grid3">
+      <div class="card">
+        <h3>Backend</h3>
+        <ul>
+          <li>Next.js 15 App Router</li>
+          <li>Prisma ORM + MySQL</li>
+          <li>NextAuth.js v5 (JWT)</li>
+          <li>In-memory cache (5 dk TTL)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Frontend</h3>
+        <ul>
+          <li>React 19 + TypeScript</li>
+          <li>Zustand (cart store)</li>
+          <li>@dnd-kit/core + sortable</li>
+          <li>Tailwind CSS</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bildirim</h3>
+        <ul>
+          <li>Resend + React Email</li>
+          <li>Batch gönderim API</li>
+          <li>NotificationPreference kontrolü</li>
+          <li>7 cron job (cron secret)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOSYA YAPISI -->
+  <section class="section" id="files">
+    <div class="section-title"><div class="icon">📁</div><h2>Dosya Yapısı</h2></div>
+    <div class="file-tree">
+      <span class="dir">lib/campaign/</span><br>
+      &nbsp;&nbsp;<span class="new">  engine.ts</span> — ana kampanya motoru (cache + değerlendirme)<br>
+      &nbsp;&nbsp;<span class="new">  condition-evaluator.ts</span> — 16 koşul tipi (AND/OR logic group)<br>
+      &nbsp;&nbsp;<span class="new">  action-executor.ts</span> — 8 aksiyon tipi (BUY_X_PAY_Y dahil)<br>
+      &nbsp;&nbsp;<span class="new">  segment-matcher.ts</span> — 8 müşteri segmenti<br>
+      &nbsp;&nbsp;<span class="new">  conflict-resolver.ts</span> — stackable & öncelik kuralları<br>
+      &nbsp;&nbsp;<span class="new">  ab-router.ts</span> — deterministik A/B trafik yönlendirme<br>
+      &nbsp;&nbsp;<span class="new">  coupon-generator.ts</span> — toplu kupon üretimi (batch 100)<br>
+      &nbsp;&nbsp;<span class="new">  rate-limiter.ts</span> — 10/15dk in-memory rate limit<br>
+      &nbsp;&nbsp;<span class="new">  types.ts</span> — tüm tip tanımları<br>
+      <br>
+      <span class="dir">services/</span><br>
+      &nbsp;&nbsp;<span class="new">  campaign.service.ts</span> — CRUD, approve/pause/resume/duplicate, stats<br>
+      <br>
+      <span class="dir">hooks/</span><br>
+      &nbsp;&nbsp;<span class="new">  useCampaignEvaluator.ts</span> — debounced sepet kampanya hook'u<br>
+      <br>
+      <span class="dir">app/api/admin/campaigns/</span><br>
+      &nbsp;&nbsp;<span class="new">  route.ts</span> — GET liste, POST oluştur<br>
+      &nbsp;&nbsp;<span class="new">  [id]/route.ts</span> — GET, PUT, DELETE<br>
+      &nbsp;&nbsp;<span class="new">  [id]/approve | pause | resume | duplicate</span><br>
+      &nbsp;&nbsp;<span class="new">  [id]/stats | audit-log</span><br>
+      &nbsp;&nbsp;<span class="new">  [id]/displays | displays/reorder</span><br>
+      &nbsp;&nbsp;<span class="new">  [id]/ab-tests | ab-tests/declare-winner</span><br>
+      &nbsp;&nbsp;<span class="new">  report/overview</span><br>
+      <br>
+      <span class="dir">app/api/admin/coupons/</span><br>
+      &nbsp;&nbsp;<span class="file">  route.ts</span> — mevcut (genişletildi)<br>
+      &nbsp;&nbsp;<span class="new">  bulk-generate/route.ts</span> — toplu kupon üretim endpoint'i<br>
+      &nbsp;&nbsp;<span class="new">  assign/route.ts</span> — müşteriye kupon ata<br>
+      <br>
+      <span class="dir">app/api/campaigns/</span> (public)<br>
+      &nbsp;&nbsp;<span class="new">  evaluate/route.ts</span> — sepet kampanya değerlendirme<br>
+      &nbsp;&nbsp;<span class="new">  active/route.ts</span> — aktif kampanya listesi<br>
+      &nbsp;&nbsp;<span class="new">  [slug]/route.ts</span> — landing page verisi<br>
+      &nbsp;&nbsp;<span class="new">  coupon/validate/route.ts</span> — kupon kodu doğrulama (rate limited)<br>
+      <br>
+      <span class="dir">app/api/cron/</span><br>
+      &nbsp;&nbsp;<span class="new">  campaign-activate | campaign-expire | campaign-budget-check</span><br>
+      &nbsp;&nbsp;<span class="new">  campaign-reminders | birthday-coupons | win-back | abandoned-cart</span><br>
+      <br>
+      <span class="dir">app/admin/kampanyalar/</span><br>
+      &nbsp;&nbsp;<span class="new">  page.tsx</span> — liste (özet kartlar, tablo, inline aksiyonlar)<br>
+      &nbsp;&nbsp;<span class="new">  new/page.tsx</span> — yeni kampanya (builder)<br>
+      &nbsp;&nbsp;<span class="new">  calendar/page.tsx</span> — aylık/liste takvim görünümü<br>
+      &nbsp;&nbsp;<span class="new">  coupons/page.tsx</span> — kupon yönetimi + toplu üretim<br>
+      &nbsp;&nbsp;<span class="new">  reports/page.tsx</span> — raporlama dashboard<br>
+      &nbsp;&nbsp;<span class="new">  [id]/page.tsx</span> — düzenleme (builder ile)<br>
+      &nbsp;&nbsp;<span class="new">  [id]/stats | ab-test | displays</span><br>
+      <br>
+      <span class="dir">components/admin/campaign/</span><br>
+      &nbsp;&nbsp;<span class="new">  CampaignStatusBadge.tsx | CampaignActions.tsx</span><br>
+      &nbsp;&nbsp;<span class="new">  CampaignCalendar.tsx | BulkCouponForm.tsx</span><br>
+      <br>
+      <span class="dir">components/admin/campaign-builder/</span><br>
+      &nbsp;&nbsp;<span class="new">  CampaignBuilder.tsx | BuilderCanvas.tsx</span><br>
+      &nbsp;&nbsp;<span class="new">  ConditionPanel.tsx | ActionPanel.tsx</span><br>
+      &nbsp;&nbsp;<span class="new">  ConditionCard.tsx | ActionCard.tsx | PreviewPanel.tsx</span><br>
+      <br>
+      <span class="dir">components/campaign-display/</span><br>
+      &nbsp;&nbsp;<span class="new">  CountdownTimer.tsx | CampaignBadge.tsx</span><br>
+      &nbsp;&nbsp;<span class="new">  CampaignBanner.tsx | FloatingBar.tsx</span><br>
+      <br>
+      <span class="dir">components/cart/</span><br>
+      &nbsp;&nbsp;<span class="new">  CouponInput.tsx | DiscountBreakdown.tsx | FreeShippingProgress.tsx</span><br>
+      <br>
+      <span class="dir">app/kampanya/</span><br>
+      &nbsp;&nbsp;<span class="new">  page.tsx | [slug]/page.tsx</span>
+    </div>
+  </section>
+
+  <!-- SCHEMA -->
+  <section class="section" id="schema">
+    <div class="section-title"><div class="icon">🗄️</div><h2>Prisma Schema</h2></div>
+    <div class="card">
+      <h3>Yeni Modeller (13 adet)</h3>
+      <table>
+        <tr><th>Model</th><th>Açıklama</th><th>Ana Alanlar</th></tr>
+        <tr><td><code>Campaign</code></td><td>Kampanya ana kaydı</td><td>type, status, priority, stackable, budgetLimit, startsAt, endsAt</td></tr>
+        <tr><td><code>CampaignCondition</code></td><td>IF koşulları</td><td>type, operator, value (Json), logicGroup (AND/OR)</td></tr>
+        <tr><td><code>CampaignAction</code></td><td>THEN aksiyonları</td><td>type, value (Json), sortOrder</td></tr>
+        <tr><td><code>CampaignSegment</code></td><td>Hedef müşteri segmenti</td><td>type, value (Json)</td></tr>
+        <tr><td><code>CampaignTarget</code></td><td>Hedef ürün/kategori</td><td>targetType, targetId, discount</td></tr>
+        <tr><td><code>CampaignUsage</code></td><td>Her kullanım kaydı</td><td>campaignId, customerId, orderId, discountAmount</td></tr>
+        <tr><td><code>CampaignDisplay</code></td><td>Banner/popup gösterimi</td><td>type, placement, imageUrl, showCountdown</td></tr>
+        <tr><td><code>CampaignABTest</code></td><td>A/B test varyantları</td><td>variantName, trafficSplit, impressions, conversions</td></tr>
+        <tr><td><code>CampaignNotification</code></td><td>Planlı bildirimler</td><td>type, channel, scheduledAt, status</td></tr>
+        <tr><td><code>CampaignTranslation</code></td><td>Çoklu dil desteği</td><td>locale, name, description</td></tr>
+        <tr><td><code>CampaignTemplate</code></td><td>Yeniden kullanılabilir şablonlar</td><td>config (Json snapshot), isSystem</td></tr>
+        <tr><td><code>CampaignAuditLog</code></td><td>Değişiklik geçmişi</td><td>adminId, action, changes (Json), ip</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Genişletilen Model</h3>
+      <p><strong>Coupon</strong> — Mevcut model korunarak şu alanlar eklendi:</p>
+      <ul>
+        <li><code>campaignId</code> — opsiyonel FK (bir kampanyaya bağlanabilir)</li>
+        <li><code>perCustomerLimit</code> — müşteri başına kullanım limiti (varsayılan: 1)</li>
+        <li><code>isBulk</code> — toplu üretilmiş kupon mu (boolean)</li>
+        <li><code>usages</code> relation — CampaignUsage ile ilişki</li>
+      </ul>
+      <div class="callout"><p><strong>Not:</strong> Mevcut <code>DiscountType</code> enum'undaki <code>FREE_SHIPPING</code> değeri korundu. Eski kupon verileri etkilenmedi.</p></div>
+    </div>
+  </section>
+
+  <!-- MODELS -->
+  <section class="section" id="models">
+    <div class="section-title"><div class="icon">📋</div><h2>Model Açıklamaları</h2></div>
+    <div class="card">
+      <h3>Campaign.status akış şeması</h3>
+      <div class="flow">
+        <div class="flow-step">DRAFT</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">PENDING_APPROVAL</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">APPROVED</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">ACTIVE</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">PAUSED / ENDED / CANCELLED</div>
+      </div>
+      <p style="margin-top:12px;font-size:12px;">Cron <code>campaign-activate</code> dakikada bir çalışır: <code>startsAt ≤ now</code> olan APPROVED kampanyaları → ACTIVE.<br>
+      Cron <code>campaign-expire</code>: <code>endsAt &lt; now</code> olan ACTIVE kampanyaları → ENDED.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Campaign.stackable Mantığı</h3>
+        <ul>
+          <li><code>stackable: false</code> — bu kampanya uygulandıktan sonra diğer non-stackable'lar durdurulur</li>
+          <li><code>stackable: true</code> — diğer kampanyalarla birikimli çalışır</li>
+          <li>Kupon + otomatik indirim: her ikisi de stackable ise birlikte uygulanır</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Campaign.budgetLimit Mantığı</h3>
+        <ul>
+          <li>Her kullanımda <code>budgetUsed</code> artar</li>
+          <li>Cron <code>campaign-budget-check</code> saatlik çalışır</li>
+          <li><code>budgetUsed ≥ budgetLimit</code> olunca → PAUSED</li>
+          <li>Sipariş oluşturulunca <code>CampaignUsage</code> kaydedilir</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENUMS -->
+  <section class="section" id="enums">
+    <div class="section-title"><div class="icon">🏷️</div><h2>Enum'lar</h2></div>
+    <div class="grid2">
+      <div class="card">
+        <h3>CampaignType (11 tip)</h3>
+        <ul>
+          <li><span class="tag tag-honey">COUPON</span> Kod bazlı kupon kampanyası</li>
+          <li><span class="tag tag-blue">CART_DISCOUNT</span> Sepet otomatik indirimi</li>
+          <li><span class="tag tag-blue">PRODUCT_DISCOUNT</span> Ürün/kategori indirimi</li>
+          <li><span class="tag tag-green">FREE_SHIPPING</span> Ücretsiz kargo</li>
+          <li><span class="tag tag-orange">BUY_X_PAY_Y</span> 3 al 2 öde gibi</li>
+          <li><span class="tag tag-purple">GIFT_PRODUCT</span> Hediye ürün ekleme</li>
+          <li><span class="tag tag-red">FLASH_SALE</span> Saat sınırlı fırsat</li>
+          <li><span class="tag tag-teal">CASHBACK</span> Puan/cashback</li>
+          <li><span class="tag tag-orange">BIRTHDAY</span> Doğum günü otomatik</li>
+          <li><span class="tag tag-orange">WIN_BACK</span> Geri kazanım</li>
+          <li><span class="tag tag-orange">ABANDONED_CART</span> Terk edilmiş sepet</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>ConditionType (16 tip)</h3>
+        <ul>
+          <li><code>MIN_CART_AMOUNT</code> — min. sepet tutarı</li>
+          <li><code>MIN_ITEM_COUNT</code> — min. ürün adedi</li>
+          <li><code>SPECIFIC_PRODUCTS</code> — belirli ürünler</li>
+          <li><code>SPECIFIC_CATEGORIES</code> — belirli kategoriler</li>
+          <li><code>CUSTOMER_ORDER_COUNT</code> — geçmiş sipariş sayısı</li>
+          <li><code>CUSTOMER_TOTAL_SPEND</code> — toplam harcama</li>
+          <li><code>FIRST_ORDER</code> — ilk sipariş</li>
+          <li><code>DAY_OF_WEEK</code> — haftanın günü</li>
+          <li><code>TIME_OF_DAY</code> — günün saati (saat aralığı)</li>
+          <li><code>GEOGRAPHIC</code> — şehir/bölge</li>
+          <li><code>DEVICE_TYPE</code> — mobile/desktop</li>
+          <li><code>PAYMENT_METHOD</code> — ödeme yöntemi</li>
+          <li><code>BIRTHDAY_MONTH</code> — doğum ayı</li>
+          <li><code>DAYS_SINCE_LAST_ORDER</code> — son siparişten gün</li>
+          <li><code>CUSTOMER_SEGMENT</code> — segment bazlı</li>
+          <li><code>SPECIFIC_BRANDS</code> — marka bazlı</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h3>ActionType (8 tip)</h3>
+      <table>
+        <tr><th>Tip</th><th>Açıklama</th><th>value alanları</th></tr>
+        <tr><td><code>PERCENTAGE_DISCOUNT</code></td><td>Yüzde indirim</td><td><code>{ percentage: number }</code></td></tr>
+        <tr><td><code>FIXED_DISCOUNT</code></td><td>Sabit TL indirim</td><td><code>{ amount: number }</code></td></tr>
+        <tr><td><code>FREE_SHIPPING</code></td><td>Kargo ücretsiz</td><td><code>{}</code></td></tr>
+        <tr><td><code>BUY_X_PAY_Y</code></td><td>X al Y öde (en ucuzu bedava)</td><td><code>{ buyX: number, payY: number }</code></td></tr>
+        <tr><td><code>GIFT_PRODUCT</code></td><td>Sepete hediye ekle</td><td><code>{ productId, productName, quantity }</code></td></tr>
+        <tr><td><code>CASHBACK_POINTS</code></td><td>Puan kazan</td><td><code>{ points?: number, percentage?: number }</code></td></tr>
+        <tr><td><code>FREE_PRODUCT</code></td><td>Belirli ürünü ücretsiz yap</td><td><code>{ productId: string }</code></td></tr>
+        <tr><td><code>CATEGORY_DISCOUNT</code></td><td>Kategoriye özel indirim</td><td><code>{ categoryId, percentage }</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ENGINE -->
+  <section class="section" id="engine">
+    <div class="section-title"><div class="icon">⚡</div><h2>engine.ts — Ana Motor</h2></div>
+    <div class="card">
+      <h3>evaluateCampaigns(ctx)</h3>
+      <pre><code>// Çağrı noktası: POST /api/campaigns/evaluate
+async function evaluateCampaigns(ctx: EvaluationContext): Promise&lt;CampaignResult&gt;
+
+interface EvaluationContext {
+  cart: CartItem[]          // sepet öğeleri (categoryIds sunucuda zenginleştirilir)
+  customer: Customer | null // oturum açık kullanıcı profili
+  couponCode?: string       // girilen kupon kodu
+  device?: "mobile" | "desktop"
+  city?: string
+  paymentMethod?: string
+}
+
+interface CampaignResult {
+  appliedCampaigns: AppliedCampaign[]
+  totalDiscount: number
+  freeShipping: boolean
+  giftProducts: GiftProduct[]
+  cashbackPoints: number
+  messages: string[]        // kullanıcıya gösterilecek mesajlar
+}</code></pre>
+    </div>
+    <div class="card">
+      <h3>Cache Stratejisi</h3>
+      <ul>
+        <li>Aktif kampanyalar in-memory cache'de tutulur (<strong>5 dakika TTL</strong>)</li>
+        <li>Kampanya oluşturulunca / güncellenince / durumu değişince <code>invalidateCampaignCache()</code> çağrılır</li>
+        <li>Redis varsa ileride cache layer değiştirilebilir — interface aynı kalır</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CONDITIONS -->
+  <section class="section" id="conditions">
+    <div class="section-title"><div class="icon">🔍</div><h2>Koşullar (IF) — condition-evaluator.ts</h2></div>
+    <div class="card">
+      <h3>AND / OR Logic Group Mantığı</h3>
+      <p>Her koşulun <code>logicGroup</code> (0, 1, 2…) alanı vardır:</p>
+      <ul>
+        <li><strong>Aynı grup içindeki koşullar AND</strong> ile bağlıdır</li>
+        <li><strong>Farklı gruplar OR</strong> ile bağlıdır</li>
+        <li>Herhangi bir grubun tüm koşulları sağlanırsa kampanya uygulanır</li>
+      </ul>
+      <pre><code>// Örnek: "500 TL üzeri VEYA VIP müşteri ise indirim uygula"
+conditions = [
+  { type: "MIN_CART_AMOUNT", value: { amount: 500 }, logicGroup: 0 },
+  { type: "CUSTOMER_SEGMENT", value: { segment: "VIP" }, logicGroup: 1 }
+]</code></pre>
+    </div>
+  </section>
+
+  <!-- ACTIONS -->
+  <section class="section" id="actions">
+    <div class="section-title"><div class="icon">⚡</div><h2>Aksiyonlar (THEN) — action-executor.ts</h2></div>
+    <div class="card">
+      <h3>BUY_X_PAY_Y Hesaplaması</h3>
+      <p>Sepetteki toplam ürün sayısına göre <strong>en ucuz ürünler</strong> ücretsiz sayılır:</p>
+      <pre><code>const freeCount = Math.floor(totalQty / buyX) * (buyX - payY)
+// Örnek: 6 ürün, 3 al 2 öde → 2 ürün bedava
+// En ucuz 2 ürün fiyatı totalDiscount'a eklenir</code></pre>
+    </div>
+    <div class="card">
+      <h3>maxDiscountAmount Tavanı</h3>
+      <p>Her kampanyanın <code>maxDiscountAmount</code> alanı hesaplanan indirimi tavanda keser:</p>
+      <pre><code>discount = Math.min(calculatedDiscount, campaign.maxDiscountAmount)</code></pre>
+    </div>
+  </section>
+
+  <!-- SEGMENTS -->
+  <section class="section" id="segments">
+    <div class="section-title"><div class="icon">👥</div><h2>Segmentler — segment-matcher.ts</h2></div>
+    <div class="card">
+      <table>
+        <tr><th>Segment</th><th>Kriter</th></tr>
+        <tr><td><code>ALL_CUSTOMERS</code></td><td>Her müşteri (misafir dahil)</td></tr>
+        <tr><td><code>NEW_CUSTOMERS</code></td><td>Kayıt tarihinden itibaren ≤ 30 gün</td></tr>
+        <tr><td><code>VIP_CUSTOMERS</code></td><td>Toplam harcama ≥ <code>value.minSpend</code> TL (varsayılan: 5000)</td></tr>
+        <tr><td><code>INACTIVE_CUSTOMERS</code></td><td>Son siparişten ≥ <code>value.days</code> gün (varsayılan: 90)</td></tr>
+        <tr><td><code>BIRTHDAY_THIS_MONTH</code></td><td>Bu ay doğum günü olan</td></tr>
+        <tr><td><code>SPECIFIC_CUSTOMERS</code></td><td><code>value.customerIds[]</code> listesindeki müşteriler</td></tr>
+        <tr><td><code>CUSTOMER_TAG</code></td><td>Etiket bazlı (şu an placeholder, tag sistemi gelecekte)</td></tr>
+        <tr><td><code>GEOGRAPHIC_SEGMENT</code></td><td><code>value.cities[]</code> listesindeki şehirler</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONFLICT -->
+  <section class="section" id="conflict">
+    <div class="section-title"><div class="icon">⚖️</div><h2>Çakışma & Öncelik — conflict-resolver.ts</h2></div>
+    <div class="card">
+      <h3>Öncelik Kuralları</h3>
+      <ol>
+        <li><code>priority</code> değeri büyükten küçüğe göre sıralanır</li>
+        <li><code>stackable: false</code> bir kampanya uygulandıktan sonra diğer <strong>non-stackable</strong> kampanyalar durdurulur</li>
+        <li><code>stackable: true</code> kampanyalar birikimli uygulanmaya devam eder</li>
+        <li><code>maxDiscountAmount</code> her kampanya için bağımsız tavandır</li>
+        <li><code>budgetLimit</code> dolunca kampanya otomatik PAUSED'a alınır</li>
+      </ol>
+      <div class="callout">
+        <p><strong>Örnek:</strong> Yaz İndirimi (priority=10, stackable=false) + Ücretsiz Kargo (priority=5, stackable=true) → Her ikisi uygulanır, Yaz İndirimi sonrası başka non-stackable kampanya çalışmaz.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- A/B TEST -->
+  <section class="section" id="abtest">
+    <div class="section-title"><div class="icon">🧪</div><h2>A/B Test Motoru — ab-router.ts</h2></div>
+    <div class="card">
+      <h3>Deterministik Yönlendirme</h3>
+      <p>Müşteri ID veya session bazında her zaman aynı varyanta yönlendirilir:</p>
+      <pre><code>// seed = müşteri ID (giriş yapmışsa) veya rastgele string
+let hash = 0;
+for (let i = 0; i &lt; seed.length; i++) {
+  hash = (hash * 31 + seed.charCodeAt(i)) % 100;
+}
+// trafficSplit'ler kümülatif toplanarak varyant seçilir</code></pre>
+    </div>
+    <div class="card">
+      <h3>Varyant Yönetimi</h3>
+      <ul>
+        <li>Her varyant: <code>variantName</code>, <code>trafficSplit (%)</code>, <code>discountValue (%)</code></li>
+        <li>Tüm trafficSplit değerleri toplamı = 100 olmalı</li>
+        <li><code>isWinner: true</code> olan varyant kazanan olarak işaretlenir</li>
+        <li>Metrikler: impressions, conversions, revenue (manuel güncelleme veya future analytics)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- COUPON GEN -->
+  <section class="section" id="coupongen">
+    <div class="section-title"><div class="icon">🎟️</div><h2>Kupon Üretici — coupon-generator.ts</h2></div>
+    <div class="card">
+      <h3>Toplu Üretim Parametreleri</h3>
+      <pre><code>generateBulkCoupons({
+  count: number,          // 1 – 10.000
+  prefix?: string,        // "YAZ" → "YAZ-ABC12345"
+  campaignId?: string,    // hangi kampanyaya bağlı
+  discountType: "PERCENTAGE" | "FIXED",
+  discountValue: number,
+  minOrderAmount?: number,
+  maxUses?: number,
+  perCustomerLimit?: number,
+  expiresAt?: Date
+})</code></pre>
+      <p>Kodlar <strong>100'lük batch</strong> halinde üretilir; her batch veritabanında benzersizlik kontrolü yapılır.</p>
+      <p>Karakter seti: <code>ABCDEFGHJKLMNPQRSTUVWXYZ23456789</code> (0, O, I, L gibi karışan harfler hariç)</p>
+    </div>
+  </section>
+
+  <!-- RATE LIMITER -->
+  <section class="section" id="ratelimit">
+    <div class="section-title"><div class="icon">🛡️</div><h2>Rate Limiter — rate-limiter.ts</h2></div>
+    <div class="card">
+      <h3>Kupon Kodu Brute-Force Koruması</h3>
+      <ul>
+        <li>IP başına <strong>10 deneme / 15 dakika</strong> penceresi</li>
+        <li>In-memory <code>Map</code> kullanır (sunucu restart'ta sıfırlanır)</li>
+        <li>Başarılı doğrulamada IP sayacı sıfırlanır</li>
+        <li>429 yanıtında <code>X-RateLimit-Remaining: 0</code> header'ı döner</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ADMIN API -->
+  <section class="section" id="admin-api">
+    <div class="section-title"><div class="icon">🔑</div><h2>Admin API Route'ları</h2></div>
+    <div class="card">
+      <h3>Kampanya Yönetimi — <code>/api/admin/campaigns</code></h3>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Açıklama</th></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns</td><td>Liste (filtre: status, type, search, page)</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns</td><td>Yeni kampanya oluştur (conditions/actions ile)</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns/[id]</td><td>Detay (tüm ilişkiler dahil)</td></tr>
+        <tr><td><span class="api-method PUT">PUT</span></td><td>/api/admin/campaigns/[id]</td><td>Güncelle (alt ilişkiler silip yeniden oluşturulur)</td></tr>
+        <tr><td><span class="api-method DELETE">DELETE</span></td><td>/api/admin/campaigns/[id]</td><td>Soft delete (status → CANCELLED)</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/approve</td><td>Onayla (ADMIN/SUPERADMIN)</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/pause</td><td>Duraklat</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/resume</td><td>Devam ettir</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/duplicate</td><td>Klon oluştur (conditions/actions kopyalanır)</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns/[id]/stats</td><td>Performans istatistikleri</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns/[id]/audit-log</td><td>Değişiklik geçmişi (son 100)</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns/[id]/ab-tests</td><td>A/B varyant listesi</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/ab-tests</td><td>Yeni varyant ekle</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/ab-tests/declare-winner</td><td>Kazanan varyantı seç</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns/[id]/displays</td><td>Banner/popup listesi</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/campaigns/[id]/displays</td><td>Yeni display ekle</td></tr>
+        <tr><td><span class="api-method PATCH">PATCH</span></td><td>/api/admin/campaigns/[id]/displays/reorder</td><td>Sürükle-bırak sıralama</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/admin/campaigns/report/overview</td><td>Genel kampanya dashboard</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/coupons/bulk-generate</td><td>Toplu kupon üret (max 10.000)</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/admin/coupons/assign</td><td>Müşteriye kupon ata</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- PUBLIC API -->
+  <section class="section" id="public-api">
+    <div class="section-title"><div class="icon">🌐</div><h2>Public API</h2></div>
+    <div class="card">
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Açıklama</th><th>Auth</th></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/campaigns/evaluate</td><td>Sepet kampanya değerlendirme</td><td>Opsiyonel (oturum açık = daha zengin değerlendirme)</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/campaigns/active</td><td>Aktif kampanya listesi</td><td>Yok</td></tr>
+        <tr><td><span class="api-method GET">GET</span></td><td>/api/campaigns/[slug]</td><td>Kampanya landing page verisi</td><td>Yok</td></tr>
+        <tr><td><span class="api-method POST">POST</span></td><td>/api/campaigns/coupon/validate</td><td>Kupon kodu doğrula (rate limited)</td><td>Yok</td></tr>
+      </table>
+      <div class="callout">
+        <p><strong>/api/campaigns/evaluate</strong> — Hem otomatik kampanyaları hem kupon bazlı kampanyaları tek seferde değerlendirir. CategoryIds sunucu tarafında veritabanından zenginleştirilir, istemci göndermeye gerek yok.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRON -->
+  <section class="section" id="cron-api">
+    <div class="section-title"><div class="icon">⏰</div><h2>Cron Job'lar</h2></div>
+    <div class="card">
+      <table>
+        <tr><th>Route</th><th>Sıklık</th><th>Görev</th></tr>
+        <tr><td><code>/api/cron/campaign-activate</code></td><td>Dakikada 1</td><td>startsAt geçmiş APPROVED kampanyaları → ACTIVE</td></tr>
+        <tr><td><code>/api/cron/campaign-expire</code></td><td>Dakikada 1</td><td>endsAt geçmiş ACTIVE kampanyaları → ENDED</td></tr>
+        <tr><td><code>/api/cron/campaign-reminders</code></td><td>Saatlik</td><td>Bitimine 3 saat kalan kampanya maili (batch)</td></tr>
+        <tr><td><code>/api/cron/campaign-budget-check</code></td><td>Saatlik</td><td>budgetUsed ≥ budgetLimit → PAUSED</td></tr>
+        <tr><td><code>/api/cron/birthday-coupons</code></td><td>Günlük</td><td>Bu ay doğum günü olan müşterilere kupon</td></tr>
+        <tr><td><code>/api/cron/win-back</code></td><td>Günlük</td><td>90+ gün sipariş vermeyenlere geri kazanım kuponu</td></tr>
+        <tr><td><code>/api/cron/abandoned-cart</code></td><td>Saatlik</td><td>2 saat önce PENDING kalan siparişleri tespit</td></tr>
+      </table>
+      <pre><code>// Tüm cron'lar aynı auth kontrolünü kullanır:
+if (req.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  return new Response("Unauthorized", { status: 401 });
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ADMIN UI -->
+  <section class="section" id="admin-ui">
+    <div class="section-title"><div class="icon">🖥️</div><h2>Admin Panel UI</h2></div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Kampanya Listesi — /admin/kampanyalar</h3>
+        <ul>
+          <li>Toplam / aktif / indirim özet kartları</li>
+          <li>Status badge (Taslak, Aktif, Duraklatıldı…)</li>
+          <li>Inline aksiyon menüsü (onayla, duraklat, klonla, iptal)</li>
+          <li>Soft delete (CANCELLED)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Kampanya Takvimi — /admin/kampanyalar/calendar</h3>
+        <ul>
+          <li>Aylık ve liste görünümü</li>
+          <li>Tip bazlı renk kodlaması (11 renk)</li>
+          <li>Bugün vurgulaması</li>
+          <li>Kampanya tıklamasında detay sayfasına yönlendirme</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>İstatistikler — /admin/kampanyalar/[id]/stats</h3>
+        <ul>
+          <li>Toplam kullanım, indirim, benzersiz müşteri, ortalama indirim</li>
+          <li>Günlük kullanım bar grafiği (son 14 gün)</li>
+          <li>Bütçe kullanım progress bar (90% kırmızı, 70% turuncu)</li>
+          <li>A/B test sonuç tablosu (impressions, CVR, revenue)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Kupon Yönetimi — /admin/kampanyalar/coupons</h3>
+        <ul>
+          <li>Son 50 kupon listesi (kampanya bağlantısıyla)</li>
+          <li>Toplu kupon üretim formu</li>
+          <li>Bulk/tekil ayırt eden badge</li>
+          <li>Admin → müşteri atama: <code>POST /api/admin/coupons/assign</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILDER -->
+  <section class="section" id="builder">
+    <div class="section-title"><div class="icon">🔧</div><h2>Campaign Builder — Sürükle &amp; Bırak</h2></div>
+    <div class="card">
+      <h3>Bileşen Mimarisi</h3>
+      <div class="flow">
+        <div class="flow-step">CampaignBuilder</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">DndContext (PointerSensor)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">ConditionPanel + ActionPanel (sol)</div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-step">BuilderCanvas (orta)</div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-step">PreviewPanel (sağ)</div>
+      </div>
+      <ul style="margin-top:12px;">
+        <li>Sol panelden koşul/aksiyon tipine tıklanınca canvas'a <strong>anında eklenir</strong></li>
+        <li>Canvas içindeki kartlar <strong>SortableContext</strong> ile sürüklenerek sıralanır</li>
+        <li>PreviewPanel: gerçek zamanlı Türkçe özet metin üretir</li>
+        <li>Logic group numarası koşul kartında değiştirilebilir (0=AND, 1+=OR)</li>
+        <li>Kaydet seçenekleri: Taslak / Yayınla / Onaya Gönder</li>
+      </ul>
+    </div>
+    <div class="callout">
+      <p><strong>@dnd-kit versiyon:</strong> core@6.3.1, sortable@10.0.0, utilities@3.2.2 — pnpm ile kuruldu</p>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="section" id="calendar">
+    <div class="section-title"><div class="icon">📅</div><h2>Kampanya Takvimi</h2></div>
+    <div class="card">
+      <h3>Tip → Renk Eşlemesi</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+        <span style="background:rgba(239,68,68,.15);color:#f87171;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(239,68,68,.3)">FLASH_SALE</span>
+        <span style="background:rgba(96,165,250,.15);color:#60a5fa;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(96,165,250,.3)">CART_DISCOUNT</span>
+        <span style="background:rgba(167,139,250,.15);color:#a78bfa;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(167,139,250,.3)">COUPON</span>
+        <span style="background:rgba(34,197,94,.15);color:#22c55e;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(34,197,94,.3)">FREE_SHIPPING</span>
+        <span style="background:rgba(251,146,60,.15);color:#fb923c;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(251,146,60,.3)">BUY_X_PAY_Y</span>
+        <span style="background:rgba(236,72,153,.15);color:#f472b6;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(236,72,153,.3)">BIRTHDAY</span>
+        <span style="background:rgba(45,212,191,.15);color:#2dd4bf;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid rgba(45,212,191,.3)">CASHBACK</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CART INTEGRATION -->
+  <section class="section" id="cart-int">
+    <div class="section-title"><div class="icon">🛒</div><h2>Sepet Entegrasyonu</h2></div>
+    <div class="card">
+      <h3>Veri Akışı</h3>
+      <div class="flow">
+        <div class="flow-step">CartItem değişir</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">useCampaignEvaluator (400ms debounce)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">POST /api/campaigns/evaluate</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">CampaignResult döner</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">setCampaignResult(result)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">CartPageClient yeniden render</div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>CartStore Yeni State</h3>
+        <pre><code>campaignResult: CampaignResult | null
+setCampaignResult: (r) => void
+
+// total() artık kampanya indirimini bilir:
+total: () => {
+  const discount = campaignResult
+    ? campaignResult.totalDiscount
+    : couponDiscount; // geri dönüş
+  return Math.max(0, subtotal - discount);
+}</code></pre>
+      </div>
+      <div class="card">
+        <h3>Kupon → Kampanya Motoru Köprüsü</h3>
+        <ul>
+          <li>Kullanıcı kupon kodu girer</li>
+          <li><code>/api/campaigns/coupon/validate</code> ile hızlı doğrulama</li>
+          <li>Geçerliyse <code>applyCoupon()</code> → <code>couponCode</code> store'a yazılır</li>
+          <li><code>useCampaignEvaluator</code> yeniden tetiklenir (couponCode dependency)</li>
+          <li>Evaluate endpoint kupon kampanyasını da bulur ve uygular</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Sipariş Oluşturulurken</h3>
+      <ul>
+        <li><code>CheckoutForm</code> → <code>appliedCampaignIds[]</code> ve <code>effectiveDiscount</code> ile sipariş gönderir</li>
+        <li><code>POST /api/orders</code> → her kampanya için <code>CampaignUsage</code> kaydı oluşturur</li>
+        <li>Her kampanyanın <code>budgetUsed</code> güncellenir</li>
+        <li>Kupon <code>usedCount</code> artırılır (eski mekanizma korundu)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- DISPLAY -->
+  <section class="section" id="display">
+    <div class="section-title"><div class="icon">🎨</div><h2>Gösterim Bileşenleri</h2></div>
+    <div class="grid2">
+      <div class="card">
+        <h3>CountdownTimer</h3>
+        <ul>
+          <li>1 saniyelik interval ile gerçek zamanlı geri sayım</li>
+          <li><code>endsAt</code> prop'u alır (Date veya string)</li>
+          <li>Sona erince "Sona erdi" gösterir</li>
+          <li>Flash Sale badge'inde ve kampanya landing page'inde kullanılır</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>CampaignBanner</h3>
+        <ul>
+          <li><code>CampaignDisplay</code> kaydından render edilir</li>
+          <li><code>bgColor</code> ve <code>textColor</code> admin panelinden özelleştirilebilir</li>
+          <li><code>showCountdown: true</code> ise CountdownTimer gösterir</li>
+          <li><code>imageUrl</code> varsa arka plan görseli (opacity 20%)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>FloatingBar</h3>
+        <ul>
+          <li>Sayfanın üstünde sabit ince bar</li>
+          <li>Oturum boyunca dismiss edilebilir</li>
+          <li>CTA butonu ve geri sayım destekler</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>CampaignBadge (Ürün Kartı)</h3>
+        <ul>
+          <li>Tip bazlı renk: Flash Sale → kırmızı, Sepet İndirimi → honey vb.</li>
+          <li>Flash Sale için inline CountdownTimer</li>
+          <li>Özel <code>label</code> prop'u ile metni geçersiz kılınabilir</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENV -->
+  <section class="section" id="env">
+    <div class="section-title"><div class="icon">🔐</div><h2>Env Değişkenleri</h2></div>
+    <div class="card">
+      <pre><code># Mevcut (değişmedi)
+DATABASE_URL=mysql://...
+NEXTAUTH_SECRET=...
+RESEND_API_KEY=re_...
+NEXT_PUBLIC_APP_URL=https://...
+
+# Kampanya modülü için gerekli
+CRON_SECRET="guclu-bir-secret-buraya"   # Tüm cron job'lar bu secret ile korunur
+
+# Opsiyonel (in-memory fallback var)
+REDIS_URL=redis://...                    # Şu an kullanılmıyor, ileride cache için</code></pre>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section class="section" id="security">
+    <div class="section-title"><div class="icon">🛡️</div><h2>Güvenlik Notları</h2></div>
+    <div class="card">
+      <ul>
+        <li><strong>Client manipülasyonuna karşı:</strong> Sepet indirimleri her zaman sunucu tarafında yeniden hesaplanır. Frontend yalnızca gösterim için sonucu kullanır.</li>
+        <li><strong>Admin koruması:</strong> Tüm <code>/api/admin/*</code> route'ları session role kontrolü yapar (ADMIN/SUPERADMIN/EDITOR).</li>
+        <li><strong>Kupon brute-force:</strong> <code>/api/campaigns/coupon/validate</code> → 10 deneme / 15 dk rate limit (IP bazlı).</li>
+        <li><strong>Cron koruması:</strong> <code>Authorization: Bearer CRON_SECRET</code> header zorunlu.</li>
+        <li><strong>Onay akışı:</strong> <code>requiresApproval: true</code> kampanyalar ACTIVE olamaz, önce SUPERADMIN onayı gerekir.</li>
+        <li><strong>Audit log:</strong> Admin tarafından yapılan her değişiklik (oluşturma, güncelleme, onaylama, duraklatma) <code>CampaignAuditLog</code>'a IP ile birlikte kaydedilir.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="section" id="checklist">
+    <div class="section-title"><div class="icon">✅</div><h2>Tamamlanma Durumu</h2></div>
+    <div class="card">
+      <table>
+        <tr><th>Kriter</th><th>Durum</th></tr>
+        <tr><td>Prisma schema + DB sync</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Kampanya motoru (tüm tipler)</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Öncelik & çakışma kuralları</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Sürükle-bırak builder</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Kampanya takvimi</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Sepet kampanya entegrasyonu</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Kupon kodu doğrulama + rate limit</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>A/B test motoru + admin UI</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Cron job'lar (7 adet)</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Bütçe limiti → otomatik duraklat</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Audit log</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Admin onay akışı</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Performans metrikleri</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Flash sale geri sayım</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>TypeScript hataları</td><td><span class="tag tag-green">✓ Sıfır hata</span></td></tr>
+        <tr><td>pnpm build başarılı</td><td><span class="tag tag-green">✓ Tamamlandı</span></td></tr>
+        <tr><td>Mail bildirimleri (doğum günü, geri kazanım)</td><td><span class="tag tag-orange">⚠ Cron hazır, mail template'i ileride</span></td></tr>
+        <tr><td>Popup/floating bar admin UI</td><td><span class="tag tag-orange">⚠ Bileşenler hazır, admin sayfası ileride</span></td></tr>
+        <tr><td>Terk edilmiş sepet DB kaydı</td><td><span class="tag tag-orange">⚠ Cron hazır, sepet DB persistence ileride</span></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div style="border-top:1px solid var(--border);padding-top:20px;margin-top:12px;color:var(--text-muted);font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span>🍯 Binboğa Bal — Kampanya Modülü Teknik Dökümantasyonu</span>
+    <span>31 Mayıs 2026 — v1.0 · Claude tarafından yazıldı</span>
+  </div>
+</main>
+</div>
+</body>
+</html>

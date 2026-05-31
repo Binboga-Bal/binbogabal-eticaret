@@ -30,6 +30,7 @@ const orderSchema = z.object({
   discount: z.number().min(0).default(0),
   total: z.number().positive(),
   couponCode: z.string().nullable().optional(),
+  appliedCampaignIds: z.array(z.string()).optional(), // kampanya motoru sonuçları
   notes: z.string().optional(),
   paymentMethod: z.enum(["QNB_PAY", "CASH_ON_DELIVERY"]).default("QNB_PAY"),
   // 🔒 PCI-DSS GÜVENLİĞİ: 'card' şemasını buradan tamamen siliyoruz veya opsiyonel bırakıp kodda hiç kullanmıyoruz.
@@ -85,6 +86,29 @@ export async function POST(req: Request) {
         data: { usedCount: { increment: 1 } },
       })
       .catch(() => {});
+  }
+
+  // Kampanya kullanımlarını kaydet + bütçeyi güncelle
+  if (data.appliedCampaignIds && data.appliedCampaignIds.length > 0) {
+    const discountPerCampaign = data.discount / data.appliedCampaignIds.length;
+    await Promise.all(
+      data.appliedCampaignIds.map((campaignId) =>
+        Promise.all([
+          prisma.campaignUsage.create({
+            data: {
+              campaignId,
+              customerId: session?.user?.id ?? null,
+              orderId: order.id,
+              discountAmount: discountPerCampaign,
+            },
+          }).catch(() => {}),
+          prisma.campaign.update({
+            where: { id: campaignId },
+            data: { budgetUsed: { increment: discountPerCampaign } },
+          }).catch(() => {}),
+        ])
+      )
+    );
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

@@ -13,7 +13,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const { items, removeItem, updateQuantity, subtotal } = useCartStore();
+  const { items, removeItem, updateQuantity, subtotal, total, campaignResult } = useCartStore();
 
   if (!open) return null;
 
@@ -95,9 +95,15 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           {/* Footer */}
           {items.length > 0 && (
             <div className="border-t px-5 py-4 space-y-3">
+              {campaignResult && campaignResult.totalDiscount > 0 && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span>Kampanya İndirimi</span>
+                  <span className="font-semibold">−{formatPrice(campaignResult.totalDiscount)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-base font-bold">
                 <span>Toplam</span>
-                <span className="text-honey-dark">{formatPrice(subtotal())}</span>
+                <span className="text-honey-dark">{formatPrice(total())}</span>
               </div>
               <p className="text-xs text-gray-500">KDV dahil. Kargo ücreti ödeme adımında hesaplanır.</p>
               <Link href="/odeme" onClick={onClose}>

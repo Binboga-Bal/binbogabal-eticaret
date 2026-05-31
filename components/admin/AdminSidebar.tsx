@@ -35,7 +35,18 @@ const navItems: NavItem[] = [
   { href: "/admin/kategoriler", label: "Kategoriler", icon: <Layers size={18} /> },
   { href: "/admin/siparisler", label: "Siparişler", icon: <ShoppingBag size={18} /> },
   { href: "/admin/musteriler", label: "Müşteriler", icon: <Users size={18} />, roles: ["ADMIN", "SUPERADMIN"] },
-  { href: "/admin/kampanyalar", label: "Kampanyalar", icon: <Percent size={18} /> },
+  {
+    href: "/admin/kampanyalar",
+    label: "Kampanyalar",
+    icon: <Percent size={18} />,
+    children: [
+      { href: "/admin/kampanyalar", label: "Tüm Kampanyalar" },
+      { href: "/admin/kampanyalar/new", label: "Yeni Kampanya" },
+      { href: "/admin/kampanyalar/calendar", label: "Takvim" },
+      { href: "/admin/kampanyalar/coupons", label: "Kuponlar" },
+      { href: "/admin/kampanyalar/reports", label: "Raporlar" },
+    ],
+  },
   { href: "/admin/yorumlar", label: "Yorumlar", icon: <Star size={18} /> },
   {
     href: "/admin/icerik",

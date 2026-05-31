@@ -145,7 +145,7 @@ export function CheckoutForm({
   });
   const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
 
-  const { items, subtotal, total, couponCode, couponDiscount, clearCart } =
+  const { items, subtotal, total, couponCode, couponDiscount, campaignResult, clearCart } =
     useCartStore();
 
   const {
@@ -193,8 +193,10 @@ export function CheckoutForm({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const SHIPPING_FEE = subtotal() >= 1500 ? 0 : 99;
+  const campaignFreeShipping = campaignResult?.freeShipping ?? false;
+  const SHIPPING_FEE = campaignFreeShipping || subtotal() >= 1500 ? 0 : 99;
   const grandTotal = total() + SHIPPING_FEE;
+  const effectiveDiscount = campaignResult ? campaignResult.totalDiscount : couponDiscount;
 
   function updateCard(field: keyof CardData, value: string) {
     setCard((prev) => ({ ...prev, [field]: value }));
@@ -235,9 +237,10 @@ export function CheckoutForm({
           })),
           subtotal: subtotal(),
           shippingFee: SHIPPING_FEE,
-          discount: couponDiscount,
+          discount: effectiveDiscount,
           total: grandTotal,
           couponCode,
+          appliedCampaignIds: campaignResult?.appliedCampaigns.map((c) => c.campaignId) ?? [],
           notes: data.notes,
           paymentMethod,
         }),
