@@ -120,6 +120,13 @@ export function CheckoutForm({
   savedAddresses?: SavedAddress[];
   userEmail?: string;
 }) {
+  const isGuest = !userEmail;
+  // Misafir kullanıcı için ilk adım: ad soyad + email
+  const [guestReady, setGuestReady] = useState(!isGuest);
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestErrors, setGuestErrors] = useState<{ name?: string; email?: string }>({});
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -147,6 +154,23 @@ export function CheckoutForm({
     setValue,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  function submitGuestInfo() {
+    const errs: { name?: string; email?: string } = {};
+    const nameParts = guestName.trim().split(/\s+/);
+    if (nameParts.length < 2 || nameParts[0].length < 2 || nameParts[1].length < 2)
+      errs.name = "Ad ve soyadınızı girin";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail.trim()))
+      errs.email = "Geçerli bir e-posta girin";
+    if (Object.keys(errs).length > 0) { setGuestErrors(errs); return; }
+
+    const [firstName, ...rest] = guestName.trim().split(/\s+/);
+    const lastName = rest.join(" ");
+    setValue("firstName", firstName);
+    setValue("lastName", lastName);
+    setValue("email", guestEmail.trim());
+    setGuestReady(true);
+  }
 
   // Seçili adres değişince formu doldur
   function applyAddress(addressId: string | null) {
@@ -247,6 +271,69 @@ export function CheckoutForm({
     );
   }
 
+  if (!guestReady) {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 space-y-6">
+          <div>
+            <h2 className="text-lg font-black text-gray-900">Siparişe Devam Et</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Siparişinizi takip edebilmek için bilgilerinizi girin.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Ad Soyad
+              </label>
+              <input
+                type="text"
+                value={guestName}
+                onChange={(e) => { setGuestName(e.target.value); setGuestErrors((p) => ({ ...p, name: undefined })); }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitGuestInfo(); } }}
+                placeholder="Örn: Ahmet Yılmaz"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                autoFocus
+              />
+              {guestErrors.name && (
+                <p className="text-xs text-red-500 mt-1">{guestErrors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                E-posta Adresi
+              </label>
+              <input
+                type="email"
+                value={guestEmail}
+                onChange={(e) => { setGuestEmail(e.target.value); setGuestErrors((p) => ({ ...p, email: undefined })); }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitGuestInfo(); } }}
+                placeholder="ornek@email.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+              />
+              {guestErrors.email && (
+                <p className="text-xs text-red-500 mt-1">{guestErrors.email}</p>
+              )}
+            </div>
+          </div>
+
+          <Button type="button" onClick={submitGuestInfo} className="w-full" size="lg">
+            Devam Et
+          </Button>
+
+          <p className="text-xs text-center text-gray-400">
+            Zaten hesabınız var mı?{" "}
+            <a href="/hesabim/giris?callbackUrl=/odeme" className="text-honeyDark font-semibold hover:underline">
+              Giriş yapın
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const inputCls =
     "w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey";
 
@@ -311,16 +398,33 @@ export function CheckoutForm({
               {savedAddresses.length > 0 ? "Teslimat Detayları" : "Teslimat Bilgileri"}
             </h2>
 
+            {isGuest && (
+              <div className="mb-4 flex items-center justify-between bg-honey/10 rounded-xl px-4 py-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">{guestName}</p>
+                  <p className="text-xs text-gray-500">{guestEmail}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setGuestReady(false)}
+                  className="text-xs text-honeyDark hover:underline flex-shrink-0 ml-3"
+                >
+                  Değiştir
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Ad"
                 {...register("firstName")}
                 error={errors.firstName?.message}
+                readOnly={isGuest}
               />
               <Input
                 label="Soyad"
                 {...register("lastName")}
                 error={errors.lastName?.message}
+                readOnly={isGuest}
               />
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -329,6 +433,7 @@ export function CheckoutForm({
                 type="email"
                 {...register("email")}
                 error={errors.email?.message}
+                readOnly={isGuest}
               />
               <Input
                 label="Telefon"

@@ -22,6 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className={cn(
             "w-full px-4 py-3 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-honey focus:border-transparent",
             error ? "border-red-400" : "border-gray-300",
+            props.readOnly ? "bg-gray-50 text-gray-600 cursor-default" : "",
             className
           )}
           {...props}

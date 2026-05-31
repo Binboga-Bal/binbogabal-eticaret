@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { sendReviewReplyEmail } from "@/lib/mail/mail.service";
 
 function forbidden() {
   return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
@@ -29,10 +30,43 @@ export async function PATCH(
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Geçersiz veri" }, { status: 400 });
 
+  // Mevcut yorumu çek — adminReply değişip değişmediğini anlamak için
+  const existing = await prisma.review.findUnique({
+    where: { id },
+    select: {
+      adminReply: true,
+      comment: true,
+      user: { select: { id: true, name: true, email: true } },
+      product: { select: { name: true, slug: true } },
+    },
+  });
+
   const review = await prisma.review.update({
     where: { id },
     data: parsed.data,
   });
+
+  // adminReply yeni eklendiyse (önceden yoktu veya değişti) kullanıcıya bildir
+  const newReply = parsed.data.adminReply;
+  if (
+    existing &&
+    newReply &&
+    newReply.trim() !== "" &&
+    newReply !== existing.adminReply &&
+    existing.user?.email
+  ) {
+    sendReviewReplyEmail(
+      existing.user.id,
+      existing.user.email,
+      existing.user.name ?? "Müşterimiz",
+      existing.product?.name ?? "",
+      existing.product?.slug ?? "",
+      existing.comment ?? "",
+      newReply,
+    ).catch(() => {
+      // mail hatası yanıtı engellemesin
+    });
+  }
 
   return NextResponse.json(review);
 }

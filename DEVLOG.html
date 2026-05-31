@@ -512,6 +512,16 @@
       <a href="#step89" class="nav-link"><span class="dot"></span>89 — FavoriteButton API Entegrasyonu</a>
       <a href="#step90" class="nav-link"><span class="dot"></span>90 — Admin Yorum Yönetimi</a>
 
+      <div class="nav-section-label">31 Mayıs 2026 — UX & Bildirimler</div>
+      <a href="#step91" class="nav-link"><span class="dot"></span>91 — Profilim Sayfası Read-Only</a>
+      <a href="#step92" class="nav-link"><span class="dot"></span>92 — Yorum Yanıtı E-posta Bildirimi</a>
+      <a href="#step93" class="nav-link"><span class="dot"></span>93 — Hesabım Sidebar Aktif Menü</a>
+      <a href="#step94" class="nav-link"><span class="dot"></span>94 — PDF Viewer Responsive</a>
+      <a href="#step95" class="nav-link"><span class="dot"></span>95 — Misafir Sipariş Adım Ekranı</a>
+      <a href="#step96" class="nav-link"><span class="dot"></span>96 — Arama Overlay İyileştirmeleri</a>
+      <a href="#step97" class="nav-link"><span class="dot"></span>97 — EmailVerify Banner Konumu</a>
+      <a href="#step98" class="nav-link"><span class="dot"></span>98 — Sipariş No Kopyalama</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -5077,10 +5087,208 @@ OR: [
       </div>
     </section>
 
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════ 31 MAYIS 2026 -->
+    <div class="day-header" style="margin: 0 0 32px;">
+      <span class="date-pill">📅 31 Mayıs 2026</span>
+    </div>
+
+    <section class="section" id="step91">
+      <div class="section-title">
+        <div class="step-num">91</div>
+        <h2>Profilim Sayfası — Read-Only + Edit Modu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Profil alanları (Ad Soyad, E-posta, Telefon) sayfa açılışında <code>GET /api/customer/me</code> ile yüklenir, read-only gri kutu olarak gösterilir</li>
+          <li>Sağ üste <strong>Düzenle</strong> butonu (kalem ikonu) eklendi; tıklayınca alanlar input'a dönüşür</li>
+          <li><strong>İptal</strong> butonu ile değişiklikler iptal edilip read-only'e dönülür</li>
+          <li>E-posta alanı da düzenlenebilir yapıldı; <code>PUT /api/customer/me</code> şemasına <code>email</code> eklendi</li>
+          <li><code>Input</code> bileşenine <code>readOnly</code> prop desteği + gri arka plan stili eklendi</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/hesabim/profilim/page.tsx</span> — tam yeniden yazıldı<br>
+          <span class="file mod">app/api/customer/me/route.ts</span> — PUT şemasına email eklendi<br>
+          <span class="file mod">components/ui/Input.tsx</span> — readOnly stil desteği
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step92">
+      <div class="section-title">
+        <div class="step-num">92</div>
+        <h2>Admin Yorum Yanıtı — E-posta Bildirimi</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Admin bir yoruma yanıt yazdığında (<code>PATCH /api/admin/reviews/[id]</code>) kullanıcıya otomatik e-posta gönderilir</li>
+          <li>Yeni <code>adminReply</code> önceki değerden farklıysa tetiklenir (tekrar gönderimi önler)</li>
+          <li>Kullanıcının <code>reviewRequests</code> bildirim tercihi kontrol edilir; kapalıysa gönderilmez</li>
+          <li>Mail hatası API yanıtını engellemez (fire-and-forget <code>.catch()</code>)</li>
+          <li>Yeni e-posta şablonu: orijinal yorum alıntı kutusunda, admin yanıtı sarı vurgulu kutuda gösterilir</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/mail/templates/review-reply.tsx</span> — yeni şablon<br>
+          <span class="file mod">lib/mail/mail.service.ts</span> — <code>sendReviewReplyEmail()</code> eklendi<br>
+          <span class="file mod">app/api/admin/reviews/[id]/route.ts</span> — PATCH'e bildirim mantığı eklendi
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step93">
+      <div class="section-title">
+        <div class="step-num">93</div>
+        <h2>Hesabım Sidebar — Aktif Sayfa Vurgusu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Sidebar navigasyonu Server Component olan <code>layout.tsx</code>'ten ayrılarak <code>HesabimNav</code> Client Component'e taşındı</li>
+          <li><code>usePathname()</code> ile aktif sayfa tespiti yapılıyor</li>
+          <li>Aktif link: <code>bg-honey/10 text-honeyDark font-semibold</code> ile vurgulanıyor</li>
+          <li>Alt sayfalar (<code>/hesabim/siparislerim/123</code>) <code>startsWith</code> ile doğru tanınıyor</li>
+          <li>"Genel Bakış" yalnızca tam <code>/hesabim</code> eşleşmesinde aktif sayılıyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/(shop)/hesabim/HesabimNav.tsx</span> — yeni client bileşen<br>
+          <span class="file mod">app/(shop)/hesabim/layout.tsx</span> — nav bileşene taşındı
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step94">
+      <div class="section-title">
+        <div class="step-num">94</div>
+        <h2>PDF Viewer Overlay — Responsive Düzeltme</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Header buton etiketleri (<em>İndir</em>, <em>Yeni Sekmede Aç</em>) küçük ekranlarda gizleniyor, sadece ikon görünüyor</li>
+          <li><code>min-h-0</code> eklendi — flex child'ın <code>h-full</code> doğru çalışması için gerekli</li>
+          <li>Yükseklik <code>h-[90vh]</code> yerine <code>min(90vh, 900px)</code> olarak güncellendi</li>
+          <li>iframe yüklenemezse "İndir / Yeni Sekmede Aç" butonlu fallback ekranı gösteriliyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/product/PdfViewerOverlay.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step95">
+      <div class="section-title">
+        <div class="step-num">95</div>
+        <h2>Misafir Sipariş — Ad/Email Adım Ekranı</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Oturumsuz kullanıcı ödeme sayfasına geldiğinde önce <strong>Ad Soyad + E-posta</strong> ekranı gösterilir</li>
+          <li>"Devam Et" veya Enter ile form validate edilir, bilgiler ana checkout formuna pre-fill olur</li>
+          <li>Ana formda ad/email alanları <code>readOnly</code> + "Değiştir" butonu ile gösterilir</li>
+          <li>"Giriş yapın" linki <code>callbackUrl=/odeme</code> ile eklendi</li>
+          <li>Oturumluysa bu adım atlanır, doğrudan checkout gösterilir</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> — guestStep state + UI
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step96">
+      <div class="section-title">
+        <div class="step-num">96</div>
+        <h2>Arama Overlay — UX İyileştirmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Typewriter animasyonu input focus olduğunda da çalışmaya devam ediyor (<code>!focused</code> koşulu kaldırıldı)</li>
+          <li><code>type="search"</code> → <code>type="text"</code>: tarayıcının native temizleme butonu kaldırıldı, çift X sorunu giderildi</li>
+          <li>Overlay içine yazılı <strong>Kapat</strong> butonu (X ikonu + "Kapat" metni) eklendi</li>
+          <li>Search butonu açıkken <code>bg-honey-light</code> arka plan alıyor (footer rengiyle aynı), ikon değişmiyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/header/SearchOverlay.tsx</span><br>
+          <span class="file mod">components/shop/header/Header.tsx</span> — search buton aktif stili
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step97">
+      <div class="section-title">
+        <div class="step-num">97</div>
+        <h2>EmailVerify Banner — Wave Entegrasyonu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Banner <code>fixed</code> konumlandırıldı: <code>top: solidHeight (125px)</code>, <code>height: waveDepth (90px)</code></li>
+          <li><code>z-index: 39</code> → header wave (<code>z-40</code>) banner'ın üstüne oturuyor, wave çukuru kırmızı banner ile dolduruluyor</li>
+          <li>Banner içeriği <code>align-items: flex-end</code> ile alta hizalandı</li>
+          <li>Banner rengi <code>amber</code> → <code>red</code> (uyarı tonu) olarak güncellendi</li>
+          <li>Hesabım layout'unda banner gösterilince içerik <code>waveDepth + 40px</code> aşağı itiliyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/EmailVerifyBanner.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/layout.tsx</span> — padding ayarı
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step98">
+      <div class="section-title">
+        <div class="step-num">98</div>
+        <h2>Sipariş Numarası — Kopyalama Butonu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Yeni <code>CopyText</code> client bileşeni: metni <code>select-all</code> ile seçilebilir yapar, Copy ikonuna tıklayınca panoya kopyalar</li>
+          <li>2 saniye yeşil ✓ ikonu gösterip geri döner; <code>Link</code> içinde çalışmak için <code>e.stopPropagation()</code> uygulandı</li>
+          <li>Sipariş listesi, sipariş detay ve genel bakış "Son Siparişler" bölümlerine eklendi</li>
+          <li>Kargo takip numarası da kopyalanabilir yapıldı</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/ui/CopyText.tsx</span> — yeni bileşen<br>
+          <span class="file mod">app/(shop)/hesabim/page.tsx</span> — son siparişler<br>
+          <span class="file mod">app/(shop)/hesabim/siparislerim/page.tsx</span><br>
+          <span class="file mod">app/(shop)/hesabim/siparislerim/[id]/page.tsx</span>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 30 Mayıs 2026 — Adım 90 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 31 Mayıs 2026 — Adım 98 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

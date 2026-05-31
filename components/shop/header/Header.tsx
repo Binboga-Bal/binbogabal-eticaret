@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cart";
-import { CartDrawer } from "../cart/CartDrawer";
 import { SearchOverlay } from "./SearchOverlay";
 import { headerTheme, footerTheme } from "@/lib/theme";
 
@@ -62,7 +61,6 @@ const archBorderPath = [
 
 export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [cartOpen, setCartOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const itemCount = useCartStore((s) => s.itemCount());
 
@@ -156,13 +154,13 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
                 </Link>
                 <button
                   onClick={() => setSearchOpen(!searchOpen)}
-                  className="p-2 text-gray-600 hover:text-honey-dark transition-colors"
+                  className={`p-2 rounded-xl transition-colors ${searchOpen ? "bg-honey-light text-gray-600" : "text-gray-600 hover:text-honey-dark"}`}
                   aria-label="Ara"
                 >
                   <Search size={20} />
                 </button>
-                <button
-                  onClick={() => setCartOpen(true)}
+                <Link
+                  href="/sepet"
                   className="relative p-2 text-gray-600 hover:text-honey-dark transition-colors"
                   aria-label="Sepet"
                 >
@@ -172,7 +170,7 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
                       {itemCount > 9 ? "9+" : itemCount}
                     </span>
                   )}
-                </button>
+                </Link>
                 <button
                   className="md:hidden p-2 text-gray-600"
                   onClick={() => setMobileOpen(!mobileOpen)}
@@ -232,7 +230,6 @@ export function Header({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
       </div>
       {/* ──────────────────────────────────────────────────────────────── */}
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );

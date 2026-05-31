@@ -199,10 +199,19 @@ export function SearchOverlay({ open, onClose }: Props) {
               {/* ── SOL: Arama kutusu + sonuçlar ─────────────────────── */}
               <div className="flex-1 min-w-0">
 
-                {/* Başlık */}
-                <h2 className="text-lg font-bold text-gray-800 mb-3 tracking-tight">
-                  Ne arıyorsunuz?
-                </h2>
+                {/* Başlık + Kapat */}
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-gray-800 tracking-tight">
+                    Ne arıyorsunuz?
+                  </h2>
+                  <button
+                    onClick={onClose}
+                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-xl px-3 py-1.5 transition-colors"
+                  >
+                    <X size={14} />
+                    Kapat
+                  </button>
+                </div>
 
                 {/* Arama kutusu */}
                 <div className="relative mb-4">
@@ -213,7 +222,7 @@ export function SearchOverlay({ open, onClose }: Props) {
                   />
 
                   {/* Typewriter placeholder */}
-                  {!query && !focused && (
+                  {!query && (
                     <span
                       className="absolute left-12 top-1/2 -translate-y-1/2 pointer-events-none select-none text-gray-400"
                       style={{ fontSize: 14 }}
@@ -229,7 +238,7 @@ export function SearchOverlay({ open, onClose }: Props) {
 
                   <input
                     ref={inputRef}
-                    type="search"
+                    type="text"
                     value={query}
                     onChange={(e) => handleChange(e.target.value)}
                     onFocus={() => setFocused(true)}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDate } from "@/lib/utils/format";
 import Link from "next/link";
 import { Package } from "lucide-react";
+import { CopyText } from "@/components/ui/CopyText";
 
 export const metadata = { title: "Siparişlerim" };
 
@@ -45,10 +46,12 @@ export default async function SiparislerimPage() {
               className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start justify-between gap-4 hover:border-honey-dark transition-colors block"
             >
               <div>
-                <p className="font-bold text-honey-dark">{order.orderNumber}</p>
+                <CopyText text={order.orderNumber} className="font-bold text-honey-dark" />
                 <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.createdAt)} · {order.items.length} ürün</p>
                 {order.cargoTrackingNo && (
-                  <p className="text-xs text-purple-600 mt-1">Kargo: {order.cargoCompany} · {order.cargoTrackingNo}</p>
+                  <p className="text-xs text-purple-600 mt-1">
+                    Kargo: {order.cargoCompany} · <CopyText text={order.cargoTrackingNo} />
+                  </p>
                 )}
               </div>
               <div className="text-right">

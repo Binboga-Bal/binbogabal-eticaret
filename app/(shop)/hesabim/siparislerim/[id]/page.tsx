@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDate } from "@/lib/utils/format";
 import Link from "next/link";
 import { CancelOrderButton } from "./CancelOrderButton";
+import { CopyText } from "@/components/ui/CopyText";
 
 export const metadata = { title: "Sipariş Detayı" };
 
@@ -44,7 +45,9 @@ export default async function SiparisDetayPage({ params }: { params: Promise<{ i
 
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-black text-gray-900">{order.orderNumber}</h1>
+          <h1 className="text-xl font-black text-gray-900">
+            <CopyText text={order.orderNumber} />
+          </h1>
           <p className="text-sm text-gray-400">{formatDate(order.createdAt)}</p>
         </div>
         <span className={`text-sm font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[order.status] ?? "bg-gray-100 text-gray-600"}`}>
@@ -78,7 +81,7 @@ export default async function SiparisDetayPage({ params }: { params: Promise<{ i
         <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
           <p className="text-sm font-semibold text-purple-800">Kargo Takip Bilgisi</p>
           <p className="text-sm text-purple-700 mt-1">
-            {order.cargoCompany} · <strong>{order.cargoTrackingNo}</strong>
+            {order.cargoCompany} · <CopyText text={order.cargoTrackingNo!} className="font-bold" />
           </p>
         </div>
       )}

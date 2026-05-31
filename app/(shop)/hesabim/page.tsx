@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDate } from "@/lib/utils/format";
 import Link from "next/link";
 import { Package, Star, Tag, AlertCircle } from "lucide-react";
+import { CopyText } from "@/components/ui/CopyText";
 
 export const metadata = { title: "Hesabım" };
 
@@ -128,7 +129,7 @@ export default async function DashboardPage() {
                 className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start justify-between gap-4 hover:border-honey-dark transition-colors block"
               >
                 <div>
-                  <p className="font-bold text-honey-dark">{order.orderNumber}</p>
+                  <CopyText text={order.orderNumber} className="font-bold text-honey-dark" />
                   <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.createdAt)} · {order.items.length} ürün</p>
                 </div>
                 <div className="text-right">

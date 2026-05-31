@@ -10,6 +10,7 @@ import { OrderStatusChangedTemplate } from "./templates/order-status-changed";
 import { FavoriteDiscountTemplate } from "./templates/favorite-discount";
 import { CouponExpiryTemplate } from "./templates/coupon-expiry";
 import { ReviewRequestTemplate } from "./templates/review-request";
+import { ReviewReplyTemplate } from "./templates/review-reply";
 import * as React from "react";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -147,6 +148,27 @@ export async function sendCouponExpiryEmail(
     from: MAIL_FROM,
     to,
     subject: `${APP_NAME} — Kuponunuzun Süresi Dolmak Üzere`,
+    html,
+  });
+}
+
+export async function sendReviewReplyEmail(
+  userId: string,
+  to: string,
+  name: string,
+  productName: string,
+  productSlug: string,
+  reviewComment: string,
+  adminReply: string,
+) {
+  const allowed = await getPreference(userId, "reviewRequests");
+  if (!allowed) return;
+  const reviewUrl = `${APP_URL}/urunlerimiz/${productSlug}`;
+  const html = await render(React.createElement(ReviewReplyTemplate, { name, productName, reviewComment, adminReply, reviewUrl }));
+  await resend.emails.send({
+    from: MAIL_FROM,
+    to,
+    subject: `${APP_NAME} — Yorumunuza Yanıt Geldi`,
     html,
   });
 }
