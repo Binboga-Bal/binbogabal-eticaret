@@ -25,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <div className="group bg-white rounded-2xl overflow-hidden border border-gray-100 card-hover">
       <Link
         href={`/urunlerimiz/${product.slug}`}
-        className="block relative aspect-[3/4] overflow-hidden bg-gray-50"
+        className="block relative aspect-square overflow-hidden bg-gray-50"
       >
         {mainImage ? (
           <Image
@@ -33,7 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             fill
             sizes="(max-width: 375px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1536px) 25vw, (max-width: 1920px) 20vw, 16vw"
-            className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+            className="object-contain p-4"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-5xl">🍯</div>
@@ -50,7 +50,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      <div className="p-4">
+      <div className="p-3">
         <Link href={`/urunlerimiz/${product.slug}`}>
           <h3 className="text-sm font-semibold text-gray-800 hover:text-honey-dark transition-colors line-clamp-2">
             {product.name} {formatWeight(defaultVariant.size)}

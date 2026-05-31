@@ -55,7 +55,7 @@ export function ProductVariantSelector({ product, variants }: Props) {
     : 0;
 
   return (
-    <div className="mt-4 space-y-5">
+    <div className="mt-4 space-y-3">
       {/* Fiyat */}
       <div className="flex items-end gap-3">
         {selected.discountedPrice ? (
@@ -93,8 +93,8 @@ export function ProductVariantSelector({ product, variants }: Props) {
       )}
 
       {/* Gram seçimi */}
-      <div>
-        <p className="text-sm font-semibold text-gray-700 mb-2">
+      <div className="flex items-center gap-3 flex-wrap">
+        <p className="text-sm font-semibold text-gray-700 shrink-0">
           Gram Seçenekleri
         </p>
         <div className="flex flex-wrap gap-2">

@@ -15,7 +15,7 @@ interface ProductCarouselProps {
 export function ProductCarousel({ products }: ProductCarouselProps) {
   if (products.length === 0) return null;
 
-  const needsLoop = products.length > 4;
+  const needsLoop = products.length > 6;
 
   return (
     <div className="product-carousel-wrapper relative">
@@ -71,8 +71,8 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
         pagination={{ clickable: true }}
         navigation
         breakpoints={{
-          640: { slidesPerView: 3, spaceBetween: 16 },
-          1024: { slidesPerView: 4, spaceBetween: 20 },
+          640:  { slidesPerView: 3, spaceBetween: 12 },
+          1024: { slidesPerView: 4, spaceBetween: 16 },
         }}
         className="!pb-0"
       >

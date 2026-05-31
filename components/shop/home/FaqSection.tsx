@@ -18,7 +18,7 @@ export function FaqSection({ faqs }: FaqSectionProps) {
   return (
     <section className="py-16 bg-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center section-title mb-10">FAQ</h2>
+        <h2 className="text-center section-title mb-10">SIKÇA SORULAN SORULAR</h2>
 
         <div className="space-y-2">
           {faqs.map((faq, i) => (

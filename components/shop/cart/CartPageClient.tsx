@@ -95,9 +95,10 @@ export function CartPageClient() {
 
   return (
     /* pb-24: mobilde sticky bottom bar için alan */
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start pb-24 lg:pb-0">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24 lg:pb-0">
       {/* Sol — Ürünler */}
       <div className="lg:col-span-2 space-y-3">
+        <h1 className="text-fluid-xl font-black text-gray-900 mb-6">Alışveriş Sepeti</h1>
         {items.map((item) => {
           const unitPrice = item.discountedPrice ?? item.price;
           const lineTotal = unitPrice * item.quantity;
@@ -106,9 +107,9 @@ export function CartPageClient() {
           return (
             <div
               key={item.variantId}
-              className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-5 hover:border-honey/40 hover:shadow-sm transition-all"
+              className="bg-white rounded-xl border border-gray-100 flex gap-0 overflow-hidden hover:border-honey/40 hover:shadow-sm transition-all"
             >
-              <div className="relative w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
+              <div className="relative w-40 self-stretch flex-shrink-0 bg-gray-50 border-r border-gray-100">
                 <Image
                   src={item.productImage || "/placeholder.jpg"}
                   alt={item.productName}
@@ -117,7 +118,7 @@ export function CartPageClient() {
                 />
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 p-4">
                 <div className="flex justify-between gap-2">
                   <div>
                     <h3 className="font-bold text-gray-800 leading-snug line-clamp-2 text-sm sm:text-base">
@@ -142,19 +143,19 @@ export function CartPageClient() {
                 </div>
 
                 <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                      className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                      className="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                     >
-                      <Minus size={13} />
+                      <Minus size={11} />
                     </button>
-                    <span className="w-9 text-center font-bold text-sm text-gray-800">{item.quantity}</span>
+                    <span className="w-7 text-center font-bold text-sm text-gray-800">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                      className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                      className="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                     >
-                      <Plus size={13} />
+                      <Plus size={11} />
                     </button>
                   </div>
                   <span className="font-black text-honey-dark text-lg">{formatPrice(lineTotal)}</span>
@@ -178,7 +179,7 @@ export function CartPageClient() {
 
       {/* Sağ — Özet (desktop) */}
       <div className="hidden lg:block lg:col-span-1">
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-28 space-y-5">
+        <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-4 sticky top-[180px]">
           <h2 className="font-black text-gray-900 text-lg">Sipariş Özeti</h2>
 
           {/* Ücretsiz kargo progress */}

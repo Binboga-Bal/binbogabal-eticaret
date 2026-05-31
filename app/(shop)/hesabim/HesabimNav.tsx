@@ -2,18 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Package, MapPin, Heart, Tag, Star, Bell, ShieldCheck, LayoutDashboard } from "lucide-react";
+import {
+  User,
+  Package,
+  MapPin,
+  Heart,
+  Tag,
+  Star,
+  Bell,
+  ShieldCheck,
+  LayoutDashboard,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/hesabim",                   label: "Genel Bakış", icon: LayoutDashboard },
-  { href: "/hesabim/profilim",          label: "Profilim",    icon: User           },
-  { href: "/hesabim/siparislerim",      label: "Siparişlerim",icon: Package        },
-  { href: "/hesabim/adreslerim",        label: "Adreslerim",  icon: MapPin         },
-  { href: "/hesabim/favorilerim",       label: "Favorilerim", icon: Heart          },
-  { href: "/hesabim/kuponlarim",        label: "Kuponlarım",  icon: Tag            },
-  { href: "/hesabim/yorumlarim",        label: "Yorumlarım",  icon: Star           },
-  { href: "/hesabim/bildirimler",       label: "Bildirimler", icon: Bell           },
-  { href: "/hesabim/guvenlik",          label: "Güvenlik",    icon: ShieldCheck    },
+  { href: "/hesabim", label: "Genel Bakış", icon: LayoutDashboard },
+  { href: "/hesabim/profilim", label: "Profilim", icon: User },
+  { href: "/hesabim/siparislerim", label: "Siparişlerim", icon: Package },
+  { href: "/hesabim/adreslerim", label: "Adreslerim", icon: MapPin },
+  { href: "/hesabim/favorilerim", label: "Favorilerim", icon: Heart },
+  { href: "/hesabim/kuponlarim", label: "Kuponlarım", icon: Tag },
+  { href: "/hesabim/yorumlarim", label: "Yorumlarım", icon: Star },
+  { href: "/hesabim/bildirimler", label: "Bildirimler", icon: Bell },
+  { href: "/hesabim/guvenlik", label: "Güvenlik", icon: ShieldCheck },
 ];
 
 interface HesabimNavProps {
@@ -53,7 +63,7 @@ export function HesabimNav({ mobile }: HesabimNavProps) {
   }
 
   return (
-    <nav className="space-y-1">
+    <nav className="flex flex-col gap-0.5">
       {NAV_ITEMS.map((item) => {
         const isActive =
           item.href === "/hesabim"
@@ -64,13 +74,16 @@ export function HesabimNav({ mobile }: HesabimNavProps) {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
+            className={`flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors w-full ${
               isActive
                 ? "bg-honey/10 text-honey-dark font-semibold"
                 : "text-gray-600 hover:bg-honey/10 hover:text-honey-dark"
             }`}
           >
-            <item.icon size={16} className={isActive ? "text-honey-dark" : ""} />
+            <item.icon
+              size={16}
+              className={isActive ? "text-honey-dark" : ""}
+            />
             {item.label}
           </Link>
         );

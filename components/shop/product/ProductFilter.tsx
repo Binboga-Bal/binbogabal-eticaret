@@ -54,7 +54,7 @@ export function ProductFilter({ honeyTypes }: Props) {
 
   return (
     <aside className="w-64 flex-shrink-0">
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-6 sticky top-[130px]">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 sticky top-[130px]">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-gray-800">Filtrele</h3>
           <button
@@ -76,7 +76,7 @@ export function ProductFilter({ honeyTypes }: Props) {
                   key={t.id}
                   title={t.label}
                   onClick={() => setParam("tur", t.slug)}
-                  className={`flex items-center justify-center px-2 py-1.5 rounded-xl border-2 text-[11px] font-medium transition-all min-w-0 ${
+                  className={`flex items-center justify-center px-2 py-0.5 rounded-md border text-[11px] font-medium transition-all min-w-0 ${
                     isActive
                       ? "border-honey-dark bg-honey-dark text-white shadow-sm"
                       : "border-gray-200 bg-gray-50 text-gray-600 hover:border-honey-dark hover:text-honey-dark"

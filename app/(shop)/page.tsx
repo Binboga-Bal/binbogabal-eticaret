@@ -90,9 +90,9 @@ export default async function HomePage() {
 
       {/* Çok Satanlar */}
       {bestsellers.length > 0 && (
-        <section className="section-padding bg-white">
-          <Container size="wide">
-            <div className="flex items-center justify-between mb-8">
+        <section className="py-10 md:py-14 lg:py-20 bg-white">
+          <Container size="content">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-3">
                 <span className="bg-honey-medium text-white text-fluid-lg font-bold px-4 py-2 pr-8 rounded">
                   ÇOK SATANLAR
@@ -137,9 +137,9 @@ export default async function HomePage() {
 
       {/* Avantajlı Ürünler */}
       {featured.length > 0 && (
-        <section className="section-padding bg-gray-50">
-          <Container size="wide">
-            <div className="flex items-center justify-between mb-8">
+        <section className="py-10 md:py-14 lg:py-20 bg-gray-50">
+          <Container size="content">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <span className="bg-honey-medium text-white text-fluid-lg font-bold px-4 py-2 pr-8 rounded">
                 AVANTAJLI ÜRÜNLER
               </span>

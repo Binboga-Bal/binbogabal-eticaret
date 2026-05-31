@@ -8,7 +8,7 @@ type HoneyTypeItem = { id: string; slug: string; label: string };
 const VISUAL_MAP: Record<string, { icon: React.ReactNode; bg: string; activeBg: string; border: string; activeBorder: string; text: string }> = {
   CAM: {
     icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
+      <svg viewBox="0 0 40 40" fill="none" className="w-6 h-6">
         <path d="M20 4 L26 14 H22 L28 24 H23 L30 36 H10 L17 24 H12 L18 14 H14 Z" fill="currentColor" opacity="0.85" />
       </svg>
     ),
@@ -16,7 +16,7 @@ const VISUAL_MAP: Record<string, { icon: React.ReactNode; bg: string; activeBg: 
   },
   KEVEN_KEKIK: {
     icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
+      <svg viewBox="0 0 40 40" fill="none" className="w-6 h-6">
         <ellipse cx="20" cy="12" rx="5" ry="8" fill="currentColor" opacity="0.85" transform="rotate(-20 20 12)" />
         <ellipse cx="14" cy="18" rx="4" ry="7" fill="currentColor" opacity="0.7" transform="rotate(15 14 18)" />
         <ellipse cx="26" cy="18" rx="4" ry="7" fill="currentColor" opacity="0.7" transform="rotate(-15 26 18)" />
@@ -27,7 +27,7 @@ const VISUAL_MAP: Record<string, { icon: React.ReactNode; bg: string; activeBg: 
   },
   NARENCIYE: {
     icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
+      <svg viewBox="0 0 40 40" fill="none" className="w-6 h-6">
         <circle cx="20" cy="22" r="13" fill="currentColor" opacity="0.85" />
         <path d="M20 9 Q22 4 20 2 Q18 4 20 9Z" fill="currentColor" opacity="0.6" />
         <path d="M20 9 Q25 6 26 4 Q22 5 20 9Z" fill="currentColor" opacity="0.4" />
@@ -40,7 +40,7 @@ const VISUAL_MAP: Record<string, { icon: React.ReactNode; bg: string; activeBg: 
   },
   CICEK: {
     icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
+      <svg viewBox="0 0 40 40" fill="none" className="w-6 h-6">
         <ellipse cx="20" cy="10" rx="4" ry="7" fill="currentColor" opacity="0.75" />
         <ellipse cx="20" cy="10" rx="4" ry="7" fill="currentColor" opacity="0.75" transform="rotate(60 20 20)" />
         <ellipse cx="20" cy="10" rx="4" ry="7" fill="currentColor" opacity="0.75" transform="rotate(120 20 20)" />
@@ -55,7 +55,7 @@ const VISUAL_MAP: Record<string, { icon: React.ReactNode; bg: string; activeBg: 
   },
   OZEL: {
     icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
+      <svg viewBox="0 0 40 40" fill="none" className="w-6 h-6">
         <polygon points="20,4 24,15 36,15 26,22 30,34 20,27 10,34 14,22 4,15 16,15" fill="currentColor" opacity="0.85" />
       </svg>
     ),
@@ -101,7 +101,7 @@ export function HoneyTypeFilter({ honeyTypes }: Props) {
             key={t.id}
             onClick={() => toggle(t.slug)}
             className={`
-              flex flex-col items-center gap-2 px-5 py-4 rounded-2xl border-2 transition-all duration-200
+              flex flex-col items-center gap-1 px-2.5 py-0.5 rounded-md border-2 transition-all duration-200
               ${isActive
                 ? `${visual.activeBg} ${visual.activeBorder} text-white shadow-md scale-[1.04]`
                 : `${visual.bg} ${visual.border} ${visual.text} hover:scale-[1.02] hover:shadow-sm`

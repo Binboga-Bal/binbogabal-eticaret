@@ -75,7 +75,7 @@ export default async function HoneyGuidePage() {
               </Link>
 
               {/* Metin */}
-              <div className="flex flex-col justify-center p-7 md:p-10 flex-1">
+              <div className="flex flex-col justify-center p-7 md:p-10 flex-1 text-left">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs font-bold text-honey-dark uppercase tracking-widest">Bal Rehberi</span>
                   {post.publishedAt && (
@@ -86,11 +86,11 @@ export default async function HoneyGuidePage() {
                   )}
                 </div>
 
-                <Link href={`/bal-rehberi/${post.slug}`}>
-                  <h2 className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-honey-dark transition-colors leading-snug mb-3">
+                <h2 className="text-xl md:text-2xl font-black text-gray-900 leading-snug mb-3">
+                  <Link href={`/bal-rehberi/${post.slug}`} className="hover:text-honey-dark transition-colors">
                     {post.title}
-                  </h2>
-                </Link>
+                  </Link>
+                </h2>
 
                 <p className="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-6">
                   {post.excerpt}

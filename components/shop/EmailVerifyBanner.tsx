@@ -3,22 +3,21 @@
 import { useState } from "react";
 import { Mail, X } from "lucide-react";
 import { headerTheme } from "@/lib/theme";
+import { useScrollPosition } from "@/hooks/useScrollPosition";
 
 interface Props {
   email: string;
 }
 
-// Banner tam wave çukurunu kaplar:
-// - fixed, z-41 → header'ın (z-40) üstünde, wave'i örter
-// - top = solidHeight → duyuru + nav'ın hemen altından başlar
-// - height = waveDepth → wave çukurunun tam derinliğine eşit
-const TOP = headerTheme.solidHeight;          // 125 px
-const HEIGHT = headerTheme.waveDepth;         // 90 px
+const TOP = headerTheme.solidHeight;
+const HEIGHT = headerTheme.waveDepth;
 
 export function EmailVerifyBanner({ email }: Props) {
   const [dismissed, setDismissed] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const scrollY = useScrollPosition();
+  const isScrolled = scrollY > 20;
 
   if (dismissed) return null;
 
@@ -41,6 +40,8 @@ export function EmailVerifyBanner({ email }: Props) {
         display: "flex",
         alignItems: "flex-end",
         paddingBottom: 14,
+        transform: isScrolled ? `translateY(-${headerTheme.announcementHeight}px)` : "translateY(0)",
+        transition: "transform 300ms",
       }}
       className="bg-red-50 border-b border-red-200 px-4 shadow-sm"
     >

@@ -578,16 +578,19 @@
           <tr><td>xs (375px)</td><td>1</td><td>iPhone SE</td></tr>
           <tr><td>sm (640px)</td><td>2</td><td>Büyük telefon</td></tr>
           <tr><td>lg (1024px)</td><td>3</td><td>Tablet landscape</td></tr>
-          <tr><td>xl (1280px)</td><td>4</td><td>Laptop</td></tr>
-          <tr><td>3xl (1920px)</td><td>5</td><td>Full HD</td></tr>
-          <tr><td>4xl (2560px)</td><td>6</td><td>2K</td></tr>
-          <tr><td>5xl (3840px)</td><td>8</td><td>4K / 43"</td></tr>
+          <tr><td>3xl (1920px)</td><td>4</td><td>Full HD</td></tr>
+          <tr><td>4xl (2560px)</td><td>5</td><td>2K</td></tr>
+          <tr><td>5xl (3840px)</td><td>6</td><td>4K / 43"</td></tr>
         </tbody>
       </table>
-      <pre><span class="cm">// Tailwind class'ı</span>
-<span class="str">grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-8
+      <pre><span class="cm">// Tailwind class'ı — Ürünlerimiz sayfası</span>
+<span class="str">grid-cols-1 xs:grid-cols-2 lg:grid-cols-3
+3xl:grid-cols-4 4xl:grid-cols-5 5xl:grid-cols-6
 gap-3 sm:gap-4 lg:gap-5 3xl:gap-6</span></pre>
+      <div class="alert alert-info">
+        <span class="alert-label">ℹ️ Not:</span>
+        Anasayfa carousel'ı <code>slidesPerView: 4</code> ile sınırlandırılmıştır (Swiper breakpoints: 640→3, 1024→4). xl ve üzerinde daha fazla kart gösterimi kaldırıldı.
+      </div>
     </section>
 
     <!-- ══════════════════════════════════════════ ÜRÜN KARTI -->
@@ -598,7 +601,11 @@ gap-3 sm:gap-4 lg:gap-5 3xl:gap-6</span></pre>
       </div>
       <div class="card">
         <h3>Görsel Oranı</h3>
-        <p><code>aspect-[3/4]</code> — tüm breakpoint'lerde sabit oran. <code>object-contain p-4</code> ile görsel bozulmaz.</p>
+        <p><code>aspect-square</code> — tüm breakpoint'lerde sabit 1:1 oran. <code>object-contain p-4</code> ile görsel bozulmaz. Hover scale kaldırıldı (orantısız büyüme yaratıyordu).</p>
+      </div>
+      <div class="card">
+        <h3>Kart İçerik Alanı</h3>
+        <p>Padding: <code>p-3</code>. Adet counter: <code>w-7 h-7</code>. Sepete Ekle / Hemen Al butonları: <code>h-8 text-xs</code>.</p>
       </div>
       <div class="card">
         <h3>Next.js Image sizes Prop</h3>
@@ -637,12 +644,16 @@ gap-3 sm:gap-4 lg:gap-5 3xl:gap-6</span></pre>
         <thead><tr><th>Ekran</th><th>Layout</th></tr></thead>
         <tbody>
           <tr><td>&lt; lg</td><td>Tek kolon, ürün listesi. Altta <strong>sticky bottom bar</strong> (fiyat + Ödemeye Geç). <code>pb-24</code> ile alan açılır.</td></tr>
-          <tr><td>lg+</td><td>İki kolon: ürünler (2/3) + sipariş özeti (1/3, <code>sticky top-28</code>)</td></tr>
+          <tr><td>lg+</td><td>İki kolon: ürünler (2/3) + sipariş özeti (1/3, <code>sticky top-[180px]</code>)</td></tr>
         </tbody>
       </table>
       <div class="alert alert-tip">
         <span class="alert-label">💡 Teknik:</span>
         Mobil sticky bar <code>env(safe-area-inset-bottom)</code> ile iPhone notch/home bar boşluğuna saygı gösterir.
+      </div>
+      <div class="alert alert-info">
+        <span class="alert-label">📌 Sticky Sidebar Kuralı:</span>
+        <code>sticky</code> doğrudan grid column wrapper'a değil, <strong>içerideki panel div'e</strong> verilmeli. Grid'de <code>items-start</code> <strong>olmamalı</strong> — aksi halde column div içerik yüksekliğinde kalır ve sticky containing block kısıtlanır. <code>top</code> değeri: <code>navHeight + waveDepth = 82 + 90 = 172px</code> → <code>top-[180px]</code>.
       </div>
     </section>
 

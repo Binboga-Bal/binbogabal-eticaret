@@ -182,7 +182,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         <Container className="pt-8 pb-4">
           <Breadcrumb />
           <div className="mt-2">
-            <h1 className="text-fluid-2xl font-black text-gray-800">
+            <h1 className="text-fluid-xl font-black text-gray-800">
               &ldquo;{params.q}&rdquo; için sonuçlar
             </h1>
             <p className="text-sm text-gray-500 mt-0.5">{total} ürün bulundu</p>
@@ -233,7 +233,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <Breadcrumb />
                 {params.kategori && allCategories.find((c) => c.slug === params.kategori) ? (
                   <>
-                    <h1 className="text-fluid-2xl font-black text-gray-800 mt-3">
+                    <h1 className="text-fluid-xl font-black text-gray-800 mt-3">
                       {allCategories.find((c) => c.slug === params.kategori)!.name}
                       {" "}— Ürünlerimiz
                     </h1>
@@ -245,7 +245,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                     </Link>
                   </>
                 ) : (
-                  <h1 className="text-fluid-2xl font-black text-gray-800">Ürünlerimiz</h1>
+                  <h1 className="text-fluid-xl font-black text-gray-800">Ürünlerimiz</h1>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -267,7 +267,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                       key={label}
                       href={href}
                       scroll={false}
-                      className={`px-4 py-2 text-sm font-medium border border-honey-dark rounded-lg transition-colors ${
+                      className={`px-4 py-0.5 text-xs font-medium border border-honey-dark rounded-md transition-colors ${
                         isActive ? "bg-honey-dark text-white" : "text-honey-dark hover:bg-honey-dark hover:text-white"
                       }`}
                     >
@@ -298,7 +298,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <p className="text-lg">Bu filtreye uygun ürün bulunamadı.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 4xl:grid-cols-6 5xl:grid-cols-8 gap-3 sm:gap-4 lg:gap-5 3xl:gap-6">
+              <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 4xl:grid-cols-5 5xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 3xl:gap-6">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

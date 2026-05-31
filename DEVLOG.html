@@ -553,6 +553,14 @@
       <a href="#step128" class="nav-link"><span class="dot"></span>128 — Anasayfa Widescreen</a>
       <a href="#step129" class="nav-link"><span class="dot"></span>129 — Wave Overlap Düzeltmesi</a>
 
+      <div class="nav-section-label">31 Mayıs 2026 — UI/UX İyileştirmeleri</div>
+      <a href="#step130" class="nav-link"><span class="dot"></span>130 — Anasayfa Kart & Section Küçültme</a>
+      <a href="#step131" class="nav-link"><span class="dot"></span>131 — Bal Rehberi Title Hizalama</a>
+      <a href="#step132" class="nav-link"><span class="dot"></span>132 — Ürünlerimiz Sayfa İyileştirmeleri</a>
+      <a href="#step133" class="nav-link"><span class="dot"></span>133 — Ürün Detay Sayfa İyileştirmeleri</a>
+      <a href="#step134" class="nav-link"><span class="dot"></span>134 — Müşteri Paneli İyileştirmeleri</a>
+      <a href="#step135" class="nav-link"><span class="dot"></span>135 — Sepet Sayfası Yeniden Tasarım</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -6155,10 +6163,194 @@ OR: [
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SESSION: 31 Mayıs 2026 — UI/UX İyileştirmeleri               -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <div class="date-header">
+      <div class="date-pill">31 Mayıs 2026 — UI/UX İyileştirmeleri</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 130–135</div>
+    </div>
+
+    <!-- ADIM 130 -->
+    <section id="step130" class="section">
+      <div class="section-title">
+        <div class="step-num">130</div>
+        <h2>Anasayfa — Kart & Section Küçültme</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>ProductCard:</strong> görsel alanı <code>aspect-[3/4]</code> → <code>aspect-square</code>; içerik padding <code>p-4</code> → <code>p-3</code>; hover scale tamamen kaldırıldı.</li>
+          <li><strong>ProductCarousel:</strong> maksimum <code>slidesPerView: 4</code> (1024px+); büyük ekranlarda 5-6 kart gösterimi iptal edildi. <code>needsLoop</code> eşiği 6'ya güncellendi.</li>
+          <li><strong>CategoryGrid:</strong> <code>aspect-[5/3]</code> → <code>aspect-[16/9]</code>; <code>rounded-2xl</code> → <code>rounded-xl</code>; gap <code>gap-4 sm:gap-5 lg:gap-6</code>; başlık <code>text-fluid-xl</code>; section padding <code>py-10 md:py-14 lg:py-20</code>; Container <code>size="content"</code>.</li>
+          <li><strong>section-padding:</strong> <code>py-8/12/16</code> → <code>py-6/8/10</code>.</li>
+          <li><strong>Ürün vitrin section'ları:</strong> <code>mb-8</code> → <code>mb-4 sm:mb-6</code>; Container <code>size="wide"</code> → <code>size="content"</code>.</li>
+          <li><strong>ProductCardActions:</strong> adet counter <code>w-9 h-9</code> → <code>w-7 h-7</code>; buton yüksekliği <code>h-9</code> → <code>h-8</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/product/ProductCard.tsx</span> — aspect-square, p-3<br>
+          <span class="file mod">components/shop/product/ProductCardActions.tsx</span> — w-7 h-7, h-8<br>
+          <span class="file mod">components/shop/home/ProductCarousel.tsx</span> — max 4 col, needsLoop 6<br>
+          <span class="file mod">components/shop/home/CategoryGrid.tsx</span> — aspect-[16/9], gap, padding<br>
+          <span class="file mod">app/(shop)/page.tsx</span> — Container content, mb-4<br>
+          <span class="file mod">styles/globals.css</span> — .section-padding py-6/8/10
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 131 -->
+    <section id="step131" class="section">
+      <div class="section-title">
+        <div class="step-num">131</div>
+        <h2>Bal Rehberi — Makale Başlığı Hizalama</h2>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Bal Rehberi listeleme sayfasındaki makale kartlarında başlık ortada görünüyordu. <code>text-left</code> ve <code>!text-left</code> eklenmesine rağmen düzelmedi.</p>
+      </div>
+      <div class="card">
+        <h3>Kök Neden & Çözüm</h3>
+        <p>Next.js <code>&lt;Link&gt;</code> inline <code>&lt;a&gt;</code> elementi olarak render olduğundan <code>&lt;h2&gt;</code>'yi sararken hizalama beklenmediği gibi davranıyordu. Çözüm: <code>&lt;h2&gt;</code>'yi dışa taşıyıp <code>&lt;Link&gt;</code>'i içe almak — böylece <code>h2</code> block-level kalır.</p>
+        <pre><span class="cm">// Eski (sorunlu)</span>
+<span class="kw">&lt;Link&gt;</span>
+  <span class="kw">&lt;h2&gt;</span>{post.title}<span class="kw">&lt;/h2&gt;</span>
+<span class="kw">&lt;/Link&gt;</span>
+
+<span class="cm">// Yeni (doğru)</span>
+<span class="kw">&lt;h2&gt;</span>
+  <span class="kw">&lt;Link</span> <span class="str">className</span>=<span class="str">"hover:text-honey-dark"</span><span class="kw">&gt;</span>{post.title}<span class="kw">&lt;/Link&gt;</span>
+<span class="kw">&lt;/h2&gt;</span></pre>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/bal-rehberi/page.tsx</span> — h2/Link yapısı ters çevrildi<br>
+          <span class="file mod">components/shop/home/FaqSection.tsx</span> — "FAQ" → "SIKÇA SORULAN SORULAR"
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 132 -->
+    <section id="step132" class="section">
+      <div class="section-title">
+        <div class="step-num">132</div>
+        <h2>Ürünlerimiz Sayfası — Başlık & Filtre İyileştirmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Sayfa başlıkları:</strong> <code>text-fluid-2xl</code> → <code>text-fluid-xl</code>.</li>
+          <li><strong>Hızlı filtre butonları:</strong> <code>px-4 py-2 text-sm</code> → <code>px-4 py-0.5 text-xs rounded-md</code>.</li>
+          <li><strong>Bal türü filter butonları (HoneyTypeFilter):</strong> <code>px-5 py-4 rounded-2xl</code> → <code>px-2.5 py-0.5 rounded-md</code>; SVG icon <code>w-8 h-8</code> → <code>w-6 h-6</code>.</li>
+          <li><strong>ProductFilter bal türü butonları:</strong> <code>py-1.5 rounded-xl border-2</code> → <code>py-0.5 rounded-md border</code>.</li>
+          <li><strong>Filtrele/Bal Türü boşluğu:</strong> <code>space-y-6</code> → <code>space-y-3</code>.</li>
+          <li><strong>Ürün grid:</strong> max <code>lg:grid-cols-3</code> (xl'de 4. kolon kaldırıldı).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/page.tsx</span> — title, buton, grid<br>
+          <span class="file mod">components/shop/product/HoneyTypeFilter.tsx</span> — padding, icon boyutu<br>
+          <span class="file mod">components/shop/product/ProductFilter.tsx</span> — space-y-3, buton padding
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 133 -->
+    <section id="step133" class="section">
+      <div class="section-title">
+        <div class="step-num">133</div>
+        <h2>Ürün Detay Sayfası — Layout & İçerik İyileştirmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Container:</strong> <code>py-12</code> → <code>pt-24 pb-8 max-w-5xl</code> — wave altında başlaması ve daha kompakt görünmesi.</li>
+          <li><strong>Başlık:</strong> <code>text-fluid-2xl</code> → <code>text-fluid-xl</code>.</li>
+          <li><strong>Breadcrumb:</strong> <code>truncate max-w-[200px]</code> kaldırıldı — ürün adı tamamen görünür.</li>
+          <li><strong>Gramaj seçenekleri:</strong> "Gram Seçenekleri" etiketi ve butonlar yatay hizaya alındı (<code>flex items-center gap-3</code>).</li>
+          <li><strong>ProductVariantSelector:</strong> <code>space-y-5</code> → <code>space-y-3</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/[slug]/page.tsx</span> — Container, title, breadcrumb<br>
+          <span class="file mod">components/shop/product/ProductVariantSelector.tsx</span> — space-y-3, gram yan yana
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 134 -->
+    <section id="step134" class="section">
+      <div class="section-title">
+        <div class="step-num">134</div>
+        <h2>Müşteri Paneli — Layout & Sidebar İyileştirmeleri</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Hesabım layout padding:</strong> <code>py-10</code> → <code>pt-24 pb-10</code> — wave çukurunun altında başlıyor.</li>
+          <li><strong>Sidebar nav hizalama:</strong> Link elementlerine <code>justify-start</code> eklenerek sola hizalandı.</li>
+          <li><strong>EmailVerifyBanner scroll sync:</strong> Banner <code>fixed</code> konumda, header ile aynı <code>translateY(-announcementHeight)</code> transform uygulandı — kaydırmada birlikte hareket eder.</li>
+          <li><strong>FAQ başlığı:</strong> "FAQ" → "SIKÇA SORULAN SORULAR".</li>
+          <li><strong>Bal Rehberi hero metin:</strong> <code>text-center</code> parent'tan kalıtım aldığından <code>text-left</code> ile override edildi; sidebar card'a da <code>text-left</code> eklendi.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/hesabim/layout.tsx</span> — pt-24, text-left<br>
+          <span class="file mod">app/(shop)/hesabim/HesabimNav.tsx</span> — justify-start<br>
+          <span class="file mod">components/shop/EmailVerifyBanner.tsx</span> — scroll sync transform<br>
+          <span class="file mod">components/shop/home/FaqSection.tsx</span> — başlık güncelleme<br>
+          <span class="file mod">app/(shop)/bal-rehberi/page.tsx</span> — text-left, h2 yapı düzeltmesi
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 135 -->
+    <section id="step135" class="section">
+      <div class="section-title">
+        <div class="step-num">135</div>
+        <h2>Sepet Sayfası — Minimalist Yeniden Tasarım</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Container:</strong> <code>size="wide" py-10</code> → <code>size="content" pt-24 pb-10</code>.</li>
+          <li><strong>Başlık:</strong> <code>text-fluid-2xl mb-8</code> → <code>text-fluid-xl mb-6</code>; sol kolona taşındı (Sipariş Özeti ile aynı hizaya gelsin diye).</li>
+          <li><strong>Ürün kartları:</strong> <code>p-5 rounded-2xl</code> → overflow-hidden yapı; görsel sol tarafa flush (<code>w-40 self-stretch</code>), içerik ayrı <code>p-4</code>; adet counter <code>w-9 h-9</code> → <code>w-7 h-7</code>.</li>
+          <li><strong>Sipariş Özeti sticky:</strong> Wrapper column div'e <code>sticky</code> değil, inner <code>.bg-white</code> div'e <code>sticky top-[180px]</code> uygulandı. <code>top-[180px]</code> = navHeight (82) + waveDepth (90) + margin — wave arkasına gizlenmez.</li>
+          <li><strong>Grid:</strong> <code>items-start</code> kaldırıldı — column div stretch eder, sticky containing block yeterince uzar.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Sticky Sidebar Notu</h3>
+        <div class="alert alert-info">
+          <span class="alert-label">📌 Kural:</span>
+          Sticky sidebar için <code>position: sticky</code> doğrudan grid column wrapper'a değil, column içindeki içerik paneline verilmeli. Grid'de <code>items-start</code> <strong>olmamalı</strong> — aksi halde column div sadece içerik yüksekliğinde olur ve sticky containg block kısıtlanır.
+        </div>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/sepet/page.tsx</span> — Container content, pt-24<br>
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span> — başlık sol kolon, görsel flush, sticky top-[180px]
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 31 Mayıs 2026 — Adım 115 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 31 Mayıs 2026 — Adım 135 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

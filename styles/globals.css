@@ -102,7 +102,7 @@
 
   /* Tutarlı section dikey padding */
   .section-padding {
-    @apply py-8 md:py-12 lg:py-16 3xl:py-24;
+    @apply py-6 md:py-8 lg:py-10 3xl:py-16;
   }
 }
 

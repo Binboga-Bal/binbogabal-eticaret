@@ -104,7 +104,7 @@ export const sliderTheme = {
 
   /** Slider yüksekliği (px) — HeroSlider bu değerden okur */
   heightMobile: 520, // ≤ md breakpoint
-  height: 700, // md+
+  height: 600, // md+
 
   /** Önceki/sonraki ok butonlarının arka plan rengi */
   navBtnBg: palette.honeyDark,

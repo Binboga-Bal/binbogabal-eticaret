@@ -94,7 +94,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       : 0;
 
   return (
-    <Container className="py-12">
+    <Container className="pt-24 pb-8 max-w-5xl">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-gray-500 mb-6 flex-wrap">
         <Link href="/" className="hover:text-honey-dark transition-colors">
@@ -119,7 +119,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </>
         )}
         <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
-        <span className="text-gray-800 font-medium truncate max-w-[200px]">
+        <span className="text-gray-800 font-medium">
           {product.name}
         </span>
       </nav>
@@ -146,7 +146,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           )}
 
           {/* Ürün adı */}
-          <h1 className="text-fluid-2xl font-black text-gray-900 leading-tight">
+          <h1 className="text-fluid-xl font-black text-gray-900 leading-tight">
             {product.name}
           </h1>
 

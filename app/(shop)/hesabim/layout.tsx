@@ -29,7 +29,7 @@ export default async function HesabimLayout({ children }: { children: React.Reac
   return (
     <>
       {showVerifyBanner && <EmailVerifyBanner email={session.user.email ?? ""} />}
-      <Container className="py-10">
+      <Container className="pt-24 pb-10">
         {/* Mobil: kullanıcı bilgisi + kompakt nav */}
         <div className="md:hidden mb-6">
           <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-4">
@@ -44,7 +44,7 @@ export default async function HesabimLayout({ children }: { children: React.Reac
         <div className="flex gap-8">
           {/* Desktop sidebar */}
           <aside className="hidden md:block w-56 3xl:w-64 shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-100 p-4 sticky top-32">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 sticky top-32 text-left">
               <div className="mb-4 pb-4 border-b border-gray-100">
                 <p className="text-sm font-bold text-gray-900 truncate">{session.user.name}</p>
                 <p className="text-xs text-gray-400 truncate">{session.user.email}</p>

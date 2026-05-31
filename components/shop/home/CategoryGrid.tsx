@@ -13,8 +13,8 @@ export async function CategoryGrid() {
   if (categories.length === 0) return null;
 
   return (
-    <section className="section-padding bg-gray-50">
-      <Container size="wide">
+    <section className="py-10 md:py-14 lg:py-20 bg-gray-50">
+      <Container size="content">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-fluid-xl font-black text-gray-900 tracking-tight">Ürün Kategorileri</h2>
           <Link href="/urunlerimiz" className="text-sm text-honey-dark font-semibold hover:underline">
@@ -23,12 +23,12 @@ export async function CategoryGrid() {
         </div>
 
         {/* Grid: xs:2 sm:3 lg:4 3xl:5 4xl:6 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 3xl:grid-cols-5 4xl:grid-cols-6 gap-3 sm:gap-4 3xl:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 3xl:grid-cols-5 4xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 3xl:gap-8">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               href={`/urunlerimiz?kategori=${cat.slug}`}
-              className="group relative rounded-2xl overflow-hidden aspect-[5/3] shadow-sm hover:shadow-lg transition-shadow duration-300"
+              className="group relative rounded-xl overflow-hidden aspect-[16/9] shadow-sm hover:shadow-lg transition-shadow duration-300"
             >
               {cat.image ? (
                 <Image
