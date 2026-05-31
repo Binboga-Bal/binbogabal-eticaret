@@ -522,6 +522,11 @@
       <a href="#step97" class="nav-link"><span class="dot"></span>97 — EmailVerify Banner Konumu</a>
       <a href="#step98" class="nav-link"><span class="dot"></span>98 — Sipariş No Kopyalama</a>
 
+      <div class="nav-section-label">31 Mayıs 2026 — Sepet & Kategori UX</div>
+      <a href="#step99"  class="nav-link"><span class="dot"></span>99 — Kategori Başlığı & Geri Butonu</a>
+      <a href="#step100" class="nav-link"><span class="dot"></span>100 — Sepet: Direkt Yönlendirme</a>
+      <a href="#step101" class="nav-link"><span class="dot"></span>101 — Sepet Sayfası Yeniden Tasarım</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -5285,10 +5290,83 @@ OR: [
       </div>
     </section>
 
+    <!-- STEP 99 -->
+    <section class="section" id="step99">
+      <div class="section-title">
+        <div class="step-num">99</div>
+        <h2>Kategori Başlığı &amp; Geri Butonu</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Anasayfadan bir kategoriye tıklanarak <code>/urunlerimiz?kategori=...</code> açıldığında başlık <em>"Kategori Adı — Ürünlerimiz"</em> formatında gösterilir</li>
+          <li>Kategori adı düz siyah <code>font-black</code> rengiyle, <code>text-[1.75rem]</code> boyutunda ve breadcrumb altında <code>mt-3</code> boşlukla listelenir</li>
+          <li>Başlığın altında <strong>"← Tüm Ürünlere Dön"</strong> butonu eklendi; tıklanınca filtresiz <code>/urunlerimiz</code> sayfasına döner</li>
+          <li>Kategori filtresi yoksa eski "Ürünlerimiz" başlığı ve hızlı filtre butonları gösterilmeye devam eder</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/urunlerimiz/page.tsx</span> — başlık koşullu render, geri butonu
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 100 -->
+    <section class="section" id="step100">
+      <div class="section-title">
+        <div class="step-num">100</div>
+        <h2>Sepet İkonu — Direkt Yönlendirme</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Header'daki sepet ikonu artık <code>CartDrawer</code> overlay'ini açmıyor; doğrudan <code>/sepet</code> sayfasına yönlendiriyor</li>
+          <li><code>CartDrawer</code> import'u ve <code>cartOpen</code> state tamamen kaldırıldı</li>
+          <li>Sepet ikonu <code>&lt;button&gt;</code>'dan <code>&lt;Link href="/sepet"&gt;</code>'e dönüştürüldü; ürün sayısı rozeti aynı şekilde çalışıyor</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/header/Header.tsx</span> — CartDrawer kaldırıldı, Link eklendi
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 101 -->
+    <section class="section" id="step101">
+      <div class="section-title">
+        <div class="step-num">101</div>
+        <h2>Sepet Sayfası — Yeniden Tasarım</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <ul>
+          <li>Ürün kartları büyütüldü (görsel <code>w-28 h-28</code>), birim fiyat ve üstü çizili eski fiyat eklendi</li>
+          <li>Miktar kontrol grubu <code>rounded-xl</code> kenarlı ve daha geniş hedef alanlı (w-9 h-9) hale getirildi</li>
+          <li>Sil butonu karta entegre, sağ üste konumlandırıldı; hover'da kırmızıya döner</li>
+          <li>Sipariş özeti paneline <strong>ücretsiz kargo progress bar'ı</strong> eklendi: kalan tutarı gösterir, <code>honey → honey-dark</code> gradient dolum animasyonu</li>
+          <li>Toplam fiyat <code>text-2xl font-black</code> ile belirginleştirildi</li>
+          <li>Kupon input'u <code>min-w-0 flex-1</code> ile taşma düzeltildi; Uygula butonu <code>flex-shrink-0</code></li>
+          <li>Ödemeye Geç butonu ile kupon alanı arasına <code>mt-2</code> boşluk eklendi</li>
+          <li>Boş sepet ekranı: <code>honey-light</code> arka planlı ikon, daha büyük başlık ve yönlendirici metin</li>
+          <li>"Alışverişe Devam Et" linki ürün listesinin altına taşındı, ok ikonu ile hafif tasarlandı</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span> — tam yeniden yazım
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 31 Mayıs 2026 — Adım 98 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 31 Mayıs 2026 — Adım 101 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

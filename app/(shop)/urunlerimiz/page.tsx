@@ -231,7 +231,22 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
                 <Breadcrumb />
-                <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
+                {params.kategori && allCategories.find((c) => c.slug === params.kategori) ? (
+                  <>
+                    <h1 className="text-[1.75rem] font-black text-gray-800 mt-3">
+                      {allCategories.find((c) => c.slug === params.kategori)!.name}
+                      {" "}— Ürünlerimiz
+                    </h1>
+                    <Link
+                      href="/urunlerimiz"
+                      className="inline-flex items-center gap-1.5 mt-3 px-3 py-2 text-sm font-medium border border-honey-dark text-honey-dark rounded-lg hover:bg-honey-dark hover:text-white transition-colors"
+                    >
+                      ← Tüm Ürünlere Dön
+                    </Link>
+                  </>
+                ) : (
+                  <h1 className="text-3xl font-black text-gray-800">Ürünlerimiz</h1>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 {[
