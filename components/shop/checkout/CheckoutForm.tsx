@@ -345,10 +345,11 @@ export function CheckoutForm({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sol Panel */}
         <div className="lg:col-span-2 space-y-6">
+          <h1 className="text-fluid-xl font-black text-gray-900">Ödeme</h1>
           {/* Kayıtlı Adresler */}
           {savedAddresses.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="font-bold text-gray-800 mb-4">Kayıtlı Adreslerim</h2>
+            <div className="bg-white rounded-xl border border-gray-100 p-5">
+              <h2 className="font-black text-gray-900 text-base mb-4">Kayıtlı Adreslerim</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {savedAddresses.map((addr) => (
                   <button
@@ -396,8 +397,8 @@ export function CheckoutForm({
           )}
 
           {/* Teslimat Bilgileri */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h2 className="font-bold text-gray-800 mb-5">
+          <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <h2 className="font-black text-gray-900 text-base mb-5">
               {savedAddresses.length > 0 ? "Teslimat Detayları" : "Teslimat Bilgileri"}
             </h2>
 
@@ -486,8 +487,8 @@ export function CheckoutForm({
           </div>
 
           {/* Ödeme Yöntemi */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h2 className="font-bold text-gray-800 mb-4">Ödeme Yöntemi</h2>
+          <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <h2 className="font-black text-gray-900 text-base mb-4">Ödeme Yöntemi</h2>
             <div className="space-y-3">
               <button
                 type="button"
@@ -550,8 +551,8 @@ export function CheckoutForm({
 
           {/* Kart Bilgileri — yalnızca QNB_PAY seçiliyken gösterilir */}
           {paymentMethod === "QNB_PAY" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="font-bold text-gray-800 mb-2">Kart Bilgileri</h2>
+            <div className="bg-white rounded-xl border border-gray-100 p-5">
+              <h2 className="font-black text-gray-900 text-base mb-2">Kart Bilgileri</h2>
               <p className="text-xs text-gray-500 mb-5">
                 Kart bilgileriniz tarayıcınızdan doğrudan bankaya şifreli olarak
                 iletilir. Sistemimizde işlenmez veya saklanmaz.
@@ -690,8 +691,8 @@ export function CheckoutForm({
 
         {/* Sağ Panel: Sipariş Özeti */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 space-y-4">
-            <h2 className="font-bold text-gray-800">Sipariş Özeti</h2>
+          <div className="bg-white rounded-xl border border-gray-100 p-5 sticky top-[110px] space-y-4">
+            <h2 className="font-black text-gray-900 text-lg">Sipariş Özeti</h2>
 
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {items.map((item) => (
@@ -726,25 +727,25 @@ export function CheckoutForm({
             </div>
 
             <div className="border-t pt-3 space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-gray-500">
                 <span>Ara Toplam</span>
-                <span>{formatPrice(subtotal())}</span>
+                <span className="text-gray-800">{formatPrice(subtotal())}</span>
               </div>
-              {couponDiscount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>İndirim</span>
-                  <span>-{formatPrice(couponDiscount)}</span>
+              {effectiveDiscount > 0 && (
+                <div className="flex justify-between text-green-600 font-medium">
+                  <span>Kampanya İndirimi</span>
+                  <span>−{formatPrice(effectiveDiscount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-gray-500">
                 <span>Kargo</span>
-                <span>
+                <span className={SHIPPING_FEE === 0 ? "text-green-600 font-semibold" : "text-gray-800"}>
                   {SHIPPING_FEE === 0 ? "Ücretsiz" : formatPrice(SHIPPING_FEE)}
                 </span>
               </div>
               <div className="flex justify-between font-black text-lg border-t pt-2">
                 <span>Toplam</span>
-                <span>{formatPrice(grandTotal)}</span>
+                <span className="text-honey-dark">{formatPrice(grandTotal)}</span>
               </div>
             </div>
 

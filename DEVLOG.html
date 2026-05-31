@@ -561,6 +561,15 @@
       <a href="#step134" class="nav-link"><span class="dot"></span>134 — Müşteri Paneli İyileştirmeleri</a>
       <a href="#step135" class="nav-link"><span class="dot"></span>135 — Sepet Sayfası Yeniden Tasarım</a>
 
+      <div class="nav-section-label">31 Mayıs 2026 — Sepet & Ödeme UX</div>
+      <a href="#step136" class="nav-link"><span class="dot"></span>136 — overflow-x: clip (Sticky Fix)</a>
+      <a href="#step137" class="nav-link"><span class="dot"></span>137 — Sepet Sticky Sidebar</a>
+      <a href="#step138" class="nav-link"><span class="dot"></span>138 — CartBanner: Kampanya Bandı</a>
+      <a href="#step139" class="nav-link"><span class="dot"></span>139 — Admin: Banner Ayarları</a>
+      <a href="#step140" class="nav-link"><span class="dot"></span>140 — Önerilen Ürünler UI</a>
+      <a href="#step141" class="nav-link"><span class="dot"></span>141 — Viewport Meta Export</a>
+      <a href="#step142" class="nav-link"><span class="dot"></span>142 — Checkout Minimalist Tasarım</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -6347,10 +6356,185 @@ OR: [
       </div>
     </section>
 
+    <!-- ADIM 136 -->
+    <section id="step136" class="section">
+      <div class="section-title">
+        <div class="step-num">136</div>
+        <h2>overflow-x: clip — Sticky'yi Kıran Bug Düzeltmesi</h2>
+      </div>
+      <div class="card">
+        <h3>Problem</h3>
+        <p>Sepet sayfasındaki <strong>Sipariş Özeti</strong> paneli <code>position: sticky</code> olmasına rağmen scroll edildiğinde kayboluyordu. Uzun araştırma sonunda kök neden bulundu: <code>globals.css</code>'te <code>html</code> ve <code>body</code> elementlerine uygulanan <code>overflow-x: hidden</code> bir scroll container oluşturarak tüm torunlardaki <code>sticky</code>'yi kırıyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <div class="alert alert-info">
+          <span class="alert-label">🔑 Kural:</span>
+          <code>overflow-x: hidden</code> bir eleman scroll container oluşturur ve bu elemandaki <code>position: sticky</code> torunlar sayfa scroll'u yerine bu container'a göre "sticky" olur — pratikte çalışmaz. Çözüm: <code>overflow-x: clip</code> kullanmak. <code>clip</code> de yatay içeriği keser ama yeni bir scroll container oluşturmaz.
+        </div>
+        <pre><code>/* globals.css — ÖNCE */
+html, body { overflow-x: hidden; }
+
+/* globals.css — SONRA */
+html, body { overflow-x: clip; }</code></pre>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">styles/globals.css</span> — overflow-x: hidden → clip (html + body)
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 137 -->
+    <section id="step137" class="section">
+      <div class="section-title">
+        <div class="step-num">137</div>
+        <h2>Sepet Sticky Sidebar — Doğru Yapı</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Dış wrapper:</strong> <code>self-start</code> kaldırıldı — grid hücresi tam yüksekliğe uzar, sticky'nin scroll edecek alanı olur.</li>
+          <li><strong>İç kart:</strong> <code>sticky top-[130px]</code> → <code>sticky top-[110px]</code> — header yüksekliği (122px) referans alınarak ayarlandı.</li>
+          <li><strong>Banner açıkken:</strong> <code>bannerEnabled</code> prop'u ile <code>top</code> değeri dinamik — banner görünürken <code>200px</code>, kapalıyken <code>110px</code>.</li>
+          <li><strong>Banner kapama senkronizasyonu:</strong> <code>CartBanner</code> X'e basıldığında <code>window.dispatchEvent(new CustomEvent("cart-banner-dismissed"))</code> fırlatır; <code>CartPageClient</code> dinleyerek <code>bannerVisible</code> state'ini günceller — sidebar anında eski pozisyonuna döner.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span> — bannerEnabled prop, dinamik top, custom event listener<br>
+          <span class="file mod">components/shop/cart/CartBanner.tsx</span> — cart-banner-dismissed event dispatch
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 138 -->
+    <section id="step138" class="section">
+      <div class="section-title">
+        <div class="step-num">138</div>
+        <h2>CartBanner — Sepet Kampanya Bildirim Bandı</h2>
+      </div>
+      <div class="card">
+        <h3>Özellikler</h3>
+        <ul>
+          <li><strong>Konum:</strong> Header'ın tam altında, wave çukuruna oturan <code>position: fixed</code> bant — <code>EmailVerifyBanner</code> ile aynı mantık (<code>solidHeight</code>, <code>waveDepth</code>, scroll'da <code>announcementHeight</code> kadar yukarı kayma).</li>
+          <li><strong>İki sütun:</strong> Sol metin (ikon + text) ve sağ metin ayrı ayrı admin'den ayarlanabilir.</li>
+          <li><strong>Renk seçenekleri:</strong> Bal (turuncu), yeşil, mavi, kırmızı.</li>
+          <li><strong>Kapatma:</strong> X butonuyla kapatılır; sadece component state — sayfa yenilenince tekrar görünür.</li>
+          <li><strong>Banner açıkken içerik:</strong> Grid <code>marginTop: 24px</code> alır, sipariş özeti <code>top: 200px</code>'e kayar.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/shop/cart/CartBanner.tsx</span> — yeni bileşen<br>
+          <span class="file mod">app/(shop)/sepet/page.tsx</span> — server'da ayarları çekip CartBanner render
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 139 -->
+    <section id="step139" class="section">
+      <div class="section-title">
+        <div class="step-num">139</div>
+        <h2>Admin: Sepet Kampanya Bandı Ayarları</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Admin Ayarlar sayfasına</strong> yeni "Sepet Kampanya Bandı" bölümü eklendi.</li>
+          <li><strong>Ayarlar:</strong> <code>cart_banner_enabled</code> (toggle), <code>cart_banner_text_left</code> (sol metin), <code>cart_banner_text_right</code> (sağ metin), <code>cart_banner_color</code> (select: honey/green/blue/red).</li>
+          <li><strong>SettingsForm genişletmesi:</strong> <code>select</code> tipi ve <code>description</code> desteği eklendi — toggle'ın alt yazısı artık her ayar için özelleştirilebilir.</li>
+          <li>Tüm ayarlar mevcut <code>SiteSetting</code> modeli + <code>/api/admin/settings</code> route'u üzerinden saklanır, yeni migration gerekmez.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/admin/ayarlar/page.tsx</span> — BANNER_SETTINGS dizisi, ikinci SettingsForm bloğu<br>
+          <span class="file mod">components/admin/SettingsForm.tsx</span> — select tipi, description prop desteği
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 140 -->
+    <section id="step140" class="section">
+      <div class="section-title">
+        <div class="step-num">140</div>
+        <h2>Önerilen Ürünler UI — VolumeDiscountBar</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Grid:</strong> 3'lü → 4'lü kolon (<code>grid-cols-4</code>), gap <code>2</code> → <code>4</code>.</li>
+          <li><strong>Sepete ekle butonu:</strong> <code>flex</code> layout'tan çıkarıldı, <code>position: absolute -top-2 -right-2</code> ile kartın sağ üst köşesine taşındı — 32×32px yuvarlak, <code>Plus</code> ikonu.</li>
+          <li><strong>Sepette olan ürünler gizlendi:</strong> <code>sortedProducts</code> artık yalnızca <code>!cartProductIds.has(p.id)</code> filtresinden geçenler — ekli ürünler önerilen listede çıkmaz.</li>
+          <li><strong>Yeşil ✓ işareti:</strong> Sağ üstten sol üste (<code>top-1 left-1</code>) taşındı — butonla çakışmıyor.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/cart/VolumeDiscountBar.tsx</span> — grid-cols-4, absolute buton, filtre
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 141 -->
+    <section id="step141" class="section">
+      <div class="section-title">
+        <div class="step-num">141</div>
+        <h2>Viewport Meta — Next.js 15 Uyumlu Export</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Next.js 15'te <code>viewport</code> artık <code>metadata</code> nesnesinin içinde değil, ayrı bir <code>export const viewport: Viewport</code> ile tanımlanmalı. <code>app/layout.tsx</code>'e eklendi.</p>
+        <pre><code>export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};</code></pre>
+        <p><code>maximumScale: 5</code> — kullanıcının zoom yapabilmesine izin verir (erişilebilirlik).</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/layout.tsx</span> — Viewport import + export const viewport
+        </div>
+      </div>
+    </section>
+
+    <!-- ADIM 142 -->
+    <section id="step142" class="section">
+      <div class="section-title">
+        <div class="step-num">142</div>
+        <h2>Checkout Sayfası — Minimalist Yeniden Tasarım</h2>
+      </div>
+      <div class="card">
+        <h3>Değişiklikler</h3>
+        <ul>
+          <li><strong>Container:</strong> <code>size="wide"</code> → <code>size="content" max-w-3xl</code> — form ekrana dağılmıyor, ortalanmış ve kompakt.</li>
+          <li><strong>Başlık hizalaması:</strong> "Ödeme" <code>h1</code> sayfadan kaldırılıp <code>CheckoutForm</code>'un sol grid kolonuna taşındı — "Sipariş Özeti" ile aynı hizaya geldi (sepet sayfasındaki başlık hizalamasıyla tutarlı).</li>
+          <li><strong>Kart stili:</strong> <code>rounded-2xl p-6</code> → <code>rounded-xl p-5</code>; bölüm başlıkları <code>font-bold text-gray-800</code> → <code>font-black text-gray-900 text-base</code>.</li>
+          <li><strong>Sipariş Özeti sticky:</strong> <code>sticky top-24</code> → <code>sticky top-[110px]</code> (header altında kaybolmaz).</li>
+          <li><strong>İndirim gösterimi:</strong> <code>effectiveDiscount</code> (kampanya + kupon) özet panelinde gösterilir; toplam <code>text-honey-dark</code> rengi ile sepet sayfasıyla uyumlu.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/odeme/page.tsx</span> — Container max-w-3xl, h1 kaldırıldı<br>
+          <span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> — h1 sol kolona, rounded-xl, effectiveDiscount, text-honey-dark
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 31 Mayıs 2026 — Adım 135 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 31 Mayıs 2026 — Adım 142 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

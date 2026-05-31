@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Poppins, Playfair_Display, Baloo_2, Lobster_Two } from "next/font/google";
 import "@/styles/globals.css";
 
@@ -31,6 +31,12 @@ const lobsterTwo = Lobster_Two({
   style: ["normal", "italic"],
   variable: "--font-lobster",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: {

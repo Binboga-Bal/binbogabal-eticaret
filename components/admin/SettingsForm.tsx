@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-interface Setting { key: string; label: string; value: string; type?: string }
+interface Setting { key: string; label: string; value: string; type?: string; description?: string; options?: { label: string; value: string }[] }
 
 export function SettingsForm({ settings }: { settings: Setting[] }) {
   const [values, setValues] = useState<Record<string, string>>(
@@ -33,7 +33,7 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
               <div>
                 <p className="text-sm font-medium text-gray-700">{s.label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {values[s.key] === "true" ? "Aktif — müşteriler kapıda ödeme seçebilir" : "Pasif — kapıda ödeme seçeneği gizli"}
+                  {s.description ?? (values[s.key] === "true" ? "Aktif" : "Pasif")}
                 </p>
               </div>
               <button
@@ -50,6 +50,19 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
                 />
               </button>
             </div>
+          ) : s.type === "select" && s.options ? (
+            <>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{s.label}</label>
+              <select
+                value={values[s.key] ?? ""}
+                onChange={(e) => setValues({ ...values, [s.key]: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-honey bg-white"
+              >
+                {s.options.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </>
           ) : (
             <>
               <label className="block text-sm font-medium text-gray-700 mb-1">{s.label}</label>

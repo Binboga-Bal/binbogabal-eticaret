@@ -12,7 +12,7 @@ import { VolumeDiscountBar } from "@/components/shop/cart/VolumeDiscountBar";
 
 const SHIPPING_THRESHOLD = 1500;
 
-export function CartPageClient() {
+export function CartPageClient({ bannerEnabled = false }: { bannerEnabled?: boolean }) {
   const {
     items,
     removeItem,
@@ -31,6 +31,14 @@ export function CartPageClient() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
   const [evaluating, setEvaluating] = useState(false);
+  const [bannerVisible, setBannerVisible] = useState(false);
+
+  useEffect(() => {
+    setBannerVisible(bannerEnabled);
+    const handler = () => setBannerVisible(false);
+    window.addEventListener("cart-banner-dismissed", handler);
+    return () => window.removeEventListener("cart-banner-dismissed", handler);
+  }, [bannerEnabled]);
 
   // Kampanya motoru bağlan
   useCampaignEvaluator();
@@ -95,7 +103,7 @@ export function CartPageClient() {
 
   return (
     /* pb-24: mobilde sticky bottom bar için alan */
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24 lg:pb-0">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24 lg:pb-0" style={bannerVisible ? { marginTop: 24 } : undefined}>
       {/* Sol — Ürünler */}
       <div className="lg:col-span-2 space-y-3">
         <h1 className="text-fluid-xl font-black text-gray-900 mb-6">Alışveriş Sepeti</h1>
@@ -179,7 +187,7 @@ export function CartPageClient() {
 
       {/* Sağ — Özet (desktop) */}
       <div className="hidden lg:block lg:col-span-1">
-        <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-4 sticky top-[180px]">
+        <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-4 sticky" style={{ top: bannerVisible ? 200 : 110 }}>
           <h2 className="font-black text-gray-900 text-lg">Sipariş Özeti</h2>
 
           {/* Ücretsiz kargo progress */}

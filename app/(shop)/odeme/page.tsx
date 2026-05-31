@@ -24,8 +24,7 @@ export default async function CheckoutPage() {
 
   return (
     /* max-w-wide kısıtla: checkout formu çok geniş uzamasın */
-    <Container size="wide" className="py-10">
-      <h1 className="text-fluid-2xl font-black text-gray-900 mb-8">Ödeme</h1>
+    <Container size="content" className="pt-24 pb-10 max-w-3xl px-8 lg:px-12">
       <CheckoutForm codEnabled={codEnabled} savedAddresses={addresses} userEmail={userEmail} />
     </Container>
   );

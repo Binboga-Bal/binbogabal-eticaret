@@ -95,11 +95,9 @@ export function VolumeDiscountBar() {
             : (rule.suggestedProducts ?? [])
         ).filter((p) => p.variants.length > 0);
 
-        // Sepette olmayanlar önce
-        const sortedProducts = [
-          ...eligibleProducts.filter((p) => !cartProductIds.has(p.id)),
-          ...eligibleProducts.filter((p) => cartProductIds.has(p.id)),
-        ].slice(0, 6);
+        const sortedProducts = eligibleProducts
+          .filter((p) => !cartProductIds.has(p.id))
+          .slice(0, 6);
 
         const progressPct = nextTier
           ? Math.min((qualifyingQty / nextTier.minQty) * 100, 100)
@@ -157,7 +155,7 @@ export function VolumeDiscountBar() {
                 <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide mb-2">
                   {rule.products.length > 0 ? "Kapsanan Ürünler" : "Önerilen Ürünler"}
                 </p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-4 gap-4">
                   {sortedProducts.map((product) => {
                     const variant = product.variants[0];
                     if (!variant) return null;
@@ -167,39 +165,37 @@ export function VolumeDiscountBar() {
                     return (
                       <div
                         key={product.id}
-                        className={`relative bg-white rounded-xl border p-2.5 flex flex-col gap-1.5 transition-all ${
+                        className={`relative bg-white rounded-lg border p-2 flex flex-col gap-1 transition-all ${
                           isInCart ? "border-honey/40 ring-1 ring-honey/20" : "border-gray-100 hover:border-honey/30"
                         }`}
                       >
-                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-50">
+                        <div className="relative w-full aspect-square rounded-md overflow-hidden bg-gray-50">
                           <Image
                             src={product.images?.[0] ?? "/placeholder.jpg"}
                             alt={product.name}
                             fill
-                            className="object-contain p-1.5"
+                            className="object-contain p-1"
                             unoptimized
                           />
                           {isInCart && (
-                            <div className="absolute top-1 right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                              <span className="text-white text-[8px] font-black leading-none">✓</span>
+                            <div className="absolute top-1 left-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-[7px] font-black leading-none">✓</span>
                             </div>
                           )}
                         </div>
-                        <p className="text-[10px] font-semibold text-gray-700 leading-tight line-clamp-2">
+                        <p className="text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2 mt-1">
                           {product.name}
                         </p>
-                        <p className="text-[10px] text-gray-400">{formatWeight(variant.size)}</p>
-                        <div className="flex items-center justify-between gap-1 mt-auto pt-0.5">
-                          <span className="text-xs font-black text-honey-dark">{formatPrice(unitPrice)}</span>
-                          <button
-                            onClick={() => handleAdd(product)}
-                            disabled={addingId === variant.id}
-                            className="w-6 h-6 rounded-lg bg-honey text-white flex items-center justify-center hover:bg-honey-dark transition-colors disabled:opacity-60 flex-shrink-0"
-                            title="Sepete Ekle"
-                          >
-                            <Plus size={12} strokeWidth={3} />
-                          </button>
-                        </div>
+                        <span className="text-xs font-black text-honey-dark mt-auto">{formatPrice(unitPrice)}</span>
+                        <button
+                          onClick={() => handleAdd(product)}
+                          disabled={addingId === variant.id}
+                          className="absolute -top-2 -right-2 rounded-full bg-honey text-white flex items-center justify-center hover:bg-honey-dark transition-colors disabled:opacity-60 z-10"
+                          style={{ width: 32, height: 32 }}
+                          title="Sepete Ekle"
+                        >
+                          <Plus size={20} strokeWidth={2.5} />
+                        </button>
                       </div>
                     );
                   })}
