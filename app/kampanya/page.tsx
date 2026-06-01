@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { CampaignBanner } from "@/components/campaign-display/CampaignBanner";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Kampanyalar | Binboğa Kooperatif Balı" };
 
 export default async function KampanyalarPage() {

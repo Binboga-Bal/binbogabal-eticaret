@@ -4,7 +4,7 @@ import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const logoSetting = await prisma.siteSetting.findUnique({ where: { key: "img_logo" } });
+  const logoSetting = await prisma.siteSetting.findUnique({ where: { key: "img_logo" } }).catch(() => null);
   const logoSrc = logoSetting?.value ?? footerTheme.logo.src;
 
   return (
