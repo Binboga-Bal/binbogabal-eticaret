@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -285,14 +286,18 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
       <Container className="py-10">
         <div className="flex gap-8">
-          <ProductFilter honeyTypes={honeyTypes} />
+          <Suspense fallback={<div className="w-56 shrink-0" />}>
+            <ProductFilter honeyTypes={honeyTypes} />
+          </Suspense>
 
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-gray-500">
                 <span className="font-semibold text-gray-800">{total}</span> ürün bulundu
               </p>
-              <SortSelect currentSort={params.siralama ?? ""} />
+              <Suspense fallback={null}>
+                <SortSelect currentSort={params.siralama ?? ""} />
+              </Suspense>
             </div>
 
             {products.length === 0 ? (
