@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { CategoryForm } from "@/components/admin/CategoryForm";
 import { CategoryEditRow } from "@/components/admin/CategoryEditRow";

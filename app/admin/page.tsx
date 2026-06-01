@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils/format";
 import { ShoppingBag, Users, Package, TrendingUp } from "lucide-react";

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { formatDate, formatPrice } from "@/lib/utils/format";
 import { BulkCouponForm } from "@/components/admin/campaign/BulkCouponForm";
