@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { CartPageClient } from "@/components/shop/cart/CartPageClient";
 import { CartBanner } from "@/components/shop/cart/CartBanner";
@@ -9,7 +10,7 @@ export const metadata: Metadata = { title: "Sepetim" };
 export default async function CartPage() {
   const settings = await prisma.siteSetting.findMany({
     where: { key: { in: ["cart_banner_enabled", "cart_banner_text_left", "cart_banner_text_right", "cart_banner_color", "shipping_fee", "shipping_threshold"] } },
-  });
+  }).catch(() => []);
   const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
 
   const bannerEnabled = map["cart_banner_enabled"] === "true";

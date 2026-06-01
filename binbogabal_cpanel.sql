@@ -1,0 +1,1288 @@
+-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
+--
+-- Host: localhost    Database: binbogabal
+-- ------------------------------------------------------
+-- Server version	10.4.32-MariaDB
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `_categorytoproduct`
+--
+
+DROP TABLE IF EXISTS `_categorytoproduct`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `_categorytoproduct` (
+  `A` varchar(191) NOT NULL,
+  `B` varchar(191) NOT NULL,
+  UNIQUE KEY `_CategoryToProduct_AB_unique` (`A`,`B`),
+  KEY `_CategoryToProduct_B_index` (`B`),
+  CONSTRAINT `_CategoryToProduct_A_fkey` FOREIGN KEY (`A`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `_CategoryToProduct_B_fkey` FOREIGN KEY (`B`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `_categorytoproduct`
+--
+
+LOCK TABLES `_categorytoproduct` WRITE;
+/*!40000 ALTER TABLE `_categorytoproduct` DISABLE KEYS */;
+INSERT INTO `_categorytoproduct` VALUES ('cmpjyh9bb00651dk2efqxv3hs','cmpjybtj7003d1dk272xxxvos'),('cmpjyh9bb00651dk2efqxv3hs','cmpjybtmc003g1dk22u7o8ih7'),('cmpjyh9bb00651dk2efqxv3hs','cmpjybtsh00471dk2n6wzjuf5'),('cmpjyh9bb00651dk2efqxv3hs','cmpjybttl004g1dk2m1mc20x8'),('cmpjyh9bb00651dk2efqxv3hs','cmpjybtuz004s1dk2on4ntm4q'),('cmpjyhza300661dk2ye2m69yu','cmpjybtob003j1dk23c7dan1b'),('cmpjyhza300661dk2ye2m69yu','cmpjybtor003m1dk2cf451txw'),('cmpjyhza300661dk2ye2m69yu','cmpjybtpa003p1dk28st28mym'),('cmpjyhza300661dk2ye2m69yu','cmpjybtpt003s1dk2bozxvyv4'),('cmpjyhza300661dk2ye2m69yu','cmpjybtq7003v1dk2dj4tla48'),('cmpjyhza300661dk2ye2m69yu','cmpjybtsu004a1dk23ztywitk'),('cmpjyhza300661dk2ye2m69yu','cmpjybtvb004v1dk2qonxtaba'),('cmpjyhza300661dk2ye2m69yu','cmpjybtwi00511dk2cbf6716n'),('cmpjyjeq400671dk25utyx9xv','cmpjybtrq00411dk2q0d08nol'),('cmpjyjeq400671dk25utyx9xv','cmpjybtt7004d1dk2ufjcyq3u'),('cmpjyjeq400671dk25utyx9xv','cmpjybttx004j1dk20j7js6hh'),('cmpjyjeq400671dk25utyx9xv','cmpjybtua004m1dk2zia1qo3t'),('cmpjyjeq400671dk25utyx9xv','cmpjybtuo004p1dk2nnghc2ox'),('cmpjyjeq400671dk25utyx9xv','cmpjybtvu004y1dk2dh3ra1jy'),('cmpjyjeq400671dk25utyx9xv','cmpjybtx000541dk2oafz63ke'),('cmpjyjeq400671dk25utyx9xv','cmpjybtxs005a1dk2ow18hhgi'),('cmpjykvtu00681dk234gzde37','cmpjybtr9003y1dk2w2vm9xyv'),('cmpjym41v00691dk2b34uaad5','cmpjybts400441dk2onfn99h2'),('cmpjyntvv006a1dk2s6vztod1','cmpjybtzv005s1dk223fzw6bm'),('cmpjyntvv006a1dk2s6vztod1','cmpjybu0e005v1dk280ume1mc'),('cmpjyntvv006a1dk2s6vztod1','cmpjybu0t005y1dk20pgjr9jy'),('cmpjyntvv006a1dk2s6vztod1','cmpjybu1800611dk24zuznwlq'),('cmpjzvo0n000655l4oohuojwm','cmpjybty4005d1dk2lmneoq0n'),('cmpjzvo0n000655l4oohuojwm','cmpjybtyh005g1dk2rym4bhdp'),('cmpjzzxe4000c55l4wnq7wrgy','cmpjybtxf00571dk2n3yuvi3o'),('cmplel1wj0000541e6tlq03lu','cmpjybtj7003d1dk272xxxvos'),('cmplel1wj0000541e6tlq03lu','cmpjybtob003j1dk23c7dan1b'),('cmplel1wj0000541e6tlq03lu','cmpjybtrq00411dk2q0d08nol'),('cmplel1wj0000541e6tlq03lu','cmpn0vfow00004e748046utnu');
+/*!40000 ALTER TABLE `_categorytoproduct` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `_honeytypetoproduct`
+--
+
+DROP TABLE IF EXISTS `_honeytypetoproduct`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `_honeytypetoproduct` (
+  `A` varchar(191) NOT NULL,
+  `B` varchar(191) NOT NULL,
+  UNIQUE KEY `_HoneyTypeToProduct_AB_unique` (`A`,`B`),
+  KEY `_HoneyTypeToProduct_B_index` (`B`),
+  CONSTRAINT `_HoneyTypeToProduct_A_fkey` FOREIGN KEY (`A`) REFERENCES `honey_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `_HoneyTypeToProduct_B_fkey` FOREIGN KEY (`B`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `_honeytypetoproduct`
+--
+
+LOCK TABLES `_honeytypetoproduct` WRITE;
+/*!40000 ALTER TABLE `_honeytypetoproduct` DISABLE KEYS */;
+INSERT INTO `_honeytypetoproduct` VALUES ('cmpjyxm9r0000w8769qqgu1b4','cmpjybtob003j1dk23c7dan1b'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtor003m1dk2cf451txw'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtpa003p1dk28st28mym'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtpt003s1dk2bozxvyv4'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtq7003v1dk2dj4tla48'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtsu004a1dk23ztywitk'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtvb004v1dk2qonxtaba'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtwi00511dk2cbf6716n'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybty4005d1dk2lmneoq0n'),('cmpjyxm9r0000w8769qqgu1b4','cmpjybtyh005g1dk2rym4bhdp'),('cmpjyxm9r0000w8769qqgu1b4','cmpn0vfow00004e748046utnu'),('cmpjyxm9z0001w876woky4q7e','cmpjybtrq00411dk2q0d08nol'),('cmpjyxm9z0001w876woky4q7e','cmpjybtt7004d1dk2ufjcyq3u'),('cmpjyxm9z0001w876woky4q7e','cmpjybttx004j1dk20j7js6hh'),('cmpjyxm9z0001w876woky4q7e','cmpjybtua004m1dk2zia1qo3t'),('cmpjyxm9z0001w876woky4q7e','cmpjybtuo004p1dk2nnghc2ox'),('cmpjyxm9z0001w876woky4q7e','cmpjybtvu004y1dk2dh3ra1jy'),('cmpjyxm9z0001w876woky4q7e','cmpjybtx000541dk2oafz63ke'),('cmpjyxm9z0001w876woky4q7e','cmpjybtxs005a1dk2ow18hhgi'),('cmpjyxma80002w876sovnznqi','cmpjybtj7003d1dk272xxxvos'),('cmpjyxma80002w876sovnznqi','cmpjybtmc003g1dk22u7o8ih7'),('cmpjyxma80002w876sovnznqi','cmpjybtsh00471dk2n6wzjuf5'),('cmpjyxma80002w876sovnznqi','cmpjybttl004g1dk2m1mc20x8'),('cmpjyxma80002w876sovnznqi','cmpjybtuz004s1dk2on4ntm4q'),('cmpjyxmad0003w876hqjy05h4','cmpjybtr9003y1dk2w2vm9xyv'),('cmpjyxmai0004w876zmyo45yu','cmpjybtzv005s1dk223fzw6bm'),('cmpjyxmai0004w876zmyo45yu','cmpjybu0e005v1dk280ume1mc'),('cmpjyxmai0004w876zmyo45yu','cmpjybu0t005y1dk20pgjr9jy'),('cmpjyxmai0004w876zmyo45yu','cmpjybu1800611dk24zuznwlq'),('cmpjyxmai0004w876zmyo86sf','cmpjybts400441dk2onfn99h2'),('cmpjyxmai0004w876zmyo86sf','cmpjybtxf00571dk2n3yuvi3o');
+/*!40000 ALTER TABLE `_honeytypetoproduct` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `accounts`
+--
+
+DROP TABLE IF EXISTS `accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `accounts` (
+  `id` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `type` varchar(191) NOT NULL,
+  `provider` varchar(191) NOT NULL,
+  `providerAccountId` varchar(191) NOT NULL,
+  `refresh_token` text DEFAULT NULL,
+  `access_token` text DEFAULT NULL,
+  `expires_at` int(11) DEFAULT NULL,
+  `token_type` varchar(191) DEFAULT NULL,
+  `scope` varchar(191) DEFAULT NULL,
+  `id_token` text DEFAULT NULL,
+  `session_state` varchar(191) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `accounts_provider_providerAccountId_key` (`provider`,`providerAccountId`),
+  KEY `accounts_userId_fkey` (`userId`),
+  CONSTRAINT `accounts_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `accounts`
+--
+
+LOCK TABLES `accounts` WRITE;
+/*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `addresses`
+--
+
+DROP TABLE IF EXISTS `addresses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `addresses` (
+  `id` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `title` varchar(191) NOT NULL,
+  `firstName` varchar(191) NOT NULL,
+  `lastName` varchar(191) NOT NULL,
+  `phone` varchar(191) NOT NULL,
+  `city` varchar(191) NOT NULL,
+  `district` varchar(191) NOT NULL,
+  `neighborhood` varchar(191) DEFAULT NULL,
+  `fullAddress` text NOT NULL,
+  `zipCode` varchar(191) DEFAULT NULL,
+  `isDefault` tinyint(1) NOT NULL DEFAULT 0,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `isBilling` tinyint(1) NOT NULL DEFAULT 0,
+  `taxNumber` varchar(191) DEFAULT NULL,
+  `taxOffice` varchar(191) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `addresses_userId_fkey` (`userId`),
+  CONSTRAINT `addresses_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `addresses`
+--
+
+LOCK TABLES `addresses` WRITE;
+/*!40000 ALTER TABLE `addresses` DISABLE KEYS */;
+INSERT INTO `addresses` VALUES ('cmpsic55j00094wdqgus0mnz5','cmpshgo3a0000hwguacz3w3s5','İş Yeri','Gökay','Baz','05445085479','Adana','Kozan','Varsaklar Mah.','Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal','01500',1,'2026-05-30 15:30:21.079',1,'','');
+/*!40000 ALTER TABLE `addresses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `blog_posts`
+--
+
+DROP TABLE IF EXISTS `blog_posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `blog_posts` (
+  `id` varchar(191) NOT NULL,
+  `title` varchar(191) NOT NULL,
+  `slug` varchar(191) NOT NULL,
+  `excerpt` text DEFAULT NULL,
+  `content` longtext NOT NULL,
+  `coverImage` varchar(191) DEFAULT NULL,
+  `authorId` varchar(191) DEFAULT NULL,
+  `isPublished` tinyint(1) NOT NULL DEFAULT 0,
+  `publishedAt` datetime(3) DEFAULT NULL,
+  `metaTitle` varchar(191) DEFAULT NULL,
+  `metaDescription` varchar(191) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `blog_posts_slug_key` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `blog_posts`
+--
+
+LOCK TABLES `blog_posts` WRITE;
+/*!40000 ALTER TABLE `blog_posts` DISABLE KEYS */;
+INSERT INTO `blog_posts` VALUES ('cmpji1gv0000k4095yynffbiq','Gerçek Bal Nasıl Anlaşılır?','gercek-bal-nasil-anlasilir','1973 yılında, Adana\'nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor olduğunu biliyorlardı. Çünkü bal sadece doğanın değil, sabrın da işiydi.','<h2>Gerçek Bal Nasıl Anlaşılır?</h2>\n<p>1973 yılında, Adana\'nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor olduğunu biliyorlardı. Çünkü bal sadece doğanın değil, sabrın da işiydi. Yağmurun erken yağması, kuraklığın uzaması, piyasanın dengesizliği... Hepsi küçük üreticinin omzuna yük oluyordu.</p>\n<p>İşte o gün, yükü paylaşmak için bir araya geldiler. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi böyle doğdu.</p>','/images/blog/265e0925-3351-46cc-8faa-f31ba904e095.webp',NULL,1,'2026-05-24 08:12:07.451','','','2026-05-24 08:12:07.452','2026-05-30 12:55:27.099'),('cmpsce0ha0000ae4enon5bpyn','Çocuklar İçin Bal','cocuklar-icin-bal','1973 yılında, Adana\'nın Kozan ilçesinde birkaç arıcı aile bal üretimi yapıyordu. Tek başına ayakta kalmak zor olduğunu biliyorlardı. Çünkü bal sadece doğanın değil, sabrın da ürünü.','<p>Çocukların sağlıklı beslenmesi için doğal bal vazgeçilmez bir besin kaynağıdır. Ancak bal, 1 yaşından küçük bebeklere kesinlikle verilmemelidir. 1 yaş üzeri çocuklar için ise doğal ve analizi yapılmış bal, bağışıklık sistemini güçlendirir, enerji sağlar ve doğal şeker alternatifi olarak günlük beslenmede yer alabilir.</p><p>Kooperatif güvencesiyle üretilen ballarımız, akredite laboratuvarlarda analiz edilmektedir.</p>','/images/blog/7c89c7f1-65e6-4134-ab88-215c574ca05e.webp',NULL,1,'2024-03-15 00:00:00.000','Çocuklar İçin Bal | Binboğa Bal Rehberi','Çocuklar için bal tüketiminde nelere dikkat edilmeli?','2026-05-30 12:43:50.638','2026-05-30 12:45:30.428'),('cmpsce0ha0001ae4e8vlhe99g','Balın Faydaları Nelerdir?','balin-faydalari-nelerdir','Bal, binlerce yıldır hem besin hem de şifa kaynağı olarak kullanılmaktadır. Doğal antioksidanlar, mineraller ve enzimler bakımından zengin olan bal; bağışıklık sistemini güçlendirir, enerji verir.','<p>Bal, doğanın insanlara sunduğu en kıymetli armağanlardan biridir. C vitamini, B vitaminleri, kalsiyum, demir, magnezyum ve potasyum gibi değerli mineraller içerir.</p><p>Düzenli tüketildiğinde bağışıklık sistemini güçlendirir, boğaz ağrılarını hafifletir ve sindirim sistemini düzenler.</p>','/images/blog/ec6000ad-e664-47c9-9a2a-dba102f692d0.webp',NULL,1,'2024-04-01 00:00:00.000','Balın Faydaları Nelerdir? | Binboğa Bal Rehberi','Balın sağlığa faydaları nelerdir?','2026-05-30 12:43:50.638','2026-05-30 12:46:11.895'),('cmpsce0ha0002ae4eizud7zol','Mevsime Göre Bal Seçimi','mevsime-gore-bal-secimi','Her mevsim farklı bir bal türü öne çıkar. İlkbaharda çiçek balları, yazın ıhlamur ve kestane, sonbaharda ise kovan balları en yoğun aromasına ulaşır.','<p>Doğa, her mevsimde farklı çiçekler açar; arılar da bu çiçeklerden farklı tatlar taşıyan ballar üretir. İlkbaharda açan çiçek balları hafif ve aromatiktir. Yaz aylarında toplanan ıhlamur balı rahatlatıcı etkisiyle öne çıkar. Sonbahar hasatı ise kestane balının güçlü aromasını sunar.</p>','/images/blog/f6d5448d-dcaf-4bee-9cf0-411cfcaa2c4a.png',NULL,1,'2024-05-10 00:00:00.000','Mevsime Göre Bal Seçimi | Binboğa Bal Rehberi','Hangi mevsimde hangi bal tüketilmeli?','2026-05-30 12:43:50.638','2026-05-30 13:18:19.031'),('cmpsce0ha0003ae4exka7fzka','Bal Nasıl Saklanır?','bal-nasil-saklanir','Doğal bal, doğru saklandığında yıllarca bozulmaz. Işık, nem ve sıcaktan uzak tutmak balın ömrünü uzatır. Kristalleşme ise bozulma değil, saflığın işaretidir.','<p>Gerçek doğal bal kristalleşebilir — bu bozulma değil, saflığın işaretidir. Kristalleşen balı ılık suda bekletmek yeterlidir; kesinlikle kaynatmayın. Bal için ideal saklama sıcaklığı 10-20°C arasıdır.</p><p>Cam kavanoz tercih edin. Bala su girmesini önleyin; kaşık her zaman kuru olmalıdır.</p>','/images/blog/358e68b6-9a4a-4483-9fac-e2e45238b6bd.jpg',NULL,1,'2024-06-01 00:00:00.000','Bal Nasıl Saklanır? | Binboğa Bal Rehberi','Balı doğru saklamanın püf noktaları.','2026-05-30 12:43:50.638','2026-05-30 12:47:46.800');
+/*!40000 ALTER TABLE `blog_posts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_ab_tests`
+--
+
+DROP TABLE IF EXISTS `campaign_ab_tests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_ab_tests` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `variantName` varchar(191) NOT NULL,
+  `trafficSplit` int(11) NOT NULL,
+  `discountValue` decimal(10,2) NOT NULL,
+  `impressions` int(11) NOT NULL DEFAULT 0,
+  `conversions` int(11) NOT NULL DEFAULT 0,
+  `revenue` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `isWinner` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `campaign_ab_tests_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_ab_tests_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_ab_tests`
+--
+
+LOCK TABLES `campaign_ab_tests` WRITE;
+/*!40000 ALTER TABLE `campaign_ab_tests` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_ab_tests` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_actions`
+--
+
+DROP TABLE IF EXISTS `campaign_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_actions` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `type` enum('PERCENTAGE_DISCOUNT','FIXED_DISCOUNT','FREE_SHIPPING','BUY_X_PAY_Y','GIFT_PRODUCT','CASHBACK_POINTS','FREE_PRODUCT','CATEGORY_DISCOUNT') NOT NULL,
+  `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`value`)),
+  `sortOrder` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `campaign_actions_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_actions_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_actions`
+--
+
+LOCK TABLES `campaign_actions` WRITE;
+/*!40000 ALTER TABLE `campaign_actions` DISABLE KEYS */;
+INSERT INTO `campaign_actions` VALUES ('cmptoonm8000i4ec7mv0mbv5y','cmptks7cx00004ec7sh2a6b60','PERCENTAGE_DISCOUNT','{\"percentage\":\"25\"}',0),('cmpuwbp8z0018k2wh8duh627m','cmpuwbp8z0016k2wh6wrwyfxm','GIFT_PRODUCT','{\"productId\":\"cmpjybtxf00571dk2n3yuvi3o\",\"productName\":\"Biinboğa Arı Poleni 120 Gr\"}',0);
+/*!40000 ALTER TABLE `campaign_actions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_audit_logs`
+--
+
+DROP TABLE IF EXISTS `campaign_audit_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_audit_logs` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `adminId` varchar(191) NOT NULL,
+  `action` varchar(191) NOT NULL,
+  `changes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`changes`)),
+  `ip` varchar(191) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  KEY `campaign_audit_logs_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_audit_logs_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_audit_logs`
+--
+
+LOCK TABLES `campaign_audit_logs` WRITE;
+/*!40000 ALTER TABLE `campaign_audit_logs` DISABLE KEYS */;
+INSERT INTO `campaign_audit_logs` VALUES ('cmptks7dx00044ec7txmgzt9o','cmptks7cx00004ec7sh2a6b60','cmpji1gre00004095h5khiel3','created',NULL,'::1','2026-05-31 09:26:35.877'),('cmptktfwa00084ec7pcm1nr0c','cmptks7cx00004ec7sh2a6b60','cmpji1gre00004095h5khiel3','updated','{\"before\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T09:23:00.000Z\",\"endsAt\":\"2026-06-07T09:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:26:35.839Z\"},\"after\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T06:23:00.000Z\",\"endsAt\":\"2026-06-07T06:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:27:33.535Z\"}}','::1','2026-05-31 09:27:33.562'),('cmptktkjh000c4ec7e4be4sa7','cmptks7cx00004ec7sh2a6b60','cmpji1gre00004095h5khiel3','updated','{\"before\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T06:23:00.000Z\",\"endsAt\":\"2026-06-07T06:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:27:33.535Z\"},\"after\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T06:23:00.000Z\",\"endsAt\":\"2026-06-07T06:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:27:39.559Z\"}}','::1','2026-05-31 09:27:39.581'),('cmptl1qed000g4ec7ja8bhcpv','cmptks7cx00004ec7sh2a6b60','cmpji1gre00004095h5khiel3','updated','{\"before\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T06:23:00.000Z\",\"endsAt\":\"2026-06-07T06:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:27:39.559Z\"},\"after\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T03:23:00.000Z\",\"endsAt\":\"2026-06-07T03:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:34:00.398Z\"}}','::1','2026-05-31 09:34:00.421'),('cmptoonmq000k4ec7hnniao49','cmptks7cx00004ec7sh2a6b60','cmpji1gre00004095h5khiel3','updated','{\"before\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T03:23:00.000Z\",\"endsAt\":\"2026-06-07T03:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T09:34:00.398Z\"},\"after\":{\"id\":\"cmptks7cx00004ec7sh2a6b60\",\"name\":\"Sepette İndirim\",\"slug\":\"sepette-indirim\",\"description\":\"Sepette %40 indirim.\",\"internalNote\":null,\"type\":\"CART_DISCOUNT\",\"status\":\"ACTIVE\",\"priority\":1,\"stackable\":false,\"maxDiscountAmount\":null,\"budgetLimit\":null,\"budgetUsed\":0.0,\"imageUrl\":null,\"ogImageUrl\":null,\"startsAt\":\"2026-05-31T00:23:00.000Z\",\"endsAt\":\"2026-06-07T00:23:00.000Z\",\"timezone\":\"Europe/Istanbul\",\"requiresApproval\":false,\"approvedBy\":null,\"approvedAt\":null,\"createdBy\":\"cmpji1gre00004095h5khiel3\",\"createdAt\":\"2026-05-31T09:26:35.839Z\",\"updatedAt\":\"2026-05-31T11:15:48.752Z\"}}','::1','2026-05-31 11:15:48.770'),('cmptpmxij0001133dmsyf3bk0','cmptks7cx00004ec7sh2a6b60','cmpji1gre00004095h5khiel3','cancelled',NULL,'::1','2026-05-31 11:42:27.883'),('cmpuwbpad001ak2wh4apj1i4r','cmpuwbp8z0016k2wh6wrwyfxm','cmpji1gre00004095h5khiel3','created',NULL,'::1','2026-06-01 07:37:27.493');
+/*!40000 ALTER TABLE `campaign_audit_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_conditions`
+--
+
+DROP TABLE IF EXISTS `campaign_conditions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_conditions` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `type` enum('MIN_CART_AMOUNT','MIN_ITEM_COUNT','SPECIFIC_PRODUCTS','SPECIFIC_CATEGORIES','SPECIFIC_BRANDS','CUSTOMER_SEGMENT','CUSTOMER_ORDER_COUNT','CUSTOMER_TOTAL_SPEND','FIRST_ORDER','DAY_OF_WEEK','TIME_OF_DAY','GEOGRAPHIC','DEVICE_TYPE','PAYMENT_METHOD','BIRTHDAY_MONTH','DAYS_SINCE_LAST_ORDER') NOT NULL,
+  `operator` varchar(191) NOT NULL,
+  `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`value`)),
+  `logicGroup` int(11) NOT NULL DEFAULT 0,
+  `sortOrder` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `campaign_conditions_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_conditions_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_conditions`
+--
+
+LOCK TABLES `campaign_conditions` WRITE;
+/*!40000 ALTER TABLE `campaign_conditions` DISABLE KEYS */;
+INSERT INTO `campaign_conditions` VALUES ('cmptoonm8000h4ec7y3lqnia3','cmptks7cx00004ec7sh2a6b60','MIN_CART_AMOUNT','gte','{\"amount\":\"1200\"}',0,0),('cmpuwbp8z0017k2wh8ynr6a47','cmpuwbp8z0016k2wh6wrwyfxm','MIN_ITEM_COUNT','gte','{\"count\":\"2\"}',0,0);
+/*!40000 ALTER TABLE `campaign_conditions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_displays`
+--
+
+DROP TABLE IF EXISTS `campaign_displays`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_displays` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `type` enum('BANNER','POPUP','FLOATING_BAR','PRODUCT_BADGE','CART_MESSAGE') NOT NULL,
+  `placement` varchar(191) NOT NULL,
+  `imageUrl` varchar(191) DEFAULT NULL,
+  `title` varchar(191) DEFAULT NULL,
+  `subtitle` varchar(191) DEFAULT NULL,
+  `ctaText` varchar(191) DEFAULT NULL,
+  `ctaUrl` varchar(191) DEFAULT NULL,
+  `bgColor` varchar(191) DEFAULT NULL,
+  `textColor` varchar(191) DEFAULT NULL,
+  `showCountdown` tinyint(1) NOT NULL DEFAULT 0,
+  `sortOrder` int(11) NOT NULL DEFAULT 0,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `campaign_displays_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_displays_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_displays`
+--
+
+LOCK TABLES `campaign_displays` WRITE;
+/*!40000 ALTER TABLE `campaign_displays` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_displays` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_notifications`
+--
+
+DROP TABLE IF EXISTS `campaign_notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_notifications` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `type` enum('CAMPAIGN_START','CAMPAIGN_REMINDER','CAMPAIGN_END','FAVORITE_DISCOUNT','ABANDONED_CART','BIRTHDAY_COUPON','WIN_BACK_COUPON') NOT NULL,
+  `scheduledAt` datetime(3) DEFAULT NULL,
+  `sentAt` datetime(3) DEFAULT NULL,
+  `channel` varchar(191) NOT NULL,
+  `subject` varchar(191) DEFAULT NULL,
+  `body` text DEFAULT NULL,
+  `targetSegment` varchar(191) DEFAULT NULL,
+  `status` varchar(191) NOT NULL DEFAULT 'PENDING',
+  PRIMARY KEY (`id`),
+  KEY `campaign_notifications_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_notifications_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_notifications`
+--
+
+LOCK TABLES `campaign_notifications` WRITE;
+/*!40000 ALTER TABLE `campaign_notifications` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_notifications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_segments`
+--
+
+DROP TABLE IF EXISTS `campaign_segments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_segments` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `type` enum('ALL_CUSTOMERS','NEW_CUSTOMERS','VIP_CUSTOMERS','INACTIVE_CUSTOMERS','BIRTHDAY_THIS_MONTH','SPECIFIC_CUSTOMERS','CUSTOMER_TAG','GEOGRAPHIC_SEGMENT') NOT NULL,
+  `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`value`)),
+  PRIMARY KEY (`id`),
+  KEY `campaign_segments_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_segments_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_segments`
+--
+
+LOCK TABLES `campaign_segments` WRITE;
+/*!40000 ALTER TABLE `campaign_segments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_segments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_targets`
+--
+
+DROP TABLE IF EXISTS `campaign_targets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_targets` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `targetType` varchar(191) NOT NULL,
+  `targetId` varchar(191) NOT NULL,
+  `discount` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `campaign_targets_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_targets_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_targets`
+--
+
+LOCK TABLES `campaign_targets` WRITE;
+/*!40000 ALTER TABLE `campaign_targets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_targets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_templates`
+--
+
+DROP TABLE IF EXISTS `campaign_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_templates` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) DEFAULT NULL,
+  `name` varchar(191) NOT NULL,
+  `description` varchar(191) DEFAULT NULL,
+  `config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`config`)),
+  `isSystem` tinyint(1) NOT NULL DEFAULT 0,
+  `createdBy` varchar(191) NOT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  KEY `campaign_templates_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `campaign_templates_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_templates`
+--
+
+LOCK TABLES `campaign_templates` WRITE;
+/*!40000 ALTER TABLE `campaign_templates` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_templates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_translations`
+--
+
+DROP TABLE IF EXISTS `campaign_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_translations` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `locale` varchar(191) NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `description` text DEFAULT NULL,
+  `ctaText` varchar(191) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `campaign_translations_campaignId_locale_key` (`campaignId`,`locale`),
+  CONSTRAINT `campaign_translations_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_translations`
+--
+
+LOCK TABLES `campaign_translations` WRITE;
+/*!40000 ALTER TABLE `campaign_translations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `campaign_translations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaign_usages`
+--
+
+DROP TABLE IF EXISTS `campaign_usages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_usages` (
+  `id` varchar(191) NOT NULL,
+  `campaignId` varchar(191) NOT NULL,
+  `customerId` varchar(191) DEFAULT NULL,
+  `orderId` varchar(191) DEFAULT NULL,
+  `couponId` varchar(191) DEFAULT NULL,
+  `discountAmount` decimal(10,2) NOT NULL,
+  `abVariant` varchar(191) DEFAULT NULL,
+  `usedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  KEY `campaign_usages_campaignId_idx` (`campaignId`),
+  KEY `campaign_usages_customerId_idx` (`customerId`),
+  KEY `campaign_usages_usedAt_idx` (`usedAt`),
+  KEY `campaign_usages_couponId_fkey` (`couponId`),
+  CONSTRAINT `campaign_usages_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `campaign_usages_couponId_fkey` FOREIGN KEY (`couponId`) REFERENCES `coupons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaign_usages`
+--
+
+LOCK TABLES `campaign_usages` WRITE;
+/*!40000 ALTER TABLE `campaign_usages` DISABLE KEYS */;
+INSERT INTO `campaign_usages` VALUES ('cmptoryg0000v4ec7m81lfti7','cmptks7cx00004ec7sh2a6b60','cmpshgo3a0000hwguacz3w3s5','cmptorycn000m4ec7yorctr5i',NULL,573.75,NULL,'2026-05-31 11:18:22.752');
+/*!40000 ALTER TABLE `campaign_usages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `campaigns`
+--
+
+DROP TABLE IF EXISTS `campaigns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaigns` (
+  `id` varchar(191) NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `slug` varchar(191) NOT NULL,
+  `description` text DEFAULT NULL,
+  `internalNote` text DEFAULT NULL,
+  `type` enum('COUPON','CART_DISCOUNT','PRODUCT_DISCOUNT','FREE_SHIPPING','BUY_X_PAY_Y','GIFT_PRODUCT','FLASH_SALE','CASHBACK','BIRTHDAY','WIN_BACK','ABANDONED_CART') NOT NULL,
+  `status` enum('DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','PAUSED','ENDED','CANCELLED') NOT NULL DEFAULT 'DRAFT',
+  `priority` int(11) NOT NULL DEFAULT 0,
+  `stackable` tinyint(1) NOT NULL DEFAULT 0,
+  `maxDiscountAmount` decimal(10,2) DEFAULT NULL,
+  `budgetLimit` decimal(10,2) DEFAULT NULL,
+  `budgetUsed` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `imageUrl` varchar(191) DEFAULT NULL,
+  `ogImageUrl` varchar(191) DEFAULT NULL,
+  `startsAt` datetime(3) NOT NULL,
+  `endsAt` datetime(3) DEFAULT NULL,
+  `timezone` varchar(191) NOT NULL DEFAULT 'Europe/Istanbul',
+  `requiresApproval` tinyint(1) NOT NULL DEFAULT 0,
+  `approvedBy` varchar(191) DEFAULT NULL,
+  `approvedAt` datetime(3) DEFAULT NULL,
+  `createdBy` varchar(191) NOT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `campaigns_slug_key` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `campaigns`
+--
+
+LOCK TABLES `campaigns` WRITE;
+/*!40000 ALTER TABLE `campaigns` DISABLE KEYS */;
+INSERT INTO `campaigns` VALUES ('cmptks7cx00004ec7sh2a6b60','Sepette İndirim','sepette-indirim','Sepette %40 indirim.',NULL,'CART_DISCOUNT','CANCELLED',1,0,NULL,NULL,573.75,NULL,NULL,'2026-05-31 00:23:00.000','2026-06-07 00:23:00.000','Europe/Istanbul',0,NULL,NULL,'cmpji1gre00004095h5khiel3','2026-05-31 09:26:35.839','2026-05-31 11:42:27.865'),('cmpuwbp8z0016k2wh6wrwyfxm','Polen Hediyesi','polen-hediyesi','',NULL,'GIFT_PRODUCT','ACTIVE',2,0,NULL,NULL,0.00,NULL,NULL,'2026-06-01 07:36:00.000','2026-06-01 07:36:00.000','Europe/Istanbul',0,NULL,NULL,'cmpji1gre00004095h5khiel3','2026-06-01 07:37:27.443','2026-06-01 07:37:27.443');
+/*!40000 ALTER TABLE `campaigns` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `categories` (
+  `id` varchar(191) NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `slug` varchar(191) NOT NULL,
+  `description` text DEFAULT NULL,
+  `image` varchar(191) DEFAULT NULL,
+  `parentId` varchar(191) DEFAULT NULL,
+  `order` int(11) NOT NULL DEFAULT 0,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  `showOnHome` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `categories_slug_key` (`slug`),
+  KEY `categories_parentId_fkey` (`parentId`),
+  CONSTRAINT `categories_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categories`
+--
+
+LOCK TABLES `categories` WRITE;
+/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
+INSERT INTO `categories` VALUES ('cmpjyh9bb00651dk2efqxv3hs','Kooperatif Keven Kekik Serisi','kooperatif-keven-kekik-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş keven ve kekik meralarından sağdığı lezzet. Kooperatif Keven Kekik Serisi, coğrafyamızın geniş bitki çeşitliliğini ve doğanın zarifliğini, siz değerli tüketicilerimize sunuyoruz.','/images/categories/f2685fe6-fc12-4ffb-88f9-31569a540513.webp',NULL,0,1,'2026-05-24 15:52:18.024','2026-05-30 13:36:03.797',1),('cmpjyhza300661dk2ye2m69yu','Kooperatif Çiçek Serisi','kooperatif-cicek-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş çiçek meralarından sağdığı lezzet. Kooperatif Çiçek Serisi, coğrafyamızın geniş bitki çeşitliliğini ve doğanın zarifliğini, siz değerli tüketicilerimize sunuyoruz.','/images/categories/88d25299-cc1e-4aae-81b4-1334fa2662c7.webp',NULL,0,1,'2026-05-24 15:52:51.675','2026-05-30 13:36:03.797',1),('cmpjyjeq400671dk25utyx9xv','Kooperatif Çam Serisi','kooperatif-cam-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş çam ormanlarından sağdığı lezzet. Kooperatif Çam Balı Serisi, coğrafyamızın geniş orman dokusunu ve doğanın zarifliğini, siz değerli tüketicilerimize sunuyoruz.','/images/categories/4dbef521-541f-44dc-a135-2ab5d5dae0be.webp',NULL,0,1,'2026-05-24 15:53:58.348','2026-05-30 13:36:03.797',1),('cmpjykvtu00681dk234gzde37','Kooperatif Narenciye Serisi','kooperatif-narenciye-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, mis kokulu narenciye bahçelerinden sağdığı lezzet. Kooperatif Narenciye Balı Serisi, coğrafyamızın Akdeniz güneşiyle olgunlaşan bitki çeşitliliğini ve doğanın zarifliğini, siz değerli tüketicilerimize sunuyoruz.','/images/categories/b31e98c4-b2c6-4526-a4a0-54c164175f6e.webp',NULL,0,1,'2026-05-24 15:55:07.170','2026-05-30 13:36:03.797',1),('cmpjym41v00691dk2b34uaad5','Kooperatif Monofloral Serisi','kooperatif-monofloral-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, tek bir bitki türünün hakim olduğu özel floradan sağdığı lezzet. Kooperatif Monofloral Balı Serisi, coğrafyamızın tek bir çiçeğe özgü zenginliğini ve doğanın zarifliğini, siz değerli tüketicilerimize sunuyoruz.','/images/categories/0ccdacb2-b7a7-4c08-8674-be257a1d9eac.webp',NULL,0,1,'2026-05-24 15:56:04.484','2026-05-30 13:36:03.797',1),('cmpjyntvv006a1dk2s6vztod1','Kooperatif Avantajlı Ürünler Serisi','kooperatif-avantajli-urunler-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş coğrafyalardan sağdığı lezzet. Kooperatif Avantajlı Ürünler Serisi, doğanın zarifliğini ve kooperatif tecrübesini, sofralarınıza daha erişilebilir seçeneklerle, siz değerli tüketicilerimize sunuyoruz.','/images/categories/493e1337-a6f8-4a6d-8b89-e4ab6c412b81.webp',NULL,0,1,'2026-05-24 15:57:24.620','2026-05-30 13:36:03.797',1),('cmpjzvo0n000655l4oohuojwm','Kooperatif Rafadan Tayfa Serisi','kooperatif-rafadan-tayfa-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş yaylalardan sağdığı lezzet. Kooperatif Rafadan Tayfa Çiçek Balı Serisi, coğrafyamızın renkli bitki çeşitliliğini ve doğanın zarifliğini, büyüme çağındaki nesillerimize ve siz değerli tüketicilerimize sunuyoruz.','/images/categories/f74cd631-169d-4e8b-a153-0b047ebfa21c.webp',NULL,0,1,'2026-05-24 16:31:29.879','2026-05-30 13:36:03.797',1),('cmpjzzxe4000c55l4wnq7wrgy','Kooperatif Özel Ürün Serisi','kooperatif-ozel-urun-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş kovanlardan sağdığı lezzet. Kooperatif Özel Ürün Serisi; arı sütü, polen ve sıvı propolisin uyumunu, coğrafyamızın kıymetli arı mucizelerini ve doğanın zarifliğini, siz değerli tüketicilerimize sunuyoruz.','/images/categories/24c7e0ef-2aea-402d-8775-570aae8b8399.webp',NULL,0,1,'2026-05-24 16:34:48.653','2026-05-30 13:36:03.797',1),('cmplel1wj0000541e6tlq03lu','İlk Kez Alacaklar Serisi','ilk-kez-alacaklar-serisi','Kooperatifimizin çatısı altında birleşen arıcılarımızın, el değmemiş coğrafyalardan sağdığı lezzet. Kooperatif İlk Kez Alacaklar Serisi, markamızla yeni tanışacak tüketicilerimiz için coğrafyamızın sevilen bitki çeşitliliğini ve doğanın zarifliğini, güzel bir başlangıçla siz değerli tüketicilerimize sunuyoruz.','/images/categories/e8d14f1f-514a-4d5e-b236-f65f583a1152.webp',NULL,0,1,'2026-05-25 16:10:55.075','2026-05-30 13:36:03.797',1);
+/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `consent_logs`
+--
+
+DROP TABLE IF EXISTS `consent_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `consent_logs` (
+  `id` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `type` varchar(191) NOT NULL,
+  `granted` tinyint(1) NOT NULL,
+  `ip` varchar(191) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  KEY `consent_logs_userId_fkey` (`userId`),
+  CONSTRAINT `consent_logs_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `consent_logs`
+--
+
+LOCK TABLES `consent_logs` WRITE;
+/*!40000 ALTER TABLE `consent_logs` DISABLE KEYS */;
+INSERT INTO `consent_logs` VALUES ('cmpsh7dq00001yl9z4bx0tqxy','cmpsh7dq00000yl9z8ksb4bi0','kvkk',1,'::1','2026-05-30 14:58:39.288'),('cmpsh7dq00002yl9zbgpafj3t','cmpsh7dq00000yl9z8ksb4bi0','newsletter',1,'::1','2026-05-30 14:58:39.288'),('cmpsh7dq00003yl9zlo2t25mo','cmpsh7dq00000yl9z8ksb4bi0','sms',1,'::1','2026-05-30 14:58:39.288'),('cmpshgo3a0001hwgu35t2183m','cmpshgo3a0000hwguacz3w3s5','kvkk',1,'::1','2026-05-30 15:05:52.630'),('cmpshgo3a0002hwgu5dkhlxrz','cmpshgo3a0000hwguacz3w3s5','newsletter',1,'::1','2026-05-30 15:05:52.630'),('cmpshgo3a0003hwgucefrzjby','cmpshgo3a0000hwguacz3w3s5','sms',1,'::1','2026-05-30 15:05:52.630');
+/*!40000 ALTER TABLE `consent_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `coupons`
+--
+
+DROP TABLE IF EXISTS `coupons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `coupons` (
+  `id` varchar(191) NOT NULL,
+  `code` varchar(191) NOT NULL,
+  `description` varchar(191) DEFAULT NULL,
+  `discountType` enum('PERCENTAGE','FIXED','FREE_SHIPPING') NOT NULL DEFAULT 'PERCENTAGE',
+  `discountValue` decimal(10,2) NOT NULL,
+  `minOrderAmount` decimal(10,2) DEFAULT NULL,
+  `maxDiscount` decimal(10,2) DEFAULT NULL,
+  `maxUses` int(11) DEFAULT NULL,
+  `usedCount` int(11) NOT NULL DEFAULT 0,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `startsAt` datetime(3) DEFAULT NULL,
+  `expiresAt` datetime(3) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `campaignId` varchar(191) DEFAULT NULL,
+  `isBulk` tinyint(1) NOT NULL DEFAULT 0,
+  `perCustomerLimit` int(11) DEFAULT 1,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `coupons_code_key` (`code`),
+  KEY `coupons_campaignId_fkey` (`campaignId`),
+  CONSTRAINT `coupons_campaignId_fkey` FOREIGN KEY (`campaignId`) REFERENCES `campaigns` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coupons`
+--
+
+LOCK TABLES `coupons` WRITE;
+/*!40000 ALTER TABLE `coupons` DISABLE KEYS */;
+INSERT INTO `coupons` VALUES ('cmpsisjo7000j4wdqeq0s5vg5','YILBASI25',NULL,'PERCENTAGE',15.00,500.00,NULL,10,3,1,NULL,'2026-05-31 00:00:00.000','2026-05-30 15:43:06.391',NULL,0,1);
+/*!40000 ALTER TABLE `coupons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customer_coupons`
+--
+
+DROP TABLE IF EXISTS `customer_coupons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `customer_coupons` (
+  `id` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `couponId` varchar(191) NOT NULL,
+  `usedAt` datetime(3) DEFAULT NULL,
+  `usedInOrder` varchar(191) DEFAULT NULL,
+  `assignedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `customer_coupons_userId_couponId_key` (`userId`,`couponId`),
+  KEY `customer_coupons_couponId_fkey` (`couponId`),
+  CONSTRAINT `customer_coupons_couponId_fkey` FOREIGN KEY (`couponId`) REFERENCES `coupons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `customer_coupons_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer_coupons`
+--
+
+LOCK TABLES `customer_coupons` WRITE;
+/*!40000 ALTER TABLE `customer_coupons` DISABLE KEYS */;
+/*!40000 ALTER TABLE `customer_coupons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `erp_sync_logs`
+--
+
+DROP TABLE IF EXISTS `erp_sync_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `erp_sync_logs` (
+  `id` varchar(191) NOT NULL,
+  `syncType` enum('PRODUCTS','STOCK','ORDERS','PRICES') NOT NULL,
+  `status` enum('PENDING','RUNNING','SUCCESS','FAILED') NOT NULL DEFAULT 'PENDING',
+  `message` text DEFAULT NULL,
+  `recordCount` int(11) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `completedAt` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `erp_sync_logs`
+--
+
+LOCK TABLES `erp_sync_logs` WRITE;
+/*!40000 ALTER TABLE `erp_sync_logs` DISABLE KEYS */;
+INSERT INTO `erp_sync_logs` VALUES ('cmpjybtig003c1dk21bhqegy9','PRODUCTS','SUCCESS',NULL,33,'2026-05-24 15:48:04.264','2026-05-24 15:48:04.973'),('cmpk99m9v0000kn2qwqlnyzis','PRODUCTS','FAILED','fetch failed',NULL,'2026-05-24 20:54:17.347','2026-05-24 20:54:17.387'),('cmpk9acsa0001kn2qbwxpavpx','PRODUCTS','SUCCESS',NULL,33,'2026-05-24 20:54:51.706','2026-05-24 20:54:54.720'),('cmpuwhruv001ek2whbo767ezo','PRODUCTS','SUCCESS',NULL,33,'2026-06-01 07:42:10.759','2026-06-01 07:42:12.893');
+/*!40000 ALTER TABLE `erp_sync_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `faqs`
+--
+
+DROP TABLE IF EXISTS `faqs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `faqs` (
+  `id` varchar(191) NOT NULL,
+  `question` varchar(191) NOT NULL,
+  `answer` text NOT NULL,
+  `order` int(11) NOT NULL DEFAULT 0,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `faqs`
+--
+
+LOCK TABLES `faqs` WRITE;
+/*!40000 ALTER TABLE `faqs` DISABLE KEYS */;
+INSERT INTO `faqs` VALUES ('faq-1','Kooperatif nedir?','Kooperatif, ortak ekonomik, sosyal ve kültürel çıkarlarını gerçekleştirmek amacıyla gönüllü olarak bir araya gelen kişilerin oluşturduğu, demokratik olarak kontrol edilen bir ortaklık işletmesidir.',1,1,'2026-05-24 08:12:07.420'),('faq-2','Ürünlerimiz katkısız mı?','Evet. Tüm ürünlerimiz akredite laboratuvarlarda analiz edilmekte ve herhangi bir katkı maddesi içermediği güvence altına alınmaktadır.',2,1,'2026-05-24 08:12:07.427'),('faq-3','Teslimat süreniz?','Siparişleriniz genellikle 1-3 iş günü içinde kargoya verilmektedir. Kargo süreci taşıyıcı firmaya göre değişmekle birlikte ortalama 2-5 iş günüdür.',3,1,'2026-05-24 08:12:07.432'),('faq-4','Ürünlerimize katkı var mı?','Hayır. Kooperatif Balı Binboğa ürünleri tamamen doğal olup herhangi bir katkı maddesi, şeker veya yapay tatlandırıcı içermemektedir.',4,1,'2026-05-24 08:12:07.437'),('faq-5','Ürünleriniz bal mumu?','Evet, arı mumu ürünlerimiz de mevcuttur. Ürün kategorilerimizden inceleyebilirsiniz.',5,1,'2026-05-24 08:12:07.442'),('faq-6','Glütenimiz aktörimiz?','Ürünlerimiz doğal bal olup glüten içermemektedir. Ancak üretim tesisimizde farklı ürünler de işlenmektedir. Ciddi alerjisi olan müşterilerimizin bizi araması önerilir.',6,1,'2026-05-24 08:12:07.447');
+/*!40000 ALTER TABLE `faqs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `favorites`
+--
+
+DROP TABLE IF EXISTS `favorites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `favorites` (
+  `id` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `productId` varchar(191) NOT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `favorites_userId_productId_key` (`userId`,`productId`),
+  KEY `favorites_productId_fkey` (`productId`),
+  CONSTRAINT `favorites_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `favorites_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `favorites`
+--
+
+LOCK TABLES `favorites` WRITE;
+/*!40000 ALTER TABLE `favorites` DISABLE KEYS */;
+INSERT INTO `favorites` VALUES ('cmpsj19xr000t4wdqy7doy9y2','cmpshgo3a0000hwguacz3w3s5','cmpjybtq7003v1dk2dj4tla48','2026-05-30 15:49:53.680'),('cmpsj2mua000v4wdqzs1cx0so','cmpshgo3a0000hwguacz3w3s5','cmpjybtpa003p1dk28st28mym','2026-05-30 15:50:57.058'),('cmpsj2tlb000x4wdqh618o7yu','cmpshgo3a0000hwguacz3w3s5','cmpjybtpt003s1dk2bozxvyv4','2026-05-30 15:51:05.807'),('cmpslh52v001x4wdqvp7oi2mm','cmpshgo3a0000hwguacz3w3s5','cmpjybtj7003d1dk272xxxvos','2026-05-30 16:58:13.111');
+/*!40000 ALTER TABLE `favorites` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `honey_types`
+--
+
+DROP TABLE IF EXISTS `honey_types`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `honey_types` (
+  `id` varchar(191) NOT NULL,
+  `slug` varchar(191) NOT NULL,
+  `label` varchar(191) NOT NULL,
+  `order` int(11) NOT NULL DEFAULT 0,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `honey_types_slug_key` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `honey_types`
+--
+
+LOCK TABLES `honey_types` WRITE;
+/*!40000 ALTER TABLE `honey_types` DISABLE KEYS */;
+INSERT INTO `honey_types` VALUES ('cmpjyxm9r0000w8769qqgu1b4','CICEK','Çiçek',1,1,'2026-05-24 16:05:01.312','2026-05-24 16:05:01.312'),('cmpjyxm9z0001w876woky4q7e','CAM','Çam',2,1,'2026-05-24 16:05:01.320','2026-05-24 16:05:01.320'),('cmpjyxma80002w876sovnznqi','KEVEN_KEKIK','Keven & Kekik',3,1,'2026-05-24 16:05:01.329','2026-05-24 16:05:01.329'),('cmpjyxmad0003w876hqjy05h4','NARENCIYE','Narenciye',4,1,'2026-05-24 16:05:01.333','2026-05-24 16:05:01.333'),('cmpjyxmai0004w876zmyo45yu','COKLU_URUN','Çoklu Ürün',6,1,'2026-05-24 19:11:16.000','2026-05-24 19:11:24.000'),('cmpjyxmai0004w876zmyo86sf','OZEL','Özel Ürün',5,1,'2026-05-24 16:05:01.339','2026-05-24 16:05:01.339');
+/*!40000 ALTER TABLE `honey_types` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `notification_preferences`
+--
+
+DROP TABLE IF EXISTS `notification_preferences`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `notification_preferences` (
+  `id` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `orderUpdates` tinyint(1) NOT NULL DEFAULT 1,
+  `favoriteDiscounts` tinyint(1) NOT NULL DEFAULT 1,
+  `couponReminders` tinyint(1) NOT NULL DEFAULT 1,
+  `reviewRequests` tinyint(1) NOT NULL DEFAULT 1,
+  `newsletter` tinyint(1) NOT NULL DEFAULT 0,
+  `smsNotifications` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `notification_preferences_userId_key` (`userId`),
+  CONSTRAINT `notification_preferences_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notification_preferences`
+--
+
+LOCK TABLES `notification_preferences` WRITE;
+/*!40000 ALTER TABLE `notification_preferences` DISABLE KEYS */;
+INSERT INTO `notification_preferences` VALUES ('cmpsh7dq00004yl9zsc2mu2wn','cmpsh7dq00000yl9z8ksb4bi0',1,1,1,1,1,1),('cmpshgo3a0004hwgumffm5r16','cmpshgo3a0000hwguacz3w3s5',1,1,1,1,1,1);
+/*!40000 ALTER TABLE `notification_preferences` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `order_items`
+--
+
+DROP TABLE IF EXISTS `order_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order_items` (
+  `id` varchar(191) NOT NULL,
+  `orderId` varchar(191) NOT NULL,
+  `variantId` varchar(191) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `productName` varchar(191) NOT NULL,
+  `variantInfo` varchar(191) NOT NULL,
+  `image` varchar(191) DEFAULT NULL,
+  `reviewed` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `order_items_orderId_fkey` (`orderId`),
+  KEY `order_items_variantId_fkey` (`variantId`),
+  CONSTRAINT `order_items_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_items_variantId_fkey` FOREIGN KEY (`variantId`) REFERENCES `product_variants` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order_items`
+--
+
+LOCK TABLES `order_items` WRITE;
+/*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
+INSERT INTO `order_items` VALUES ('cmprbg5ga00037jiyy3w9byh9','cmprbg5ga00017jiyup6gnvux','cmplf74wn0002je83u6jzuv53',5,425.90,'Binboğa Çam Balı 850GR | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpshkkka0003yshr1pztix9t','cmpshkkk90001yshrhpo291le','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,0),('cmpshkkka0004yshrh2qw00kr','cmpshkkk90001yshrhpo291le','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpshoagp00034wdq6etlsqus','cmpshoagp00014wdq2bgrahav','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpshoagp00044wdqrub693ey','cmpshoagp00014wdq2bgrahav','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,0),('cmpshoagp00054wdqx6ugpqlz','cmpshoagp00014wdq2bgrahav','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,0),('cmpsiex5s000d4wdqkw1sn96p','cmpsiex5s000b4wdqgqq2dbv9','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpsiex5s000e4wdqsbu0xy1x','cmpsiex5s000b4wdqgqq2dbv9','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,0),('cmpsiex5s000f4wdq41c0fnja','cmpsiex5s000b4wdqgqq2dbv9','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,0),('cmpsiex5s000g4wdqayltb3ao','cmpsiex5s000b4wdqgqq2dbv9','cmpk8qvkt000u55l45wd7jino',1,459.90,'Binboğa Narenciye Balı 850GR','850 g - GLASS',NULL,0),('cmpsiuu2x000n4wdqhp8i3fpi','cmpsiuu2w000l4wdq5okl8j4u','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,1),('cmpsiuu2x000o4wdqj1donp0m','cmpsiuu2w000l4wdq5okl8j4u','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,1),('cmpsiuu2x000p4wdqvu4ttuh1','cmpsiuu2w000l4wdq5okl8j4u','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,1),('cmpsjvioo00174wdqyww5rsmj','cmpsjvioo00154wdqqq0poyxr','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpsjvioo00184wdq7tb4ruxt','cmpsjvioo00154wdqqq0poyxr','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,0),('cmpsjvioo00194wdq37xq5ic0','cmpsjvioo00154wdqqq0poyxr','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,0),('cmpsk1b92001e4wdqaigoo1e5','cmpsk1b92001c4wdqlhqno0s6','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpsk1b92001f4wdqor895lxz','cmpsk1b92001c4wdqlhqno0s6','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,0),('cmpsk7st8001k4wdq0e511tje','cmpsk7st8001i4wdqh4n6whgf','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,0),('cmpskkq20001s4wdqacana8b8','cmpskkq20001q4wdqrsoexf55','cmplf74wn0002je83u6jzuv53',5,425.90,'Binboğa Çam Balı 850GR | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpskkq20001t4wdqzvxrzu84','cmpskkq20001q4wdqrsoexf55','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpslkpb600214wdqg0zzl68o','cmpslkpb6001z4wdqysyfa8dh','cmplf67se0000je835hj28hmw',5,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpslnm0000274wdqy0efi4w4','cmpslnlzz00254wdqevusvcd2','cmplf74wn0002je83u6jzuv53',1,425.90,'Binboğa Çam Balı 850GR | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpslnm0000284wdqo9puvgww','cmpslnlzz00254wdqevusvcd2','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,0),('cmptoryco000o4ec708rd0sfg','cmptorycn000m4ec7yorctr5i','cmplf67se0000je835hj28hmw',1,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmptoryco000p4ec7eaksql8i','cmptorycn000m4ec7yorctr5i','cmplf6o0o0001je83d9ws38j8',1,425.90,'Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','850 g - GLASS',NULL,0),('cmptoryco000q4ec7mqzl30w8','cmptorycn000m4ec7yorctr5i','cmpk8ruhw000x55l4yo1zrhez',1,457.90,'Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','1 kg - PLASTIC',NULL,0),('cmptoryco000r4ec7zok10va1','cmptorycn000m4ec7yorctr5i','cmplf74wn0002je83u6jzuv53',1,425.90,'Binboğa Çam Balı 850GR | Kooperatif Balı','850 g - GLASS',NULL,0),('cmptoryco000s4ec726b2j3uc','cmptorycn000m4ec7yorctr5i','cmpk8r9om000v55l48oy3xv1g',1,246.90,'Binboğa Çiçek Balı 325GR Pratik Kapak | Arıcıdan Sofranıza','325 g - PLASTIC',NULL,0),('cmptoryco000t4ec7vd9nzjjs','cmptorycn000m4ec7yorctr5i','cmpmb7kjo000012305odpfmdg',1,269.90,'Binboğa Çiçek Balı 460 Gr | Arıcıdan Sofranıza','460 g - GLASS',NULL,0),('cmpuvkx220010k2whwgkswj4w','cmpuvkx21000yk2whjeh6em4y','cmplf67se0000je835hj28hmw',2,468.49,'Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','850 g - GLASS',NULL,0),('cmpuvkx220011k2wh642qg04y','cmpuvkx21000yk2whjeh6em4y','cmpk8qvkt000u55l45wd7jino',1,459.90,'Binboğa Narenciye Balı 850GR','850 g - GLASS',NULL,0);
+/*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `orders`
+--
+
+DROP TABLE IF EXISTS `orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `orders` (
+  `id` varchar(191) NOT NULL,
+  `orderNumber` varchar(191) NOT NULL,
+  `userId` varchar(191) DEFAULT NULL,
+  `guestEmail` varchar(191) DEFAULT NULL,
+  `guestPhone` varchar(191) DEFAULT NULL,
+  `addressId` varchar(191) DEFAULT NULL,
+  `shippingAddress` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`shippingAddress`)),
+  `status` enum('PENDING','CONFIRMED','PROCESSING','SHIPPED','DELIVERED','CANCELLED','REFUND_REQUESTED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+  `paymentStatus` enum('PENDING','PAID','FAILED','REFUNDED','PARTIALLY_REFUNDED') NOT NULL DEFAULT 'PENDING',
+  `subtotal` decimal(10,2) NOT NULL,
+  `shippingFee` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `discount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total` decimal(10,2) NOT NULL,
+  `couponCode` varchar(191) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `erpOrderCode` varchar(191) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  `cancelReason` text DEFAULT NULL,
+  `cargoCompany` varchar(191) DEFAULT NULL,
+  `cargoTrackingNo` varchar(191) DEFAULT NULL,
+  `refundReason` text DEFAULT NULL,
+  `reviewRequested` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `orders_orderNumber_key` (`orderNumber`),
+  KEY `orders_userId_fkey` (`userId`),
+  KEY `orders_addressId_fkey` (`addressId`),
+  CONSTRAINT `orders_addressId_fkey` FOREIGN KEY (`addressId`) REFERENCES `addresses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `orders_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `orders`
+--
+
+LOCK TABLES `orders` WRITE;
+/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
+INSERT INTO `orders` VALUES ('cmprbg5ga00017jiyup6gnvux','BB-MPRBG5FY-XVOG','cmpji1gre00004095h5khiel3',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz@binbogabal.com.tr\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"denemedirdenemedirdenemedir\"}','DELIVERED','PENDING',2129.50,0.00,0.00,2129.50,NULL,'denemedir.',NULL,'2026-05-29 19:29:44.597','2026-05-30 19:36:34.887',NULL,NULL,NULL,NULL,0),('cmpshkkk90001yshrhpo291le','BB-MPSHKKK8-3ED3','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz@binbogabal.com.tr\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar mah. adana cad. no:219/A\"}','CANCELLED','PENDING',894.39,99.00,0.00,993.39,NULL,'Denemedir',NULL,'2026-05-30 15:08:54.682','2026-05-30 15:11:09.805',NULL,NULL,NULL,NULL,0),('cmpshoagp00014wdq2bgrahav','BB-MPSHOAGM-IXCU','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz@binbogabal.com.tr\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar mah. Adana cad. No:219/A \"}','CANCELLED','PENDING',1352.29,99.00,0.00,1451.29,NULL,'Denemedir',NULL,'2026-05-30 15:11:48.216','2026-05-30 15:12:36.294',NULL,NULL,NULL,NULL,0),('cmpsiex5s000b4wdqgqq2dbv9','BB-MPSIEX5Q-3CX9','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','REFUNDED','PENDING',1812.19,0.00,0.00,1812.19,NULL,'Denemedir.',NULL,'2026-05-30 15:32:30.688','2026-05-30 15:37:13.736',NULL,NULL,NULL,NULL,0),('cmpsiuu2w000l4wdq5okl8j4u','BB-MPSIUU2M-CKV7','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','DELIVERED','PENDING',1352.29,99.00,202.84,1248.45,'YILBASI25','DENEMEDİR',NULL,'2026-05-30 15:44:53.189','2026-05-30 15:46:56.609',NULL,NULL,NULL,NULL,0),('cmpsjvioo00154wdqqq0poyxr','BB-MPSJVIOM-9W3H','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','PENDING','PENDING',1352.29,99.00,0.00,1451.29,NULL,'',NULL,'2026-05-30 16:13:24.696','2026-05-30 16:13:24.696',NULL,NULL,NULL,NULL,0),('cmpsk1b92001c4wdqlhqno0s6','BB-MPSK1B8Z-OR1H',NULL,'gokaybaz@binbogabal.com.tr','05445085479',NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz@binbogabal.com.tr\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar mah. Adana cad. no:219/A \"}','PENDING','PENDING',894.39,99.00,0.00,993.39,NULL,'Denemedir denemedir denemedir',NULL,'2026-05-30 16:17:54.998','2026-05-30 16:17:54.998',NULL,NULL,NULL,NULL,0),('cmpsk7st8001i4wdqh4n6whgf','BB-MPSK7ST7-C5WE',NULL,'gokaybaz2000@outlook.com','05445085479',NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@outlook.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar mah. Adana cad. no:219/A\"}','PENDING','PENDING',457.90,99.00,0.00,556.90,NULL,'Denemedir.',NULL,'2026-05-30 16:22:57.692','2026-05-30 16:22:57.692',NULL,NULL,NULL,NULL,0),('cmpskkq20001q4wdqrsoexf55','BB-MPSKKQ1Y-Z092','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','PENDING','PENDING',2597.99,0.00,389.70,2208.29,'YILBASI25','Denemedir.',NULL,'2026-05-30 16:33:00.648','2026-05-30 16:33:00.648',NULL,NULL,NULL,NULL,0),('cmpslkpb6001z4wdqysyfa8dh','BB-MPSLKPB4-EWHD','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','CANCELLED','PENDING',2342.45,0.00,0.00,2342.45,NULL,'Denemedir.',NULL,'2026-05-30 17:00:59.298','2026-05-30 17:01:24.296',NULL,NULL,NULL,NULL,0),('cmpslnlzz00254wdqevusvcd2','BB-MPSLNLZY-OFQZ','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','DELIVERED','PENDING',883.80,99.00,132.57,850.23,'YILBASI25','Denemedirdenemedir',NULL,'2026-05-30 17:03:14.976','2026-05-30 17:05:15.628',NULL,NULL,NULL,NULL,0),('cmptorycn000m4ec7yorctr5i','BB-MPTORYC0-82SV','cmpshgo3a0000hwguacz3w3s5',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz2000@gmail.com\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"Varsaklar Mah. Adana Cad. No:219/A Binboğa Bal\"}','CONFIRMED','PENDING',2294.99,0.00,573.75,1721.24,NULL,'Denemedir denemedir denemedir',NULL,'2026-05-31 11:18:22.628','2026-05-31 11:19:19.444',NULL,NULL,NULL,NULL,0),('cmpuvkx21000yk2whjeh6em4y','BB-MPUVKX1S-B57Z','cmpji1gre00004095h5khiel3',NULL,NULL,NULL,'{\"firstName\":\"Gökay\",\"lastName\":\"Baz\",\"email\":\"gokaybaz@binbogabal.com.tr\",\"phone\":\"05445085479\",\"city\":\"Adana\",\"district\":\"Kozan\",\"fullAddress\":\"DENEMEDİR DENEMEDİR DENEMEDİRDE\"}','PENDING','PENDING',1396.88,99.00,139.69,1356.19,NULL,'DENEME',NULL,'2026-06-01 07:16:37.847','2026-06-01 07:16:37.847',NULL,NULL,NULL,NULL,0);
+/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payment_transactions`
+--
+
+DROP TABLE IF EXISTS `payment_transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_transactions` (
+  `id` varchar(191) NOT NULL,
+  `orderId` varchar(191) NOT NULL,
+  `provider` enum('QNB_PAY','IYZICO','STRIPE','MANUAL','CASH_ON_DELIVERY') NOT NULL DEFAULT 'QNB_PAY',
+  `status` enum('PENDING','SUCCESS','FAILED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+  `amount` decimal(10,2) NOT NULL,
+  `providerRefId` varchar(191) DEFAULT NULL,
+  `providerResponse` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`providerResponse`)),
+  `errorCode` varchar(191) DEFAULT NULL,
+  `errorMessage` varchar(191) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `payment_transactions_orderId_fkey` (`orderId`),
+  CONSTRAINT `payment_transactions_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `orders` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payment_transactions`
+--
+
+LOCK TABLES `payment_transactions` WRITE;
+/*!40000 ALTER TABLE `payment_transactions` DISABLE KEYS */;
+INSERT INTO `payment_transactions` VALUES ('cmprbg5s000057jiypmbxmaif','cmprbg5ga00017jiyup6gnvux','QNB_PAY','FAILED',2129.50,NULL,NULL,NULL,'Merchant bank identification not found, please contact customer support.','2026-05-29 19:29:45.024','2026-05-29 19:29:46.820'),('cmpshkkkv0006yshrh3kfd6vv','cmpshkkk90001yshrhpo291le','CASH_ON_DELIVERY','PENDING',993.39,NULL,NULL,NULL,NULL,'2026-05-30 15:08:54.703','2026-05-30 15:08:54.703'),('cmpshoahc00074wdq1ktvzdg5','cmpshoagp00014wdq2bgrahav','CASH_ON_DELIVERY','PENDING',1451.29,NULL,NULL,NULL,NULL,'2026-05-30 15:11:48.240','2026-05-30 15:11:48.240'),('cmpsiex6c000i4wdq1jhfwlsy','cmpsiex5s000b4wdqgqq2dbv9','CASH_ON_DELIVERY','PENDING',1812.19,NULL,NULL,NULL,NULL,'2026-05-30 15:32:30.708','2026-05-30 15:32:30.708'),('cmpsiuu5u000r4wdqshw55jg9','cmpsiuu2w000l4wdq5okl8j4u','CASH_ON_DELIVERY','PENDING',1248.45,NULL,NULL,NULL,NULL,'2026-05-30 15:44:53.298','2026-05-30 15:44:53.298'),('cmpsjvipb001b4wdqsu6zvhe2','cmpsjvioo00154wdqqq0poyxr','CASH_ON_DELIVERY','PENDING',1451.29,NULL,NULL,NULL,NULL,'2026-05-30 16:13:24.719','2026-05-30 16:13:24.719'),('cmpsk1b9h001h4wdq7w5txd5b','cmpsk1b92001c4wdqlhqno0s6','CASH_ON_DELIVERY','PENDING',993.39,NULL,NULL,NULL,NULL,'2026-05-30 16:17:55.014','2026-05-30 16:17:55.014'),('cmpsk7stx001m4wdqw9aktucb','cmpsk7st8001i4wdqh4n6whgf','CASH_ON_DELIVERY','PENDING',556.90,NULL,NULL,NULL,NULL,'2026-05-30 16:22:57.717','2026-05-30 16:22:57.717'),('cmpskkq2m001v4wdqd55xq9qk','cmpskkq20001q4wdqrsoexf55','CASH_ON_DELIVERY','PENDING',2208.29,NULL,NULL,NULL,NULL,'2026-05-30 16:33:00.670','2026-05-30 16:33:00.670'),('cmpslkpbf00234wdqs80gd5v6','cmpslkpb6001z4wdqysyfa8dh','CASH_ON_DELIVERY','PENDING',2342.45,NULL,NULL,NULL,NULL,'2026-05-30 17:00:59.307','2026-05-30 17:00:59.307'),('cmpslnm12002a4wdqc2pal83e','cmpslnlzz00254wdqevusvcd2','CASH_ON_DELIVERY','PENDING',850.23,NULL,NULL,NULL,NULL,'2026-05-30 17:03:15.014','2026-05-30 17:03:15.014'),('cmptorym2000x4ec73pqysabj','cmptorycn000m4ec7yorctr5i','CASH_ON_DELIVERY','PENDING',1721.24,NULL,NULL,NULL,NULL,'2026-05-31 11:18:22.970','2026-05-31 11:18:22.970'),('cmpuvkx610015k2whrjdle8ql','cmpuvkx21000yk2whjeh6em4y','CASH_ON_DELIVERY','PENDING',1356.19,NULL,NULL,NULL,NULL,'2026-06-01 07:16:37.993','2026-06-01 07:16:37.993');
+/*!40000 ALTER TABLE `payment_transactions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_variants`
+--
+
+DROP TABLE IF EXISTS `product_variants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `product_variants` (
+  `id` varchar(191) NOT NULL,
+  `productId` varchar(191) NOT NULL,
+  `size` int(11) NOT NULL,
+  `packagingType` enum('GLASS','PLASTIC') NOT NULL DEFAULT 'GLASS',
+  `price` decimal(10,2) NOT NULL,
+  `discountedPrice` decimal(10,2) DEFAULT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `sku` varchar(191) DEFAULT NULL,
+  `erpVariantCode` varchar(191) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  `maxOrderQuantity` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `product_variants_sku_key` (`sku`),
+  UNIQUE KEY `product_variants_erpVariantCode_key` (`erpVariantCode`),
+  KEY `product_variants_productId_fkey` (`productId`),
+  CONSTRAINT `product_variants_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_variants`
+--
+
+LOCK TABLES `product_variants` WRITE;
+/*!40000 ALTER TABLE `product_variants` DISABLE KEYS */;
+INSERT INTO `product_variants` VALUES ('cmpjybtz1005l1dk2ilra74kh','cmpjybtyu005j1dk27pw4pr04',0,'GLASS',529.90,NULL,0,NULL,'600.01.0115',0,'2026-05-24 15:48:04.861','2026-06-01 07:42:34.442',NULL),('cmpjybtzd005o1dk2f9fo24s8','cmpjybtz7005m1dk2zzvdrd53',0,'GLASS',599.90,NULL,0,NULL,'600.01.0116',0,'2026-05-24 15:48:04.873','2026-06-01 07:42:34.448',NULL),('cmpjybtzp005r1dk2cg7l8j85','cmpjybtzj005p1dk26p6owbui',0,'GLASS',1190.00,NULL,0,NULL,'600.01.0117',0,'2026-05-24 15:48:04.886','2026-06-01 07:42:34.458',NULL),('cmpjzcug6000155l4972yjfyf','cmpjybu0t005y1dk20pgjr9jy',240,'GLASS',409.23,NULL,0,NULL,'600.01.0120',1,'2026-05-24 16:16:51.750','2026-06-01 07:42:34.492',NULL),('cmpjzdn43000455l4s5gz5id6','cmpjybu0e005v1dk280ume1mc',324,'PLASTIC',444.42,NULL,0,NULL,'600.01.0119',1,'2026-05-24 16:17:28.899','2026-06-01 07:42:34.481',NULL),('cmpjzwm9w000755l41iw1wb5l','cmpjybtyh005g1dk2rym4bhdp',90,'PLASTIC',769.40,NULL,0,NULL,'600.01.0114',1,'2026-05-24 16:32:14.276','2026-06-01 07:42:34.434',NULL),('cmpjzwr06000855l4j07baeun','cmpjybtzv005s1dk223fzw6bm',850,'GLASS',791.80,NULL,0,NULL,'600.01.0118',1,'2026-05-24 16:32:20.406','2026-06-01 07:42:34.468',NULL),('cmpjzxe5g000a55l4kkyr78xf','cmpjybty4005d1dk2lmneoq0n',40,'PLASTIC',379.90,NULL,0,NULL,'600.01.0112',1,'2026-05-24 16:32:50.404','2026-06-01 07:42:34.417',NULL),('cmpk00dj7000d55l4tfs3j07k','cmpjybtxf00571dk2n3yuvi3o',120,'GLASS',195.90,NULL,0,NULL,'600.01.0110',1,'2026-05-24 16:35:09.571','2026-06-01 07:42:34.402',NULL),('cmpk00j6q000e55l4uxz69kp3','cmpjybtxs005a1dk2ow18hhgi',2000,'PLASTIC',799.00,NULL,0,NULL,'600.01.0111',1,'2026-05-24 16:35:16.898','2026-06-01 07:42:34.410',NULL),('cmpk8l3nj000f55l4y6i3s8p6','cmpjybtx000541dk2oafz63ke',650,'GLASS',339.90,NULL,0,NULL,'600.01.0106',1,'2026-05-24 20:35:13.472','2026-06-01 07:42:34.380',NULL),('cmpk8lyjr000h55l45bp7u6z1','cmpjybtvu004y1dk2dh3ra1jy',240,'GLASS',139.90,NULL,0,NULL,'600.01.0103',1,'2026-05-24 20:35:53.511','2026-06-01 07:42:34.356',NULL),('cmpk8mekn000i55l4ariyc2l2','cmpjybtvb004v1dk2qonxtaba',240,'GLASS',139.90,NULL,0,NULL,'600.01.0102',1,'2026-05-24 20:36:14.279','2026-06-01 07:42:34.350',NULL),('cmpk8n0r7000k55l4rkeca1i6','cmpjybtuo004p1dk2nnghc2ox',460,'GLASS',269.90,NULL,0,NULL,'600.01.0100',1,'2026-05-24 20:36:43.027','2026-06-01 07:42:34.335',NULL),('cmpk8ncie000l55l4r0hp0gzq','cmpjybtua004m1dk2zia1qo3t',325,'PLASTIC',246.90,NULL,0,NULL,'600.01.0098',1,'2026-05-24 20:36:58.262','2026-06-01 07:42:34.304',NULL),('cmpk8noos000m55l4xnte72zn','cmpjybttx004j1dk20j7js6hh',1000,'PLASTIC',457.90,NULL,0,NULL,'600.01.0097',1,'2026-05-24 20:37:14.044','2026-06-01 07:42:34.288',NULL),('cmpk8o7xa000n55l4icchgajt','cmpjybttl004g1dk2m1mc20x8',1000,'PLASTIC',529.90,NULL,0,NULL,'600.01.0096',1,'2026-05-24 20:37:38.974','2026-06-01 07:42:34.241',NULL),('cmpk8okih000o55l41x8urjjq','cmpjybtt7004d1dk2ufjcyq3u',1500,'PLASTIC',652.50,NULL,0,NULL,'600.01.0095',1,'2026-05-24 20:37:55.289','2026-06-01 07:42:34.188',NULL),('cmpk8pdyt000r55l4zx5yyogu','cmpjybtsh00471dk2n6wzjuf5',460,'GLASS',337.90,NULL,8,NULL,'600.01.0086',1,'2026-05-24 20:38:33.461','2026-06-01 07:42:34.115',NULL),('cmpk8qvkt000u55l45wd7jino','cmpjybtr9003y1dk2w2vm9xyv',850,'GLASS',459.90,NULL,73,NULL,'600.01.0082',1,'2026-05-24 20:39:42.941','2026-06-01 07:42:34.087',NULL),('cmpk8r9om000v55l48oy3xv1g','cmpjybtq7003v1dk2dj4tla48',325,'PLASTIC',246.90,NULL,88,NULL,'600.01.0078',1,'2026-05-24 20:40:01.222','2026-06-01 07:42:34.065',NULL),('cmpk8rjui000w55l4ourudiy0','cmpjybtpt003s1dk2bozxvyv4',2000,'PLASTIC',799.00,NULL,39,NULL,'600.01.0077',1,'2026-05-24 20:40:14.394','2026-06-01 07:42:34.058',NULL),('cmpk8ruhw000x55l4yo1zrhez','cmpjybtpa003p1dk28st28mym',1000,'PLASTIC',457.90,NULL,15,NULL,'600.01.0076',1,'2026-05-24 20:40:28.196','2026-06-01 07:42:34.049',NULL),('cmpk8su8y001055l4vybxila8','cmpjybtmc003g1dk22u7o8ih7',2000,'PLASTIC',899.00,NULL,27,NULL,'600.01.0069',1,'2026-05-24 20:41:14.530','2026-06-01 07:42:34.007',NULL),('cmplf67se0000je835hj28hmw','cmpjybtj7003d1dk272xxxvos',850,'GLASS',468.49,NULL,107,NULL,'600.01.0067',1,'2026-05-25 16:27:22.478','2026-06-01 07:42:33.992',NULL),('cmplf6o0o0001je83d9ws38j8','cmpjybtob003j1dk23c7dan1b',850,'GLASS',425.90,NULL,38,NULL,'600.01.0073',1,'2026-05-25 16:27:43.512','2026-06-01 07:42:34.028',NULL),('cmplf74wn0002je83u6jzuv53','cmpjybtrq00411dk2q0d08nol',850,'GLASS',425.90,NULL,145,NULL,'600.01.0083',1,'2026-05-25 16:28:05.400','2026-06-01 07:42:34.097',NULL),('cmpmb7kjo000012305odpfmdg','cmpjybtsu004a1dk23ztywitk',460,'GLASS',269.90,NULL,9,NULL,'600.01.0087',1,'2026-05-26 07:24:13.379','2026-06-01 07:42:34.123',NULL),('cmpmb7xwt00011230sb6d9zq1','cmpjybtuz004s1dk2on4ntm4q',242,'GLASS',174.90,NULL,0,NULL,'600.01.0101',1,'2026-05-26 07:24:30.701','2026-06-01 07:42:34.343',NULL),('cmpmb8v1l00021230fjp62po0','cmpjybtwi00511dk2cbf6716n',650,'GLASS',339.90,NULL,0,NULL,'600.01.0105',1,'2026-05-26 07:25:13.641','2026-06-01 07:42:34.370',NULL),('cmpn0vs1b00014e74k6tbb6l1','cmpn0vfow00004e748046utnu',10,'GLASS',1.00,NULL,2,NULL,NULL,1,'2026-05-26 19:22:53.231','2026-05-26 19:22:53.231',NULL),('cmpslplvl002b4wdqnmlgflzh','cmpjybu1800611dk24zuznwlq',1000,'PLASTIC',1300.00,NULL,0,NULL,'600.01.0121',1,'2026-05-30 17:04:48.129','2026-06-01 07:42:34.504',NULL),('cmpuxkr330046k2whwn5ylg2z','cmpjybtor003m1dk2cf451txw',1500,'PLASTIC',609.90,NULL,13,NULL,'600.01.0075',1,'2026-06-01 08:12:29.343','2026-06-01 08:12:29.343',NULL),('cmpuxlb7i0047k2whqi4vpqhm','cmpjybts400441dk2onfn99h2',850,'GLASS',510.90,NULL,145,NULL,'600.01.0084',1,'2026-06-01 08:12:55.422','2026-06-01 08:12:55.422',NULL);
+/*!40000 ALTER TABLE `product_variants` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `products` (
+  `id` varchar(191) NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `slug` varchar(191) NOT NULL,
+  `shortDescription` text DEFAULT NULL,
+  `description` longtext DEFAULT NULL,
+  `metaTitle` varchar(191) DEFAULT NULL,
+  `metaDescription` varchar(191) DEFAULT NULL,
+  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`images`)),
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `isFeatured` tinyint(1) NOT NULL DEFAULT 0,
+  `isBestseller` tinyint(1) NOT NULL DEFAULT 0,
+  `isNew` tinyint(1) NOT NULL DEFAULT 0,
+  `erpProductCode` varchar(191) DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  `tasteNotes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`tasteNotes`)),
+  `usageSuggestions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`usageSuggestions`)),
+  `analysisReportUrl` varchar(191) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `products_slug_key` (`slug`),
+  UNIQUE KEY `products_erpProductCode_key` (`erpProductCode`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES ('cmpjybtj7003d1dk272xxxvos','Binboğa Keven Kekik Balı 850 gr | Kooperatif Balı','binboga-keven-kekik-bali-850-gr','keven kekik balı, binboğa bal, arıcıdan bal,  850 gr bal, kekik aromalı bal, arıcıdan aracısız, bal, keven, kekik, flora','Arıcıdan Aracısız olarak sofranıza gelen Binboğa Keven Kekik Balı 850 gr, floradan gelen kendine özgü lezzetiyle öne çıkar. Keven ve kekik bitkilerinden elde edilen bu bal, yoğun aroması ve kendine özgü tadıyla bal severler tarafından yoğun olarak tercih edilmektedir. Kahvaltılarda, tatlılarda ya da direkt olarak tüketilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563721.jpg\"]',1,0,1,1,'600.01.0067','2026-05-24 15:48:04.291','2026-06-01 07:42:11.567',NULL,NULL,NULL),('cmpjybtmc003g1dk22u7o8ih7','BINBOGA KEVEN KEKIK BALI 2KG PET | Kooperatif Balı','binboga-keven-kekik-bali-2kg-pet','keven kekik balı, binboğa bal, arıcıdan bal, şifalı bal, 2kg bal, kekik aromalı bal','Arıcıdan Aracısız olarak sofranıza gelen BINBOGA KEVEN KEKIK BALI 2KG PET, doğadan gelen lezzetiyle öne çıkar. Keven ve kekik bitkilerinden elde edilen bu bal, yoğun aroması ve kendine özgü tadıyla bal severler tarafından yoğun olarak tercih edilmektedir. Kahvaltılarda, tatlılarda ya da direkt olarak tüketilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3586924.jpg\"]',1,1,0,0,'600.01.0069','2026-05-24 15:48:04.404','2026-06-01 07:42:11.648',NULL,NULL,NULL),('cmpjybtob003j1dk23c7dan1b','Binboğa Çiçek Balı 850 gr | Arıcıdan Aracısız Bal','binboga-cicek-bali-850gr','çiçek balı, binboğa bal, arıcıdan bal, 850 gr çiçek balı, çiçek, flora, bal','Binboğa Çiçek Balı 850 gr, Arıcıdan aracısız olarak sizlere ulaşır. Birbirinden farklı kır çiçeklerinin özünden elde edilen bu bal, hafif ve dengeli tadıyla beslenmenin bir parçası olarak kahvaltılarda veya tatlı tariflerinde kullanılabilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563709.jpg\"]',1,0,1,1,'600.01.0073','2026-05-24 15:48:04.475','2026-06-01 07:42:11.705',NULL,NULL,NULL),('cmpjybtor003m1dk2cf451txw','Binboğa Çiçek Balı 1500 gr Pet | Arıcıdan Sofranıza','binboga-cicek-bali-1500gr-pet','çiçek balı, 1500 gr bal, binboğa bal, çiçek balı, arıcıdan bal, büyük boy bal','Arıcıdan Aracısız olarak sofranıza  gelen ve çeşitli kır çiçeklerinden elde edilen bu bal, hafif ve dengeli aromasıyla hem kahvaltılarda hem tariflerde ideal bir tercihtir. Büyük aileler ve düzenli bal tüketimi için ekonomik pet ambalajda sunulmuştur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563729.jpg\"]',1,1,0,1,'600.01.0075','2026-05-24 15:48:04.492','2026-06-01 08:12:29.343','[]','[]',NULL),('cmpjybtpa003p1dk28st28mym','Binboğa Çiçek Balı 1KG Pet | Arıcıdan Sofranıza','binboga-cicek-bali-1kg-pet','çiçek balı, 1 kg bal, binboğa bal, arıcıdan bal','Arıcıdan Aracısız olarak gelen Binboğa Çiçek Balı 1KG Pet, kır çiçeklerinin özünden elde edilen bir baldır. Hafif, dengeli tadı ve hoş aromasıyla hem kahvaltılarda hem tariflerde kullanılabilir. Pratik pet ambalajı sayesinde kolayca tüketilir, aile boyu kullanım için idealdir. ',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563599.jpg\"]',1,0,1,1,'600.01.0076','2026-05-24 15:48:04.510','2026-06-01 07:42:11.779',NULL,NULL,NULL),('cmpjybtpt003s1dk2bozxvyv4','Binboğa Çiçek Balı 2KG Pet | Aile Boyu Bal','binboga-cicek-bali-2kg-pet','çiçek balı, 2 kg bal, pet bal, binboğa bal, arıcıdan bal, aile boyu bal, 2 kilo bal','Arıcıdan Aracısız olarak temin edilen Binboğa Çiçek Balı 2KG Pet, kır çiçeklerinin özlerinden elde edilen bir baldır. Aile boyu tüketim için ideal olan bu büyük boy pet ambalaj, lezzetiyle öne çıkar. Hafif aroması ile kahvaltılarda, tatlılarda ve içeceklerde kullanılabilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563612.jpg\"]',1,1,0,1,'600.01.0077','2026-05-24 15:48:04.529','2026-06-01 07:42:11.814',NULL,NULL,NULL),('cmpjybtq7003v1dk2dj4tla48','Binboğa Çiçek Balı 325GR Pratik Kapak | Arıcıdan Sofranıza','binboga-cicek-bali-325gr-pratik-kapak','çiçek balı, 325 gr bal, pratik kapaklı bal, binboğa bal, arıcıdan bal, küçük boy bal, bal şişesi pratik kapak','Arıcıdan Aracısız olarak sofranıza gelen Binboğa Çiçek Balı 325GR, pratik kapaklı şişesi sayesinde kolay kullanım sunar. Güne tatlı bir başlangıç yapmak isteyenler için ideal olan bu ürün, hafif aroması ve lezzetiyle kahvaltıların vazgeçilmezidir. Tek kişilik kullanım veya hediye alternatifi olarak da tercih edilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563639.jpg\"]',1,0,1,1,'600.01.0078','2026-05-24 15:48:04.544','2026-06-01 07:42:11.970',NULL,NULL,NULL),('cmpjybtr9003y1dk2w2vm9xyv','Binboğa Narenciye Balı 850GR','binboga-narenciye-bali-850gr','Binboğa Narenciye Balı 850 Gr, narenciye çiçeklerinden elde edilen aromalı bal çeşididir. Kooperatif tecrübesiyle hazırlanır.','Binboğa Narenciye Balı 850 Gr, narenciye çiçeklerinin yoğun olduğu bölgelerden elde edilen bir bal çeşididir. Kendine özgü hafif ve ferah aromasıyla günlük tüketimde tercih edilen çiçek balları arasında yer alır.\nKooperatif üretim anlayışıyla sunulan ürün, özenli dolum ve paketleme süreçlerinden geçirilerek cam kavanozda tüketicilere ulaştırılır.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/2941692.jpg\"]',1,0,1,1,'600.01.0082','2026-05-24 15:48:04.582','2026-06-01 07:42:12.039',NULL,NULL,NULL),('cmpjybtrq00411dk2q0d08nol','Binboğa Çam Balı 850GR | Kooperatif Balı','binboga-suzme-cam-bali-850-gr','Binboğa Süzme Çam Balı 850 Gr, yoğun aroması ve kendine özgü lezzetiyle kahvaltı sofralarında tercih edilen çam balı çeşitlerinden biridir.','Binboğa Süzme Çam Balı 850 Gr, çam ormanlarının yoğun olduğu bölgelerde elde edilen kendine özgü aromaya sahip bir bal çeşididir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.\n\nÇam balı, çiçek balından farklı olarak kendine özgü aroması ve dengeli lezzetiyle öne çıkan bal türlerinden biridir. Kahvaltı sofralarında, sıcak içeceklerin yanında veya farklı tariflerde kullanıma uygundur.\n',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563516.jpg\"]',1,0,1,1,'600.01.0083','2026-05-24 15:48:04.598','2026-06-01 07:42:12.074',NULL,NULL,NULL),('cmpjybts400441dk2onfn99h2','Binboğa Tutsu Balı 850 GR | Arıcıdan Aracısız Sofranıza','binboga-tutsu-bali-850-gr','Binboğa Tütsü Balı 850 Gr, kahvaltılarda, tatlı tariflerinde ve sıcak içeceklerin yanında tercih edilebilen bal çeşitlerinden biridir.','Binboğa Tütsü Balı 850 Gr, kendine özgü aroması ve karakteristik tadıyla farklı bal çeşitleri arasında yer alan özel bir üründür. Yoğun kıvamı ve belirgin aromatik yapısıyla kahvaltılarda ve farklı kullanım alanlarında tercih edilebilir.\nKendine özgü lezzetiyle öne çıkan tütsü balı, farklı damak tatlarına hitap eden bal çeşitlerinden biridir. Günlük tüketimde kahvaltı sofralarında kullanılabileceği gibi sıcak içeceklerin yanında veya çeşitli tariflerde de tercih edilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/4416166.jpg\"]',1,1,0,0,'600.01.0084','2026-05-24 15:48:04.612','2026-06-01 08:12:55.422','[]','[]',NULL),('cmpjybtsh00471dk2n6wzjuf5','Binboğa 460 Gr Keven Kekik Balı | Kahvaltılık Bal','binboga-keven-kekik-bali-460-gr','Binboğa Keven Kekik Balı 460 Gr; kahvaltılarda, tatlı tariflerinde ve sıcak içeceklerin yanında tercih edilebilen bal çeşitlerinden biridir.','Binboğa Keven Kekik Balı 460 Gr, keven ve kekik bitkilerinin yoğun olduğu bölgelerden elde edilen, kendine özgü aromatik yapıya sahip bal çeşitlerinden biridir. Belirgin aroması ve dengeli tadıyla kahvaltılarda ve farklı kullanım alanlarında tercih edilebilir.\n\nKeven ve kekik florasının karakteristik özelliklerini yansıtan bu bal çeşidi, yoğun kıvamı ve aromatik yapısıyla farklı damak tatlarına hitap eder. Günlük tüketimde kahvaltı sofralarında kullanılabileceği gibi çeşitli tariflerde ve sıcak içeceklerin yanında da tercih edilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563678.jpg\"]',1,0,1,1,'600.01.0086','2026-05-24 15:48:04.626','2026-06-01 07:42:12.125',NULL,NULL,NULL),('cmpjybtsu004a1dk23ztywitk','Binboğa Çiçek Balı 460 Gr | Arıcıdan Sofranıza','binboga-cicek-bali-460-gr','Binboğa Çiçek Balı 460 Gr cam kavanoz ürünü, kahvaltılarda ve farklı tariflerde tercih edilebilen bal çeşitlerinden biridir.','Binboğa Çiçek Balı 460 Gr, farklı çiçek floralarının bulunduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Dengeli tadı ve akışkan yapısıyla günlük tüketimde tercih edilen ürünler arasında yer alır.\nKahvaltı sofralarında kullanılabileceği gibi tatlı tariflerinde, sıcak içeceklerin yanında veya farklı tüketim alanlarında da tercih edilebilir. Yumuşak aroması sayesinde farklı damak tatlarına hitap eden bir bal çeşididir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563675.jpg\"]',1,0,1,1,'600.01.0087','2026-05-24 15:48:04.638','2026-06-01 07:42:12.151',NULL,NULL,NULL),('cmpjybtt7004d1dk2ufjcyq3u','Binboğa Süzme Çam Balı | 1500 Gr Pet Şişe','binboga-suzme-cam-bali-1500-gr-pet-sise','Binboğa Süzme Çam Balı 1500 Gr, kahvaltılarda ve çeşitli tariflerde tercih edilebilen çam balı çeşitlerinden biridir.','Binboğa Süzme Çam Balı 1500 Gr Pet Şişe, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Akışkan yapısı ve yoğun aroması sayesinde günlük tüketime uygundur.',NULL,NULL,'[\"https://binbogabal.com.tr/resimler/binboga-cam-bali-1500-gr-pet-ambalaj.webp\"]',1,0,1,1,'600.01.0095','2026-05-24 15:48:04.652','2026-06-01 07:42:12.180',NULL,NULL,NULL),('cmpjybttl004g1dk2m1mc20x8','Binboğa 1 Kg Keven Kekik Balı | Kahvaltılık Bal','binboga-keven-kekik-bali-1kg-pet','Binboğa Keven Kekik Balı 1KG Pet, yoğun kıvamı ve dengeli aromasıyla farklı damak tatlarına hitap eden bal çeşitleri arasında yer alır.','Binboğa Keven Kekik Balı 1 Kg Pet Şişe, keven ve kekik bitkilerinin yoğun olduğu bölgelerden elde edilen kendine özgü aromatik yapıya sahip bal çeşitlerinden biridir. Belirgin aroması ve dengeli tadıyla kahvaltılarda ve farklı kullanım alanlarında tercih edilebilir.</br></br>\nKeven ve kekik florasının karakteristik özelliklerini yansıtan bu bal çeşidi, yoğun kıvamı ve aromatik yapısıyla farklı damak tatlarına hitap eder. Günlük tüketimde kahvaltı sofralarında kullanılabileceği gibi çeşitli tariflerde ve sıcak içeceklerin yanında da tercih edilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3311560.jpg\"]',1,0,1,1,'600.01.0096','2026-05-24 15:48:04.666','2026-06-01 07:42:12.214',NULL,NULL,NULL),('cmpjybttx004j1dk20j7js6hh','Binboğa Süzme Çam Balı 1 Kg Pet Şişe','binboga-suzme-cam-bali-1-kg-pet-sise','Binboğa Süzme Çam Balı 1 Kg Pet Şişe, yoğun aroması ve karakteristik tadıyla günlük tüketime uygun bal çeşitleri arasında yer alır.','Binboğa Süzme Çam Balı 1 Kg Pet Şişe, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.</br></br>\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Akışkan yapısı ve yoğun aroması sayesinde günlük tüketime uygundur.',NULL,NULL,'[\"https://binbogabal.com.tr/resimler/binboga-cam-bali-1-kg-pet-s%C3%BCzme.webp\"]',1,0,0,1,'600.01.0097','2026-05-24 15:48:04.678','2026-06-01 07:42:12.245',NULL,NULL,NULL),('cmpjybtua004m1dk2zia1qo3t','Binboğa 325 Gr Çam Balı | Pratik Kapaklı Ambalaj','binboga-suzme-cam-bali-325-gr-pratik-kapak','Binboğa Süzme Çam Balı 325 Gr, akışkan yapısı ve karakteristik aromasıyla farklı kullanım alanlarına uygundur.','Binboğa Süzme Çam Balı 325 Gr Pratik Kapak, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.</br></br>\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Akışkan yapısı sayesinde günlük kullanımda pratik bir tüketim deneyimi sunar.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/5768356.jpg\"]',1,0,0,1,'600.01.0098','2026-05-24 15:48:04.690','2026-06-01 07:42:12.270',NULL,NULL,NULL),('cmpjybtuo004p1dk2nnghc2ox','Binboğa Süzme Çam Balı 460 Gr | Cam Kavanoz','binboga-suzme-cam-bali-460-gr','Binboğa Çam Balı 460 Gr cam kavanoz ürünü, kahvaltılarda ve farklı tariflerde tercih edilebilen çam balı çeşitlerinden biridir.','Binboğa Süzme Çam Balı 460 Gr, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.</br></br>\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Dengeli aroması ve akışkan yapısıyla günlük tüketime uygundur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563660.jpg\"]',1,0,0,1,'600.01.0100','2026-05-24 15:48:04.704','2026-06-01 07:42:12.296',NULL,NULL,NULL),('cmpjybtuz004s1dk2on4ntm4q','Binboğa Keven Kekik Balı 240 Gr | Cam Kavanoz','binboga-keven-kekik-bali-240-gr','Binboğa Keven Kekik Balı 240 Gr cam kavanoz ürünü, kahvaltılarda ve farklı tariflerde tercih edilebilen bal çeşitlerinden biridir.','Binboğa Keven Kekik Balı 240 Gr, keven ve kekik bitkilerinin yoğun olduğu bölgelerden elde edilen kendine özgü aromatik yapıya sahip bal çeşitlerinden biridir. Belirgin aroması ve dengeli tadıyla kahvaltılarda ve farklı kullanım alanlarında tercih edilebilir.</br></br>\nKeven ve kekik florasının karakteristik özelliklerini yansıtan bu bal çeşidi, yoğun kıvamı ve aromatik yapısıyla farklı damak tatlarına hitap eder. Günlük tüketimde kahvaltı sofralarında kullanılabileceği gibi çeşitli tariflerde ve sıcak içeceklerin yanında da tercih edilebilir.',NULL,NULL,'[\"https://binbogabal.com.tr/resimler/binboga-keven-kekik-bali-240-gr.webp\"]',1,0,0,1,'600.01.0101','2026-05-24 15:48:04.716','2026-06-01 07:42:12.319',NULL,NULL,NULL),('cmpjybtvb004v1dk2qonxtaba','Binboğa Çiçek Balı 240 Gr | Kooperatif Balı','binboga-cicek-bali-240-gr','Kooperatif üretim anlayışıyla sunulan Binboğa Çiçek Balı 240 Gr, özenli dolum ve paketleme süreçlerinden geçirilerek hazırlanır.','Binboğa Çiçek Balı 240 Gr, farklı çiçek floralarının bulunduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Dengeli tadı ve akışkan yapısıyla günlük tüketimde tercih edilen ürünler arasında yer alır.</br></br>\nKahvaltı sofralarında kullanılabileceği gibi tatlı tariflerinde, sıcak içeceklerin yanında veya farklı tüketim alanlarında da tercih edilebilir. Yumuşak aroması sayesinde farklı damak tatlarına hitap eden bir bal çeşididir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3242340.jpg\"]',1,0,0,1,'600.01.0102','2026-05-24 15:48:04.727','2026-06-01 07:42:12.348',NULL,NULL,NULL),('cmpjybtvu004y1dk2dh3ra1jy','Binboğa Çam Balı 240 Gr | Kahvaltılık Bal','binboga-suzme-cam-bali-240-gr','Binboğa Süzme Çam Balı 240 Gr, yoğun aroması ve karakteristik tadıyla günlük tüketime uygun bal çeşitleri arasında yer alır.','Binboğa Süzme Çam Balı 240 Gr, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.</br></br>\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Dengeli aroması ve akışkan yapısıyla günlük tüketime uygundur.',NULL,NULL,'[\"https://binbogabal.com.tr/resimler/binboga-dogal-cam-bali-240gr-fiyati.webp\"]',1,0,0,1,'600.01.0103','2026-05-24 15:48:04.746','2026-06-01 07:42:12.380',NULL,NULL,NULL),('cmpjybtwi00511dk2cbf6716n','Binboğa Çiçek Balı 650G | Kahvaltılık Bal','binboga-cicek-bali-650-gr','Binboğa Çiçek Balı 650 Gr cam kavanoz ürünü, kahvaltılarda ve farklı tariflerde tercih edilebilen bal çeşitlerinden biridir.','Binboğa Çiçek Balı 650 Gr, farklı çiçek floralarının bulunduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Dengeli tadı ve akışkan yapısıyla günlük tüketimde tercih edilen ürünler arasında yer alır.</br></br>\nKahvaltı sofralarında kullanılabileceği gibi tatlı tariflerinde, sıcak içeceklerin yanında veya farklı tüketim alanlarında da tercih edilebilir. Yumuşak aroması sayesinde farklı damak tatlarına hitap eden bir bal çeşididir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563689.jpg\"]',1,0,0,1,'600.01.0105','2026-05-24 15:48:04.771','2026-06-01 07:42:12.408',NULL,NULL,NULL),('cmpjybtx000541dk2oafz63ke','Binboğa Süzme Çam Balı 650G | Arıcıdan Aracısız','binboga-suzme-cam-bali-650-gr','Binboğa Süzme Çam Balı 650 Gr, kendine özgün aroması ve karakteristik tadıyla günlük tüketime uygun bal çeşitleri arasında yer alır.','Binboğa Süzme Çam Balı 650 Gr, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.</br></br>\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Dengeli aroması ve akışkan yapısıyla günlük tüketime uygundur.',NULL,NULL,'[\"https://binbogabal.com.tr/resimler/binboga-suzme-cam-bali-650-gr.webp\"]',1,0,0,1,'600.01.0106','2026-05-24 15:48:04.789','2026-06-01 07:42:12.456',NULL,NULL,NULL),('cmpjybtxf00571dk2n3yuvi3o','Biinboğa Arı Poleni 120 Gr','binboga-polen-120gr','Binboğa Polen 120 Gr, yoğurt, süt ve çeşitli tariflerle birlikte kullanılabilen arı ürünlerinden biridir. \n','Binboğa Polen 120 Gr, arılar tarafından toplanan polenlerin özenli paketleme süreçlerinden geçirilmesiyle hazırlanan arı ürünlerinden biridir. Kendine özgü yapısı ve kullanım kolaylığıyla günlük tüketimde farklı şekillerde tercih edilebilir.</br></br>\nPolen; kahvaltılarda, yoğurtla birlikte, süt içerisinde veya çeşitli tariflerde kullanılabilen ürünler arasında yer alır. Farklı tüketim alışkanlıklarına uygun yapısıyla günlük kullanıma uygundur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3241817.jpg\"]',1,0,1,1,'600.01.0110','2026-05-24 15:48:04.803','2026-06-01 07:42:12.494',NULL,NULL,NULL),('cmpjybtxs005a1dk2ow18hhgi','Binboğa Süzme Çam Balı 2 Kg Pet Şişe','binboga-suzme-cam-bali-2-kg-pet-sise','Binboğa Süzme Çam Balı 2 Kg Pet Şişe, kendine özgü aroması ve karakteristik tadıyla günlük tüketime uygun bal çeşitleri arasında yer alır.','Binboğa Süzme Çam Balı 2 Kg Pet Şişe, çam ormanlarının yoğun olduğu bölgelerden elde edilen kendine özgü aromaya sahip bal çeşitlerinden biridir. Koyu renk yapısı, yoğun kıvamı ve karakteristik tadıyla çam balı tercih eden tüketiciler tarafından sıklıkla tercih edilir.</br></br>\nÇam balı, farklı aromatik yapısıyla kahvaltı sofralarında, sıcak içeceklerin yanında veya çeşitli tariflerde kullanılabilen bal çeşitleri arasında yer alır. Akışkan yapısı ve kendine özgü aroması sayesinde günlük tüketime uygundur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/6563623.jpg\"]',1,1,0,1,'600.01.0111','2026-05-24 15:48:04.816','2026-06-01 07:42:12.524',NULL,NULL,NULL),('cmpjybty4005d1dk2lmneoq0n','Binboğa Rafadan Tayfa Çiçek Balı 12’li Set','binboga-rafadan-tayfa-cicek-bali-40gr-12li','Binboğa Çiçek Balı 40 Gr 12’li paket, kahvaltılarda ve gün içerisindeki tüketim için tercih edilebilen bal çeşitleri arasında yer alır.','Binboğa Rafadan Tayfa Çiçek Balı 40 Gr 12’li paket, pratik kullanım sağlayan porsiyonluk ambalajlarıyla hazırlanan çiçek balı çeşitlerinden biridir. Mini boy ambalaj yapısı sayesinde farklı kullanım alanlarına uygun bir tüketim deneyimi sunar.</br></br>\nTek kullanımlık 40 gramlık ambalajlardan oluşan 12’li paket, kahvaltılarda, okul beslenmelerinde, seyahatlerde veya gün içerisindeki tüketimlerde tercih edilebilir. Kolay taşınabilir yapısıyla pratik kullanım avantajı sağlar.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3625670.jpg\"]',1,1,0,1,'600.01.0112','2026-05-24 15:48:04.828','2026-06-01 07:42:12.556',NULL,NULL,NULL),('cmpjybtyh005g1dk2rym4bhdp','Binboğa Rafadan Tayfa Çiçek Balı 90 Gr 12’li','binboga-rafadan-tayfa-cicek-bali-90gr-12li','Binboğa Rafadan Tayfa Çiçek Balı 90 Gr 12’li paket, pratik kullanım sağlayan mini ambalajlarıyla günlük tüketime uygundur.','Binboğa Rafadan Tayfa Çiçek Balı 90 Gr 12’li paket, pratik kullanım sağlayan porsiyonluk ambalajlarıyla hazırlanan çiçek balı çeşitlerinden biridir. Mini boy ambalaj yapısı sayesinde farklı kullanım alanlarına uygun bir tüketim deneyimi sunar.</br></br>\n90 gramlık tek kullanımlık ambalajlardan oluşan 12’li paket; kahvaltılarda, okul beslenmelerinde, seyahatlerde veya gün içerisindeki tüketimlerde tercih edilebilir. Kolay taşınabilir yapısıyla pratik kullanım avantajı sağlar.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3625674.jpg\"]',1,1,0,1,'600.01.0114','2026-05-24 15:48:04.841','2026-06-01 07:42:12.590',NULL,NULL,NULL),('cmpjybtyu005j1dk27pw4pr04','Kooperatif Balı 650 Gr Keven Kekik | Ahşap Kutu Hediyeli','kooperatif-bali-650-gr-keven-kekik-ahsap-kutu-hediyeli','Kooperatif Balı 650 Gr Keven Kekik Ahşap Kutu Hediyeli ürün, özel ambalaj tasarımıyla sunulan bal çeşitleri arasında yer alır.','Kooperatif Balı 650 Gr Keven Kekik Ahşap Kutu Hediyeli ürün, keven ve kekik bitkilerinin yoğun olduğu bölgelerden elde edilen balın özel tasarımlı ahşap kutu ile birlikte sunulduğu hediyelik ürün seçeneklerinden biridir.\n</br></br>Kendine özgü aromatik yapıya sahip keven kekik balı; kahvaltılarda, sıcak içeceklerin yanında veya farklı tariflerde tercih edilebilir. Yoğun kıvamı ve belirgin aromasıyla farklı damak tatlarına hitap eden bal çeşitleri arasında yer alır.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3564441.jpg\"]',0,0,0,1,'600.01.0115','2026-05-24 15:48:04.854','2026-06-01 07:42:12.631',NULL,NULL,NULL),('cmpjybtz7005m1dk2zzvdrd53','Kooperatif Tütsü Balı 650 Gr | Ahşap Kutu Hediyeli','kooperatif-tutsu-bali-650-gr-ahsap-kutu-hediyeli','Tütsü balı 650 Gr ve ahşap kutu kombinasyonuyla hazırlanan ürün, hediye alternatifi olarak tercih edilebilir.','Kooperatif Tütsü Balı 650 Gr Ahşap Kutu Hediyeli ürün, kendine özgü aromatik yapıya sahip tütsü balının özel tasarımlı ahşap kutu ile birlikte sunulduğu hediyelik ürün seçeneklerinden biridir.</br></br>\nBelirgin aroması ve kendine özgü kıvamıyla öne çıkan tütsü balı; kahvaltılarda, sıcak içeceklerin yanında veya farklı tariflerde tercih edilebilir. Kendine has lezzetiyle farklı damak tatlarına hitap eden bal çeşitleri arasında yer alır.</br></br>\nÖzel tasarımlı ahşap kutu ambalajı sayesinde ürün; özel günlerde, kurumsal hediyelerde veya farklı hediye alternatifleri arasında değerlendirilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3564428.jpg\"]',0,0,0,1,'600.01.0116','2026-05-24 15:48:04.868','2026-06-01 07:42:12.670',NULL,NULL,NULL),('cmpjybtzj005p1dk26p6owbui','Kooperatif Kestane Balı 650 Gr | Ahşap Kutu Hediyeli','kooperatif-kestane-bali-650-gr-ahsap-kutu-hediyeli','Kestane balı 650 Gr ve ahşap kutu kombinasyonuyla hazırlanan ürün, hediye alternatifi olarak tercih edilebilir.','Kooperatif Kestane Balı 650 Gr Ahşap Kutu Hediyeli ürün, kendine özgü aromasıyla öne çıkan kestane balının özel tasarımlı ahşap kutu ile birlikte sunulduğu hediyelik ürün seçeneklerinden biridir.</br></br>\nBelirgin aroması ve yoğun kıvamıyla dikkat çeken kestane balı; kahvaltılarda, sıcak içeceklerin yanında veya farklı tariflerde tercih edilebilir. Kendine has lezzetiyle farklı damak tatlarına hitap eden bal çeşitleri arasında yer alır.</br></br>\nÖzel tasarımlı ahşap kutu ambalajı sayesinde ürün; özel günlerde, kurumsal hediyelerde veya farklı hediye alternatifleri arasında değerlendirilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/3564384.jpg\"]',0,0,0,1,'600.01.0117','2026-05-24 15:48:04.880','2026-06-01 07:42:12.700',NULL,NULL,NULL),('cmpjybtzv005s1dk223fzw6bm','Binboğa Bal 2’li Avantaj Paketi | Çiçek + Çam Balı 850 Gr','binboga-bal-2li-avantaj-paketi-cicek-cam-850gr','Binboğa 2’li Avantaj Paketi, kahvaltılarda ve farklı kullanım alanlarında tercih edilebilen bal çeşitlerinden oluşur.','Binboğa Bal 2’li Avantaj Paketi (Çiçek + Çam) 850 Gr, farklı aromalara sahip iki ayrı bal çeşidini bir arada sunan özel paket seçeneklerinden biridir. Çiçek balının dengeli aroması ile çam balının karakteristik yapısını aynı pakette buluşturur.</br></br>\nÇiçek balı, kendine özgü aroması ve akışkan yapısıyla günlük tüketimde tercih edilen bal çeşitleri arasında yer alırken; çam balı yoğun kıvamı ve belirgin aromasıyla farklı damak tatlarına hitap eder.</br></br>\nİki farklı bal çeşidini bir arada sunan avantaj paketi; kahvaltılarda, sıcak içeceklerin yanında veya farklı tariflerde kullanım için uygun bir seçenek oluşturur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/4037999.jpg\"]',1,1,0,1,'600.01.0118','2026-05-24 15:48:04.891','2026-06-01 07:42:12.738',NULL,NULL,NULL),('cmpjybu0e005v1dk280ume1mc','Binboğa Pratik 2’li Bal Paketi | Çiçek ve Çam Balı','binboga-bal-pratik-2li-dogal-suzme-cicek-and-cam-bali-325gr-x-2','Binboğa Bal Pratik 2’li paket, çiçek balı ve çam balını pratik kullanımlı ambalajıyla bir arada sunar.','Binboğa Bal Pratik 2’li Çiçek & Çam Balı Paketi (325 Gr x 2), farklı aromalara sahip iki ayrı bal çeşidini pratik kullanımlı ambalajlarla bir araya getiren özel paket seçeneklerinden biridir.</br></br>\nSet içerisinde yer alan çiçek balı; dengeli aroması ve akışkan yapısıyla günlük tüketimde tercih edilen bal çeşitleri arasında yer alırken, çam balı yoğun kıvamı ve karakteristik aromasıyla farklı damak tatlarına hitap eder.</br></br>\nPratik kapaklı ambalaj yapısı sayesinde ürünler günlük kullanımda kolay tüketim imkânı sunar. Kahvaltılarda, sıcak içeceklerin yanında veya farklı tariflerde tercih edilebilir.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/4038262.jpg\"]',1,1,0,1,'600.01.0119','2026-05-24 15:48:04.910','2026-06-01 07:42:12.773',NULL,NULL,NULL),('cmpjybu0t005y1dk20pgjr9jy','Binboğa Bal 3’lü Karışık Paket | Çiçek, Çam, Keven & Kekik 240 Gr','binboga-bal-3lu-karisik-paket-cicek-cam-keven-and-kekik-240g','Binboğa 3’lü Bal Paketi 240 Gr, farklı aromalara sahip bal çeşitlerini aynı set içerisinde sunar.','Binboğa Bal 3’lü Karışık Paket (Çiçek, Çam, Keven & Kekik) – 240 Gr, farklı aromalara sahip üç ayrı bal çeşidini bir arada sunan özel paket seçeneklerinden biridir. Çiçek balı, çam balı ve keven kekik balını aynı set içerisinde buluşturarak farklı damak tatlarına hitap eder.</br></br>\nÇiçek balı dengeli aroması ve akışkan yapısıyla günlük tüketimde tercih edilirken, çam balı yoğun kıvamı ve karakteristik aromasıyla öne çıkar. Keven & kekik balı ise belirgin aromatik yapısıyla farklı lezzet seçenekleri sunar.</br></br>\nMini boy ambalaj yapısı sayesinde ürünler günlük kullanım, kahvaltılar veya farklı tüketim alanları için uygun bir seçenek oluşturur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/4057659.jpg\"]',1,1,0,1,'600.01.0120','2026-05-24 15:48:04.925','2026-06-01 07:42:12.809',NULL,NULL,NULL),('cmpjybu1800611dk24zuznwlq','Binboğa 1 KG’lık Bal Seti | Çam, Çiçek ve Keven Kekik','binboga-1-kglik-bal-seti-cam-cicek-ve-keven-kekik-karisik-paket','Binboğa 1 KG’lık Bal Seti, çam, çiçek ve keven kekik balı çeşitlerini bir arada sunan özel paket seçeneklerinden biridir.','Binboğa 1 KG’lık Bal Seti – Çam, Çiçek ve Keven Kekik Karışık Paket, farklı aromalara sahip üç ayrı bal çeşidini bir arada sunan özel paket seçeneklerinden biridir. Çam balı, çiçek balı ve keven kekik balını aynı set içerisinde buluşturarak farklı damak tatlarına hitap eder.</br></br>\nÇiçek balı dengeli aroması ve akışkan yapısıyla günlük tüketimde tercih edilen bal çeşitleri arasında yer alırken, çam balı yoğun kıvamı ve karakteristik aromasıyla öne çıkar. Keven kekik balı ise belirgin aromatik yapısıyla farklı lezzet seçenekleri sunar.</br></br>\nFarklı bal çeşitlerini tek pakette sunan bu set; kahvaltılarda, sıcak içeceklerin yanında veya farklı tariflerde kullanım için uygun bir seçenek oluşturur.',NULL,NULL,'[\"https://s3-eu-west-1.amazonaws.com/dia-fs/binboga/Resimler/4057715.jpg\"]',1,1,0,1,'600.01.0121','2026-05-24 15:48:04.941','2026-06-01 07:42:12.864','[]','[\"kahvalti\",\"smoothie\",\"atistirmalik\"]',NULL),('cmpn0vfow00004e748046utnu','Binboğa Deneme Bal','binboga-deneme-bal','denemdir',NULL,NULL,NULL,'[]',1,0,0,0,NULL,'2026-05-26 19:22:37.232','2026-05-26 19:22:53.231',NULL,NULL,NULL);
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reviews`
+--
+
+DROP TABLE IF EXISTS `reviews`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reviews` (
+  `id` varchar(191) NOT NULL,
+  `productId` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `rating` int(11) NOT NULL,
+  `comment` text DEFAULT NULL,
+  `isApproved` tinyint(1) NOT NULL DEFAULT 0,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `adminReply` text DEFAULT NULL,
+  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`)),
+  `orderId` varchar(191) DEFAULT NULL,
+  `orderItemId` varchar(191) DEFAULT NULL,
+  `title` varchar(191) DEFAULT NULL,
+  `updatedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reviews_productId_userId_key` (`productId`,`userId`),
+  KEY `reviews_userId_fkey` (`userId`),
+  CONSTRAINT `reviews_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `reviews_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reviews`
+--
+
+LOCK TABLES `reviews` WRITE;
+/*!40000 ALTER TABLE `reviews` DISABLE KEYS */;
+INSERT INTO `reviews` VALUES ('cmps8aosr000897x563nchjyz','cmpjybtj7003d1dk272xxxvos','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2025-12-14 10:49:17.064',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aosv000a97x5r9ghkoul','cmpjybtj7003d1dk272xxxvos','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-02-19 10:49:17.070',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aosz000c97x5x26de2p2','cmpjybtj7003d1dk272xxxvos','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-05-29 10:49:17.074',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aot3000e97x5qaq2g7ib','cmpjybtj7003d1dk272xxxvos','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-25 10:49:17.078',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aot8000g97x5r6vknj9a','cmpjybtj7003d1dk272xxxvos','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-02-02 10:49:17.082',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aotc000i97x5gov3ybjm','cmpjybtj7003d1dk272xxxvos','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-04-24 10:49:17.087',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoth000k97x5gz3xlq2v','cmpjybtj7003d1dk272xxxvos','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-01-19 10:49:17.092',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aotn000m97x5hz1s9875','cmpjybtmc003g1dk22u7o8ih7','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-28 10:49:17.097',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aotr000o97x5yfcwpkgb','cmpjybtmc003g1dk22u7o8ih7','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-03-24 10:49:17.102',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aotw000q97x5t5eom8qz','cmpjybtmc003g1dk22u7o8ih7','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-04-19 10:49:17.106',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aou0000s97x5gds3zwg2','cmpjybtmc003g1dk22u7o8ih7','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-22 10:49:17.110',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aou4000u97x5cu43brny','cmpjybtmc003g1dk22u7o8ih7','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-03-24 10:49:17.115',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aou9000w97x5xox3agcx','cmpjybtmc003g1dk22u7o8ih7','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-02-19 10:49:17.120',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoud000y97x5yyy3oqdc','cmpjybtmc003g1dk22u7o8ih7','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-03-02 10:49:17.124',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoui001097x5yrpq52kj','cmpjybtob003j1dk23c7dan1b','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-30 10:49:17.129',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoum001297x5nylny4eg','cmpjybtob003j1dk23c7dan1b','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-03-18 10:49:17.133',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aouq001497x5ofc4aqxw','cmpjybtob003j1dk23c7dan1b','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-03-24 10:49:17.137',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aouv001697x5jdonvq4t','cmpjybtob003j1dk23c7dan1b','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-15 10:49:17.141',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aouy001897x5zs94x3pg','cmpjybtob003j1dk23c7dan1b','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-02-07 10:49:17.144',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aov1001a97x5q29r2wir','cmpjybtob003j1dk23c7dan1b','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-02-05 10:49:17.148',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aov4001c97x5xho1jpip','cmpjybtob003j1dk23c7dan1b','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-01-08 10:49:17.151',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aov8001e97x54q6wot2n','cmpjybtor003m1dk2cf451txw','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-02 10:49:17.154',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovc001g97x5lc5jkrvv','cmpjybtor003m1dk2cf451txw','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-03-30 10:49:17.158',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovf001i97x56vkdmk9f','cmpjybtor003m1dk2cf451txw','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-27 10:49:17.162',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovj001k97x5tft31rs2','cmpjybtor003m1dk2cf451txw','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2025-12-09 10:49:17.165',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovm001m97x50d53g6xe','cmpjybtor003m1dk2cf451txw','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-24 10:49:17.169',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovq001o97x58i91btrc','cmpjybtor003m1dk2cf451txw','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-04-04 10:49:17.172',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovu001q97x52j7hut6h','cmpjybtor003m1dk2cf451txw','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-03-31 10:49:17.176',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aovx001s97x573spbquj','cmpjybtpa003p1dk28st28mym','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-14 10:49:17.180',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aow2001u97x5yvzl3syr','cmpjybtpa003p1dk28st28mym','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-07 10:49:17.184',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aow5001w97x5iot6qyot','cmpjybtpa003p1dk28st28mym','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-21 10:49:17.187',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aow9001y97x5kjglv8g7','cmpjybtpa003p1dk28st28mym','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-24 10:49:17.191',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aowd002097x515ou3vch','cmpjybtpa003p1dk28st28mym','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-03-24 10:49:17.195',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aowg002297x544y7dkl5','cmpjybtpa003p1dk28st28mym','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-04-17 10:49:17.199',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aowk002497x57knwui7o','cmpjybtpa003p1dk28st28mym','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-20 10:49:17.202',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aowo002697x5pjqjloal','cmpjybtpt003s1dk2bozxvyv4','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-26 10:49:17.206',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aows002897x5ky67yw6e','cmpjybtpt003s1dk2bozxvyv4','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-11 10:49:17.210',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoww002a97x56w28lpoe','cmpjybtpt003s1dk2bozxvyv4','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-09 10:49:17.214',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aowz002c97x5ph7wkg0x','cmpjybtpt003s1dk2bozxvyv4','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-12 10:49:17.218',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aox3002e97x55mvshy5a','cmpjybtpt003s1dk2bozxvyv4','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-02-05 10:49:17.221',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoxf002g97x5ccuv67zh','cmpjybtpt003s1dk2bozxvyv4','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-15 10:49:17.234',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoxk002i97x5e01kn8ut','cmpjybtpt003s1dk2bozxvyv4','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-24 10:49:17.238',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoxn002k97x5wj9drlsv','cmpjybtq7003v1dk2dj4tla48','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-27 10:49:17.242',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoxr002m97x5rtk4untj','cmpjybtq7003v1dk2dj4tla48','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-02-16 10:49:17.246',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoxv002o97x5fwy2n5h5','cmpjybtq7003v1dk2dj4tla48','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-02-20 10:49:17.249',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoxz002q97x5zd12a7rw','cmpjybtq7003v1dk2dj4tla48','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-07 10:49:17.253',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoy3002s97x5ov0q0v9h','cmpjybtq7003v1dk2dj4tla48','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-05-07 10:49:17.257',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoy7002u97x56omivugs','cmpjybtq7003v1dk2dj4tla48','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-03-24 10:49:17.261',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoya002w97x54kvnh6pp','cmpjybtq7003v1dk2dj4tla48','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-04-08 10:49:17.265',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoye002y97x51f5pijes','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-02-26 10:49:17.268',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoyh003097x5hiwjihr6','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-04-12 10:49:17.271',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoyl003297x5s1q36q75','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-04-12 10:49:17.275',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoyo003497x5waoxtu7m','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-10 10:49:17.279',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoys003697x5d9swerl2','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-03-02 10:49:17.283',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoyw003897x5r35g04j8','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-04-04 10:49:17.286',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoyz003a97x554oh2p6c','cmpjybtr9003y1dk2w2vm9xyv','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-03-04 10:49:17.290',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoz3003c97x5718zc1fs','cmpjybtrq00411dk2q0d08nol','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-02-15 10:49:17.293',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoz6003e97x51blfjfes','cmpjybtrq00411dk2q0d08nol','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-02-26 10:49:17.297',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aoza003g97x507ec1mvr','cmpjybtrq00411dk2q0d08nol','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-04-08 10:49:17.300',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aozf003i97x5affeclpm','cmpjybtrq00411dk2q0d08nol','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-16 10:49:17.305',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aozi003k97x5iioxh9pb','cmpjybtrq00411dk2q0d08nol','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-04-03 10:49:17.309',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aozm003m97x5utfx7yaj','cmpjybtrq00411dk2q0d08nol','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-05-05 10:49:17.313',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aozq003o97x547s31oqm','cmpjybtrq00411dk2q0d08nol','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-01-23 10:49:17.316',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aozt003q97x5qpfh7zc0','cmpjybts400441dk2onfn99h2','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-02-28 10:49:17.320',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8aozx003s97x5dds3u79w','cmpjybts400441dk2onfn99h2','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-01-24 10:49:17.324',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap02003u97x59n96adzp','cmpjybts400441dk2onfn99h2','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-02-06 10:49:17.328',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap06003w97x5o16uzk2s','cmpjybts400441dk2onfn99h2','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-23 10:49:17.332',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap09003y97x5urprofyn','cmpjybts400441dk2onfn99h2','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-01-07 10:49:17.335',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0d004097x570l4ev10','cmpjybts400441dk2onfn99h2','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-02-07 10:49:17.339',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0g004297x5cko4hoxx','cmpjybts400441dk2onfn99h2','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-02-22 10:49:17.342',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0k004497x5ju2zl3y4','cmpjybtsh00471dk2n6wzjuf5','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-02-15 10:49:17.346',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0n004697x5nxh63hrg','cmpjybtsh00471dk2n6wzjuf5','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-05-14 10:49:17.350',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0r004897x5ky96ew79','cmpjybtsh00471dk2n6wzjuf5','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-16 10:49:17.353',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0u004a97x5vuqmjsmf','cmpjybtsh00471dk2n6wzjuf5','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-18 10:49:17.356',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap0y004c97x5kpinz49s','cmpjybtsh00471dk2n6wzjuf5','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-14 10:49:17.360',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap12004e97x5oi1442bs','cmpjybtsh00471dk2n6wzjuf5','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-05-16 10:49:17.364',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap15004g97x59r9hhf0t','cmpjybtsh00471dk2n6wzjuf5','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-03-06 10:49:17.368',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap18004i97x5pws9busp','cmpjybtsu004a1dk23ztywitk','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-14 10:49:17.371',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1c004k97x5msm9za8p','cmpjybtsu004a1dk23ztywitk','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-07 10:49:17.374',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1f004m97x55ce3pgg0','cmpjybtsu004a1dk23ztywitk','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-28 10:49:17.377',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1i004o97x5mmfbo35x','cmpjybtsu004a1dk23ztywitk','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-13 10:49:17.381',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1l004q97x5of279r8j','cmpjybtsu004a1dk23ztywitk','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-18 10:49:17.384',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1p004s97x5foxg6via','cmpjybtsu004a1dk23ztywitk','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-05-20 10:49:17.387',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1s004u97x5ixkrf3i8','cmpjybtsu004a1dk23ztywitk','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-02-16 10:49:17.391',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap1w004w97x5l9f24smw','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-05-12 10:49:17.394',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap20004y97x5nbkdunit','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-05-30 10:49:17.398',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap23005097x54l8meugq','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-16 10:49:17.401',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap27005297x5fhciii7z','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-14 10:49:17.405',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2c005497x5shstnglf','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-14 10:49:17.410',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2g005697x5uxhepfhz','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-13 10:49:17.415',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2j005897x5mwgkftaw','cmpjybtt7004d1dk2ufjcyq3u','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-03-14 10:49:17.418',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2n005a97x5vs3q7ped','cmpjybttl004g1dk2m1mc20x8','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-03-23 10:49:17.421',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2q005c97x55itxtk09','cmpjybttl004g1dk2m1mc20x8','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-01-07 10:49:17.424',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2u005e97x5hfqk2v8a','cmpjybttl004g1dk2m1mc20x8','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-19 10:49:17.428',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap2y005g97x57otvb54k','cmpjybttl004g1dk2m1mc20x8','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-24 10:49:17.432',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap31005i97x5yre4rift','cmpjybttl004g1dk2m1mc20x8','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-01-09 10:49:17.436',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap34005k97x5gicu5kka','cmpjybttl004g1dk2m1mc20x8','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-03-20 10:49:17.439',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap38005m97x5klbc6k0y','cmpjybttl004g1dk2m1mc20x8','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-30 10:49:17.442',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3c005o97x5n0qs520a','cmpjybttx004j1dk20j7js6hh','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-19 10:49:17.446',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3g005q97x50q85drc3','cmpjybttx004j1dk20j7js6hh','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-02-02 10:49:17.450',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3k005s97x5679ylc9k','cmpjybttx004j1dk20j7js6hh','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-04-04 10:49:17.454',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3n005u97x5jtfdr5e4','cmpjybttx004j1dk20j7js6hh','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-01-30 10:49:17.458',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3r005w97x5ybve2y5b','cmpjybttx004j1dk20j7js6hh','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-04-25 10:49:17.462',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3v005y97x5u95x3sun','cmpjybttx004j1dk20j7js6hh','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-12 10:49:17.465',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap3y006097x5nz8cuvy8','cmpjybttx004j1dk20j7js6hh','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2025-12-25 10:49:17.469',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap41006297x54m9kkdrd','cmpjybtua004m1dk2zia1qo3t','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-25 10:49:17.472',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap46006497x5k73r2j5u','cmpjybtua004m1dk2zia1qo3t','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-02 10:49:17.476',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4a006697x5fhr0oz16','cmpjybtua004m1dk2zia1qo3t','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-02-21 10:49:17.480',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4d006897x52qwk9l0a','cmpjybtua004m1dk2zia1qo3t','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-17 10:49:17.483',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4g006a97x5xpbpm4bv','cmpjybtua004m1dk2zia1qo3t','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-04-11 10:49:17.487',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4k006c97x57krf6rxt','cmpjybtua004m1dk2zia1qo3t','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-02-02 10:49:17.490',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4n006e97x5h4lnezes','cmpjybtua004m1dk2zia1qo3t','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-04-26 10:49:17.494',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4r006g97x5cfb4j18t','cmpjybtuo004p1dk2nnghc2ox','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-06 10:49:17.498',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4v006i97x5addgrh9c','cmpjybtuo004p1dk2nnghc2ox','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-28 10:49:17.502',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap4z006k97x5288f17g6','cmpjybtuo004p1dk2nnghc2ox','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-05-15 10:49:17.505',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap52006m97x5qxk305yz','cmpjybtuo004p1dk2nnghc2ox','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-19 10:49:17.509',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap56006o97x5jyiqu3cv','cmpjybtuo004p1dk2nnghc2ox','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-01-10 10:49:17.512',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap59006q97x50r2q6lw2','cmpjybtuo004p1dk2nnghc2ox','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-03 10:49:17.516',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5d006s97x5yapaa5mn','cmpjybtuo004p1dk2nnghc2ox','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-09 10:49:17.519',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5h006u97x526j1p3o0','cmpjybtuz004s1dk2on4ntm4q','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-02-07 10:49:17.524',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5l006w97x5jffmwbcp','cmpjybtuz004s1dk2on4ntm4q','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-05-15 10:49:17.527',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5o006y97x5gd6mld08','cmpjybtuz004s1dk2on4ntm4q','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-05-20 10:49:17.530',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5r007097x5reygj4ir','cmpjybtuz004s1dk2on4ntm4q','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-26 10:49:17.534',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5v007297x5dbm78mnc','cmpjybtuz004s1dk2on4ntm4q','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-05-08 10:49:17.537',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap5y007497x5mvw7d5rj','cmpjybtuz004s1dk2on4ntm4q','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-21 10:49:17.541',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap61007697x530ddgt6z','cmpjybtuz004s1dk2on4ntm4q','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-04-04 10:49:17.543',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap65007897x5nrelk6ix','cmpjybtvb004v1dk2qonxtaba','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-29 10:49:17.547',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap68007a97x5ba41tuqx','cmpjybtvb004v1dk2qonxtaba','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-04-16 10:49:17.550',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6c007c97x51eqo534a','cmpjybtvb004v1dk2qonxtaba','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-04-05 10:49:17.554',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6f007e97x5f3712tsr','cmpjybtvb004v1dk2qonxtaba','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2025-12-30 10:49:17.557',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6i007g97x5vzx3o30y','cmpjybtvb004v1dk2qonxtaba','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-06 10:49:17.561',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6l007i97x5pddnh4ty','cmpjybtvb004v1dk2qonxtaba','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-02-06 10:49:17.563',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6o007k97x56iphjfr1','cmpjybtvb004v1dk2qonxtaba','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-01-09 10:49:17.567',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6s007m97x50oma8glt','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-03-29 10:49:17.570',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6v007o97x5ifuq9xg8','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-01-18 10:49:17.573',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap6z007q97x5tsk1omcu','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-31 10:49:17.577',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap72007s97x5y6qknk8x','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-04-01 10:49:17.581',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap76007u97x5h6jhajwg','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-04-04 10:49:17.584',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap79007w97x5xuss0ns1','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-05-16 10:49:17.588',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap7d007y97x54nv8ayzo','cmpjybtvu004y1dk2dh3ra1jy','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-01-27 10:49:17.591',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap7g008097x5rxdpvryn','cmpjybtwi00511dk2cbf6716n','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-12 10:49:17.594',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap7k008297x5jcua5oc7','cmpjybtwi00511dk2cbf6716n','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-04-04 10:49:17.599',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap7q008497x5pxt7cql8','cmpjybtwi00511dk2cbf6716n','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-03-17 10:49:17.605',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap7x008697x512noh241','cmpjybtwi00511dk2cbf6716n','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-05 10:49:17.612',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap82008897x5iziil85q','cmpjybtwi00511dk2cbf6716n','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-19 10:49:17.616',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap85008a97x53j0jktev','cmpjybtwi00511dk2cbf6716n','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2025-12-02 10:49:17.620',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8a008c97x54z4xhl7w','cmpjybtwi00511dk2cbf6716n','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-03-28 10:49:17.625',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8d008e97x5i0pxtbcy','cmpjybtx000541dk2oafz63ke','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2025-12-11 10:49:17.627',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8g008g97x5t0w526sm','cmpjybtx000541dk2oafz63ke','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-02-26 10:49:17.630',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8j008i97x5dc4yavs0','cmpjybtx000541dk2oafz63ke','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-09 10:49:17.633',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8m008k97x5yw6wnqpm','cmpjybtx000541dk2oafz63ke','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-05-18 10:49:17.637',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8q008m97x5x3ca4kfk','cmpjybtx000541dk2oafz63ke','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-02-07 10:49:17.640',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8t008o97x52t4znijb','cmpjybtx000541dk2oafz63ke','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-05-09 10:49:17.644',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap8w008q97x5q2m7ouw2','cmpjybtx000541dk2oafz63ke','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-02-07 10:49:17.647',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap90008s97x599g3ynyi','cmpjybtxf00571dk2n3yuvi3o','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-03-19 10:49:17.650',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap92008u97x5vs8g5h5w','cmpjybtxf00571dk2n3yuvi3o','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-27 10:49:17.653',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap96008w97x5h4qhaf8i','cmpjybtxf00571dk2n3yuvi3o','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-04 10:49:17.656',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap98008y97x554vp4wzg','cmpjybtxf00571dk2n3yuvi3o','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-01-17 10:49:17.659',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9b009097x5qhkmlwny','cmpjybtxf00571dk2n3yuvi3o','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-18 10:49:17.662',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9e009297x5ofy0r8wp','cmpjybtxf00571dk2n3yuvi3o','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2025-12-12 10:49:17.665',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9h009497x5a5dghmpb','cmpjybtxf00571dk2n3yuvi3o','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-02-08 10:49:17.667',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9k009697x5pzewyqvk','cmpjybtxs005a1dk2ow18hhgi','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-03-01 10:49:17.671',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9o009897x52nvv5hip','cmpjybtxs005a1dk2ow18hhgi','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-05 10:49:17.674',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9q009a97x5g53gbyp5','cmpjybtxs005a1dk2ow18hhgi','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-19 10:49:17.677',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9t009c97x5mm2tuv28','cmpjybtxs005a1dk2ow18hhgi','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-02-11 10:49:17.680',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ap9w009e97x5zu6c8aej','cmpjybtxs005a1dk2ow18hhgi','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-02-13 10:49:17.683',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apa0009g97x5beswf54q','cmpjybtxs005a1dk2ow18hhgi','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-03-17 10:49:17.686',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apa3009i97x5ht92n1xl','cmpjybtxs005a1dk2ow18hhgi','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2025-12-17 10:49:17.690',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apa7009k97x5jqvcvq3e','cmpjybty4005d1dk2lmneoq0n','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-04-03 10:49:17.693',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apaa009m97x5bvbzd9zz','cmpjybty4005d1dk2lmneoq0n','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-03-02 10:49:17.696',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apad009o97x5avmc7ed2','cmpjybty4005d1dk2lmneoq0n','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-02-22 10:49:17.700',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apag009q97x5itr1wxb5','cmpjybty4005d1dk2lmneoq0n','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-02-21 10:49:17.703',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apak009s97x58pbnnpyt','cmpjybty4005d1dk2lmneoq0n','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-03-11 10:49:17.706',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apan009u97x5dxtcwn5e','cmpjybty4005d1dk2lmneoq0n','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-07 10:49:17.710',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apas009w97x5mx4hc98g','cmpjybty4005d1dk2lmneoq0n','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2025-12-18 10:49:17.714',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apav009y97x5c9yphcmh','cmpjybtyh005g1dk2rym4bhdp','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2025-12-27 10:49:17.718',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apay00a097x5cskn9sak','cmpjybtyh005g1dk2rym4bhdp','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-04-16 10:49:17.721',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apb100a297x5kgzbgwlb','cmpjybtyh005g1dk2rym4bhdp','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-04-11 10:49:17.724',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apb500a497x5pbo2cfug','cmpjybtyh005g1dk2rym4bhdp','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-10 10:49:17.727',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apb700a697x54w5gwl5n','cmpjybtyh005g1dk2rym4bhdp','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-06 10:49:17.730',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbb00a897x5cm3ca3vj','cmpjybtyh005g1dk2rym4bhdp','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-01-06 10:49:17.734',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbe00aa97x5dxjqw385','cmpjybtyh005g1dk2rym4bhdp','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-06 10:49:17.737',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbh00ac97x5h2wwuelb','cmpjybtzv005s1dk223fzw6bm','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-02-27 10:49:17.740',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbk00ae97x5a0vjrrqv','cmpjybtzv005s1dk223fzw6bm','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-05-21 10:49:17.742',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbm00ag97x52pe7wt33','cmpjybtzv005s1dk223fzw6bm','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-22 10:49:17.745',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbq00ai97x5p1d6vo9n','cmpjybtzv005s1dk223fzw6bm','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-25 10:49:17.748',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbs00ak97x5fcqd1cu4','cmpjybtzv005s1dk223fzw6bm','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2025-12-25 10:49:17.751',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbw00am97x5fiqkx7cy','cmpjybtzv005s1dk223fzw6bm','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-05-01 10:49:17.754',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apbz00ao97x5pi95vnme','cmpjybtzv005s1dk223fzw6bm','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2025-12-13 10:49:17.757',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apc200aq97x5it3uisbe','cmpjybu0e005v1dk280ume1mc','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-11 10:49:17.761',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apc500as97x5erhalufy','cmpjybu0e005v1dk280ume1mc','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-03 10:49:17.763',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apcb00au97x5konbntf5','cmpjybu0e005v1dk280ume1mc','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-02-03 10:49:17.769',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apcf00aw97x5joo9cuam','cmpjybu0e005v1dk280ume1mc','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-02-04 10:49:17.773',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apci00ay97x50cmyaota','cmpjybu0e005v1dk280ume1mc','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-01-30 10:49:17.777',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apcm00b097x5re9fubr1','cmpjybu0e005v1dk280ume1mc','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-04-04 10:49:17.780',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apcr00b297x5m7kbjrhe','cmpjybu0e005v1dk280ume1mc','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-18 10:49:17.785',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apcu00b497x5fg05fzjr','cmpjybu0t005y1dk20pgjr9jy','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-01-25 10:49:17.789',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apcx00b697x5ably60pb','cmpjybu0t005y1dk20pgjr9jy','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2025-12-12 10:49:17.792',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apd000b897x5nuu2se92','cmpjybu0t005y1dk20pgjr9jy','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-01 10:49:17.795',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apd400ba97x59i0icdfp','cmpjybu0t005y1dk20pgjr9jy','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2025-12-26 10:49:17.798',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apd700bc97x5f6mbo5mc','cmpjybu0t005y1dk20pgjr9jy','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-03-21 10:49:17.801',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apda00be97x5b4s7oc5t','cmpjybu0t005y1dk20pgjr9jy','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-04-28 10:49:17.805',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apde00bg97x5vapftw7i','cmpjybu0t005y1dk20pgjr9jy','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-05-16 10:49:17.808',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apdh00bi97x51zypsjun','cmpjybu1800611dk24zuznwlq','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-05-13 10:49:17.811',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apdl00bk97x5xvgtybqt','cmpjybu1800611dk24zuznwlq','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-03-08 10:49:17.816',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apdo00bm97x54b4smg50','cmpjybu1800611dk24zuznwlq','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2026-01-17 10:49:17.819',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apdr00bo97x5gh9suhik','cmpjybu1800611dk24zuznwlq','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-03-18 10:49:17.822',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apdu00bq97x54azbl89c','cmpjybu1800611dk24zuznwlq','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-04-15 10:49:17.824',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apdx00bs97x530cocbt2','cmpjybu1800611dk24zuznwlq','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2025-12-22 10:49:17.827',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ape000bu97x5rk6muryt','cmpjybu1800611dk24zuznwlq','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-04-28 10:49:17.830',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ape300bw97x52wtqqnns','cmpn0vfow00004e748046utnu','cmps8aos3000097x5hjmnoycw',5,'Gerçekten doğal bir bal. Tadı ve kıvamı mükemmel, marketten aldıklarımızla kıyaslanamaz. Her sabah kahvaltıda kullanıyoruz, aile olarak çok beğendik.',1,'2026-03-17 10:49:17.833',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ape600by97x58jf938g3','cmpn0vfow00004e748046utnu','cmps8aos5000397x5xmjxlug8',5,'Kooperatiften alınan balın farkı belli oluyor. İçinden çıktığında kokusu bile bambaşka. Kesinlikle tavsiye ederim, ikinci siparişimi de verdim.',1,'2026-02-18 10:49:17.836',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8ape900c097x5kd2cfkfd','cmpn0vfow00004e748046utnu','cmps8aos5000497x5r015hlx7',4,'Bal çok lezzetli ve doğal olduğu belli. Tek eksiği kargo biraz geç geldi ama ürün harika. Bir sonraki siparişimi zaten oluşturdum.',1,'2025-12-19 10:49:17.839',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apec00c297x5no8hs4zc','cmpn0vfow00004e748046utnu','cmps8aos5000597x5xcib04u7',5,'Toroslar\'ın çiçek balı bu kadar güzel olabilir mi? Rengi, kokusu ve tadı eşsiz. Ailecek çok sevdik, özellikle çocuklar bayıldı.',1,'2026-01-27 10:49:17.842',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apeg00c497x5ra1gmhyz','cmpn0vfow00004e748046utnu','cmps8aos5000197x5sfgp3orw',5,'Yıllardır kooperatif balı kullanıyorum, kaliteden hiç ödün vermiyorlar. Bu sefer de beklentilerimi karşıladı. Paketleme de özenli geldi.',1,'2026-01-04 10:49:17.846',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apek00c697x5a6jid8q0','cmpn0vfow00004e748046utnu','cmps8aos5000297x553xnmzo4',4,'Bal güzel, doğal olduğu kesin. Biraz daha sıvı kıvamda olmasını tercih ederdim ama tat olarak çok başarılı. Fiyat/performans oranı harika.',1,'2026-03-20 10:49:17.851',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmps8apen00c897x5w2ho7u46','cmpn0vfow00004e748046utnu','cmps8aos5000697x5fpincid5',5,'Annem için sipariş ettim, çok beğendi. \'Bu gerçek bal\' dedi. Aromatik kokusu odaya yayılıyor. Bir dahaki seferinde daha büyük boy alacağım.',1,'2026-02-19 10:49:17.853',NULL,NULL,NULL,NULL,NULL,'2026-05-30 17:16:24.958'),('cmpsj4d9c000z4wdqp31hmczm','cmpjybtj7003d1dk272xxxvos','cmpshgo3a0000hwguacz3w3s5',5,'Bal gerçekten aroması, akıcılığı ve tadıyla muhteşem ötesiydi, emeği geçenlerden çok teşekkür ederiz :)',1,'2026-05-30 15:52:17.952','Geribildiriminiz için çok teşekkür ederiz.',NULL,'cmpsiuu2w000l4wdq5okl8j4u','cmpsiuu2x000n4wdqhp8i3fpi','Muhteşem Ötesi','2026-05-30 17:05:56.878'),('cmpsj4yvt00114wdqjhm6upql','cmpjybtob003j1dk23c7dan1b','cmpshgo3a0000hwguacz3w3s5',4,'Bal gerçekten lezzetliydi ama kargo kaynaklı teslimat problemi vardı.',1,'2026-05-30 15:52:45.977','Geribildirimleriniz için çok teşekkür ederiz, bizim için çok kıymetli.',NULL,'cmpsiuu2w000l4wdq5okl8j4u','cmpsiuu2x000o4wdqj1donp0m','Gayet Güzeldi ama Teslimat Kötüydü','2026-05-30 16:08:41.173'),('cmpsj5hlk00134wdqh92vosrd','cmpjybtpa003p1dk28st28mym','cmpshgo3a0000hwguacz3w3s5',5,'Bal çok güzeldi teslimat başarılıydı.',1,'2026-05-30 15:53:10.233','Çok teşekkür ederiz, geribildirimleriniz bizim için çok kıymetli.',NULL,'cmpsiuu2w000l4wdq5okl8j4u','cmpsiuu2x000p4wdqvu4ttuh1','Her şey çok iyiydi','2026-05-30 15:56:25.554');
+/*!40000 ALTER TABLE `reviews` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sessions`
+--
+
+DROP TABLE IF EXISTS `sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sessions` (
+  `id` varchar(191) NOT NULL,
+  `sessionToken` varchar(191) NOT NULL,
+  `userId` varchar(191) NOT NULL,
+  `expires` datetime(3) NOT NULL,
+  `ipAddress` varchar(191) DEFAULT NULL,
+  `userAgent` varchar(191) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sessions_sessionToken_key` (`sessionToken`),
+  KEY `sessions_userId_fkey` (`userId`),
+  CONSTRAINT `sessions_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sessions`
+--
+
+LOCK TABLES `sessions` WRITE;
+/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `site_settings`
+--
+
+DROP TABLE IF EXISTS `site_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `site_settings` (
+  `id` varchar(191) NOT NULL,
+  `key` varchar(191) NOT NULL,
+  `value` text NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `site_settings_key_key` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `site_settings`
+--
+
+LOCK TABLES `site_settings` WRITE;
+/*!40000 ALTER TABLE `site_settings` DISABLE KEYS */;
+INSERT INTO `site_settings` VALUES ('cmpmf89j90000s06b0bz23e3u','site_name','Binboğa Kooperatif Balı'),('cmpmf89ja0001s06bb66hkrdt','site_description',''),('cmpmf89ja0002s06bugf47uzc','contact_phone','0 (322) 515 89 10'),('cmpmf89ja0003s06b68cl564m','contact_email','info@binbogabal.com.tr'),('cmpmf89jb0004s06b6my7i0ov','contact_address','Kozan / Adana'),('cmpmf89jb0005s06blrabya5g','shipping_threshold','1500'),('cmpmf89jc0006s06b92umx8o2','cash_on_delivery_enabled','true'),('cmpmf89jc0007s06bhc28mlv6','social_instagram',''),('cmpmf89jc0008s06bng0t3l0h','shipping_fee','15'),('cmpmf89jd0009s06bjxbfd181','social_facebook',''),('cmpmf89jd000as06b9r54ey02','social_whatsapp',''),('cmpsdewpz000013cvg70m6u14','img_bal_rehberi_guvence','/images/site-gorseller/25ba0cf3-37a6-4801-ae03-7b08a5ab7a35.png'),('cmpu7emf200007xe46ujo4uzi','cart_banner_color','blue'),('cmpu7emf200017xe4cn6l5wse','cart_banner_enabled','true'),('cmpu7emf200027xe4slv9q2sh','cart_banner_text','Sepetindeki ürün sayısını artır, indirim kazan! 🍯 (Kaydırdıkça detayları öğren)'),('cmpu7mumc00047xe4pxsasd31','cart_banner_text_left','Sepetindeki ürün sayısını artır, indirim kazan! 🍯'),('cmpu7mumc00057xe46ty9yfb0','cart_banner_text_right','Aşağıya doğru kaydırarak daha fazla bilgi alabilirsin!');
+/*!40000 ALTER TABLE `site_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` varchar(191) NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `emailVerified` datetime(3) DEFAULT NULL,
+  `password` varchar(191) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `phone` varchar(191) DEFAULT NULL,
+  `role` enum('CUSTOMER','EDITOR','ADMIN','SUPERADMIN') NOT NULL DEFAULT 'CUSTOMER',
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  `avatarUrl` varchar(191) DEFAULT NULL,
+  `emailVerifyToken` varchar(191) DEFAULT NULL,
+  `phoneVerified` tinyint(1) NOT NULL DEFAULT 0,
+  `resetToken` varchar(191) DEFAULT NULL,
+  `resetTokenExpiry` datetime(3) DEFAULT NULL,
+  `scheduledDeleteAt` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_key` (`email`),
+  UNIQUE KEY `users_emailVerifyToken_key` (`emailVerifyToken`),
+  UNIQUE KEY `users_resetToken_key` (`resetToken`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES ('cmpji1gre00004095h5khiel3','admin@binbogabal.com.tr',NULL,'$2a$12$GnNlL0qagckJjDTs3TZZ7uL3PwYFYY8oLVt4DXlRjUOyNppiG1D1y','Admin Kullanıcı',NULL,'SUPERADMIN',1,'2026-05-24 08:12:07.322','2026-05-24 08:12:07.322',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos3000097x5hjmnoycw','ayse.yilmaz@example.com',NULL,NULL,'Ayşe Yılmaz',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.043','2026-05-30 10:49:17.043',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos5000197x5sfgp3orw','zeynep.arslan@example.com',NULL,NULL,'Zeynep Arslan',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.043','2026-05-30 10:49:17.043',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos5000297x553xnmzo4','ali.ozturk@example.com',NULL,NULL,'Ali Öztürk',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.043','2026-05-30 10:49:17.043',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos5000397x5xmjxlug8','mehmet.kaya@example.com',NULL,NULL,'Mehmet Kaya',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.043','2026-05-30 10:49:17.043',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos5000497x5r015hlx7','fatma.demir@example.com',NULL,NULL,'Fatma Demir',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.043','2026-05-30 10:49:17.043',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos5000597x5xcib04u7','hasan.celik@example.com',NULL,NULL,'Hasan Çelik',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.043','2026-05-30 10:49:17.043',NULL,NULL,0,NULL,NULL,NULL),('cmps8aos5000697x5fpincid5','elif.sahin@example.com',NULL,NULL,'Elif Şahin',NULL,'CUSTOMER',1,'2026-05-30 10:49:17.044','2026-05-30 10:49:17.044',NULL,NULL,0,NULL,NULL,NULL),('cmpsh7dq00000yl9z8ksb4bi0','gokaybaz@binbogabal.com.tr',NULL,'$2a$12$/37JlIngPWW.Hits2.Nv/O7vCz40XdN.L4qyZK2Xb5WHChpuADmrK','Gökay Baz','05445085479','CUSTOMER',1,'2026-05-30 14:58:39.288','2026-05-30 15:04:12.729',NULL,'6c0bedd3-bd35-4c2a-8d3c-a87fa8b342ce',0,NULL,NULL,NULL),('cmpshgo3a0000hwguacz3w3s5','gokaybaz2000@gmail.com','2026-05-30 15:08:05.674','$2a$12$NJQ3mQnjhiUiFrlowoxGuulSesWiccHZRbPwVSd5T2YsiaGPXBd2m','Gökay Baz','05445085479','CUSTOMER',1,'2026-05-30 15:05:52.630','2026-05-30 16:11:28.395',NULL,NULL,0,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `verification_tokens`
+--
+
+DROP TABLE IF EXISTS `verification_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `verification_tokens` (
+  `identifier` varchar(191) NOT NULL,
+  `token` varchar(191) NOT NULL,
+  `expires` datetime(3) NOT NULL,
+  UNIQUE KEY `verification_tokens_token_key` (`token`),
+  UNIQUE KEY `verification_tokens_identifier_token_key` (`identifier`,`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `verification_tokens`
+--
+
+LOCK TABLES `verification_tokens` WRITE;
+/*!40000 ALTER TABLE `verification_tokens` DISABLE KEYS */;
+/*!40000 ALTER TABLE `verification_tokens` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `volume_discount_products`
+--
+
+DROP TABLE IF EXISTS `volume_discount_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `volume_discount_products` (
+  `id` varchar(191) NOT NULL,
+  `volumeDiscountId` varchar(191) NOT NULL,
+  `productId` varchar(191) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `volume_discount_products_volumeDiscountId_productId_key` (`volumeDiscountId`,`productId`),
+  KEY `volume_discount_products_productId_fkey` (`productId`),
+  CONSTRAINT `volume_discount_products_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `volume_discount_products_volumeDiscountId_fkey` FOREIGN KEY (`volumeDiscountId`) REFERENCES `volume_discounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `volume_discount_products`
+--
+
+LOCK TABLES `volume_discount_products` WRITE;
+/*!40000 ALTER TABLE `volume_discount_products` DISABLE KEYS */;
+/*!40000 ALTER TABLE `volume_discount_products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `volume_discounts`
+--
+
+DROP TABLE IF EXISTS `volume_discounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `volume_discounts` (
+  `id` varchar(191) NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `tiers` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`tiers`)),
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `volume_discounts`
+--
+
+LOCK TABLES `volume_discounts` WRITE;
+/*!40000 ALTER TABLE `volume_discounts` DISABLE KEYS */;
+INSERT INTO `volume_discounts` VALUES ('cmptpnjun0002133dp9w0jq0y','Sepette indirim',1,'[{\"minQty\":2,\"discountPercent\":10}]','2026-05-31 11:42:56.831','2026-05-31 11:42:56.831');
+/*!40000 ALTER TABLE `volume_discounts` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-06-01 11:51:03

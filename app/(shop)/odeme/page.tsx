@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { CheckoutForm } from "@/components/shop/checkout/CheckoutForm";
 import { prisma } from "@/lib/prisma";
