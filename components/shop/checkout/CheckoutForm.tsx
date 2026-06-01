@@ -115,10 +115,14 @@ export function CheckoutForm({
   codEnabled = false,
   savedAddresses = [],
   userEmail = "",
+  shippingFee = 99,
+  shippingThreshold = 1500,
 }: {
   codEnabled?: boolean;
   savedAddresses?: SavedAddress[];
   userEmail?: string;
+  shippingFee?: number;
+  shippingThreshold?: number;
 }) {
   const isGuest = !userEmail;
   // Misafir kullanıcı için ilk adım: ad soyad + email
@@ -194,7 +198,7 @@ export function CheckoutForm({
   }, []);
 
   const campaignFreeShipping = campaignResult?.freeShipping ?? false;
-  const SHIPPING_FEE = campaignFreeShipping || subtotal() >= 1500 ? 0 : 99;
+  const SHIPPING_FEE = campaignFreeShipping || subtotal() >= shippingThreshold ? 0 : shippingFee;
   const grandTotal = total() + SHIPPING_FEE;
   const effectiveDiscount = campaignResult ? campaignResult.totalDiscount : couponDiscount;
 

@@ -576,6 +576,7 @@
       <a href="#step147" class="nav-link"><span class="dot"></span>147 — Stokta Olmayan Ürünleri Gizle</a>
       <a href="#step148" class="nav-link"><span class="dot"></span>148 — ProductCard Buton Outline</a>
       <a href="#step149" class="nav-link"><span class="dot"></span>149 — Bal Rehberi Popüler Kart Grid</a>
+      <a href="#step150" class="nav-link"><span class="dot"></span>150 — Ödeme Sayfası Kargo Ücreti Fix</a>
 
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -6750,10 +6751,36 @@ html, body { overflow-x: clip; }</code></pre>
       </div>
     </section>
 
+    <!-- STEP 150 -->
+    <section id="step150">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-fix">Fix</span>
+          <h2>150 — Ödeme Sayfası Kargo Ücreti Fix</h2>
+          <p class="section-meta">1 Haziran 2026</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Admin panelinden kargo ücreti ve ücretsiz kargo limiti değiştirildiğinde sepet sayfasında doğru yansıyordu (Adım 146 ile düzeltilmişti) ancak ödeme sayfasında hâlâ eski hardcode değerler (<code>99 ₺</code> / <code>1500 ₺</code>) kullanılıyordu. <code>CheckoutForm.tsx</code>'teki <code>SHIPPING_FEE</code> hesaplaması DB'yi hiç okumadan sabit değerlere dayanıyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p><code>odeme/page.tsx</code> (server component) artık <code>shipping_fee</code> ve <code>shipping_threshold</code> key'lerini <code>SiteSetting</code> tablosundan çekiyor ve <code>CheckoutForm</code>'a prop olarak iletiyor. <code>CheckoutForm</code>'a <code>shippingFee</code> ve <code>shippingThreshold</code> prop'ları eklendi; <code>SHIPPING_FEE</code> hesaplamasındaki hardcode sabitler bu prop'larla değiştirildi. DB'de kayıt yoksa varsayılan <code>99 ₺ / 1500 ₺</code> kullanılıyor.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/odeme/page.tsx</span> — shipping_fee, shipping_threshold DB'den okunup prop olarak geçiliyor<br>
+          <span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> — shippingFee/shippingThreshold prop'ları eklendi, hardcode sabitler kaldırıldı
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 1 Haziran 2026 — Adım 149 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 1 Haziran 2026 — Adım 150 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
