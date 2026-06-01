@@ -9,12 +9,12 @@
    * ardından aşağıdaki değerleri de eşitle.
    */
   :root {
-    --honey-dark:   #B82C00;   /* palette.honeyDark   */
-    --honey-medium: #D67503;   /* palette.honeyMedium */
-    --honey:        #F9B10B;   /* palette.honey       */
-    --honey-bright: #FCD908;   /* palette.honeyBright */
-    --honey-light:  #FCE7A5;   /* palette.honeyLight  */
-    --honey-cream:  #FFF8E7;   /* palette.honeyCream  */
+    --honey-dark: #b82c00; /* palette.honeyDark   */
+    --honey-medium: #d67503; /* palette.honeyMedium */
+    --honey: #f9b10b; /* palette.honey       */
+    --honey-bright: #fcd908; /* palette.honeyBright */
+    --honey-light: #fce7a5; /* palette.honeyLight  */
+    --honey-cream: #fff8e7; /* palette.honeyCream  */
   }
 
   * {
@@ -35,18 +35,27 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-poppins), system-ui, sans-serif;
     @apply font-bold;
   }
 
   /* iOS Safari — input zoom önleme (font-size < 16px zoom yapar) */
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     font-size: max(16px, 1rem);
   }
 
   /* Dokunma hedefleri minimum 44px (WCAG 2.5.5) */
-  button, [role="button"], a {
+  button,
+  [role="button"],
+  a {
     min-height: 44px;
     min-width: 44px;
     display: inline-flex;
@@ -55,7 +64,9 @@
   }
 
   /* Satır içi linkler min-height'i sıfırla (metin akışını bozmasin) */
-  p a, li a, span a {
+  p a,
+  li a,
+  span a {
     min-height: unset;
     min-width: unset;
     display: inline;
@@ -122,7 +133,7 @@
 
 /* Admin sidebar */
 .admin-nav-link {
-  @apply flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-slate-100 hover:text-slate-800 transition-colors duration-150 text-sm font-medium;
+  @apply flex items-start justify-start gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-slate-100 hover:text-slate-800 transition-colors duration-150 text-sm font-medium;
   min-height: 44px;
 }
 

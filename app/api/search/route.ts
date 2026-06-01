@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   const q = searchParams.get("q")?.trim() ?? "";
 
   const popular = await prisma.product.findMany({
-    where: { isActive: true, isBestseller: true },
+    where: { isActive: true, isBestseller: true, variants: { some: { isActive: true, stock: { gt: 0 } } } },
     take: 6,
     select: productSelect,
   });
@@ -54,6 +54,7 @@ export async function GET(request: Request) {
   const results = await prisma.product.findMany({
     where: {
       isActive: true,
+      variants: { some: { isActive: true, stock: { gt: 0 } } },
       OR: [
         { name:             { contains: q } },
         { shortDescription: { contains: q } },

@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 
 async function getBestsellers() {
   return prisma.product.findMany({
-    where: { isActive: true, isBestseller: true },
+    where: { isActive: true, isBestseller: true, variants: { some: { isActive: true, stock: { gt: 0 } } } },
     include: {
       variants: {
         where: { isActive: true },
@@ -35,7 +35,7 @@ async function getBestsellers() {
 
 async function getFeaturedProducts() {
   return prisma.product.findMany({
-    where: { isActive: true, isFeatured: true },
+    where: { isActive: true, isFeatured: true, variants: { some: { isActive: true, stock: { gt: 0 } } } },
     include: {
       variants: {
         where: { isActive: true },

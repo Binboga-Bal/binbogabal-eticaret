@@ -138,24 +138,26 @@ export default async function HoneyGuidePage() {
       {posts.length > 0 && (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Popüler Rehberler</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
             {posts.slice(0, 4).map((post) => (
               <Link
                 key={post.id}
                 href={`/bal-rehberi/${post.slug}`}
-                className="flex items-center gap-4 rounded-xl border border-gray-100 p-3 hover:border-honey-bright hover:bg-honey-cream/40 transition-colors group"
+                className="group flex flex-col rounded-xl border border-gray-100 overflow-hidden hover:border-honey-bright hover:shadow-md transition-all duration-300 bg-white"
               >
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-honey-cream flex-shrink-0">
+                <div className="w-full aspect-square bg-honey-cream overflow-hidden">
                   {post.coverImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+                    <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl">🍯</div>
+                    <div className="w-full h-full flex items-center justify-center text-4xl">🍯</div>
                   )}
                 </div>
-                <span className="text-sm font-semibold text-gray-800 group-hover:text-honey-dark transition-colors line-clamp-2">
-                  {post.title}
-                </span>
+                <div className="p-3">
+                  <span className="text-sm font-semibold text-gray-800 group-hover:text-honey-dark transition-colors line-clamp-2 leading-snug">
+                    {post.title}
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

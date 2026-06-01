@@ -10,9 +10,15 @@ import { formatPrice, formatWeight } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import { VolumeDiscountBar } from "@/components/shop/cart/VolumeDiscountBar";
 
-const SHIPPING_THRESHOLD = 1500;
-
-export function CartPageClient({ bannerEnabled = false }: { bannerEnabled?: boolean }) {
+export function CartPageClient({
+  bannerEnabled = false,
+  shippingFee: shippingFeeConfig = 99,
+  shippingThreshold = 1500,
+}: {
+  bannerEnabled?: boolean;
+  shippingFee?: number;
+  shippingThreshold?: number;
+}) {
   const {
     items,
     removeItem,
@@ -79,10 +85,10 @@ export function CartPageClient({ bannerEnabled = false }: { bannerEnabled?: bool
   const campaignDiscount = campaignResult?.totalDiscount ?? 0;
   const campaignFreeShipping = campaignResult?.freeShipping ?? false;
 
-  const shippingFee = campaignFreeShipping || subtotal() >= SHIPPING_THRESHOLD ? 0 : 99;
+  const shippingFee = campaignFreeShipping || subtotal() >= shippingThreshold ? 0 : shippingFeeConfig;
   const grandTotal = total() + shippingFee;
-  const shippingProgress = Math.min((subtotal() / SHIPPING_THRESHOLD) * 100, 100);
-  const remaining = SHIPPING_THRESHOLD - subtotal();
+  const shippingProgress = Math.min((subtotal() / shippingThreshold) * 100, 100);
+  const remaining = shippingThreshold - subtotal();
 
   if (items.length === 0) {
     return (

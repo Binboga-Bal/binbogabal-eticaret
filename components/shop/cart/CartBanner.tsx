@@ -11,7 +11,10 @@ interface CartBannerProps {
   color: string;
 }
 
-const colorMap: Record<string, { bg: string; border: string; text: string; icon: string; btn: string }> = {
+const colorMap: Record<
+  string,
+  { bg: string; border: string; text: string; icon: string; btn: string }
+> = {
   honey: {
     bg: "bg-amber-50",
     border: "border-amber-200",
@@ -66,31 +69,39 @@ export function CartBanner({ textLeft, textRight, color }: CartBannerProps) {
         zIndex: 37,
         display: "flex",
         alignItems: "center",
-        transform: isScrolled ? `translateY(-${headerTheme.announcementHeight}px)` : "translateY(0)",
+        transform: isScrolled
+          ? `translateY(-${headerTheme.announcementHeight}px)`
+          : "translateY(0)",
         transition: "transform 300ms",
       }}
-      className={`${c.bg} border-b ${c.border} px-4 shadow-sm`}
+      className={`${c.bg} border-b ${c.border} shadow-sm px-24`}
     >
-      <div className="max-w-6xl mx-auto w-full flex items-center justify-between gap-2 pt-[58px] pb-3 sm:pt-0 sm:pb-0">
-        <div className={`flex items-start sm:items-center gap-2 text-xs sm:text-sm font-medium ${c.text} min-w-0`}>
-          <Tag size={14} className={`${c.icon} shrink-0 mt-0.5 sm:mt-0`} />
-          <div className="min-w-0">
-            <span className="block sm:inline">{textLeft}</span>
-            {textRight && (
-              <span className={`block sm:inline sm:ml-3 text-xs sm:text-sm font-medium ${c.text} opacity-80`}>{textRight}</span>
-            )}
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            setVisible(false);
-            window.dispatchEvent(new CustomEvent("cart-banner-dismissed"));
-          }}
-          className={`${c.btn} transition-colors shrink-0`}
-          aria-label="Kapat"
+      <div className="w-full flex items-center justify-between gap-2 px-3 pt-[58px] pb-3 sm:pt-0 sm:pb-0">
+        <div
+          className={`flex items-start sm:items-center gap-2 text-xs sm:text-sm font-medium ${c.text} min-w-0`}
         >
-          <X size={16} />
-        </button>
+          <Tag size={14} className={`${c.icon} shrink-0 mt-0.5 sm:mt-0`} />
+          <span>{textLeft}</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
+          {textRight && (
+            <span
+              className={`text-xs sm:text-sm font-medium ${c.text} opacity-80`}
+            >
+              {textRight}
+            </span>
+          )}
+          <button
+            onClick={() => {
+              setVisible(false);
+              window.dispatchEvent(new CustomEvent("cart-banner-dismissed"));
+            }}
+            className={`${c.btn} transition-colors`}
+            aria-label="Kapat"
+          >
+            <X size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );

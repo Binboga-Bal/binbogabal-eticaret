@@ -51,7 +51,7 @@ export function AddToCartButton({
   return (
     <Button
       onClick={handleAdd}
-      variant={added ? "secondary" : "primary"}
+      variant={added ? "secondary" : "outline"}
       className={className ?? "w-full mt-3"}
       size="sm"
     >

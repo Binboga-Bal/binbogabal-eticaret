@@ -55,6 +55,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
+    variants: { some: { isActive: true, stock: { gt: 0 } } },
     ...(params.q && {
       OR: [
         { name:             { contains: params.q } },
@@ -75,6 +76,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           variants: {
             some: {
               isActive: true,
+              stock: { gt: 0 },
               ...(params.boyut && { size: parseInt(params.boyut) }),
               ...(params.ambalaj && { packagingType: params.ambalaj as PackagingType }),
               ...((params.minFiyat || params.maxFiyat) && {

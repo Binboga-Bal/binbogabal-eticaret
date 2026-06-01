@@ -571,6 +571,11 @@
       <a href="#step142" class="nav-link"><span class="dot"></span>142 — Checkout Minimalist Tasarım</a>
       <a href="#step143" class="nav-link"><span class="dot"></span>143 — Search Overlay İyileştirmeleri</a>
       <a href="#step144" class="nav-link"><span class="dot"></span>144 — Mobil Responsive Kapsamlı Düzeltmeler</a>
+      <a href="#step145" class="nav-link"><span class="dot"></span>145 — CartBanner Sol/Sağ Metin Hizası</a>
+      <a href="#step146" class="nav-link"><span class="dot"></span>146 — Kargo Ücreti Admin'den Dinamik</a>
+      <a href="#step147" class="nav-link"><span class="dot"></span>147 — Stokta Olmayan Ürünleri Gizle</a>
+      <a href="#step148" class="nav-link"><span class="dot"></span>148 — ProductCard Buton Outline</a>
+      <a href="#step149" class="nav-link"><span class="dot"></span>149 — Bal Rehberi Popüler Kart Grid</a>
 
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -6624,10 +6629,131 @@ html, body { overflow-x: clip; }</code></pre>
       </div>
     </section>
 
+    <!-- STEP 145 -->
+    <section id="step145">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-ui">UI</span>
+          <h2>145 — CartBanner Sol/Sağ Metin Hizası</h2>
+          <p class="section-meta">1 Haziran 2026</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Sepet sayfasındaki <code>CartBanner</code>'da birinci cümle (sol) ve ikinci cümle (sağ) desktop'ta doğru hizalanmıyordu. Her iki metin aynı <code>div</code> içindeydi ve <code>justify-between</code> çalışmıyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>İki metin ayrı flex öğelerine alındı. Sağ metin ve X butonu aynı <code>div</code> içinde <code>gap-2</code> ile yan yana gruplandı. Dış konteynerden <code>max-w-6xl</code> kaldırıldı, padding <code>px-3</code> olarak inner div'e taşındı — böylece içerik tam genişlikte soldan sağa yayılıyor.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/cart/CartBanner.tsx</span> — metin gruplandırması, max-w kaldırma, px-3
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 146 -->
+    <section id="step146">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-feat">Özellik</span>
+          <h2>146 — Kargo Ücreti Admin'den Dinamik</h2>
+          <p class="section-meta">1 Haziran 2026</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Admin panelinden kargo ücreti ve ücretsiz kargo limiti değiştirilmesine rağmen sepet sayfasında değişmiyordu. <code>CartPageClient.tsx</code>'de <code>SHIPPING_THRESHOLD = 1500</code> ve <code>99</code> değerleri hardcode yazılıydı; <code>SiteSetting</code> tablosu hiç okunmuyordu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p><code>sepet/page.tsx</code> (server component) <code>shipping_fee</code> ve <code>shipping_threshold</code> key'lerini DB'den okuyup <code>CartPageClient</code>'a prop olarak geçiyor. <code>CartPageClient</code> bu değerleri prop olarak kabul ediyor, DB'de kayıt yoksa varsayılan <code>99 ₺ / 1500 ₺</code> kullanılıyor.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/sepet/page.tsx</span> — shipping_fee, shipping_threshold DB'den okunuyor<br>
+          <span class="file mod">components/shop/cart/CartPageClient.tsx</span> — hardcode sabitler kaldırıldı, prop'tan alıyor
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 147 -->
+    <section id="step147">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-feat">Özellik</span>
+          <h2>147 — Stokta Olmayan Ürünleri Gizle</h2>
+          <p class="section-meta">1 Haziran 2026</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>Stoku sıfır olan ürünler müşteri tarafındaki tüm listeleme sayfalarında görünüyordu. Stok bilgisi <code>ProductVariant</code> modelinde tutulmakta; bir ürünün listelenmesi için en az bir aktif varyantın <code>stock &gt; 0</code> olması gerekiyor.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>Anasayfa bestseller/featured sorguları, ürünlerimiz sayfası ve arama API'si — tüm storefront Prisma sorgularına <code>variants: &#123; some: &#123; isActive: true, stock: &#123; gt: 0 &#125; &#125; &#125;</code> filtresi eklendi. Admin sorguları etkilenmedi.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/page.tsx</span> — getBestsellers, getFeaturedProducts<br>
+          <span class="file mod">app/(shop)/urunlerimiz/page.tsx</span> — where filtresi<br>
+          <span class="file mod">app/api/search/route.ts</span> — popular + results sorguları
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 148 -->
+    <section id="step148">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-ui">UI</span>
+          <h2>148 — ProductCard Buton Outline</h2>
+          <p class="section-meta">1 Haziran 2026</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Ürün kartlarındaki <strong>Sepete Ekle</strong> ve <strong>Hemen Al</strong> butonları dolgu renkten outline stiline geçirildi. Normal halde kenarlıklı şeffaf, hover'da arka plan dolup metin beyaza dönüyor. Button bileşeninin mevcut <code>outline</code> variant'ı kullanıldı.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/product/AddToCartButton.tsx</span> — variant: "primary" → "outline"<br>
+          <span class="file mod">components/shop/product/ProductCardActions.tsx</span> — Hemen Al: bg-honey → border-2 border-honey-dark outline stili
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 149 -->
+    <section id="step149">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-ui">UI</span>
+          <h2>149 — Bal Rehberi Popüler Kart Grid</h2>
+          <p class="section-meta">1 Haziran 2026</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Bal Rehberi sayfasındaki "Popüler Rehberler" bölümü sıfırdan yeniden tasarlandı. Eski yatay liste (küçük thumbnail + yan metin) yerine <strong>4 sütunlu kart grid</strong> (mobilde 2 sütun) kullanıldı. Her kart: kare görsel üstte (<code>aspect-square</code>, tam genişlik), başlık altında sol hizalı. Hover'da görsel scale-105 + shadow efekti.</p>
+      </div>
+      <div class="card">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/bal-rehberi/page.tsx</span> — popüler rehberler section yeniden yazıldı
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 1 Haziran 2026 — Adım 144 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 1 Haziran 2026 — Adım 149 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

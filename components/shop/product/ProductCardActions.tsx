@@ -53,7 +53,7 @@ export function ProductCardActions({ product, variant }: Props) {
         />
         <a
           href={`/urunlerimiz/${product.slug}?hemenAl=1&adet=${qty}&variant=${variant.id}`}
-          className="flex-1 h-8 flex items-center justify-center rounded-xl bg-honey text-white text-xs font-semibold hover:bg-honey-medium transition-colors"
+          className="flex-1 h-8 flex items-center justify-center rounded-xl border-2 border-honey-dark text-honey-dark text-xs font-semibold hover:bg-honey-dark hover:text-white transition-all duration-200"
         >
           Hemen Al
         </a>
