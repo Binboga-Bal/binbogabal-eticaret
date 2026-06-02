@@ -21,6 +21,19 @@ export function UserDetailActions({ adminId, status, isSuperAdmin }: Props) {
     setLoading(null);
   }
 
+  async function deleteUser() {
+    if (!confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) return;
+    setLoading("Sil");
+    const res = await fetch(`/api/admin/users/${adminId}`, { method: "DELETE" });
+    if (res.ok) {
+      router.push("/admin/users");
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error ?? "Silme işlemi başarısız");
+    }
+    setLoading(null);
+  }
+
   const btn = "w-full text-left px-3 py-2 text-sm rounded-lg transition hover:bg-gray-50 border border-gray-200 disabled:opacity-50";
 
   return (
@@ -60,6 +73,16 @@ export function UserDetailActions({ adminId, status, isSuperAdmin }: Props) {
       <a href={`/admin/users/${adminId}/security`} className={`${btn} block text-center`}>
         🔐 Güvenlik Ayarları
       </a>
+
+      {!isSuperAdmin && (
+        <button
+          onClick={deleteUser}
+          disabled={!!loading}
+          className={`${btn} text-red-600 border-red-200 hover:bg-red-50 mt-2`}
+        >
+          {loading === "Sil" ? "..." : "🗑 Kullanıcıyı Sil"}
+        </button>
+      )}
     </div>
   );
 }
