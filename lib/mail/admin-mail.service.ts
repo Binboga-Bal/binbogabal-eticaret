@@ -1,4 +1,7 @@
 import { resend, MAIL_FROM } from "./resend";
+import { render } from "@react-email/render";
+import { AdminInviteTemplate } from "./templates/admin-invite";
+import * as React from "react";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Binboğa Kooperatif";
@@ -55,11 +58,8 @@ ${content}
 
   switch (type) {
     case "invite":
-      return base(`
-<p>Merhaba <strong>${data.name}</strong>,</p>
-<p>Admin paneline davet edildiniz. Aşağıdaki bağlantıya tıklayarak şifrenizi belirleyin.</p>
-<a class="btn" href="${APP_URL}/admin/auth/accept-invite?token=${data.token}">Daveti Kabul Et</a>
-<p class="info">Bu davet bağlantısı 48 saat geçerlidir.</p>`);
+      // Handled separately with React Email template
+      return "";
 
     case "password-reset":
       return base(`
@@ -155,11 +155,29 @@ export async function sendAdminMail(
   data: Record<string, unknown>
 ): Promise<void> {
   try {
+    let html: string;
+
+    if (type === "invite") {
+      const name = data.name as string;
+      const token = data.token as string;
+      const acceptUrl = `${APP_URL}/admin/auth/accept-invite?token=${token}`;
+      const adminPanelUrl = `${APP_URL}/admin`;
+      html = await render(
+        React.createElement(AdminInviteTemplate, {
+          name,
+          acceptUrl,
+          adminPanelUrl,
+        })
+      );
+    } else {
+      html = buildHtml(type, data);
+    }
+
     await resend.emails.send({
       from: MAIL_FROM,
       to,
       subject: buildSubject(type),
-      html: buildHtml(type, data),
+      html,
     });
   } catch (err) {
     console.error(`[AdminMail] Failed to send ${type} to ${to}:`, err);
