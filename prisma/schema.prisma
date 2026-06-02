@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─── KULLANICILAR ────────────────────────────────────────────────────────────
@@ -807,4 +808,223 @@ model SiteSetting {
   value String @db.Text
 
   @@map("site_settings")
+}
+
+// ─── ADMIN RBAC MODÜLü ───────────────────────────────────────────────────────
+
+model AdminUser {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  passwordHash         String
+  name                 String
+  avatarUrl            String?
+  phone                String?
+  department           String?
+  status               AdminStatus @default(INVITED)
+  isSuperAdmin         Boolean   @default(false)
+
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String?
+  twoFactorBackupCodes String[]
+  passwordChangedAt    DateTime?
+  mustChangePassword   Boolean   @default(false)
+  failedLoginCount     Int       @default(0)
+  lockedUntil          DateTime?
+  lastLoginAt          DateTime?
+  lastLoginIp          String?
+  lastLoginCountry     String?
+
+  inviteToken          String?
+  inviteTokenExpiry    DateTime?
+  invitedBy            String?
+
+  previousPasswords    String[]
+
+  allowedLoginStart    String?
+  allowedLoginEnd      String?
+  allowedDays          Int[]
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  roles                AdminUserRole[]
+  sessions             AdminSession[]
+  temporaryPermissions TemporaryPermission[]
+  auditLogs            AuditLog[]
+  allowedIPs           AdminAllowedIP[]
+  scopeAssignments     ScopeAssignment[]
+
+  @@map("admin_users")
+}
+
+enum AdminStatus {
+  INVITED
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  LOCKED
+}
+
+model AdminRole {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  color       String?
+  isSystem    Boolean   @default(false)
+  parentId    String?
+  parent      AdminRole?  @relation("RoleHierarchy", fields: [parentId], references: [id])
+  children    AdminRole[] @relation("RoleHierarchy")
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  permissions AdminRolePermission[]
+  users       AdminUserRole[]
+
+  @@map("admin_roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  module      String
+  action      String
+  scope       String   @default("")
+  fieldGroup  String?
+  description String?
+  isSystem    Boolean  @default(true)
+
+  rolePermissions AdminRolePermission[]
+  tempPermissions TemporaryPermission[]
+
+  @@unique([module, action, scope])
+  @@map("permissions")
+}
+
+model AdminRolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  role         AdminRole  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  granted      Boolean    @default(true)
+  assignedBy   String?
+  assignedAt   DateTime   @default(now())
+
+  @@unique([roleId, permissionId])
+  @@map("admin_role_permissions")
+}
+
+model AdminUserRole {
+  id         String    @id @default(cuid())
+  userId     String
+  user       AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId     String
+  role       AdminRole @relation(fields: [roleId], references: [id])
+  assignedBy String?
+  assignedAt DateTime  @default(now())
+  note       String?
+
+  @@unique([userId, roleId])
+  @@map("admin_user_roles")
+}
+
+model TemporaryPermission {
+  id           String     @id @default(cuid())
+  userId       String
+  user         AdminUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  reason       String?
+  grantedBy    String
+  validFrom    DateTime   @default(now())
+  validUntil   DateTime
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  @@map("temporary_permissions")
+}
+
+model ScopeAssignment {
+  id         String    @id @default(cuid())
+  userId     String
+  user       AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scopeType  String
+  scopeId    String
+  assignedBy String?
+  assignedAt DateTime  @default(now())
+
+  @@unique([userId, scopeType, scopeId])
+  @@map("scope_assignments")
+}
+
+model AdminSession {
+  id           String    @id @default(cuid())
+  userId       String
+  user         AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String    @unique
+  ipAddress    String?
+  userAgent    String?
+  country      String?
+  city         String?
+  isSuspicious Boolean   @default(false)
+  lastActiveAt DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime
+
+  @@map("admin_sessions")
+}
+
+model AdminAllowedIP {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      AdminUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipRange   String
+  label     String?
+  createdBy String?
+  createdAt DateTime   @default(now())
+
+  @@map("admin_allowed_ips")
+}
+
+model AuditLog {
+  id           String     @id @default(cuid())
+  adminId      String?
+  admin        AdminUser? @relation(fields: [adminId], references: [id])
+  adminName    String?
+  action       String
+  module       String
+  targetId     String?
+  targetLabel  String?
+  previousData Json?
+  newData      Json?
+  ipAddress    String?
+  userAgent    String?
+  riskScore    Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  @@index([adminId])
+  @@index([module])
+  @@index([action])
+  @@index([createdAt])
+  @@index([riskScore])
+  @@map("audit_logs")
+}
+
+model PasswordPolicy {
+  id                    String   @id @default(cuid())
+  minLength             Int      @default(8)
+  requireUppercase      Boolean  @default(true)
+  requireLowercase      Boolean  @default(true)
+  requireNumbers        Boolean  @default(true)
+  requireSpecialChars   Boolean  @default(true)
+  preventReuse          Int      @default(5)
+  expiryDays            Int?
+  maxFailedAttempts     Int      @default(5)
+  lockoutDuration       Int      @default(30)
+  sessionTimeoutMinutes Int      @default(480)
+  require2FAForRoles    String[]
+  updatedAt             DateTime @updatedAt
+
+  @@map("password_policy")
 }

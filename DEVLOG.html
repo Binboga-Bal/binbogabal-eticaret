@@ -578,6 +578,22 @@
       <a href="#step149" class="nav-link"><span class="dot"></span>149 — Bal Rehberi Popüler Kart Grid</a>
       <a href="#step150" class="nav-link"><span class="dot"></span>150 — Ödeme Sayfası Kargo Ücreti Fix</a>
 
+      <div class="nav-section-label">2 Haziran 2026 — Admin RBAC</div>
+      <a href="#step151" class="nav-link"><span class="dot"></span>151 — Prisma RBAC Schema</a>
+      <a href="#step152" class="nav-link"><span class="dot"></span>152 — Admin JWT Auth</a>
+      <a href="#step153" class="nav-link"><span class="dot"></span>153 — RBAC Motoru</a>
+      <a href="#step154" class="nav-link"><span class="dot"></span>154 — Middleware Güncelleme</a>
+      <a href="#step155" class="nav-link"><span class="dot"></span>155 — Auth API Route'ları</a>
+      <a href="#step156" class="nav-link"><span class="dot"></span>156 — Kullanıcı Yönetimi API</a>
+      <a href="#step157" class="nav-link"><span class="dot"></span>157 — Rol & İzin API</a>
+      <a href="#step158" class="nav-link"><span class="dot"></span>158 — Audit Log & Güvenlik API</a>
+      <a href="#step159" class="nav-link"><span class="dot"></span>159 — 2FA & Davet Sistemi</a>
+      <a href="#step160" class="nav-link"><span class="dot"></span>160 — Cron Job'lar</a>
+      <a href="#step161" class="nav-link"><span class="dot"></span>161 — Frontend Auth Sayfaları</a>
+      <a href="#step162" class="nav-link"><span class="dot"></span>162 — Admin RBAC Sayfaları</a>
+      <a href="#step163" class="nav-link"><span class="dot"></span>163 — UI Bileşenleri</a>
+      <a href="#step164" class="nav-link"><span class="dot"></span>164 — Seed & Migration</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -6777,10 +6793,444 @@ html, body { overflow-x: clip; }</code></pre>
       </div>
     </section>
 
+
+    <!-- ═══════════════════ 2 HAZİRAN 2026 — ADMIN RBAC KULLANICI MODÜLü -->
+    <div class="date-header">
+      <div class="date-pill">2 Haziran 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 151–164 · Admin RBAC Kullanıcı Modülü</div>
+    </div>
+
+    <!-- STEP 151 -->
+    <section class="section" id="step151">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🗄️</div>
+        <div>
+          <h2>151 — Prisma RBAC Schema (10 Yeni Model)</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Eklenen Modeller</h3>
+        <p>Mevcut müşteri <code>User</code> modeline dokunulmadan tamamen ayrı bir admin sistemi için 10 yeni Prisma modeli eklendi. <code>scope</code> alanı <code>String @default("")</code> olarak tanımlandı — Prisma 5.22'de composite unique içinde nullable alan desteklenmiyor.</p>
+        <div class="file-tree" style="margin-top:12px">
+          <span class="file new">AdminUser</span> — email, passwordHash, 2FA, oturum kısıtı, davet, şifre geçmişi<br>
+          <span class="file new">AdminRole</span> — hiyerarşi (parentId), sistem rolü bayrağı, renk<br>
+          <span class="file new">Permission</span> — module + action + scope üçlü unique key<br>
+          <span class="file new">AdminRolePermission</span> — granted:false ile explicit deny desteği<br>
+          <span class="file new">AdminUserRole</span> — çoktan-çoğa, not alanı<br>
+          <span class="file new">TemporaryPermission</span> — validFrom / validUntil, isActive<br>
+          <span class="file new">ScopeAssignment</span> — çok-mağaza kapsam ataması<br>
+          <span class="file new">AdminSession</span> — isSuspicious, lastActiveAt, expiresAt<br>
+          <span class="file new">AdminAllowedIP</span> — userId:null = global kural, CIDR desteği<br>
+          <span class="file new">AuditLog</span> — 5 DB index (adminId, module, action, createdAt, riskScore)<br>
+          <span class="file new">PasswordPolicy</span> — global tek kayıt, require2FAForRoles[]
+        </div>
+      </div>
+      <div class="card">
+        <h3>Teknik Karar: scope String @default("")</h3>
+        <p>Prisma 5.22'de <code>@@unique([module, action, scope])</code> içinde nullable <code>String?</code> kullanıldığında <code>where</code> clause'da <code>null</code> değeri <em>"Argument must not be null"</em> hatası veriyor. Çözüm: <code>scope String @default("")</code> — boş string = kapsam yok. Tüm lookup'lar <code>scope ?? ""</code> ile yapılıyor.</p>
+      </div>
+    </section>
+
+    <!-- STEP 152 -->
+    <section class="section" id="step152">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🔑</div>
+        <div>
+          <h2>152 — Admin JWT Auth Sistemi (Müşteriden Tamamen Ayrı)</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Mimari Karar</h3>
+        <p>Mevcut NextAuth müşteri sistemi (<code>/hesabim/*</code>) dokunulmadan bırakıldı. Admin sistemi tamamen ayrı JWT tabanlı, httpOnly cookie stratejisi kullanıyor. İki sistem hiçbir token veya secret paylaşmıyor.</p>
+      </div>
+      <div class="card">
+        <h3>Oluşturulan Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/admin-auth/jwt.ts</span> — jose ile access (15dk) + refresh (8sa) token imzalama/doğrulama<br>
+          <span class="file new">lib/admin-auth/session.ts</span> — <code>getAdminSession()</code>, httpOnly cookie okuma<br>
+          <span class="file new">lib/admin-auth/password.ts</span> — validatePassword, checkPasswordReuse, hashPassword<br>
+          <span class="file new">lib/admin-auth/2fa.ts</span> — speakeasy TOTP (otplib v13 API uyumsuzluğu nedeniyle değiştirildi), QR kod üretme, backup codes<br>
+          <span class="file new">lib/admin-auth/ip-check.ts</span> — CIDR IP kontrolü, giriş saati kısıtı, şüpheli giriş tespiti
+        </div>
+      </div>
+      <div class="card">
+        <h3>otplib → speakeasy Migrasyonu</h3>
+        <p>otplib v13 <code>authenticator</code> export'u kaldırılmış; yeni API <code>TOTP</code> sınıfı + async generate gerektiriyor, crypto plugin ayrı kurulması gerekiyor. Speakeasy daha stabil ve senkron API sunduğu için tercih edildi.</p>
+      </div>
+    </section>
+
+    <!-- STEP 153 -->
+    <section class="section" id="step153">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">⚙️</div>
+        <div>
+          <h2>153 — RBAC Motoru</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>İzin Çözümleme Sırası</h3>
+        <ol style="padding-left:18px;color:var(--text-muted);font-size:13.5px;line-height:1.9">
+          <li><code>isSuperAdmin:true</code> → her şeye otomatik erişim, cache'e "*" yazılır</li>
+          <li>Geçici izinler (<code>TemporaryPermission</code>) kontrol edilir — validUntil &gt; now</li>
+          <li>Kullanıcının rolleri taranır</li>
+          <li>Rol hiyerarşisinde üst roller de dahil edilir (recursive parentId traversal)</li>
+          <li><code>granted:false</code> explicit deny her zaman önceliklidir</li>
+          <li>Sonuç 5 dakika in-memory cache'lenir (kullanıcı bazlı Map)</li>
+          <li>Rol/izin değişikliğinde <code>invalidatePermissionCache(adminId)</code> ile anlık temizleme</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Public API</h3>
+        <pre><span class="kw">await</span> <span class="fn">can</span>(adminId, <span class="str">'products'</span>, <span class="str">'update'</span>)           <span class="cm">// → boolean</span>
+<span class="kw">await</span> <span class="fn">canAccessField</span>(adminId, <span class="str">'products'</span>, <span class="str">'pricing'</span>) <span class="cm">// → boolean</span>
+<span class="kw">await</span> <span class="fn">canAll</span>(adminId, [{module, action}, ...])       <span class="cm">// hepsi gerekli</span>
+<span class="kw">await</span> <span class="fn">canAny</span>(adminId, [{module, action}, ...])       <span class="cm">// biri yeterli</span>
+<span class="cm">// Server Component Guard:</span>
+<span class="kw">await</span> <span class="fn">requirePermission</span>(<span class="str">'orders'</span>, <span class="str">'view'</span>)           <span class="cm">// → redirect /admin/forbidden</span></pre>
+      </div>
+      <div class="card">
+        <h3>Alan Bazlı Filtreleme</h3>
+        <p><code>lib/rbac/field-guard.ts</code> — <code>filterFields(adminId, data, "products")</code> çağrıldığında kullanıcının göremeyeceği alanları (örn. <code>price</code>, <code>discountedPrice</code>) response objesinden siler. Muhasebeci olmayan editörler fiyat alanını göremez.</p>
+      </div>
+    </section>
+
+    <!-- STEP 154 -->
+    <section class="section" id="step154">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">🛡️</div>
+        <div>
+          <h2>154 — Middleware Güncelleme</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <p>Eski middleware NextAuth <code>auth()</code> session ile <code>/admin/*</code> koruyordu. Yeni middleware admin JWT'yi (<code>admin_access_token</code> cookie) doğrular. <code>PUBLIC_ADMIN_PATHS</code> listesindeki sayfalar (/admin/auth/*) token gerektirmeden geçer. Middleware her response'a <code>x-admin-pathname</code> header'ı ekler — layout auth sayfalarını tespit edip sidebar'ı gizler.</p>
+      </div>
+      <div class="card">
+        <h3>İki Sistem Birlikte</h3>
+        <p>Müşteri (<code>/hesabim/*</code>) → NextAuth session kontrolü.<br>Admin (<code>/admin/*</code>) → Admin JWT kontrolü.<br>İki path tamamen ayrı dalda işleniyor, token paylaşımı yok.</p>
+      </div>
+    </section>
+
+    <!-- STEP 155 -->
+    <section class="section" id="step155">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🔐</div>
+        <div>
+          <h2>155 — Auth API Route'ları</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Oluşturulan Endpoint'ler</h3>
+        <div class="file-tree">
+          <span class="file new">POST /api/admin/auth/login</span> — şifre + 2FA + IP + saat kısıtı + kilitleme<br>
+          <span class="file new">POST /api/admin/auth/logout</span> — session sil + cookie temizle<br>
+          <span class="file new">POST /api/admin/auth/refresh</span> — refresh token → yeni access token<br>
+          <span class="file new">GET  /api/admin/auth/me</span> — mevcut admin + izin seti<br>
+          <span class="file new">POST /api/admin/auth/forgot-password</span> — token üret + mail (kullanıcı enumeration yok)<br>
+          <span class="file new">POST /api/admin/auth/reset-password</span> — token doğrula + yeni şifre + reuse kontrolü<br>
+          <span class="file new">POST /api/admin/auth/change-password</span> — mevcut şifre doğrulama + politika kontrolü<br>
+          <span class="file new">POST /api/admin/auth/2fa/setup</span> — TOTP secret üret + QR kod<br>
+          <span class="file new">POST /api/admin/auth/2fa/verify</span> — kodu doğrula + aktifleştir + backup codes<br>
+          <span class="file new">POST /api/admin/auth/2fa/disable</span> — şifre onayı ile 2FA kapat<br>
+          <span class="file new">POST /api/admin/auth/2fa/backup-codes</span> — yeni backup code seti üret<br>
+          <span class="file new">GET|POST /api/admin/auth/accept-invite</span> — davet token doğrula + şifre belirle
+        </div>
+      </div>
+      <div class="card">
+        <h3>Başarısız Giriş Kilitleme</h3>
+        <p>Her başarısız girişte <code>failedLoginCount++</code>. <code>maxFailedAttempts</code> (default: 5) aşılınca status=LOCKED, <code>lockedUntil = now + lockoutDuration dakika</code>. Kilit süresi geçtikten sonra sonraki başarılı girişte otomatik açılır. Cron job (<code>account-unlock</code>) dakikalık çalışarak süresi geçen kilitleri kaldırır.</p>
+      </div>
+    </section>
+
+    <!-- STEP 156 -->
+    <section class="section" id="step156">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">👥</div>
+        <div>
+          <h2>156 — Kullanıcı Yönetimi API</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Endpoint'ler</h3>
+        <div class="file-tree">
+          <span class="file new">GET  /api/admin/users</span> — filtre: rol, durum, departman, arama, sayfalama<br>
+          <span class="file new">POST /api/admin/users</span> — davet oluştur (48sa token) + mail + süper admin bildirimi<br>
+          <span class="file new">GET|PUT|DELETE /api/admin/users/[id]</span> — detay / güncelle / soft delete<br>
+          <span class="file new">POST /api/admin/users/[id]/suspend|activate|unlock</span><br>
+          <span class="file new">POST /api/admin/users/[id]/force-logout</span> — tüm oturumları kapat<br>
+          <span class="file new">POST /api/admin/users/[id]/reset-password</span> — admin şifre sıfırlama maili<br>
+          <span class="file new">PUT  /api/admin/users/[id]/roles</span> — rol ata/kaldır + cache invalidation + mail<br>
+          <span class="file new">GET  /api/admin/users/[id]/sessions</span> — aktif oturumlar<br>
+          <span class="file new">POST /api/admin/users/[id]/temp-permission</span> — geçici izin + mail<br>
+          <span class="file new">PUT  /api/admin/users/[id]/allowed-ips</span> — CIDR IP kısıtlaması<br>
+          <span class="file new">POST /api/admin/users/import</span> — CSV toplu import (hatalı satır raporu)
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 157 -->
+    <section class="section" id="step157">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🎭</div>
+        <div>
+          <h2>157 — Rol &amp; İzin API</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Endpoint'ler</h3>
+        <div class="file-tree">
+          <span class="file new">GET|POST /api/admin/roles</span> — liste / yeni rol<br>
+          <span class="file new">GET|PUT|DELETE /api/admin/roles/[id]</span> — sistem rolleri silinemez<br>
+          <span class="file new">GET|PUT /api/admin/roles/[id]/permissions</span> — rol izin seti<br>
+          <span class="file new">POST /api/admin/roles/[id]/duplicate</span> — rol klonlama<br>
+          <span class="file new">GET /api/admin/permissions</span> — tüm izinler (modül bazlı gruplu)<br>
+          <span class="file new">GET|PUT /api/admin/permissions/matrix</span> — toplu güncelleme
+        </div>
+      </div>
+      <div class="card">
+        <h3>Sistem Rolleri (Seed)</h3>
+        <table>
+          <thead><tr><th>Rol</th><th>Slug</th><th>Renk</th><th>isSystem</th></tr></thead>
+          <tbody>
+            <tr><td>Süper Admin</td><td><code>super_admin</code></td><td style="color:#ef4444">■ #ef4444</td><td>✅</td></tr>
+            <tr><td>Admin</td><td><code>admin</code></td><td style="color:#f97316">■ #f97316</td><td>✅</td></tr>
+            <tr><td>Editör</td><td><code>editor</code></td><td style="color:#3b82f6">■ #3b82f6</td><td>✅</td></tr>
+            <tr><td>Muhasebe</td><td><code>accounting</code></td><td style="color:#22c55e">■ #22c55e</td><td>✅</td></tr>
+            <tr><td>Kargo Görevlisi</td><td><code>shipping</code></td><td style="color:#a855f7">■ #a855f7</td><td>✅</td></tr>
+            <tr><td>Müşteri Hizmetleri</td><td><code>support</code></td><td style="color:#06b6d4">■ #06b6d4</td><td>✅</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- STEP 158 -->
+    <section class="section" id="step158">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">📋</div>
+        <div>
+          <h2>158 — Audit Log &amp; Güvenlik API</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Audit Logger</h3>
+        <p><code>lib/audit/logger.ts</code> — <code>logAction()</code> fonksiyonu her CRUD işlemini kaydeder. Risk skoru hesaplama: gece yarısı işlem (+20), toplu silme (+30), hassas alan değişikliği (+25), şüpheli IP (+20). Maksimum 100.</p>
+      </div>
+      <div class="card">
+        <h3>Canlı Log Akışı (SSE)</h3>
+        <p><code>GET /api/admin/audit-log/live</code> — Server-Sent Events ile yeni loglar anlık aktarılır. Bağlantı 60 saniye idle sonra kapanır. Sadece Süper Admin erişebilir.</p>
+      </div>
+      <div class="card">
+        <h3>Güvenlik Endpoint'leri</h3>
+        <div class="file-tree">
+          <span class="file new">GET|PUT /api/admin/security/policy</span> — şifre politikası<br>
+          <span class="file new">GET /api/admin/security/active-sessions</span> — tüm aktif oturumlar<br>
+          <span class="file new">POST /api/admin/security/force-logout-all</span> — tüm admin oturumlarını kapat
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 159 -->
+    <section class="section" id="step159">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.15)">📨</div>
+        <div>
+          <h2>159 — 2FA &amp; Davet Sistemi</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>2FA (TOTP)</h3>
+        <p>speakeasy ile Google Authenticator / Authy uyumlu TOTP. Setup akışı: QR kod üret → kullanıcı doğrula → secret AES-256 şifreli sakla → 8 adet tek kullanımlık backup code (hash'li). Backup code kullanılınca listeden çıkarılır.</p>
+      </div>
+      <div class="card">
+        <h3>Davet Sistemi</h3>
+        <p>Davet akışı: email + rol + departman alınır → <code>status=INVITED</code>, <code>inviteToken=randomUUID()</code>, <code>inviteTokenExpiry=48sa</code> → davet maili → kullanıcı linke tıklar → şifre belirleme → <code>status=ACTIVE</code>, token null. CSV import: name,email,role_slug,department kolonları, her satır için ayrı mail, hatalı satırlar rapor olarak döner.</p>
+      </div>
+      <div class="card">
+        <h3>Mail Servisi (<code>lib/mail/admin-mail.service.ts</code>)</h3>
+        <p>Resend ile 10 admin mail şablonu: davet, şifre sıfırlama, hesap kilitleme, şüpheli giriş, şifre değişikliği, rol değişikliği, geçici izin verildi/süresi doldu, şifre uyarısı, yeni admin bildirimi, yüksek risk uyarısı.</p>
+      </div>
+    </section>
+
+    <!-- STEP 160 -->
+    <section class="section" id="step160">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">⏰</div>
+        <div>
+          <h2>160 — Cron Job'lar (5 Adet)</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Endpoint'ler</h3>
+        <table>
+          <thead><tr><th>Route</th><th>Sıklık</th><th>İşlem</th></tr></thead>
+          <tbody>
+            <tr><td><code>temp-permission-expiry</code></td><td>Saatlik</td><td>Süresi dolan geçici izinleri kapat + mail</td></tr>
+            <tr><td><code>password-expiry-check</code></td><td>Günlük</td><td>7 gün içinde dolacak şifrelere uyarı maili</td></tr>
+            <tr><td><code>session-cleanup</code></td><td>Günlük</td><td>Süresi dolmuş oturumları sil</td></tr>
+            <tr><td><code>account-unlock</code></td><td>Dakikalık</td><td>lockedUntil geçmiş hesapları ACTIVE yap</td></tr>
+            <tr><td><code>invite-cleanup</code></td><td>Günlük</td><td>48sa'yı geçmiş davet tokenlarını temizle</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px">Tüm cron'lar <code>x-cron-secret</code> header kontrolü ile korunuyor.</p>
+      </div>
+    </section>
+
+    <!-- STEP 161 -->
+    <section class="section" id="step161">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🖥️</div>
+        <div>
+          <h2>161 — Frontend Auth Sayfaları</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Oluşturulan Sayfalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/admin/auth/login/page.tsx</span> — email + şifre + 2FA adımı (tek form)<br>
+          <span class="file new">app/admin/auth/forgot-password/page.tsx</span><br>
+          <span class="file new">app/admin/auth/reset-password/page.tsx</span><br>
+          <span class="file new">app/admin/auth/change-password/page.tsx</span> — mustChangePassword sonrası zorunlu<br>
+          <span class="file new">app/admin/auth/accept-invite/page.tsx</span> — token doğrulama + şifre belirleme<br>
+          <span class="file new">app/admin/auth/2fa/setup/page.tsx</span> — 3 adımlı QR + backup codes wizard<br>
+          <span class="file new">app/admin/forbidden/page.tsx</span> — yetersiz yetki sayfası
+        </div>
+      </div>
+      <div class="card">
+        <h3>Layout Sorunu Çözümü</h3>
+        <p>Auth sayfaları admin sidebar'ının içine düşmemeli. Next.js nested layout'ta parent her zaman çalışır. Çözüm: middleware her response'a <code>x-admin-pathname</code> header'ı ekler, <code>app/admin/layout.tsx</code> bu header'ı okuyarak auth path'i tespiti yapar ve erken return ile sidebar renderını atlar.</p>
+      </div>
+    </section>
+
+    <!-- STEP 162 -->
+    <section class="section" id="step162">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">📊</div>
+        <div>
+          <h2>162 — Admin RBAC Yönetim Sayfaları</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Oluşturulan Sayfalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/admin/users/page.tsx</span> — filtreli, sayfalanmış kullanıcı listesi<br>
+          <span class="file new">app/admin/users/invite/page.tsx</span> — rol seçimli davet formu<br>
+          <span class="file new">app/admin/users/import/page.tsx</span> — sürükle-bırak CSV import<br>
+          <span class="file new">app/admin/users/[id]/page.tsx</span> — kullanıcı detay: oturumlar, geçici izinler, aktivite<br>
+          <span class="file new">app/admin/roles/page.tsx</span> — kart grid rol listesi<br>
+          <span class="file new">app/admin/roles/new/page.tsx</span> — renk seçici + hiyerarşi<br>
+          <span class="file new">app/admin/roles/[id]/page.tsx</span> — rol detay + kullanıcılar + hiyerarşi<br>
+          <span class="file new">app/admin/roles/[id]/permissions/page.tsx</span> — modül bazlı izin editörü<br>
+          <span class="file new">app/admin/permissions/matrix/page.tsx</span> — rol × izin tam matris<br>
+          <span class="file new">app/admin/audit-log/page.tsx</span> — filtreli log listesi + risk renklendirmesi<br>
+          <span class="file new">app/admin/audit-log/risk-alerts/page.tsx</span> — risk skoru ≥50 loglar<br>
+          <span class="file new">app/admin/security/page.tsx</span> — şifre politikası + oturum yönetimi
+        </div>
+      </div>
+      <div class="card">
+        <h3>Admin Layout Güncelleme</h3>
+        <p><code>app/admin/layout.tsx</code> artık NextAuth <code>auth()</code> yerine <code>getAdminSession()</code> kullanıyor. <code>AdminHeader</code>'daki <code>signOut()</code> → <code>fetch("/api/admin/auth/logout")</code> ile değiştirildi.</p>
+      </div>
+    </section>
+
+    <!-- STEP 163 -->
+    <section class="section" id="step163">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🧩</div>
+        <div>
+          <h2>163 — UI Bileşenleri (<code>components/admin/rbac/</code>)</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · feat</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Oluşturulan Bileşenler</h3>
+        <div class="file-tree">
+          <span class="file new">UserStatusBadge</span> — ACTIVE/INACTIVE/SUSPENDED/LOCKED/INVITED renk kodlu badge<br>
+          <span class="file new">RoleBadge</span> — DB'deki hex renk ile inline stil<br>
+          <span class="file new">RiskScoreBadge</span> — 0→Düşük, 25→Orta, 50→Yüksek, 80→Kritik<br>
+          <span class="file new">PermissionGate</span> — client-side /api/admin/auth/me ile izin kontrolü<br>
+          <span class="file new">InviteUserForm</span> — çoklu rol seçimi + anlık submit<br>
+          <span class="file new">BulkUserImport</span> — drag-drop CSV + hatalı satır tablosu<br>
+          <span class="file new">UserDetailActions</span> — suspend/activate/unlock/force-logout düğmeleri<br>
+          <span class="file new">PermissionMatrix</span> — checkbox grid, toplu satır/kolon toggle, optimistic update, "değişti" işareti<br>
+          <span class="file new">RolePermissionsEditor</span> — modül bazlı gruplu izin toggle<br>
+          <span class="file new">NewRoleForm</span> — slug auto-generate + renk seçici + hiyerarşi<br>
+          <span class="file new">SecuritySettingsForm</span> — şifre politikası + force-logout-all
+        </div>
+      </div>
+      <div class="card">
+        <h3>PermissionMatrix Öne Çıkanlar</h3>
+        <p>Satır başı (+/− tüm roller) ve kolon başı (+/− tüm izinler) toggle butonları. Değişiklikler optimistic olarak uygulanır, sticky banner üzerindeki "Kaydet" düğmesiyle toplu yazılır. Değişen hücreler amber, kaydedilen hücreler yeşil gösterilir.</p>
+      </div>
+    </section>
+
+    <!-- STEP 164 -->
+    <section class="section" id="step164">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🌱</div>
+        <div>
+          <h2>164 — Seed, Migration &amp; Paket Güncellemeleri</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026 · chore</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Yeni Paketler</h3>
+        <table>
+          <thead><tr><th>Paket</th><th>Versiyon</th><th>Amaç</th></tr></thead>
+          <tbody>
+            <tr><td><code>speakeasy</code></td><td>2.0.0</td><td>TOTP 2FA (otplib v13 uyumsuz)</td></tr>
+            <tr><td><code>@types/speakeasy</code></td><td>2.0.10</td><td>TypeScript tipler</td></tr>
+            <tr><td><code>qrcode</code></td><td>1.5.4</td><td>2FA QR kod üretme</td></tr>
+            <tr><td><code>@types/qrcode</code></td><td>1.5.6</td><td>TypeScript tipler</td></tr>
+            <tr><td><code>ip-range-check</code></td><td>0.2.0</td><td>CIDR IP kısıtlaması</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Migration Zorluğu: Supabase pgbouncer</h3>
+        <p><code>prisma migrate dev</code> ve <code>prisma db push</code> komutları Supabase'in transaction mode pgbouncer'ı (port 6543) üzerinden çalışmadı — DDL işlemleri için transaction desteği gerekiyor. Çözüm: <code>schema.prisma</code>'ya <code>directUrl = env("DIRECT_URL")</code> eklendi, <code>DIRECT_URL</code> port 5432 Session Mode URL'si olarak ayarlandı. Push 3.11 saniyede başarıyla tamamlandı.</p>
+      </div>
+      <div class="card">
+        <h3>Seed Sonuçları</h3>
+        <p>✅ 46 izin tanımı · ✅ 6 sistem rolü · ✅ Rol izin matrisi atandı · ✅ Süper Admin kullanıcısı oluşturuldu</p>
+        <pre>Email  : superadmin@binbogabal.com.tr
+Şifre  : Admin123!@#
+URL    : /admin/auth/login</pre>
+      </div>
+      <div class="card">
+        <h3>Doğrulama Sonuçları</h3>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ TypeScript:</span> <code>npx tsc --noEmit</code> → 0 hata
+        </div>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ ESLint:</span> 0 hata / 0 uyarı
+        </div>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ Build:</span> <code>pnpm build</code> başarıyla tamamlandı
+        </div>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ Seed:</span> <code>pnpm db:seed</code> tüm adımlar başarılı
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 1 Haziran 2026 — Adım 150 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 2 Haziran 2026 — Adım 164 · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

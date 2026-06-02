@@ -1,26 +1,69 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { getAdminSession } from "@/lib/admin-auth/session";
 import { prisma } from "@/lib/prisma";
-
-export const dynamic = "force-dynamic";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+export const dynamic = "force-dynamic";
 
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
-    redirect("/hesabim/giris?from=admin");
+const AUTH_PATHS = [
+  "/admin/auth/login",
+  "/admin/auth/forgot-password",
+  "/admin/auth/reset-password",
+  "/admin/auth/accept-invite",
+  "/admin/auth/change-password",
+  "/admin/auth/2fa",
+];
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-admin-pathname") ?? "";
+
+  // Auth sub-pages render without sidebar (middleware already handles redirects)
+  const isAuthPath = AUTH_PATHS.some((p) => pathname.startsWith(p)) || pathname.includes("/admin/auth/");
+
+  if (isAuthPath) {
+    return <>{children}</>;
   }
 
-  const logoSetting = await prisma.siteSetting.findUnique({ where: { key: "img_logo" } });
+  const session = await getAdminSession();
+
+  if (!session) {
+    redirect("/admin/auth/login");
+  }
+
+  const [admin, logoSetting] = await Promise.all([
+    prisma.adminUser.findUnique({
+      where: { id: session.adminId },
+      select: { id: true, name: true, email: true, avatarUrl: true, mustChangePassword: true, status: true },
+    }),
+    prisma.siteSetting.findUnique({ where: { key: "img_logo" } }),
+  ]);
+
+  if (!admin || admin.status !== "ACTIVE") {
+    redirect("/admin/auth/login");
+  }
+
+  if (admin.mustChangePassword) {
+    redirect("/admin/auth/change-password");
+  }
+
   const logoUrl = logoSetting?.value ?? null;
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <AdminSidebar role={session.user.role ?? "EDITOR"} logoUrl={logoUrl} />
+      <AdminSidebar role={session.isSuperAdmin ? "SUPERADMIN" : session.roles[0] ?? "EDITOR"} logoUrl={logoUrl} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AdminHeader user={session.user} />
+        <AdminHeader
+          user={{
+            id: admin.id,
+            name: admin.name ?? "Admin",
+            email: admin.email,
+            image: admin.avatarUrl ?? null,
+            role: session.isSuperAdmin ? "SUPERADMIN" : session.roles[0] ?? "EDITOR",
+          }}
+        />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>

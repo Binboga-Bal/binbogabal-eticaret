@@ -1,33 +1,64 @@
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { verifyAccessToken } from "@/lib/admin-auth/jwt";
+import { ADMIN_ACCESS_COOKIE } from "@/lib/admin-auth/session";
 
-export default auth((req) => {
+const PUBLIC_ADMIN_PATHS = [
+  "/admin/auth/login",
+  "/admin/auth/forgot-password",
+  "/admin/auth/reset-password",
+  "/admin/auth/accept-invite",
+];
+
+const PUBLIC_CUSTOMER_PATHS = [
+  "/hesabim/giris",
+  "/hesabim/kayit",
+  "/hesabim/sifremi-unuttum",
+  "/hesabim/sifre-sifirla",
+];
+
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isAdminPath = pathname.startsWith("/admin");
-  const PUBLIC_HESABIM = ["/hesabim/giris", "/hesabim/kayit", "/hesabim/sifremi-unuttum", "/hesabim/sifre-sifirla"];
-  const isCustomerPath = pathname.startsWith("/hesabim") && !PUBLIC_HESABIM.some((p) => pathname.startsWith(p));
-  const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role;
 
-  if (isAdminPath) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(
-        new URL(`/hesabim/giris?from=${encodeURIComponent(pathname)}`, req.url)
-      );
+  // ─── Admin routes ─────────────────────────────────────────────────
+  if (pathname.startsWith("/admin")) {
+    // Allow public admin paths — pass pathname via header for layout detection
+    if (PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p))) {
+      const res = NextResponse.next();
+      res.headers.set("x-admin-pathname", pathname);
+      return res;
     }
-    if (!["ADMIN", "SUPERADMIN", "EDITOR"].includes(userRole ?? "")) {
-      return NextResponse.redirect(new URL("/", req.url));
+
+    const token = req.cookies.get(ADMIN_ACCESS_COOKIE)?.value;
+
+    if (!token) {
+      return NextResponse.redirect(new URL(`/admin/auth/login?from=${encodeURIComponent(pathname)}`, req.url));
     }
+
+    const payload = await verifyAccessToken(token);
+    if (!payload) {
+      const res = NextResponse.redirect(new URL("/admin/auth/login", req.url));
+      res.cookies.set(ADMIN_ACCESS_COOKIE, "", { maxAge: 0, path: "/" });
+      return res;
+    }
+
+    const res = NextResponse.next();
+    res.headers.set("x-admin-pathname", pathname);
+    return res;
   }
 
-  if (isCustomerPath && !isLoggedIn) {
-    return NextResponse.redirect(
-      new URL(`/hesabim/giris?redirect=${encodeURIComponent(pathname)}`, req.url)
-    );
+  // ─── Customer routes ───────────────────────────────────────────────
+  const isCustomerPath = pathname.startsWith("/hesabim") && !PUBLIC_CUSTOMER_PATHS.some((p) => pathname.startsWith(p));
+
+  if (isCustomerPath) {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.redirect(new URL(`/hesabim/giris?redirect=${encodeURIComponent(pathname)}`, req.url));
+    }
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/admin/:path*", "/hesabim/:path*"],

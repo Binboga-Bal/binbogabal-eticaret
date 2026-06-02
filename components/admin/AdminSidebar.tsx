@@ -18,6 +18,9 @@ import {
   Layers,
   Image,
   Star,
+  Shield,
+  ScrollText,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -90,6 +93,43 @@ const navItems: NavItem[] = [
     icon: <Settings size={18} />,
     roles: ["ADMIN", "SUPERADMIN"],
   },
+  {
+    href: "/admin/users",
+    label: "Admin Kullanıcılar",
+    icon: <UserCog size={18} />,
+    roles: ["SUPERADMIN"],
+    children: [
+      { href: "/admin/users", label: "Kullanıcı Listesi" },
+      { href: "/admin/users/invite", label: "Davet Et" },
+      { href: "/admin/users/import", label: "CSV Import" },
+    ],
+  },
+  {
+    href: "/admin/roles",
+    label: "Rol Yönetimi",
+    icon: <Shield size={18} />,
+    roles: ["SUPERADMIN"],
+    children: [
+      { href: "/admin/roles", label: "Roller" },
+      { href: "/admin/permissions/matrix", label: "İzin Matrisi" },
+    ],
+  },
+  {
+    href: "/admin/audit-log",
+    label: "Audit Log",
+    icon: <ScrollText size={18} />,
+    roles: ["ADMIN", "SUPERADMIN"],
+    children: [
+      { href: "/admin/audit-log", label: "Tüm Loglar" },
+      { href: "/admin/audit-log/risk-alerts", label: "Risk Uyarıları" },
+    ],
+  },
+  {
+    href: "/admin/security",
+    label: "Güvenlik",
+    icon: <Shield size={18} />,
+    roles: ["SUPERADMIN"],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -101,9 +141,18 @@ export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  const visibleItems = navItems.filter(
-    (item) => !item.roles || item.roles.includes(role),
-  );
+  // role can be a slug ("super_admin") or legacy ("SUPERADMIN") — normalize
+  const normalizedRole = role?.toLowerCase().replace(/-/g, "_");
+  const isSuperAdmin = normalizedRole === "super_admin" || normalizedRole === "superadmin";
+  const isAdmin = isSuperAdmin || normalizedRole === "admin";
+
+  const visibleItems = navItems.filter((item) => {
+    if (!item.roles) return true;
+    if (item.roles.includes("SUPERADMIN") && isSuperAdmin) return true;
+    if (item.roles.includes("ADMIN") && isAdmin) return true;
+    if (item.roles.includes(role)) return true;
+    return false;
+  });
 
   return (
     <aside className="w-60 bg-white border-r border-gray-200 flex flex-col">

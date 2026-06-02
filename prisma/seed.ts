@@ -1,10 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedAdminRoles } from "./seeds/admin-roles";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Seed başlıyor...");
+
+  await seedAdminRoles();
 
   // Admin kullanıcı
   const hashedPassword = await bcrypt.hash("admin123456", 12);
