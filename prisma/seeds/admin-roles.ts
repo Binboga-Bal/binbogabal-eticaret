@@ -74,6 +74,9 @@ const ALL_PERMISSIONS = [
   // ERP
   { module: "erp", action: "view", description: "ERP sync görüntüle" },
   { module: "erp", action: "sync", description: "ERP sync başlat" },
+  // Görsel / Medya yönetimi
+  { module: "media", action: "view", description: "Banner ve görsel yönetimi görüntüle" },
+  { module: "media", action: "update", description: "Banner ve görsel yönetimi güncelle" },
 ];
 
 // role_slug -> [{ module, action, scope?, granted }]
@@ -109,6 +112,8 @@ const ROLE_PERMISSIONS: Record<string, { module: string; action: string; scope?:
     { module: "volume_discounts", action: "update", granted: true },
     { module: "erp", action: "view", granted: true },
     { module: "erp", action: "sync", granted: true },
+    { module: "media", action: "view", granted: true },
+    { module: "media", action: "update", granted: true },
   ],
   editor: [
     { module: "dashboard", action: "view", granted: true },

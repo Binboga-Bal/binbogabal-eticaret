@@ -30,32 +30,21 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   children?: { href: string; label: string }[];
-  roles?: string[];
+  /** module:action — kullanıcı bu izne sahip değilse item gizlenir. Belirtilmezse herkes görür. */
+  permission?: string;
 }
 
 const navItems: NavItem[] = [
-  { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
-  { href: "/admin/urunler", label: "Ürünler", icon: <Package size={18} /> },
-  {
-    href: "/admin/kategoriler",
-    label: "Kategoriler",
-    icon: <Layers size={18} />,
-  },
-  {
-    href: "/admin/siparisler",
-    label: "Siparişler",
-    icon: <ShoppingBag size={18} />,
-  },
-  {
-    href: "/admin/musteriler",
-    label: "Müşteriler",
-    icon: <Users size={18} />,
-    roles: ["ADMIN", "SUPERADMIN"],
-  },
+  { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={18} />, permission: "dashboard:view" },
+  { href: "/admin/urunler", label: "Ürünler", icon: <Package size={18} />, permission: "products:view" },
+  { href: "/admin/kategoriler", label: "Kategoriler", icon: <Layers size={18} />, permission: "categories:view" },
+  { href: "/admin/siparisler", label: "Siparişler", icon: <ShoppingBag size={18} />, permission: "orders:view" },
+  { href: "/admin/musteriler", label: "Müşteriler", icon: <Users size={18} />, permission: "customers:view" },
   {
     href: "/admin/kampanyalar",
     label: "Kampanyalar",
     icon: <Percent size={18} />,
+    permission: "campaigns:view",
     children: [
       { href: "/admin/kampanyalar", label: "Tüm Kampanyalar" },
       { href: "/admin/kampanyalar/new", label: "Yeni Kampanya" },
@@ -65,39 +54,25 @@ const navItems: NavItem[] = [
       { href: "/admin/hacim-indirimleri", label: "Hacim İndirimleri" },
     ],
   },
-  { href: "/admin/yorumlar", label: "Yorumlar", icon: <Star size={18} /> },
+  { href: "/admin/yorumlar", label: "Yorumlar", icon: <Star size={18} />, permission: "content:view" },
   {
     href: "/admin/icerik",
     label: "İçerik",
     icon: <FileText size={18} />,
+    permission: "content:view",
     children: [
       { href: "/admin/icerik/blog", label: "Blog Yazıları" },
       { href: "/admin/icerik/faq", label: "SSS" },
     ],
   },
-  {
-    href: "/admin/bannerlar",
-    label: "Görsel Yönetimi",
-    icon: <Image size={18} />,
-    roles: ["ADMIN", "SUPERADMIN"],
-  },
-  {
-    href: "/admin/erp-sync",
-    label: "ERP Senkron.",
-    icon: <RefreshCw size={18} />,
-    roles: ["ADMIN", "SUPERADMIN"],
-  },
-  {
-    href: "/admin/ayarlar",
-    label: "Ayarlar",
-    icon: <Settings size={18} />,
-    roles: ["ADMIN", "SUPERADMIN"],
-  },
+  { href: "/admin/bannerlar", label: "Görsel Yönetimi", icon: <Image size={18} />, permission: "media:view" },
+  { href: "/admin/erp-sync", label: "ERP Senkron.", icon: <RefreshCw size={18} />, permission: "erp:view" },
+  { href: "/admin/ayarlar", label: "Ayarlar", icon: <Settings size={18} />, permission: "settings:view" },
   {
     href: "/admin/users",
     label: "Admin Kullanıcılar",
     icon: <UserCog size={18} />,
-    roles: ["SUPERADMIN"],
+    permission: "admin_users:view",
     children: [
       { href: "/admin/users", label: "Kullanıcı Listesi" },
       { href: "/admin/users/invite", label: "Davet Et" },
@@ -108,7 +83,7 @@ const navItems: NavItem[] = [
     href: "/admin/roles",
     label: "Rol Yönetimi",
     icon: <Shield size={18} />,
-    roles: ["SUPERADMIN"],
+    permission: "roles:view",
     children: [
       { href: "/admin/roles", label: "Roller" },
       { href: "/admin/permissions/matrix", label: "İzin Matrisi" },
@@ -118,40 +93,35 @@ const navItems: NavItem[] = [
     href: "/admin/audit-log",
     label: "Audit Log",
     icon: <ScrollText size={18} />,
-    roles: ["ADMIN", "SUPERADMIN"],
+    permission: "audit_log:view",
     children: [
       { href: "/admin/audit-log", label: "Tüm Loglar" },
       { href: "/admin/audit-log/risk-alerts", label: "Risk Uyarıları" },
     ],
   },
-  {
-    href: "/admin/security",
-    label: "Güvenlik",
-    icon: <Shield size={18} />,
-    roles: ["SUPERADMIN"],
-  },
+  { href: "/admin/security", label: "Güvenlik", icon: <Shield size={18} />, permission: "roles:view" },
 ];
 
 interface AdminSidebarProps {
-  role: string;
+  isSuperAdmin: boolean;
+  grants: Set<string>;
   logoUrl?: string | null;
 }
 
-export function AdminSidebar({ role, logoUrl }: AdminSidebarProps) {
+function hasPermission(isSuperAdmin: boolean, grants: Set<string>, permission: string): boolean {
+  if (isSuperAdmin) return true;
+  const [module, action] = permission.split(":");
+  // grants içinde "module:action:" veya "module:action" formatı olabilir
+  return grants.has(`${module}:${action}:`) || grants.has(`${module}:${action}`);
+}
+
+export function AdminSidebar({ isSuperAdmin, grants, logoUrl }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  // role can be a slug ("super_admin") or legacy ("SUPERADMIN") — normalize
-  const normalizedRole = role?.toLowerCase().replace(/-/g, "_");
-  const isSuperAdmin = normalizedRole === "super_admin" || normalizedRole === "superadmin";
-  const isAdmin = isSuperAdmin || normalizedRole === "admin";
-
   const visibleItems = navItems.filter((item) => {
-    if (!item.roles) return true;
-    if (item.roles.includes("SUPERADMIN") && isSuperAdmin) return true;
-    if (item.roles.includes("ADMIN") && isAdmin) return true;
-    if (item.roles.includes(role)) return true;
-    return false;
+    if (!item.permission) return true;
+    return hasPermission(isSuperAdmin, grants, item.permission);
   });
 
   return (

@@ -24,7 +24,7 @@ const ALL_KEYS = [
 ];
 
 export default async function AdminBannersPage() {
-  await requirePermission("settings", "view");
+  await requirePermission("media", "view");
   const dbSettings = await prisma.siteSetting.findMany({ where: { key: { in: ALL_KEYS } } });
   const db = Object.fromEntries(dbSettings.map((s) => [s.key, s.value]));
 

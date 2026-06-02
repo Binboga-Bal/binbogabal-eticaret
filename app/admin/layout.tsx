@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { prisma } from "@/lib/prisma";
+import { resolvePermissions } from "@/lib/rbac/role-resolver";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
@@ -33,12 +34,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/admin/auth/login");
   }
 
-  const [admin, logoSetting] = await Promise.all([
+  const [admin, logoSetting, resolved] = await Promise.all([
     prisma.adminUser.findUnique({
       where: { id: session.adminId },
       select: { id: true, name: true, email: true, avatarUrl: true, mustChangePassword: true, status: true },
     }),
     prisma.siteSetting.findUnique({ where: { key: "img_logo" } }),
+    resolvePermissions(session.adminId),
   ]);
 
   if (!admin || admin.status !== "ACTIVE") {
@@ -53,7 +55,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <AdminSidebar role={session.isSuperAdmin ? "SUPERADMIN" : session.roles[0] ?? "EDITOR"} logoUrl={logoUrl} />
+      <AdminSidebar
+        isSuperAdmin={resolved.isSuperAdmin}
+        grants={resolved.grants}
+        logoUrl={logoUrl}
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
         <AdminHeader
           user={{
