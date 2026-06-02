@@ -33,7 +33,7 @@ function AcceptInviteForm() {
     const res = await fetch("/api/admin/auth/accept-invite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password, name }),
+      body: JSON.stringify({ token, password, name: name || undefined }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error); setLoading(false); return; }
