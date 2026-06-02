@@ -594,6 +594,13 @@
       <a href="#step163" class="nav-link"><span class="dot"></span>163 — UI Bileşenleri</a>
       <a href="#step164" class="nav-link"><span class="dot"></span>164 — Seed & Migration</a>
 
+      <div class="nav-section-label">2 Haziran 2026 — Performans</div>
+      <a href="#step165" class="nav-link"><span class="dot"></span>165 — Vercel Bölge (fra1)</a>
+      <a href="#step166" class="nav-link"><span class="dot"></span>166 — Router Cache & ISR</a>
+      <a href="#step167" class="nav-link"><span class="dot"></span>167 — PostgreSQL Index'leri</a>
+      <a href="#step168" class="nav-link"><span class="dot"></span>168 — pg_trgm Arama</a>
+      <a href="#step169" class="nav-link"><span class="dot"></span>169 — Pool & Doküman</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -7227,10 +7234,159 @@ URL    : /admin/auth/login</pre>
       </div>
     </section>
 
+
+    <!-- ═══════════════════════════════ PERFORMANS OPTİMİZASYONU -->
+    <section class="section" id="step165">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.12)">🌍</div>
+        <div>
+          <h2>165 — Vercel Bölge Sabitleme (fra1)</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026, 15:40 · perf</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Problem: Cross-Region Gecikme</h3>
+        <p>Site hem Vercel'de hem localde, özellikle DB sorgusu yapılan sayfalarda çok yavaştı. Kök neden: Supabase veritabanı <code>eu-central-1</code> (Frankfurt) bölgesinde ama <code>vercel.json</code> olmadığı için Vercel fonksiyonları varsayılan ABD bölgesinde (iad1) çalışıyordu. Her DB sorgusu Atlantik'i geçiyordu (sorgu başına ~100ms+ ek gecikme).</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <p>Yeni <code>vercel.json</code> ile fonksiyonlar DB ile aynı bölgeye sabitlendi:</p>
+        <pre>{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"]
+}</pre>
+        <div class="alert alert-fix">
+          <span class="alert-label">⚠️ Not:</span> Bölge değişikliği bir sonraki <strong>deploy</strong>'da devreye girer.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step166">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">⚡</div>
+        <div>
+          <h2>166 — Router Cache & ISR (Statik Katalog)</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026, 15:40 · perf</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Problem: Hiçbir Katmanda Cache Yok</h3>
+        <p><code>next.config.ts</code>'de <code>staleTimes.dynamic: 0</code> client router cache'ini kapatıyordu; ayrıca <strong>her sayfada</strong> <code>export const dynamic = "force-dynamic"</code> vardı. Sonuç: her sayfa geçişinde tam sunucu turu + sıfırdan DB sorgusu. "Sayfa geçişleri yavaş" şikayetinin ana sebebi buydu.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li><code>next.config.ts</code>: <code>staleTimes</code> → <code>dynamic: 30</code>, <code>static: 300</code> (geri/ileri ve tekrar gezinme client cache'inden anlık).</li>
+          <li>Ana sayfa (<code>app/(shop)/page.tsx</code>): <code>force-dynamic</code> kaldırıldı → <code>revalidate = 300</code> (statik + ISR).</li>
+          <li>Ürün detayı (<code>app/(shop)/urunlerimiz/[slug]/page.tsx</code>): <code>generateStaticParams</code> ile tüm ürünler prerender + <code>revalidate = 600</code> (SSG + ISR).</li>
+          <li>On-demand invalidation: admin ürün CRUD (<code>/api/admin/products</code>) ve ERP senkronu (<code>/api/admin/erp</code>) artık <code>revalidatePath("/")</code>, <code>"/urunlerimiz"</code>, <code>"/urunlerimiz/[slug]"</code> çağırıyor.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Build Doğrulaması</h3>
+        <table>
+          <thead><tr><th>Route</th><th>Önce</th><th>Sonra</th></tr></thead>
+          <tbody>
+            <tr><td><code>/</code></td><td>ƒ Dynamic</td><td>○ Static (revalidate 5m)</td></tr>
+            <tr><td><code>/urunlerimiz/[slug]</code></td><td>ƒ Dynamic</td><td>● SSG (revalidate 10m)</td></tr>
+            <tr><td><code>/urunlerimiz</code></td><td>ƒ Dynamic</td><td>ƒ Dynamic (searchParams — beklenen)</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ Build:</span> 125 statik sayfa üretildi, 0 hata.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step167">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">🗂️</div>
+        <div>
+          <h2>167 — PostgreSQL FK & Filtre Index'leri</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026, 15:40 · perf</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>İçgörü: Postgres FK'lere Otomatik Index Oluşturmaz</h3>
+        <p>MySQL→PostgreSQL (Supabase) göçünde, MySQL/InnoDB'nin foreign key kolonlarına otomatik oluşturduğu index'ler kayboldu. PostgreSQL bunu yapmaz — yani her join, her <code>include</code>, her FK filtresi <strong>sequential scan</strong> yapıyordu. <code>schema.prisma</code>'da yalnızca <code>AuditLog</code> ve <code>CampaignUsage</code>'da açık index vardı.</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm: 40 Index</h3>
+        <p>FK kolonlarına ve sık filtrelenen alanlara <code>@@index</code> eklendi. En kritiği <strong>her ürün sorgusunda</strong> kullanılan <code>product_variants.productId</code>:</p>
+        <pre>// ProductVariant
+@@index([productId])
+
+// Product (storefront filtreleri)
+@@index([isActive, isFeatured])
+@@index([isActive, isBestseller])
+@@index([isActive, createdAt])
+
+// Order
+@@index([userId]) @@index([status])
+@@index([paymentStatus]) @@index([createdAt])
+
+// + OrderItem, PaymentTransaction, Address, Account, Session,
+//   Campaign* (×10), Coupon, RBAC tabloları, Blog ...</pre>
+      </div>
+      <div class="card">
+        <h3>DB'ye Uygulama</h3>
+        <p><code>pnpm db:push</code> ile uygulandı (<code>DIRECT_URL</code>, port 5432 üzerinden) — <strong>5.12 saniye</strong>. Production-güvenli alternatif olarak <code>prisma/sql/perf-indexes.sql</code> dosyası da üretildi (<code>CREATE INDEX CONCURRENTLY IF NOT EXISTS</code> — sıfır kesinti, Prisma isimlendirmesiyle birebir).</p>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ Doğrulama:</span> <code>prisma migrate diff</code> → 0 (DB schema ile tam senkron).
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step168">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.12)">🔎</div>
+        <div>
+          <h2>168 — pg_trgm Trigram Arama Index'i</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026, 15:40 · perf</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Problem: Arama Seq-Scan + Case-Sensitive</h3>
+        <p>Ürün araması <code>contains</code> ile <code>LIKE '%q%'</code> üretiyordu → index kullanamayan tam tarama; ayrıca büyük/küçük harf duyarlıydı ("kestane" ≠ "Kestane").</p>
+      </div>
+      <div class="card">
+        <h3>Çözüm</h3>
+        <ul>
+          <li><code>CREATE EXTENSION IF NOT EXISTS pg_trgm</code> — manuel kuruldu (Prisma'nın <code>extensions</code> preview yönetimine girilmedi, Supabase sürtüşmesini önlemek için).</li>
+          <li><code>Product.name</code> ve <code>shortDescription</code>'a GIN trigram index: <code>@@index([name(ops: raw("gin_trgm_ops"))], type: Gin)</code>.</li>
+          <li>Arama 3 yerde <code>mode: "insensitive"</code> yapıldı (<code>/api/search</code>, <code>urunlerimiz</code> sayfası, admin ürünler).</li>
+        </ul>
+        <div class="alert alert-fix">
+          <span class="alert-label">✅ Sonuç:</span> Arama artık ILIKE ile trigram index'i kullanır; "kestane" ↔ "Kestane" eşleşir. Katalog büyüdükçe etkisi artar.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="step169">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.12)">📦</div>
+        <div>
+          <h2>169 — Connection Pool & Dokümantasyon</h2>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">2 Haziran 2026, 15:40 · chore</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>connection_limit 10 → 5</h3>
+        <p><code>.env</code>'de pooled URL'nin <code>connection_limit</code>'i 5'e indirildi. Neden <code>1</code> değil: ana sayfa/listeleme sayfaları <code>Promise.all</code> ile ~3-4 paralel sorgu atıyor; <code>1</code> olsaydı bunlar tek bağlantıda sıraya girip yavaşlardı. <code>5</code> hem paralelliği korur hem yoğunlukta Supabase pooler'ını tüketme riskini azaltır.</p>
+      </div>
+      <div class="card">
+        <h3>CLAUDE.md Güncellemesi</h3>
+        <p>Doküman gerçeğe çekildi: "MySQL" → <strong>PostgreSQL / Supabase (eu-central-1)</strong>; <code>db:push</code>'un birincil akış olduğu (migrations klasörü yok) not edildi; yeni <strong>"Deployment &amp; Caching"</strong> bölümü (fra1 zorunluluğu, ISR/revalidate mantığı, FK index notu).</p>
+        <div class="alert alert-fix">
+          <span class="alert-label">🔒 Güvenlik:</span> <code>.env</code> git'te takip edilmiyor ve <code>.gitignore</code>'da — canlı sırlar (DB parolası, QNB Pay canlı kimlikleri) sızmamış.
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 2 Haziran 2026 — Adım 164 · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 2 Haziran 2026, 15:40 — Adım 169 (Performans) · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

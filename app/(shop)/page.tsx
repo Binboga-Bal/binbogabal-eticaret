@@ -18,7 +18,9 @@ export const metadata: Metadata = {
     "1973'ten bu yana 745 Sayılı Kozan Bal Tarım Satış Kooperatifi. Doğal, analizi yapılmış kooperatif balı.",
 };
 
-export const dynamic = "force-dynamic";
+// Katalog içeriği statik üretilir ve ISR ile 5 dk'da bir tazelenir.
+// ERP senkronu (app/api/admin/erp) ayrıca on-demand revalidate tetikler.
+export const revalidate = 300;
 
 async function getBestsellers() {
   return prisma.product.findMany({

@@ -1,4 +1,6 @@
-export const dynamic = "force-dynamic";
+// Ürün detayı statik üretilir, ISR ile 10 dk'da bir tazelenir.
+// ERP senkronu /urunlerimiz/[slug] yolunu on-demand revalidate eder.
+export const revalidate = 600;
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -44,6 +46,16 @@ async function getProduct(slug: string) {
       },
     },
   });
+}
+
+// Tüm aktif ürünleri build'de prerender et → Full Route Cache + ISR.
+// Bu olmadan dinamik route her istekte DB sorgusu yapardı.
+export async function generateStaticParams() {
+  const products = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { slug: true },
+  });
+  return products.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({

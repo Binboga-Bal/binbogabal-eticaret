@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
@@ -53,6 +54,10 @@ export async function PUT(req: Request, { params }: Params) {
       },
     });
 
+    revalidatePath("/");
+    revalidatePath("/urunlerimiz");
+    revalidatePath("/urunlerimiz/[slug]", "page");
+
     return NextResponse.json(product);
   } catch (err) {
     return NextResponse.json(
@@ -69,5 +74,10 @@ export async function DELETE(req: Request, { params }: Params) {
 
   const { id } = await params;
   await prisma.product.update({ where: { id }, data: { isActive: false } });
+
+  revalidatePath("/");
+  revalidatePath("/urunlerimiz");
+  revalidatePath("/urunlerimiz/[slug]", "page");
+
   return NextResponse.json({ success: true });
 }

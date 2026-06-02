@@ -15,7 +15,9 @@ export async function POST(req: Request) {
   try {
     if (type === "products") {
       const result = await syncProductsFromErp();
+      revalidatePath("/");
       revalidatePath("/urunlerimiz");
+      revalidatePath("/urunlerimiz/[slug]", "page");
       return NextResponse.json({
         message: `${result.synced} ürün senkronize edildi${result.errors.length > 0 ? `, ${result.errors.length} hata` : ""}`,
       });
@@ -23,7 +25,9 @@ export async function POST(req: Request) {
 
     if (type === "stock") {
       const result = await syncStockFromErp();
+      revalidatePath("/");
       revalidatePath("/urunlerimiz");
+      revalidatePath("/urunlerimiz/[slug]", "page");
       return NextResponse.json({ message: `${result.updated} varyant stoku güncellendi` });
     }
 

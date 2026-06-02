@@ -59,10 +59,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     variants: { some: { isActive: true, stock: { gt: 0 } } },
     ...(params.q && {
       OR: [
-        { name:             { contains: params.q } },
-        { shortDescription: { contains: params.q } },
-        { honeyTypes: { some: { label: { contains: params.q }, isActive: true } } },
-        { categories: { some: { name:  { contains: params.q }, isActive: true } } },
+        { name:             { contains: params.q, mode: "insensitive" } },
+        { shortDescription: { contains: params.q, mode: "insensitive" } },
+        { honeyTypes: { some: { label: { contains: params.q, mode: "insensitive" }, isActive: true } } },
+        { categories: { some: { name:  { contains: params.q, mode: "insensitive" }, isActive: true } } },
       ],
     }),
     ...(params.tur && {

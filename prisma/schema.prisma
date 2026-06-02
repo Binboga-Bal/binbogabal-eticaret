@@ -11,33 +11,34 @@ datasource db {
 // ─── KULLANICILAR ────────────────────────────────────────────────────────────
 
 model User {
-  id                  String    @id @default(cuid())
-  email               String    @unique
-  emailVerified       DateTime?
-  emailVerifyToken    String?   @unique
-  password            String?
-  name                String?
-  phone               String?
-  phoneVerified       Boolean   @default(false)
-  avatarUrl           String?
-  resetToken          String?   @unique
-  resetTokenExpiry    DateTime?
-  role                UserRole  @default(CUSTOMER)
-  isActive            Boolean   @default(true)
-  scheduledDeleteAt   DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  emailVerifyToken  String?   @unique
+  password          String?
+  name              String?
+  phone             String?
+  phoneVerified     Boolean   @default(false)
+  avatarUrl         String?
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
+  role              UserRole  @default(CUSTOMER)
+  isActive          Boolean   @default(true)
+  scheduledDeleteAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  addresses             Address[]
-  orders                Order[]
-  reviews               Review[]
-  sessions              Session[]
-  accounts              Account[]
-  favorites             Favorite[]
-  customerCoupons       CustomerCoupon[]
+  addresses              Address[]
+  orders                 Order[]
+  reviews                Review[]
+  sessions               Session[]
+  accounts               Account[]
+  favorites              Favorite[]
+  customerCoupons        CustomerCoupon[]
   notificationPreference NotificationPreference?
-  consentLogs           ConsentLog[]
+  consentLogs            ConsentLog[]
 
+  @@index([role])
   @@map("users")
 }
 
@@ -58,6 +59,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
   @@map("accounts")
 }
 
@@ -70,6 +72,7 @@ model Session {
   userAgent    String?
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("sessions")
 }
 
@@ -92,7 +95,7 @@ enum UserRole {
 // ─── ADRESLER ────────────────────────────────────────────────────────────────
 
 model Address {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   userId       String
   title        String
   firstName    String
@@ -101,106 +104,115 @@ model Address {
   city         String
   district     String
   neighborhood String?
-  fullAddress  String  @db.Text
+  fullAddress  String   @db.Text
   zipCode      String?
   taxNumber    String?
   taxOffice    String?
-  isDefault    Boolean @default(false)
-  isBilling    Boolean @default(false)
+  isDefault    Boolean  @default(false)
+  isBilling    Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders Order[]
 
+  @@index([userId])
   @@map("addresses")
 }
 
 // ─── KATEGORİLER ─────────────────────────────────────────────────────────────
 
 model Category {
-  id          String     @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String     @unique
-  description String?    @db.Text
+  slug        String   @unique
+  description String?  @db.Text
   image       String?
   parentId    String?
-  order       Int        @default(0)
-  isActive    Boolean    @default(true)
-  showOnHome  Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  showOnHome  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   parent   Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children Category[] @relation("CategoryChildren")
   products Product[]
 
+  @@index([parentId])
   @@map("categories")
 }
 
 // ─── ÜRÜNLER ─────────────────────────────────────────────────────────────────
 
 model Product {
-  id               String    @id @default(cuid())
-  name             String
-  slug             String    @unique
-  shortDescription String?   @db.Text
-  description      String?   @db.Text
-  metaTitle        String?
-  metaDescription  String?
-  images           Json
-  isActive         Boolean   @default(true)
-  isFeatured       Boolean   @default(false)
-  isBestseller     Boolean   @default(false)
-  isNew            Boolean   @default(false)
-  erpProductCode   String?   @unique
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  shortDescription  String?  @db.Text
+  description       String?  @db.Text
+  metaTitle         String?
+  metaDescription   String?
+  images            Json
+  isActive          Boolean  @default(true)
+  isFeatured        Boolean  @default(false)
+  isBestseller      Boolean  @default(false)
+  isNew             Boolean  @default(false)
+  erpProductCode    String?  @unique
   tasteNotes        Json?
   usageSuggestions  Json?
   analysisReportUrl String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  categories       Category[]
-  honeyTypes       HoneyType[]
-  variants         ProductVariant[]
-  reviews          Review[]
-  favorites        Favorite[]
-  volumeDiscounts  VolumeDiscountProduct[]
+  categories      Category[]
+  honeyTypes      HoneyType[]
+  variants        ProductVariant[]
+  reviews         Review[]
+  favorites       Favorite[]
+  volumeDiscounts VolumeDiscountProduct[]
 
+  @@index([isActive, isFeatured])
+  @@index([isActive, isBestseller])
+  @@index([isActive, createdAt])
+  // pg_trgm GIN — name/shortDescription üzerinde `contains` (LIKE/ILIKE '%q%') aramasını hızlandırır
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([shortDescription(ops: raw("gin_trgm_ops"))], type: Gin)
   @@map("products")
 }
 
 model HoneyType {
-  id        String    @id @default(cuid())
-  slug      String    @unique
+  id        String   @id @default(cuid())
+  slug      String   @unique
   label     String
-  order     Int       @default(0)
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  products  Product[]
+  products Product[]
 
   @@map("honey_types")
 }
 
 model ProductVariant {
-  id              String          @id @default(cuid())
-  productId       String
-  size            Int
-  packagingType   PackagingType   @default(GLASS)
-  price           Decimal         @db.Decimal(10, 2)
-  discountedPrice Decimal?        @db.Decimal(10, 2)
-  stock            Int             @default(0)
+  id               String        @id @default(cuid())
+  productId        String
+  size             Int
+  packagingType    PackagingType @default(GLASS)
+  price            Decimal       @db.Decimal(10, 2)
+  discountedPrice  Decimal?      @db.Decimal(10, 2)
+  stock            Int           @default(0)
   maxOrderQuantity Int?
-  sku              String?         @unique
-  erpVariantCode   String?         @unique
-  isActive        Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  sku              String?       @unique
+  erpVariantCode   String?       @unique
+  isActive         Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
+  @@index([productId])
   @@map("product_variants")
 }
 
@@ -212,35 +224,39 @@ enum PackagingType {
 // ─── SİPARİŞLER ──────────────────────────────────────────────────────────────
 
 model Order {
-  id               String        @id @default(cuid())
-  orderNumber      String        @unique
-  userId           String?
-  guestEmail       String?
-  guestPhone       String?
-  addressId        String?
-  shippingAddress  Json
-  status           OrderStatus   @default(PENDING)
-  paymentStatus    PaymentStatus @default(PENDING)
-  subtotal         Decimal       @db.Decimal(10, 2)
-  shippingFee      Decimal       @db.Decimal(10, 2) @default(0)
-  discount         Decimal       @db.Decimal(10, 2) @default(0)
-  total            Decimal       @db.Decimal(10, 2)
-  couponCode       String?
-  cargoTrackingNo  String?
-  cargoCompany     String?
-  notes            String?       @db.Text
-  cancelReason     String?       @db.Text
-  refundReason     String?       @db.Text
-  reviewRequested  Boolean       @default(false)
-  erpOrderCode     String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String?
+  guestEmail      String?
+  guestPhone      String?
+  addressId       String?
+  shippingAddress Json
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  subtotal        Decimal       @db.Decimal(10, 2)
+  shippingFee     Decimal       @default(0) @db.Decimal(10, 2)
+  discount        Decimal       @default(0) @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+  couponCode      String?
+  cargoTrackingNo String?
+  cargoCompany    String?
+  notes           String?       @db.Text
+  cancelReason    String?       @db.Text
+  refundReason    String?       @db.Text
+  reviewRequested Boolean       @default(false)
+  erpOrderCode    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   user         User?                @relation(fields: [userId], references: [id])
   address      Address?             @relation(fields: [addressId], references: [id])
   items        OrderItem[]
   transactions PaymentTransaction[]
 
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
   @@map("orders")
 }
 
@@ -258,6 +274,8 @@ model OrderItem {
   order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   variant ProductVariant @relation(fields: [variantId], references: [id])
 
+  @@index([orderId])
+  @@index([variantId])
   @@map("order_items")
 }
 
@@ -283,20 +301,21 @@ enum PaymentStatus {
 // ─── ÖDEME ───────────────────────────────────────────────────────────────────
 
 model PaymentTransaction {
-  id              String            @id @default(cuid())
-  orderId         String
-  provider        PaymentProvider   @default(QNB_PAY)
-  status          TransactionStatus @default(PENDING)
-  amount          Decimal           @db.Decimal(10, 2)
-  providerRefId   String?
+  id               String            @id @default(cuid())
+  orderId          String
+  provider         PaymentProvider   @default(QNB_PAY)
+  status           TransactionStatus @default(PENDING)
+  amount           Decimal           @db.Decimal(10, 2)
+  providerRefId    String?
   providerResponse Json?
-  errorCode       String?
-  errorMessage    String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  errorCode        String?
+  errorMessage     String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   order Order @relation(fields: [orderId], references: [id])
 
+  @@index([orderId])
   @@map("payment_transactions")
 }
 
@@ -318,29 +337,29 @@ enum TransactionStatus {
 // ─── KAMPANYALAR ─────────────────────────────────────────────────────────────
 
 model Campaign {
-  id                String           @id @default(cuid())
+  id                String         @id @default(cuid())
   name              String
-  slug              String           @unique
-  description       String?          @db.Text
-  internalNote      String?          @db.Text
+  slug              String         @unique
+  description       String?        @db.Text
+  internalNote      String?        @db.Text
   type              CampaignType
-  status            CampaignStatus   @default(DRAFT)
-  priority          Int              @default(0)
-  stackable         Boolean          @default(false)
-  maxDiscountAmount Decimal?         @db.Decimal(10, 2)
-  budgetLimit       Decimal?         @db.Decimal(10, 2)
-  budgetUsed        Decimal          @default(0) @db.Decimal(10, 2)
+  status            CampaignStatus @default(DRAFT)
+  priority          Int            @default(0)
+  stackable         Boolean        @default(false)
+  maxDiscountAmount Decimal?       @db.Decimal(10, 2)
+  budgetLimit       Decimal?       @db.Decimal(10, 2)
+  budgetUsed        Decimal        @default(0) @db.Decimal(10, 2)
   imageUrl          String?
   ogImageUrl        String?
   startsAt          DateTime
   endsAt            DateTime?
-  timezone          String           @default("Europe/Istanbul")
-  requiresApproval  Boolean          @default(false)
+  timezone          String         @default("Europe/Istanbul")
+  requiresApproval  Boolean        @default(false)
   approvedBy        String?
   approvedAt        DateTime?
   createdBy         String
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   conditions    CampaignCondition[]
   actions       CampaignAction[]
@@ -355,6 +374,8 @@ model Campaign {
   auditLogs     CampaignAuditLog[]
   templates     CampaignTemplate[]
 
+  @@index([status])
+  @@index([status, startsAt, endsAt])
   @@map("campaigns")
 }
 
@@ -392,6 +413,7 @@ model CampaignCondition {
   logicGroup Int           @default(0)
   sortOrder  Int           @default(0)
 
+  @@index([campaignId])
   @@map("campaign_conditions")
 }
 
@@ -422,6 +444,7 @@ model CampaignAction {
   value      Json
   sortOrder  Int        @default(0)
 
+  @@index([campaignId])
   @@map("campaign_actions")
 }
 
@@ -443,6 +466,7 @@ model CampaignSegment {
   type       SegmentType
   value      Json
 
+  @@index([campaignId])
   @@map("campaign_segments")
 }
 
@@ -465,6 +489,7 @@ model CampaignTarget {
   targetId   String
   discount   Decimal? @db.Decimal(10, 2)
 
+  @@index([campaignId])
   @@map("campaign_targets")
 }
 
@@ -503,6 +528,7 @@ model CampaignDisplay {
   sortOrder     Int         @default(0)
   isActive      Boolean     @default(true)
 
+  @@index([campaignId])
   @@map("campaign_displays")
 }
 
@@ -515,17 +541,18 @@ enum DisplayType {
 }
 
 model CampaignABTest {
-  id           String   @id @default(cuid())
-  campaignId   String
-  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  variantName  String
-  trafficSplit Int
-  discountValue Decimal @db.Decimal(10, 2)
-  impressions  Int      @default(0)
-  conversions  Int      @default(0)
-  revenue      Decimal  @default(0) @db.Decimal(10, 2)
-  isWinner     Boolean  @default(false)
+  id            String   @id @default(cuid())
+  campaignId    String
+  campaign      Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  variantName   String
+  trafficSplit  Int
+  discountValue Decimal  @db.Decimal(10, 2)
+  impressions   Int      @default(0)
+  conversions   Int      @default(0)
+  revenue       Decimal  @default(0) @db.Decimal(10, 2)
+  isWinner      Boolean  @default(false)
 
+  @@index([campaignId])
   @@map("campaign_ab_tests")
 }
 
@@ -542,6 +569,7 @@ model CampaignNotification {
   targetSegment String?
   status        String           @default("PENDING")
 
+  @@index([campaignId])
   @@map("campaign_notifications")
 }
 
@@ -579,6 +607,7 @@ model CampaignTemplate {
   createdBy   String
   createdAt   DateTime  @default(now())
 
+  @@index([campaignId])
   @@map("campaign_templates")
 }
 
@@ -592,33 +621,35 @@ model CampaignAuditLog {
   ip         String?
   createdAt  DateTime @default(now())
 
+  @@index([campaignId])
   @@map("campaign_audit_logs")
 }
 
 // ─── KUPONLAR ─────────────────────────────────────────────────────────────────
 
 model Coupon {
-  id               String           @id @default(cuid())
+  id               String       @id @default(cuid())
   campaignId       String?
-  campaign         Campaign?        @relation(fields: [campaignId], references: [id])
-  code             String           @unique
+  campaign         Campaign?    @relation(fields: [campaignId], references: [id])
+  code             String       @unique
   description      String?
-  discountType     DiscountType     @default(PERCENTAGE)
-  discountValue    Decimal          @db.Decimal(10, 2)
-  minOrderAmount   Decimal?         @db.Decimal(10, 2)
-  maxDiscount      Decimal?         @db.Decimal(10, 2)
+  discountType     DiscountType @default(PERCENTAGE)
+  discountValue    Decimal      @db.Decimal(10, 2)
+  minOrderAmount   Decimal?     @db.Decimal(10, 2)
+  maxDiscount      Decimal?     @db.Decimal(10, 2)
   maxUses          Int?
-  perCustomerLimit Int?             @default(1)
-  usedCount        Int              @default(0)
-  isActive         Boolean          @default(true)
-  isBulk           Boolean          @default(false)
+  perCustomerLimit Int?         @default(1)
+  usedCount        Int          @default(0)
+  isActive         Boolean      @default(true)
+  isBulk           Boolean      @default(false)
   startsAt         DateTime?
   expiresAt        DateTime?
-  createdAt        DateTime         @default(now())
+  createdAt        DateTime     @default(now())
 
   customerCoupons CustomerCoupon[]
   usages          CampaignUsage[]
 
+  @@index([campaignId])
   @@map("coupons")
 }
 
@@ -640,6 +671,7 @@ model CustomerCoupon {
   coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
 
   @@unique([userId, couponId])
+  @@index([couponId])
   @@map("customer_coupons")
 }
 
@@ -655,6 +687,7 @@ model Favorite {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
+  @@index([productId])
   @@map("favorites")
 }
 
@@ -680,13 +713,14 @@ model NotificationPreference {
 model ConsentLog {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // "kvkk" | "newsletter" | "sms"
+  type      String // "kvkk" | "newsletter" | "sms"
   granted   Boolean
   ip        String?
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("consent_logs")
 }
 
@@ -701,7 +735,7 @@ model Review {
   rating      Int
   title       String?
   comment     String?  @db.Text
-  images      Json?    // string[]
+  images      Json? // string[]
   isApproved  Boolean  @default(false)
   adminReply  String?  @db.Text
   createdAt   DateTime @default(now())
@@ -711,6 +745,7 @@ model Review {
   user    User    @relation(fields: [userId], references: [id])
 
   @@unique([productId, userId])
+  @@index([userId])
   @@map("reviews")
 }
 
@@ -731,6 +766,7 @@ model BlogPost {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  @@index([isPublished, publishedAt])
   @@map("blog_posts")
 }
 
@@ -789,7 +825,7 @@ model VolumeDiscount {
 }
 
 model VolumeDiscountProduct {
-  id               String         @id @default(cuid())
+  id               String @id @default(cuid())
   volumeDiscountId String
   productId        String
 
@@ -797,6 +833,7 @@ model VolumeDiscountProduct {
   product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([volumeDiscountId, productId])
+  @@index([productId])
   @@map("volume_discount_products")
 }
 
@@ -813,15 +850,15 @@ model SiteSetting {
 // ─── ADMIN RBAC MODÜLü ───────────────────────────────────────────────────────
 
 model AdminUser {
-  id                   String    @id @default(cuid())
-  email                String    @unique
-  passwordHash         String
-  name                 String
-  avatarUrl            String?
-  phone                String?
-  department           String?
-  status               AdminStatus @default(INVITED)
-  isSuperAdmin         Boolean   @default(false)
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  phone        String?
+  department   String?
+  status       AdminStatus @default(INVITED)
+  isSuperAdmin Boolean     @default(false)
 
   twoFactorEnabled     Boolean   @default(false)
   twoFactorSecret      String?
@@ -834,18 +871,18 @@ model AdminUser {
   lastLoginIp          String?
   lastLoginCountry     String?
 
-  inviteToken          String?
-  inviteTokenExpiry    DateTime?
-  invitedBy            String?
+  inviteToken       String?
+  inviteTokenExpiry DateTime?
+  invitedBy         String?
 
-  previousPasswords    String[]
+  previousPasswords String[]
 
-  allowedLoginStart    String?
-  allowedLoginEnd      String?
-  allowedDays          Int[]
+  allowedLoginStart String?
+  allowedLoginEnd   String?
+  allowedDays       Int[]
 
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   roles                AdminUserRole[]
   sessions             AdminSession[]
@@ -866,33 +903,34 @@ enum AdminStatus {
 }
 
 model AdminRole {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
+  id          String      @id @default(cuid())
+  name        String      @unique
+  slug        String      @unique
   description String?
   color       String?
-  isSystem    Boolean   @default(false)
+  isSystem    Boolean     @default(false)
   parentId    String?
   parent      AdminRole?  @relation("RoleHierarchy", fields: [parentId], references: [id])
   children    AdminRole[] @relation("RoleHierarchy")
   createdBy   String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   permissions AdminRolePermission[]
   users       AdminUserRole[]
 
+  @@index([parentId])
   @@map("admin_roles")
 }
 
 model Permission {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   module      String
   action      String
-  scope       String   @default("")
+  scope       String  @default("")
   fieldGroup  String?
   description String?
-  isSystem    Boolean  @default(true)
+  isSystem    Boolean @default(true)
 
   rolePermissions AdminRolePermission[]
   tempPermissions TemporaryPermission[]
@@ -912,6 +950,7 @@ model AdminRolePermission {
   assignedAt   DateTime   @default(now())
 
   @@unique([roleId, permissionId])
+  @@index([permissionId])
   @@map("admin_role_permissions")
 }
 
@@ -926,6 +965,7 @@ model AdminUserRole {
   note       String?
 
   @@unique([userId, roleId])
+  @@index([roleId])
   @@map("admin_user_roles")
 }
 
@@ -942,6 +982,7 @@ model TemporaryPermission {
   isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
 
+  @@index([userId])
   @@map("temporary_permissions")
 }
 
@@ -972,6 +1013,7 @@ model AdminSession {
   createdAt    DateTime  @default(now())
   expiresAt    DateTime
 
+  @@index([userId])
   @@map("admin_sessions")
 }
 
@@ -984,6 +1026,7 @@ model AdminAllowedIP {
   createdBy String?
   createdAt DateTime   @default(now())
 
+  @@index([userId])
   @@map("admin_allowed_ips")
 }
 

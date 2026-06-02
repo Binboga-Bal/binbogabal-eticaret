@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") ?? "";
   const products = await prisma.product.findMany({
-    where: q ? { name: { contains: q } } : undefined,
+    where: q ? { name: { contains: q, mode: "insensitive" } } : undefined,
     select: { id: true, name: true, images: true },
     orderBy: { name: "asc" },
     take: 60,
@@ -69,6 +70,10 @@ export async function POST(req: Request) {
           : undefined,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/urunlerimiz");
+    revalidatePath("/urunlerimiz/[slug]", "page");
 
     return NextResponse.json(product, { status: 201 });
   } catch (err) {
