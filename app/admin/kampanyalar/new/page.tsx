@@ -1,8 +1,10 @@
+import { requirePermission } from "@/lib/rbac/guards";
 import { CampaignBuilder } from "@/components/admin/campaign-builder/CampaignBuilder";
 
 export const metadata = { title: "Yeni Kampanya | Admin" };
 
-export default function NewCampaignPage() {
+export default async function NewCampaignPage() {
+  await requirePermission("campaigns", "update");
   return (
     <div className="space-y-5">
       <div>

@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils/format";
 import { ShoppingBag, Users, Package, TrendingUp } from "lucide-react";
@@ -33,6 +34,7 @@ async function getDashboardStats() {
 }
 
 export default async function AdminDashboard() {
+  await requirePermission("dashboard", "view");
   const stats = await getDashboardStats();
 
   const cards = [

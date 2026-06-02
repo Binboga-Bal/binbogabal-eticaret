@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "@/components/admin/SettingsForm";
 
@@ -51,6 +52,7 @@ const BANNER_SETTINGS = [
 ];
 
 export default async function AdminSettingsPage() {
+  await requirePermission("settings", "view");
   const dbSettings = await prisma.siteSetting.findMany();
   const settingsMap = Object.fromEntries(dbSettings.map((s) => [s.key, s.value]));
 

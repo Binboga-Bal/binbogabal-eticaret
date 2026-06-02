@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { CategoryForm } from "@/components/admin/CategoryForm";
 import { CategoryEditRow } from "@/components/admin/CategoryEditRow";
@@ -6,6 +7,7 @@ import { CategoryEditRow } from "@/components/admin/CategoryEditRow";
 export const metadata = { title: "Kategoriler | Admin" };
 
 export default async function AdminCategoriesPage() {
+  await requirePermission("categories", "view");
   const categories = await prisma.category.findMany({
     include: { _count: { select: { products: true } } },
     orderBy: { order: "asc" },

@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils/format";
 import { ErpSyncButtons } from "@/components/admin/ErpSyncButtons";
@@ -6,6 +7,7 @@ import { ErpSyncButtons } from "@/components/admin/ErpSyncButtons";
 export const metadata = { title: "ERP Senkronizasyon | Admin" };
 
 export default async function ErpSyncPage() {
+  await requirePermission("erp", "view");
   const logs = await prisma.erpSyncLog.findMany({
     orderBy: { createdAt: "desc" },
     take: 20,

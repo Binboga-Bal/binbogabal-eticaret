@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { BannerManager } from "@/components/admin/BannerManager";
 import {
@@ -23,6 +24,7 @@ const ALL_KEYS = [
 ];
 
 export default async function AdminBannersPage() {
+  await requirePermission("settings", "view");
   const dbSettings = await prisma.siteSetting.findMany({ where: { key: { in: ALL_KEYS } } });
   const db = Object.fromEntries(dbSettings.map((s) => [s.key, s.value]));
 

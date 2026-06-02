@@ -1,10 +1,12 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { CampaignCalendar } from "@/components/admin/campaign/CampaignCalendar";
 
 export const metadata = { title: "Kampanya Takvimi | Admin" };
 
 export default async function CampaignCalendarPage() {
+  await requirePermission("campaigns", "view");
   const campaigns = await prisma.campaign.findMany({
     where: { status: { in: ["ACTIVE", "APPROVED", "PAUSED", "DRAFT"] } },
     select: {

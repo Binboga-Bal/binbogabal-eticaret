@@ -1,10 +1,12 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { VolumeDiscountManager } from "@/components/admin/VolumeDiscountManager";
 
 export const metadata = { title: "Hacim İndirimleri | Admin" };
 
 export default async function VolumeDiscountsPage() {
+  await requirePermission("volume_discounts", "view");
   const rules = await prisma.volumeDiscount.findMany({
     include: {
       products: {

@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils/format";
 
@@ -11,6 +12,7 @@ interface PageProps {
 const PAGE_SIZE = 25;
 
 export default async function AdminCustomersPage({ searchParams }: PageProps) {
+  await requirePermission("customers", "view");
   const params = await searchParams;
   const page = parseInt(params.sayfa ?? "1");
   const search = params.ara?.trim();

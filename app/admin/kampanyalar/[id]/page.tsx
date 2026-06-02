@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { CampaignBuilder } from "@/components/admin/campaign-builder/CampaignBuilder";
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function CampaignDetailPage({ params }: Props) {
+  await requirePermission("campaigns", "view");
   const { id } = await params;
 
   const campaign = await prisma.campaign.findUnique({

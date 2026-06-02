@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 export const metadata = { title: "Ürün Yönetimi | Admin" };
 
 export default async function AdminProductsPage() {
+  await requirePermission("products", "view");
   const products = await prisma.product.findMany({
     include: {
       categories: { select: { name: true } },

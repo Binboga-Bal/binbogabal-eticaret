@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils/format";
@@ -23,6 +24,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function CampaignsPage() {
+  await requirePermission("campaigns", "view");
   const campaigns = await prisma.campaign.findMany({
     include: { _count: { select: { usages: true, coupons: true } } },
     orderBy: [{ status: "asc" }, { priority: "desc" }, { createdAt: "desc" }],

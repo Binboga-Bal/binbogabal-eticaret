@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -21,6 +22,7 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 export default async function OrderDetailPage({ params }: PageProps) {
+  await requirePermission("orders", "view");
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },

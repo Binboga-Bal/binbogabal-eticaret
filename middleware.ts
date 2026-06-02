@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { verifyAccessToken } from "@/lib/admin-auth/jwt";
-import { ADMIN_ACCESS_COOKIE } from "@/lib/admin-auth/session";
+import { ADMIN_ACCESS_COOKIE, ADMIN_REFRESH_COOKIE } from "@/lib/admin-auth/session";
+import { prisma } from "@/lib/prisma";
+
+export const runtime = "nodejs";
 
 const PUBLIC_ADMIN_PATHS = [
   "/admin/auth/login",
@@ -39,6 +42,19 @@ export async function middleware(req: NextRequest) {
     if (!payload) {
       const res = NextResponse.redirect(new URL("/admin/auth/login", req.url));
       res.cookies.set(ADMIN_ACCESS_COOKIE, "", { maxAge: 0, path: "/" });
+      return res;
+    }
+
+    // Verify session still exists and user is active in DB
+    const dbSession = await prisma.adminSession.findUnique({
+      where: { id: payload.sessionId },
+      select: { expiresAt: true, user: { select: { status: true } } },
+    });
+
+    if (!dbSession || dbSession.expiresAt < new Date() || dbSession.user.status !== "ACTIVE") {
+      const res = NextResponse.redirect(new URL("/admin/auth/login", req.url));
+      res.cookies.set(ADMIN_ACCESS_COOKIE, "", { maxAge: 0, path: "/" });
+      res.cookies.set(ADMIN_REFRESH_COOKIE, "", { maxAge: 0, path: "/" });
       return res;
     }
 

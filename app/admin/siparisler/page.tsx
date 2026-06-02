@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDate } from "@/lib/utils/format";
@@ -37,6 +38,7 @@ const VALID_STATUSES: OrderStatus[] = [
 ];
 
 export default async function AdminOrdersPage({ searchParams }: PageProps) {
+  await requirePermission("orders", "view");
   const params = await searchParams;
   const rawStatus = params.durum;
   const status = VALID_STATUSES.includes(rawStatus as OrderStatus)

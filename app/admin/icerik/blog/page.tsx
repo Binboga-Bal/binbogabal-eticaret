@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils/format";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 export const metadata = { title: "Blog Yönetimi | Admin" };
 
 export default async function AdminBlogPage() {
+  await requirePermission("content", "view");
   const posts = await prisma.blogPost.findMany({ orderBy: { createdAt: "desc" } });
 
   return (

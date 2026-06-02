@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
@@ -13,6 +14,7 @@ interface PageProps {
 export const metadata = { title: "Ürün Düzenle | Admin" };
 
 export default async function ProductEditPage({ params }: PageProps) {
+  await requirePermission("products", "view");
   const { id } = await params;
 
   const isNew = id === "yeni";

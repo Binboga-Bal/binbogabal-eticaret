@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 
 export const metadata = { title: "Kampanya Raporları | Admin" };
 
 export default async function CampaignReportsPage() {
+  await requirePermission("campaigns", "view");
   const [overview, topCampaigns, recentUsages] = await Promise.all([
     prisma.campaignUsage.aggregate({ _sum: { discountAmount: true }, _count: true }),
     prisma.campaign.findMany({

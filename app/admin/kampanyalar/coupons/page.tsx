@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { formatDate, formatPrice } from "@/lib/utils/format";
 import { BulkCouponForm } from "@/components/admin/campaign/BulkCouponForm";
@@ -7,6 +8,7 @@ import Link from "next/link";
 export const metadata = { title: "Kuponlar | Admin" };
 
 export default async function CouponsAdminPage() {
+  await requirePermission("campaigns", "view");
   const coupons = await prisma.coupon.findMany({
     include: { campaign: { select: { name: true } } },
     orderBy: { createdAt: "desc" },

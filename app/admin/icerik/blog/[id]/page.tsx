@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { requirePermission } from "@/lib/rbac/guards";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import BlogPostEditor from "./BlogPostEditor";
@@ -11,6 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePermission("content", "view");
   const { id } = await params;
 
   if (id === "yeni") {

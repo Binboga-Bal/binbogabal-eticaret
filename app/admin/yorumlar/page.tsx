@@ -1,3 +1,4 @@
+import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils/format";
 import { ReviewActions } from "./ReviewActions";
@@ -31,6 +32,7 @@ export default async function YorumlarPage({
 }: {
   searchParams: Promise<{ status?: string; page?: string }>;
 }) {
+  await requirePermission("content", "view");
   const { status = "pending", page: pageStr = "1" } = await searchParams;
   const page = Math.max(1, Number(pageStr));
   const limit = 20;
