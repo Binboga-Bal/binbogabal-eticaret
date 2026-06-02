@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import { sendOrderStatusChangedEmail } from "@/lib/mail/mail.service";
 import type { OrderStatus } from "@prisma/client";
@@ -12,10 +13,9 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "orders", "update")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
   const { status, cargoTrackingNo, cargoCompany } = await req.json();
@@ -34,7 +34,6 @@ export async function PATCH(
     include: { user: { select: { id: true, email: true, name: true } } },
   });
 
-  // Müşteriye bilgilendirme maili gönder
   if (order.user) {
     await sendOrderStatusChangedEmail(
       order.user.id,
@@ -47,7 +46,6 @@ export async function PATCH(
       order.cargoCompany ?? undefined,
     ).catch((err) => console.error("[admin-status] mail hata:", err));
   } else if (order.guestEmail) {
-    // Misafir kullanıcı
     const shippingAddr = order.shippingAddress as Record<string, string>;
     await sendOrderStatusChangedEmail(
       "",

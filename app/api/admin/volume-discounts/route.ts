@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "volume_discounts", "view")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const rules = await prisma.volumeDiscount.findMany({
     include: {
@@ -23,10 +23,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN"].includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "volume_discounts", "create")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { name, isActive, tiers, productIds } = await req.json();
 

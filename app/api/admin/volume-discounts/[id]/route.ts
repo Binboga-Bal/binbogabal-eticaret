@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN"].includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "volume_discounts", "update")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
   const { name, isActive, tiers, productIds } = await req.json();
 
-  // Ürün bağlantılarını yeniden kur
   await prisma.volumeDiscountProduct.deleteMany({ where: { volumeDiscountId: id } });
 
   const rule = await prisma.volumeDiscount.update({
@@ -31,10 +30,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN"].includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "volume_discounts", "delete")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
   await prisma.volumeDiscount.delete({ where: { id } });

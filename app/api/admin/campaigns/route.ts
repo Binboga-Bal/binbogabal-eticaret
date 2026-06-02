@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { listCampaigns, createCampaign } from "@/services/campaign.service";
 import type { CampaignStatus, CampaignType } from "@prisma/client";
 
-function isAdmin(role?: string | null) {
-  return role === "ADMIN" || role === "SUPERADMIN" || role === "EDITOR";
-}
-
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session || !isAdmin(session.user.role)) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "campaigns", "view")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const result = await listCampaigns({
@@ -26,10 +22,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session || !isAdmin(session.user.role)) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "campaigns", "create")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const body = await req.json();
   const ip = req.headers.get("x-forwarded-for") ?? undefined;
@@ -39,23 +34,15 @@ export async function POST(req: Request) {
   const campaign = await createCampaign(
     {
       ...rest,
-      createdBy: session.user.id!,
+      createdBy: session.adminId,
       startsAt: new Date(rest.startsAt),
       endsAt: rest.endsAt ? new Date(rest.endsAt) : undefined,
-      conditions: conditions?.length
-        ? { create: conditions }
-        : undefined,
-      actions: actions?.length
-        ? { create: actions }
-        : undefined,
-      segments: segments?.length
-        ? { create: segments }
-        : undefined,
-      targets: targets?.length
-        ? { create: targets }
-        : undefined,
+      conditions: conditions?.length ? { create: conditions } : undefined,
+      actions: actions?.length ? { create: actions } : undefined,
+      segments: segments?.length ? { create: segments } : undefined,
+      targets: targets?.length ? { create: targets } : undefined,
     },
-    session.user.id!,
+    session.adminId,
     ip,
   );
 

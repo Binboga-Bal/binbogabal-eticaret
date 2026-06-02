@@ -1,20 +1,14 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
 
-async function checkAdmin() {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
-    return null;
-  }
-  return session;
-}
-
 export async function POST(req: Request) {
-  const session = await checkAdmin();
+  const session = await getAdminSession();
   if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "media", "update")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
@@ -29,7 +23,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Sadece JPEG, PNG, WebP ve AVIF yükleyebilirsiniz" }, { status: 400 });
   }
 
-  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_SIZE = 5 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
     return NextResponse.json({ error: "Dosya boyutu 5MB'dan büyük olamaz" }, { status: 400 });
   }

@@ -1,18 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { z } from "zod";
 import { sendReviewReplyEmail } from "@/lib/mail/mail.service";
-
-function forbidden() {
-  return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
-}
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) return null;
-  return session;
-}
 
 const patchSchema = z.object({
   isApproved: z.boolean().optional(),
@@ -23,14 +14,15 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await requireAdmin())) return forbidden();
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "content", "update")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Geçersiz veri" }, { status: 400 });
 
-  // Mevcut yorumu çek — adminReply değişip değişmediğini anlamak için
   const existing = await prisma.review.findUnique({
     where: { id },
     select: {
@@ -46,7 +38,6 @@ export async function PATCH(
     data: parsed.data,
   });
 
-  // adminReply yeni eklendiyse (önceden yoktu veya değişti) kullanıcıya bildir
   const newReply = parsed.data.adminReply;
   if (
     existing &&
@@ -63,9 +54,7 @@ export async function PATCH(
       existing.product?.slug ?? "",
       existing.comment ?? "",
       newReply,
-    ).catch(() => {
-      // mail hatası yanıtı engellemesin
-    });
+    ).catch(() => {});
   }
 
   return NextResponse.json(review);
@@ -75,7 +64,9 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await requireAdmin())) return forbidden();
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "content", "delete")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
   await prisma.review.delete({ where: { id } });

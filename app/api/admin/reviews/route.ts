@@ -1,22 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-
-function forbidden() {
-  return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
-}
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) return null;
-  return session;
-}
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 
 export async function GET(req: Request) {
-  if (!(await requireAdmin())) return forbidden();
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "content", "view")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status"); // "pending" | "approved" | "all"
+  const status = searchParams.get("status");
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const limit = 20;
 

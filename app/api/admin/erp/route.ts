@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { syncProductsFromErp, syncStockFromErp } from "@/lib/dia-erp/sync";
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN"].includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "erp", "sync")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const url = new URL(req.url);
   const type = url.searchParams.get("type");

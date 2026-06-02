@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAdminSession } from "@/lib/admin-auth/session";
+import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { createSlug } from "@/lib/utils/slug";
@@ -15,17 +16,10 @@ const schema = z.object({
   metaDescription: z.string().optional(),
 });
 
-async function checkAdmin() {
-  const session = await auth();
-  if (!session || !["ADMIN", "SUPERADMIN", "EDITOR"].includes(session.user.role ?? "")) {
-    return null;
-  }
-  return session;
-}
-
 export async function POST(req: Request) {
-  const session = await checkAdmin();
+  const session = await getAdminSession();
   if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!await can(session.adminId, "content", "create")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
@@ -46,7 +40,7 @@ export async function POST(req: Request) {
       excerpt: excerpt ?? null,
       content,
       coverImage: coverImage ?? null,
-      authorId: session.user.id ?? null,
+      authorId: session.adminId,
       isPublished,
       publishedAt: isPublished ? new Date() : null,
       metaTitle: metaTitle ?? null,
