@@ -32,7 +32,7 @@ export async function getAdminSession(): Promise<AdminSessionData | null> {
 export function setAdminCookies(res: Response, accessToken: string, refreshToken: string): void {
   res.headers.append(
     "Set-Cookie",
-    `${ADMIN_ACCESS_COOKIE}=${accessToken}; HttpOnly; Path=/api/admin; SameSite=Lax; Max-Age=900`
+    `${ADMIN_ACCESS_COOKIE}=${accessToken}; HttpOnly; Path=/; SameSite=Lax; Max-Age=900`
   );
   res.headers.append(
     "Set-Cookie",
