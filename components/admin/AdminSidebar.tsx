@@ -22,6 +22,7 @@ import {
   ScrollText,
   UserCog,
   Search,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -118,6 +119,17 @@ const navItems: NavItem[] = [
     children: [
       { href: "/admin/audit-log", label: "Tüm Loglar" },
       { href: "/admin/audit-log/risk-alerts", label: "Risk Uyarıları" },
+    ],
+  },
+  {
+    href: "/admin/logs",
+    label: "Aktivite Logları",
+    icon: <Activity size={18} />,
+    permission: "logs:view",
+    children: [
+      { href: "/admin/logs", label: "Log Listesi" },
+      { href: "/admin/logs/stats", label: "İstatistikler" },
+      { href: "/admin/logs/telegram", label: "Telegram Alertler" },
     ],
   },
   { href: "/admin/security", label: "Güvenlik", icon: <Shield size={18} />, permission: "roles:view" },
