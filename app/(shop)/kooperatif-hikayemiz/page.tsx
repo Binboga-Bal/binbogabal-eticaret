@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { processFlowTheme } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "Kooperatif Hikayemiz | Binboğa Kooperatif Balı",
@@ -9,28 +10,6 @@ export const metadata: Metadata = {
     "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin 50 yıllık hikayesi. Kooperatifçiliğin gücü, arıcıların dayanışması.",
 };
 
-const pillars = [
-  {
-    icon: "🤝",
-    title: "Dayanışma",
-    desc: "Tek başına zayıfsın, birlikte güçlüsün. Kooperatif; riski paylaşır, kazancı adil dağıtır.",
-  },
-  {
-    icon: "🗳️",
-    title: "Demokratik Yönetim",
-    desc: "Her üye eşit söz hakkına sahiptir. Karar masasında arıcı var, aracı yok.",
-  },
-  {
-    icon: "♻️",
-    title: "Kâr Amacı Yok",
-    desc: "Elde edilen gelir üyelere geri döner. Hissedar zenginleştirmek için çalışmayız.",
-  },
-  {
-    icon: "📚",
-    title: "Eğitim & Paylaşım",
-    desc: "Bilgi tekelleşmez. Yeni arıcılar deneyimlilerden öğrenir; kooperatif bu köprüyü kurar.",
-  },
-];
 
 const chapters = [
   {
@@ -98,7 +77,7 @@ export default async function KooperatifHikayemizPage() {
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section className="relative h-72 md:h-[420px] overflow-hidden bg-honey-dark">
+      <section className="relative h-80 md:h-[500px] overflow-hidden bg-gray-900">
         {bannerImage ? (
           <>
             <Image
@@ -109,7 +88,7 @@ export default async function KooperatifHikayemizPage() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
           </>
         ) : (
           <div
@@ -120,8 +99,8 @@ export default async function KooperatifHikayemizPage() {
             }}
           />
         )}
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 h-full flex items-center justify-start">
+          <div className="max-w-4xl px-4 sm:px-6 lg:px-8 text-left">
             <span className="inline-block bg-honey-bright/20 text-honey-bright text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
               S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi
             </span>
@@ -129,7 +108,7 @@ export default async function KooperatifHikayemizPage() {
               Arının Emeği,<br />
               <span className="text-honey-bright">Kooperatifin Güvencesi</span>
             </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/80 text-lg max-w-2xl leading-relaxed">
               1973&apos;te bir avuç arıcının kurduğu bu yapı, bugün 1800&apos;den fazla aileyi
               birbirine bağlıyor. Kâr değil dayanışma; hissedar değil arıcı önce.
             </p>
@@ -179,13 +158,17 @@ export default async function KooperatifHikayemizPage() {
               </div>
             </div>
 
-            {/* 4 sütun kart */}
-            <div className="grid grid-cols-2 gap-4">
-              {pillars.map((p) => (
-                <div key={p.title} className="bg-white rounded-2xl p-6 shadow-sm">
-                  <div className="text-3xl mb-3">{p.icon}</div>
-                  <h3 className="font-bold text-gray-900 text-sm mb-2">{p.title}</h3>
-                  <p className="text-xs text-gray-600 leading-relaxed">{p.desc}</p>
+            {/* 4 adım grid */}
+            <div className="grid grid-cols-2 gap-6">
+              {processFlowTheme.steps.map((step) => (
+                <div key={step.number} className="bg-white rounded-2xl p-5 shadow-sm flex flex-col items-center text-center gap-3">
+                  <div className="relative w-24 h-24">
+                    <Image src={step.image} alt={step.title} fill className="object-contain" sizes="96px" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-honey-dark text-xs mb-1 leading-snug">{step.title}</h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">{step.description}</p>
+                  </div>
                 </div>
               ))}
             </div>

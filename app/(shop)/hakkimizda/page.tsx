@@ -56,7 +56,7 @@ export default async function AboutPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative h-72 md:h-[420px] overflow-hidden bg-honey-dark">
+      <section className="relative h-80 md:h-[500px] overflow-hidden bg-gray-900">
         {bannerImage ? (
           <>
             <Image
@@ -67,7 +67,7 @@ export default async function AboutPage() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
           </>
         ) : (
           <div className="absolute inset-0 opacity-10">
@@ -85,13 +85,13 @@ export default async function AboutPage() {
             ))}
           </div>
         )}
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 h-full flex items-center justify-start">
+          <div className="max-w-7xl px-4 sm:px-6 lg:px-8 text-left">
             <p className="text-honey-bright text-sm font-bold uppercase tracking-widest mb-3">1973&apos;ten Bugüne</p>
             <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
               Şirket Değil, Kooperatif!
             </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+            <p className="text-white/80 text-lg max-w-2xl">
               Kozan dağlarının arıcıları 50 yılı aşkın süredir tek bir amaç etrafında birleşiyor:
               doğal balı, adil bir fiyatla, doğrudan sizin sofranıza taşımak.
             </p>
