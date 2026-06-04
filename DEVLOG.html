@@ -630,6 +630,9 @@
       <div class="nav-section-label">4 Haziran 2026 — Loglama Sistemi</div>
       <a href="#step188" class="nav-link"><span class="dot"></span>188 — Kapsamlı Aktivite Loglama Modülü</a>
 
+      <div class="nav-section-label">4 Haziran 2026 — Logger Bugfix</div>
+      <a href="#step189" class="nav-link"><span class="dot"></span>189 — Logger Hata Düzeltmeleri &amp; QNB Logu</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -8676,10 +8679,148 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
 
     </section>
 
+    <!-- ════════════════════════════════════════════════════════════════
+         ADIM 189 — Loglama Sistemi Hata Düzeltmeleri & QNB Ödeme Logu
+         4 Haziran 2026
+    ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="step189">
+      <div class="section-header">
+        <div>
+          <div class="section-meta">4 Haziran 2026 · Adım 189</div>
+          <h2 class="section-title">Loglama Hata Düzeltmeleri &amp; QNB Ödeme Logu</h2>
+        </div>
+        <span class="badge badge-blue">Bugfix · Logger · Payment</span>
+      </div>
+
+      <div class="card">
+        <h3>Tespit Edilen Sorunlar</h3>
+        <table>
+          <thead><tr><th>Sorun</th><th>Kök Neden</th><th>Çözüm</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Admin panelde log görünmüyor</td>
+              <td><code>AdminSidebar.tsx</code>'e <code>/admin/logs</code> nav item eklenmemişti</td>
+              <td><code>Activity</code> ikonu ile sidebar'a eklendi, <code>permission: "logs:view"</code> — sadece <code>isSuperAdmin</code> görür</td>
+            </tr>
+            <tr>
+              <td>Log hiç oluşmuyordu</td>
+              <td><code>await import("@/lib/prisma")</code> dinamik import, <code>void</code> + async kombinasyonunda Next.js'te Prisma singleton'ını bulamıyordu</td>
+              <td><code>lib/logger/index.ts</code>, <code>cache.ts</code>, <code>telegram.ts</code> — statik <code>import { prisma } from "@/lib/prisma"</code>'ya geçildi</td>
+            </tr>
+            <tr>
+              <td>Log geç düşüyor / ödeme başarısız loglanmıyor</td>
+              <td><code>void createLog()</code> — Vercel serverless'ta response dönünce Lambda terminate ediliyor, async iş yarım kalıyor</td>
+              <td>Tüm kritik route'larda <code>void</code> → <code>await createLog()</code></td>
+            </tr>
+            <tr>
+              <td>QNBPay başarısız ödeme loglanmıyor</td>
+              <td><code>response_method: "GET"</code> — QNBPay callback'i GET query param ile gönderiyor; eski GET handler parametrelere bakmadan <code>/odeme/hata</code>'ya atıyordu</td>
+              <td><code>handleCallback()</code> shared fonksiyon — GET ve POST her ikisi de aynı doğrulama + loglama mantığıyla işlenir</td>
+            </tr>
+            <tr>
+              <td>paySmart3D aktif değilken log gelmiyor</td>
+              <td>Bu senaryoda QNBPay callback'i çağırmıyor, kullanıcıyı <code>cancel_url</code> olan <code>/odeme/hata</code>'ya direkt gönderiyor</td>
+              <td><code>/odeme/hata</code> server component'ine <code>await createLog()</code> eklendi — QNBPay'in geçirdiği <code>invoice_id</code>, <code>error_code</code>, <code>status</code> vb. tüm güvenli parametreler loglanır</td>
+            </tr>
+            <tr>
+              <td>cancelUrl değişikliği ödemeleri kırdı</td>
+              <td><code>cancelUrl</code>'i <code>/api/payment/qnb/cancel</code>'e değiştirmek QNBPay portal'daki kayıtlı URL'den farklılaştırdı</td>
+              <td><code>cancelUrl</code> eski haline (<code>/odeme/hata</code>) alındı</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>KVKK Uyumlu Zengin Log Detail Şeması</h3>
+        <p>Tüm kritik loglarda <code>detail</code> alanı genişletildi. Kural: e-posta/telefon/isim/adres <code>detail</code>'e girmez (ayrı <code>actorEmail</code> alanında tutulur).</p>
+        <table style="margin-top:10px">
+          <thead><tr><th>Log</th><th>Detail İçeriği</th></tr></thead>
+          <tbody>
+            <tr><td><code>ORDER_CREATED</code></td><td><code>orderNumber, subtotal, shippingFee, discount, total, itemCount, couponCode, isGuest, city, paymentMethod, duration</code></td></tr>
+            <tr><td><code>PAYMENT_FAILED</code> (QNB init)</td><td><code>provider, stage: payment_init, orderNumber, amount, errorMessage, duration</code></td></tr>
+            <tr><td><code>PAYMENT_SUCCESS</code> (callback)</td><td><code>provider, orderNumber, amount, transactionId, itemCount, isGuest, qnbParams(güvenli), callbackMethod, duration</code></td></tr>
+            <tr><td><code>PAYMENT_FAILED</code> (callback)</td><td><code>provider, stage: callback_verify, orderNumber, errorMessage, qnbParams(güvenli), callbackMethod, duration</code></td></tr>
+            <tr><td><code>PAYMENT_FAILED</code> (/odeme/hata)</td><td><code>provider, stage, orderNumber, errorCode, errorDescription, userMessage, qnbParams(güvenli)</code></td></tr>
+            <tr><td><code>ORDER_STATUS_CHANGED</code></td><td><code>orderNumber, previousStatus, newStatus, cargoTrackingNo, cargoCompany, changedBy</code></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          <code>safeQnbParams()</code> filtresi: sadece <code>status, mdStatus, message, errorCode, responseCode, order_id, invoice_id, amount, installments</code> geçirilir — kart/CVV verisi asla loglanmaz.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>QNBPay error_code 14 Tespiti</h3>
+        <p>Loglar devreye girdikten sonra ilk başarısız ödeme deneğinde <code>error_code: 14</code> gözlemlendi:</p>
+        <pre style="background:var(--bg3);padding:12px;border-radius:6px;font-size:12px;line-height:1.8;border:1px solid var(--border);margin-top:8px">{
+  "order_id": "63916183806405710867373",
+  "error_code": "14",
+  "invoice_id": "BB-MPZH3LCO-Z8ML",
+  "status_code": "14",
+  "payment_status": "0",
+  "status_description": "Merchant bank identification not found,
+                          please contact customer support."
+}</pre>
+        <p style="margin-top:8px">Anlam: QNBPay portalında banka/POS entegrasyonu (paySmart3D) henüz aktif edilmemiş. Kullanıcıya teknik mesaj yerine <em>"Ödeme sistemi şu anda hizmete hazırlanıyor"</em> gösterilecek şekilde <code>ERROR_MESSAGES["14"]</code> eklendi.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Ödeme Başarısızlık Akışı — Loglama Kapsamı</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--red)"></div>
+            <div class="step-body">
+              <h4>Senaryo A — QNBPay token/init hatası</h4>
+              <p><code>POST /api/orders</code> → <code>adapter.createPayment()</code> başarısız → <code>await createLog(PAYMENT_FAILED, stage: payment_init)</code> → frontend'e 500 döner</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--orange, #f97316)"></div>
+            <div class="step-body">
+              <h4>Senaryo B — QNBPay 3D başarısız (banka reddetti)</h4>
+              <p>QNBPay <code>return_url</code>'e GET ile <code>status=0</code> gönderir → <code>handleCallback(GET)</code> → <code>await createLog(PAYMENT_FAILED, stage: callback_verify)</code> → <code>/odeme/hata</code>'ya yönlendirir</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-dot" style="background:var(--honey)"></div>
+            <div class="step-body">
+              <h4>Senaryo C — paySmart3D aktif değil / sistem hatası</h4>
+              <p>QNBPay callback çağırmaz, kullanıcıyı <code>cancel_url</code> = <code>/odeme/hata</code>'ya gönderir → sayfa server component'i <code>await createLog(PAYMENT_FAILED, stage: payment_failed)</code> çalışır → QNBPay parametreleri (<code>error_code: 14</code> vb.) loglanır</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr><td><code>components/admin/AdminSidebar.tsx</code></td><td>Aktivite Logları nav item eklendi (Activity ikonu, 3 alt link, isSuperAdmin yetkisi)</td></tr>
+            <tr><td><code>lib/logger/index.ts</code></td><td>Dinamik import → statik import, detail null-safe cast</td></tr>
+            <tr><td><code>lib/logger/cache.ts</code></td><td>Dinamik import → statik import</td></tr>
+            <tr><td><code>lib/logger/telegram.ts</code></td><td>Dinamik import → statik import</td></tr>
+            <tr><td><code>lib/logger/utils.ts</code></td><td><code>maskEmail()</code> ve <code>maskPhone()</code> KVKK helper'ları eklendi</td></tr>
+            <tr><td><code>app/api/orders/route.ts</code></td><td>void → await, zengin detail, cancelUrl /odeme/hata'ya geri alındı</td></tr>
+            <tr><td><code>app/api/payment/qnb/callback/route.ts</code></td><td><code>handleCallback()</code> shared fonksiyon ile GET+POST desteği, safeQnbParams() filtresi</td></tr>
+            <tr><td><code>app/api/payment/qnb/cancel/route.ts</code></td><td>Yeni endpoint (cancel_url için oluşturuldu, şimdilik kullanılmıyor)</td></tr>
+            <tr><td><code>app/api/auth/register/route.ts</code></td><td>void → await, KVKK consent detail</td></tr>
+            <tr><td><code>app/api/auth/forgot-password/route.ts</code></td><td>void → await</td></tr>
+            <tr><td><code>app/api/auth/reset-password/route.ts</code></td><td>void → await</td></tr>
+            <tr><td><code>app/api/auth/verify-email/route.ts</code></td><td>void → await</td></tr>
+            <tr><td><code>app/api/admin/orders/[id]/status/route.ts</code></td><td>void → await, previousStatus + changedBy eklendi</td></tr>
+            <tr><td><code>app/(shop)/odeme/hata/page.tsx</code></td><td>await createLog() eklendi, error_code 14 mesajı eklendi, QNBPay güvenli params loglanır</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 4 Haziran 2026, 23:00 — Adım 188 (Kapsamlı Loglama Modülü) · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 4 Haziran 2026, 23:45 — Adım 189 (Logger Bugfix &amp; QNB Ödeme Logu) · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

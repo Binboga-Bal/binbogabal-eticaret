@@ -10,8 +10,8 @@ import { headers } from "next/headers";
 export const metadata: Metadata = { title: "Ödeme Başarısız | Binboğa Bal" };
 
 // QNBPay hata kodları → Türkçe kullanıcı mesajı
-// Not: Kod 14 QNBPay'de "Merchant bank identification not found" — banka POS yapılandırma sorunudur, ISO 8583 ile karıştırılmamalı
 const ERROR_MESSAGES: Record<string, string> = {
+  "14": "Ödeme sistemi şu anda hizmete hazırlanıyor. Lütfen daha sonra tekrar deneyin veya bizimle iletişime geçin.",
   "05": "Bankanız bu işlemi reddetti. Bankanızla iletişime geçin.",
   "12": "Geçersiz işlem. Lütfen tekrar deneyin.",
   "41": "Bu kart bloke edilmiş. Bankanızla iletişime geçin.",
