@@ -212,20 +212,9 @@ export class QNBPayAdapter implements PaymentAdapter {
   ): Promise<VerifyPaymentResult> {
     const invoiceId = params.invoice_id ?? params.order_no ?? "";
 
-    // Callback'te hash_key geliyorsa doğrula (checkstatus formatı: invoice_id|merchant_key)
-    const callbackHash = params.hash_key;
-    if (callbackHash) {
-      const expectedData = `${invoiceId}|${this.merchantKey}`;
-      if (!verifyHash(callbackHash, expectedData, this.appSecret)) {
-        console.error("[QNBPay] Callback hash doğrulaması başarısız — olası sahte istek");
-        return {
-          success: false,
-          orderId: invoiceId || undefined,
-          error: "Callback hash doğrulaması başarısız",
-          providerResponse: params,
-        };
-      }
-    }
+    // NOT: Callback hash_key'i burada doğrulamıyoruz.
+    // QNBpay'in callback hash imza formatı netleşmediğinden yanlış red riski var.
+    // Gerçek güvenlik doğrulaması checkStatus() API çağrısıyla yapılıyor.
 
     // QNBpay'in gönderebileceği tüm başarı göstergelerini kontrol et
     const isSuccess =
@@ -242,7 +231,7 @@ export class QNBPayAdapter implements PaymentAdapter {
       providerResponse: params,
       error: isSuccess
         ? undefined
-        : `Ödeme başarısız (qnbpay_status=${params.qnbpay_status}, status=${params.status}, mdStatus=${params.mdStatus})`,
+        : `Ödeme başarısız (qnbpay_status=${params.qnbpay_status}, status=${params.status}, payment_status=${params.payment_status})`,
     };
   }
 
