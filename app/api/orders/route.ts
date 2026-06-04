@@ -5,6 +5,8 @@ import { getPaymentAdapter } from "@/lib/payment";
 import { generateOrderNumber } from "@/lib/utils/format";
 import { sendOrderConfirmedEmail } from "@/lib/mail/mail.service";
 import { z } from "zod";
+import { createLog } from "@/lib/logger";
+import { LOG_ACTIONS } from "@/lib/logger/actions";
 
 const orderSchema = z.object({
   shippingAddress: z.object({
@@ -38,6 +40,8 @@ const orderSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const startTime = Date.now();
+  const actorIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? req.headers.get("x-real-ip") ?? undefined;
   const session = await auth();
   const body = await req.json();
 
@@ -156,6 +160,25 @@ export async function POST(req: Request) {
       ).catch((err) => console.error("[orders] kapida guest mail hata:", err));
     }
 
+    void createLog({
+      level: "INFO",
+      category: "ORDER",
+      action: LOG_ACTIONS.ORDER_CREATED,
+      message: `Sipariş oluşturuldu (kapıda ödeme): #${order.orderNumber}`,
+      actorId: session?.user?.id,
+      actorRole: session?.user?.role ?? "CUSTOMER",
+      actorEmail: session?.user?.email ?? data.shippingAddress.email,
+      actorIp,
+      targetType: "Order",
+      targetId: order.id,
+      targetLabel: `Sipariş #${order.orderNumber}`,
+      detail: { total: data.total, items: data.items.length, paymentMethod: "CASH_ON_DELIVERY" },
+      method: "POST",
+      path: "/api/orders",
+      statusCode: 200,
+      duration: Date.now() - startTime,
+    });
+
     return NextResponse.json({
       redirectUrl: `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(order.orderNumber)}&yontem=kapida`,
       orderId: order.id,
@@ -219,11 +242,47 @@ export async function POST(req: Request) {
   });
 
   if (!paymentResult.success) {
+    void createLog({
+      level: "ERROR",
+      category: "PAYMENT",
+      action: LOG_ACTIONS.PAYMENT_FAILED,
+      message: `Ödeme başlatılamadı: ${paymentResult.error}`,
+      actorId: session?.user?.id,
+      actorEmail: session?.user?.email ?? data.shippingAddress.email,
+      actorIp,
+      targetType: "Order",
+      targetId: order.id,
+      targetLabel: `Sipariş #${order.orderNumber}`,
+      detail: { error: paymentResult.error },
+      method: "POST",
+      path: "/api/orders",
+      statusCode: 500,
+      duration: Date.now() - startTime,
+    });
     return NextResponse.json(
       { error: paymentResult.error ?? "Ödeme hazırlanamadı" },
       { status: 500 },
     );
   }
+
+  void createLog({
+    level: "INFO",
+    category: "ORDER",
+    action: LOG_ACTIONS.ORDER_CREATED,
+    message: `Sipariş oluşturuldu (QNB): #${order.orderNumber}`,
+    actorId: session?.user?.id,
+    actorRole: session?.user?.role ?? "CUSTOMER",
+    actorEmail: session?.user?.email ?? data.shippingAddress.email,
+    actorIp,
+    targetType: "Order",
+    targetId: order.id,
+    targetLabel: `Sipariş #${order.orderNumber}`,
+    detail: { total: data.total, items: data.items.length, paymentMethod: "QNB_PAY" },
+    method: "POST",
+    path: "/api/orders",
+    statusCode: 200,
+    duration: Date.now() - startTime,
+  });
 
   // 🔒 PCI-DSS: Kart verisi yoktur. Frontend bu alanlarla + kart bilgileriyle
   // doğrudan QNBPay endpoint'ine form POST yapar — sunucumuz asla kart görmez.

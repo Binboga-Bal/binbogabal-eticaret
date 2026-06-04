@@ -627,6 +627,9 @@
       <div class="nav-section-label">4 Haziran 2026 — Responsive Görsel</div>
       <a href="#step187" class="nav-link"><span class="dot"></span>187 — Slider &amp; Banner Kırpma Düzeltmesi</a>
 
+      <div class="nav-section-label">4 Haziran 2026 — Loglama Sistemi</div>
+      <a href="#step188" class="nav-link"><span class="dot"></span>188 — Kapsamlı Aktivite Loglama Modülü</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -8226,10 +8229,457 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ════════════════════════════════════════════════════════════════
+         ADIM 188 — Kapsamlı Aktivite Loglama Modülü
+         4 Haziran 2026
+    ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="step188">
+      <div class="section-header">
+        <div>
+          <div class="section-meta">4 Haziran 2026 · Adım 188</div>
+          <h2 class="section-title">Kapsamlı Aktivite Loglama Modülü</h2>
+        </div>
+        <span class="badge badge-purple">Backend · Admin · Güvenlik</span>
+      </div>
+
+      <!-- GENEL BAKIŞ -->
+      <div class="card">
+        <h3>Genel Bakış</h3>
+        <p>
+          Sitenin her hareketini kayıt altına alan, rol tabanlı görüntüleme yetkisi olan, Telegram alert entegrasyonu bulunan ve
+          otomatik temizleme cron'larına sahip kapsamlı bir loglama sistemi kuruldu. Sistem üç veritabanı modeli,
+          yedi core kütüphane dosyası, sekiz API route grubu ve tam bir admin arayüzünden oluşuyor.
+        </p>
+        <p style="margin-top:10px">
+          <strong>Temel prensip:</strong> <code>createLog()</code> ana iş akışını asla bloke etmez (<code>void createLog(...)</code>
+          pattern'ı). Loglama hatası uygulamayı durdurmuyor, hassas veriler (şifre, token, CVV) <code>[REDACTED]</code>
+          ile maskeleniyor, <code>ActivityLog</code> tablosu diğer tablolara foreign key bağlamıyor — kullanıcı silinse bile log kayıtları korunuyor.
+        </p>
+      </div>
+
+      <!-- VERİTABANI MODELLERİ -->
+      <div class="card" style="margin-top:12px">
+        <h3>Veritabanı Modelleri — <code>prisma/schema.prisma</code></h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--purple)"></div>
+            <div class="step-body">
+              <h4><code>ActivityLog</code> — Ana Log Tablosu</h4>
+              <p>Her uygulama olayı bu tabloya yazılır. Soft-reference tasarımı: <code>actorId</code>, <code>targetId</code> gibi alanlar
+              plain <code>String?</code> olup gerçek tablolara FK constraint içermiyor. Aktör silinse bile log kaydı bütünlüğü korunuyor.</p>
+              <table style="margin-top:10px">
+                <thead><tr><th>Alan</th><th>Tip</th><th>Açıklama</th></tr></thead>
+                <tbody>
+                  <tr><td><code>level</code></td><td><code>LogLevel</code></td><td>DEBUG · INFO · WARNING · ERROR · CRITICAL</td></tr>
+                  <tr><td><code>category</code></td><td><code>LogCategory</code></td><td>27 kategori — AUTH, ORDER, PAYMENT, SECURITY…</td></tr>
+                  <tr><td><code>action</code></td><td><code>String</code></td><td>Sabit aksiyon kodu: <code>ORDER_CREATED</code>, <code>AUTH_BRUTE_FORCE</code>…</td></tr>
+                  <tr><td><code>actorId / actorEmail / actorRole</code></td><td><code>String?</code></td><td>Snapshot — aktör sonradan değişse bile kayıtlı kalır</td></tr>
+                  <tr><td><code>actorIp / userAgent</code></td><td><code>String?</code></td><td>HTTP bağlamı</td></tr>
+                  <tr><td><code>targetType / targetId / targetLabel</code></td><td><code>String?</code></td><td>Hedef entity (Order, User, Product…)</td></tr>
+                  <tr><td><code>detail</code></td><td><code>Json?</code></td><td>Before/after diff, params — hassas alanlar sanitize edilir</td></tr>
+                  <tr><td><code>method / path / statusCode / duration</code></td><td><code>String? / Int?</code></td><td>HTTP bağlamı</td></tr>
+                  <tr><td><code>telegramSent / telegramMsgId</code></td><td><code>Boolean / String?</code></td><td>Telegram alert durumu</td></tr>
+                </tbody>
+              </table>
+              <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+                İndeksler: <code>actorId</code>, <code>category</code>, <code>level</code>, <code>targetType+targetId</code>, <code>createdAt</code>, <code>actorIp</code>
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--blue)"></div>
+            <div class="step-body">
+              <h4><code>TelegramAlertConfig</code> — Alert Kanal Konfigürasyonu</h4>
+              <p>Her Telegram kanalı için hangi <code>LogLevel</code> ve <code>LogCategory</code> kombinasyonlarının
+              alert göndereceğini tanımlar. Çoklu kanal destekli: güvenlik kanalı sadece <code>SECURITY+CRITICAL</code>,
+              sipariş kanalı <code>ORDER+ERROR</code> dinleyebilir. 5 dakikalık in-memory cache ile DB yükü minimumda tutulur.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-dot" style="background:var(--teal)"></div>
+            <div class="step-body">
+              <h4><code>LogSummary</code> — Günlük Agregat Özeti</h4>
+              <p>Her gün 00:05'te çalışan cron job önceki günün loglarını özetleyip bu tabloya yazar.
+              Toplam sayı, seviye bazlı dağılım, top kategoriler/aksiyonlar, unique IP ve kullanıcı sayısı saklanır.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENUM'LAR -->
+      <div class="card" style="margin-top:12px">
+        <h3>Enum Değerleri</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <h4 style="font-size:13px;margin-bottom:8px;color:var(--honey)">LogLevel (5)</h4>
+            <table>
+              <tbody>
+                <tr><td><code>DEBUG</code></td><td style="color:var(--text-muted)">Geliştirme izleme (prod'da filtrelenir)</td></tr>
+                <tr><td><code>INFO</code></td><td style="color:var(--text-muted)">Normal iş akışı olayları</td></tr>
+                <tr><td><code>WARNING</code></td><td style="color:var(--text-muted)">Dikkat gerektiren durumlar</td></tr>
+                <tr><td><code>ERROR</code></td><td style="color:var(--text-muted)">İşlem başarısız, müdahale gerekli</td></tr>
+                <tr><td><code>CRITICAL</code></td><td style="color:var(--red)">Sistem tehdidi, anlık alert</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4 style="font-size:13px;margin-bottom:8px;color:var(--honey)">LogCategory (27)</h4>
+            <p style="font-size:12px;color:var(--text-muted);line-height:1.8">
+              AUTH · SESSION · PASSWORD · USER · ACCOUNT · VERIFICATION ·
+              ORDER · PAYMENT · CART · COUPON · PRODUCT · CATEGORY · INVENTORY ·
+              CAMPAIGN · DISCOUNT · ADMIN · ROLE · SETTINGS ·
+              SECURITY · PERMISSION · RATE_LIMIT ·
+              SYSTEM · API · CRON ·
+              DATA_EXPORT · DATA_DELETE · GDPR
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CORE KÜTÜPHANE -->
+      <div class="card" style="margin-top:12px">
+        <h3>Core Kütüphane — <code>lib/logger/</code></h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Sorumluluk</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>index.ts</code></td>
+              <td>
+                <code>createLog(params)</code> — ana giriş noktası. <code>LOG_MIN_LEVEL</code> env'e göre filtreleme,
+                <code>LOG_SKIP_PATHS</code> path muafiyeti, DB yazma, WARNING+ için Telegram tetikleme.
+                Hata olursa <code>console.error</code> yazar ama exception fırlatmaz.
+              </td>
+            </tr>
+            <tr>
+              <td><code>actions.ts</code></td>
+              <td>
+                60+ <code>LOG_ACTIONS</code> sabiti (<code>as const</code> union type). Dağınık string literal kullanımını engeller.
+                Kategorilere göre gruplandırılmış: Auth, Password, User, Order, Payment, Product, Campaign, Admin, Security, GDPR, System.
+              </td>
+            </tr>
+            <tr>
+              <td><code>sanitize.ts</code></td>
+              <td>
+                <code>sanitizeDetail(data)</code> — recursive nesne tarayıcı.
+                <code>password</code>, <code>passwordHash</code>, <code>cvv</code>, <code>cardNumber</code>,
+                <code>token</code>, <code>accessToken</code>, <code>refreshToken</code>, <code>secret</code>,
+                <code>apiKey</code>, <code>authorization</code>, <code>cookie</code>, <code>twoFactorSecret</code>
+                anahtarlarının değerini <code>[REDACTED]</code> ile değiştirir. Nested objeler dahil tüm derinlikler taranır.
+              </td>
+            </tr>
+            <tr>
+              <td><code>utils.ts</code></td>
+              <td>
+                <code>extractRequestMeta(req)</code> — <code>x-forwarded-for</code> / <code>x-real-ip</code> header'larından
+                IP çıkarır; method, path, userAgent döner.<br>
+                <code>diffObjects(before, after)</code> — admin aksiyonlarında before/after diff üretir.
+              </td>
+            </tr>
+            <tr>
+              <td><code>cache.ts</code></td>
+              <td>
+                <code>TelegramAlertConfig</code> kayıtlarını 5 dakikalık in-memory cache'de tutar.
+                Her log yazımında DB sorgusu atmak yerine cached config kullanılır.
+                <code>invalidateTelegramCache()</code> ile CRUD sonrası manuel flush yapılır.
+              </td>
+            </tr>
+            <tr>
+              <td><code>telegram.ts</code></td>
+              <td>
+                <code>sendTelegramAlert(log)</code> — HTML parse mode ile Telegram Bot API'ye mesaj gönderir.
+                Action+IP kombinasyonu için 5 dakikalık in-memory rate limit (Redis gerektirmez).
+                Birden fazla konfigüre kanal varsa hepsine gönderilir; ilk başarılı <code>message_id</code> log kaydına yazılır.<br>
+                <code>sendTelegramTestMessage(chatId)</code> — admin panelinden test amaçlı kullanılır.
+              </td>
+            </tr>
+            <tr>
+              <td><code>permissions.ts</code></td>
+              <td>
+                <code>canViewLogs</code>, <code>canExportLogs</code>, <code>canManageTelegramAlerts</code>, <code>canCleanupLogs</code> —
+                tümü <code>isSuperAdmin: boolean</code> parametresi alır. Admin RBAC sistemiyle (<code>AdminUser.isSuperAdmin</code>) entegre.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- API ROUTE'LARI -->
+      <div class="card" style="margin-top:12px">
+        <h3>API Route'ları</h3>
+        <table>
+          <thead><tr><th>Endpoint</th><th>Method</th><th>Yetki</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>/api/admin/logs</code></td><td>GET</td><td>isSuperAdmin</td><td>Filtreli liste — level, category, actorEmail, actorIp, targetId, dateFrom/To, search, sayfalama</td></tr>
+            <tr><td><code>/api/admin/logs/[id]</code></td><td>GET</td><td>isSuperAdmin</td><td>Tam log detayı (detail JSON dahil)</td></tr>
+            <tr><td><code>/api/admin/logs/export</code></td><td>GET</td><td>isSuperAdmin</td><td>CSV veya JSON export — maks. 10.000 kayıt, Content-Disposition header, export işlemi kendisi de loglanır</td></tr>
+            <tr><td><code>/api/admin/logs/stats</code></td><td>GET</td><td>isSuperAdmin</td><td>7d/30d/90d istatistik — seviye/kategori dağılımı, top aksiyonlar/IP'ler, günlük timeline, hata oranı</td></tr>
+            <tr><td><code>/api/admin/logs/telegram</code></td><td>GET/POST</td><td>isSuperAdmin</td><td>Kanal listesi / yeni kanal oluşturma</td></tr>
+            <tr><td><code>/api/admin/logs/telegram/[id]</code></td><td>PATCH/DELETE</td><td>isSuperAdmin</td><td>Kanal güncelleme (aktif/pasif, level/category filtresi) / silme</td></tr>
+            <tr><td><code>/api/admin/logs/telegram/test</code></td><td>POST</td><td>isSuperAdmin</td><td>Belirtilen chatId'ye test mesajı gönder</td></tr>
+            <tr><td><code>/api/admin/logs/cleanup</code></td><td>DELETE</td><td>isSuperAdmin</td><td>DEBUG/INFO logları sil — min. 30 gün zorunluluğu, WARNING+ asla silinmez</td></tr>
+            <tr><td><code>/api/account/activity</code></td><td>GET</td><td>Giriş yapmış müşteri</td><td>Kendi logları — sadece AUTH/ORDER/PAYMENT/USER/COUPON/GDPR kategorileri, detail alanı gizlenir</td></tr>
+            <tr><td><code>/api/cron/logs/daily-summary</code></td><td>GET</td><td>CRON_SECRET</td><td>Günlük özet — LogSummary tablosuna yazar, kritik log varsa Telegram raporu gönderir</td></tr>
+            <tr><td><code>/api/cron/logs/cleanup</code></td><td>GET</td><td>CRON_SECRET</td><td>Otomatik temizleme: DEBUG→7g, INFO→30g, WARNING→90g, ERROR/CRITICAL hiç silinmez</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MEVCUT ROUTE ENTEGRASYONLARı -->
+      <div class="card" style="margin-top:12px">
+        <h3>Mevcut Route Entegrasyonları</h3>
+        <p style="margin-bottom:10px">Aşağıdaki API route'larına <code>void createLog(...)</code> çağrıları eklendi:</p>
+        <table>
+          <thead><tr><th>Route</th><th>Aksiyon</th><th>Seviye</th></tr></thead>
+          <tbody>
+            <tr><td><code>POST /api/auth/register</code></td><td><code>USER_REGISTERED</code></td><td>INFO</td></tr>
+            <tr><td><code>POST /api/auth/forgot-password</code></td><td><code>PASSWORD_RESET_REQUESTED</code></td><td>INFO</td></tr>
+            <tr><td><code>POST /api/auth/reset-password</code></td><td><code>PASSWORD_RESET_COMPLETED</code></td><td>INFO</td></tr>
+            <tr><td><code>GET /api/auth/verify-email</code></td><td><code>USER_EMAIL_VERIFIED</code></td><td>INFO</td></tr>
+            <tr><td><code>POST /api/orders</code> (kapıda ödeme)</td><td><code>ORDER_CREATED</code></td><td>INFO</td></tr>
+            <tr><td><code>POST /api/orders</code> (QNB hata)</td><td><code>PAYMENT_FAILED</code></td><td>ERROR</td></tr>
+            <tr><td><code>POST /api/orders</code> (QNB başarı)</td><td><code>ORDER_CREATED</code></td><td>INFO</td></tr>
+            <tr><td><code>POST /api/payment/qnb/callback</code> (hata)</td><td><code>PAYMENT_FAILED</code></td><td>ERROR</td></tr>
+            <tr><td><code>POST /api/payment/qnb/callback</code> (başarı)</td><td><code>PAYMENT_SUCCESS</code></td><td>INFO</td></tr>
+            <tr><td><code>PATCH /api/admin/orders/[id]/status</code></td><td><code>ORDER_STATUS_CHANGED</code></td><td>INFO</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TELEGRAM ALERT SİSTEMİ -->
+      <div class="card" style="margin-top:12px">
+        <h3>Telegram Alert Sistemi</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--blue)"></div>
+            <div class="step-body">
+              <h4>Mesaj Formatı (HTML parse mode)</h4>
+              <pre style="background:var(--bg3);padding:12px;border-radius:6px;font-size:12px;line-height:1.7;border:1px solid var(--border)">🔴 <b>CRITICAL</b> | SECURITY
+
+🎯 <b>Aksiyon:</b> AUTH_BRUTE_FORCE
+👤 <b>Aktör:</b> user@example.com (CUSTOMER)
+🌐 <b>IP:</b> 123.45.67.89
+📍 <b>Path:</b> POST /api/auth/login
+💬 user@example.com hesabına 10 başarısız giriş denemesi
+
+🕐 04 Haz 2026, 14:32:17
+🔗 https://site.com/admin/logs?id=abc123</pre>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--honey)"></div>
+            <div class="step-body">
+              <h4>Rate Limiting</h4>
+              <p>Aynı <code>action+ip</code> kombinasyonu için 5 dakikada maksimum 1 Telegram mesajı gönderilir.
+              Bu sayede brute-force saldırısı gibi yüksek frekanslı olaylarda Telegram kanalı spam'e dönmüyor.
+              Rate limit durumu in-memory <code>Map</code> ile tutulur — Redis gerektirmez.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-dot" style="background:var(--green)"></div>
+            <div class="step-body">
+              <h4>Çoklu Kanal Desteği</h4>
+              <p>Admin panelinden (<code>/admin/logs/telegram</code>) sınırsız kanal tanımlanabilir.
+              Her kanal için ayrı <code>levels[]</code> ve <code>categories[]</code> filtresi.
+              Örn: "Güvenlik Kanalı" sadece <code>SECURITY+CRITICAL</code>, "Sipariş Kanalı" sadece <code>ORDER+ERROR</code>.
+              Eşleşen config yoksa <code>TELEGRAM_DEFAULT_CHAT_ID</code> fallback olarak kullanılır.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRONTEND -->
+      <div class="card" style="margin-top:12px">
+        <h3>Admin Frontend — <code>app/admin/logs/</code></h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--purple)"></div>
+            <div class="step-body">
+              <h4><code>/admin/logs</code> — Ana Log Ekranı</h4>
+              <p>Üst istatistik kartları (son 24 saat: kritik/hata/uyarı/bilgi/toplam sayıları).
+              Filtre paneli: seviye toggle'ları, hızlı tarih seçimi (son 1s/24s/7g/30g),
+              aktör e-posta/IP/aksiyon/arama alanları — tümü URL query string'e yansıtılır (sayfa yenilemede korunur).
+              Tablo satırına tıklayınca sağdan detail drawer açılır; aktör/IP/hedef tıklanabilir filtreler.
+              Sayfa başı 25/50/100/200 seçimi, CSV ve JSON export butonları.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--blue)"></div>
+            <div class="step-body">
+              <h4><code>/admin/logs/stats</code> — İstatistik Dashboard'u</h4>
+              <p>7/30/90 günlük periyot seçimi. Seviye dağılımı progress bar'ları, top 10 aksiyon listesi,
+              top 10 IP tablosu (tıklanabilir filtre), kategori grid'i, son kritik loglar paneli.
+              Hata oranı yüzdesi hesaplanır.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-dot" style="background:var(--teal)"></div>
+            <div class="step-body">
+              <h4><code>/admin/logs/telegram</code> — Kanal Yönetimi</h4>
+              <p>Mevcut kanallar listesi (aktif/pasif toggle, test mesajı, silme).
+              Yeni kanal formu: chat ID, etiket, level checkbox'ları.
+              "Test Mesajı Gönder" butonu anlık doğrulama imkânı sağlar.
+              <code>TELEGRAM_BOT_TOKEN</code> eksikse sarı uyarı banner'ı gösterilir.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CRON JOB'LAR -->
+      <div class="card" style="margin-top:12px">
+        <h3>Cron Job'lar</h3>
+        <table>
+          <thead><tr><th>Route</th><th>Zamanlama</th><th>İşlem</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>/api/cron/logs/daily-summary</code></td>
+              <td>Her gün 00:05</td>
+              <td>Önceki günün loglarını gruplar → <code>LogSummary</code> tablosuna <code>upsert</code>.
+              <code>criticalCount &gt; 0</code> ise Telegram'a günlük özet raporu gönderilir.</td>
+            </tr>
+            <tr>
+              <td><code>/api/cron/logs/cleanup</code></td>
+              <td>Her Pazar 03:00</td>
+              <td>
+                DEBUG → 7 gün, INFO → 30 gün, WARNING → 90 günden eskisi silinir.
+                ERROR ve CRITICAL <strong>hiçbir zaman</strong> otomatik silinmez.
+                Silme sonucu Telegram'a rapor gönderilir.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- GÜVENLİK KURALLARI -->
+      <div class="card" style="margin-top:12px">
+        <h3>Güvenlik Kuralları</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <h4 style="font-size:13px;color:var(--red);margin-bottom:8px">Asla Yapılmayan</h4>
+            <ul style="font-size:13px;padding-left:16px;line-height:2;color:var(--text-muted)">
+              <li><code>password</code>, <code>cvv</code>, <code>cardNumber</code> detail'e yazılmaz</li>
+              <li><code>token</code>, <code>accessToken</code>, <code>secret</code> loglanmaz</li>
+              <li>Log API'leri <code>isSuperAdmin</code> dışına açılmaz</li>
+              <li>WARNING+ dışı loglar Telegram'a gitmez</li>
+              <li>ActivityLog diğer tablolara FK constraint içermez</li>
+              <li>ERROR/CRITICAL loglar otomatik silinmez</li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="font-size:13px;color:var(--green);margin-bottom:8px">Güvenlik Garantileri</h4>
+            <ul style="font-size:13px;padding-left:16px;line-height:2;color:var(--text-muted)">
+              <li>Müşteri kendi loglarında <code>detail</code> alanını göremez</li>
+              <li>Müşteri sadece 6 kategori görür (AUTH, ORDER, PAYMENT, USER, COUPON, GDPR)</li>
+              <li>Tüm aramalar Prisma parametrized query (SQL injection yok)</li>
+              <li>Telegram rate limit: 5 dk / action+ip kombinasyonu</li>
+              <li>Log export işlemi kendisi de <code>DATA_EXPORT</code> kategorisinde loglanır</li>
+              <li>Cleanup sadece DEBUG/INFO'yu siler, min. 30 gün korunur</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENVIRONMENT VARIABLES -->
+      <div class="card" style="margin-top:12px">
+        <h3>Environment Variables</h3>
+        <table>
+          <thead><tr><th>Değişken</th><th>Varsayılan</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>TELEGRAM_BOT_TOKEN</code></td><td>—</td><td>@BotFather'dan alınan bot token. Yoksa Telegram alertleri devre dışı.</td></tr>
+            <tr><td><code>TELEGRAM_DEFAULT_CHAT_ID</code></td><td>—</td><td>DB'de eşleşen config yoksa fallback kanal ID'si</td></tr>
+            <tr><td><code>LOG_MIN_LEVEL</code></td><td><code>INFO</code></td><td>Bu seviyenin altındaki loglar DB'ye yazılmaz. Prod'da INFO, debug ortamında DEBUG.</td></tr>
+            <tr><td><code>LOG_SKIP_PATHS</code></td><td><code>/api/health,/api/metrics,/_next</code></td><td>Loglama atlanacak path prefix'leri (virgülle ayrılır)</td></tr>
+            <tr><td><code>LOG_TELEGRAM_ENABLED</code></td><td><code>true</code></td><td><code>false</code> yapılırsa Telegram alertleri tamamen kapatılır</td></tr>
+            <tr><td><code>LOG_CLEANUP_DEBUG_DAYS</code></td><td><code>7</code></td><td>DEBUG loglarının saklanma süresi</td></tr>
+            <tr><td><code>LOG_CLEANUP_INFO_DAYS</code></td><td><code>30</code></td><td>INFO loglarının saklanma süresi</td></tr>
+            <tr><td><code>LOG_CLEANUP_WARNING_DAYS</code></td><td><code>90</code></td><td>WARNING loglarının saklanma süresi</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- KULLANIM ÖRNEĞİ -->
+      <div class="card" style="margin-top:12px">
+        <h3>Kullanım Örneği</h3>
+        <pre style="background:var(--bg3);padding:16px;border-radius:8px;font-size:12px;line-height:1.8;border:1px solid var(--border);overflow-x:auto"><span style="color:var(--text-muted)">// Herhangi bir API route'unda</span>
+<span style="color:var(--blue)">import</span> { createLog } <span style="color:var(--blue)">from</span> <span style="color:var(--green)">'@/lib/logger'</span>;
+<span style="color:var(--blue)">import</span> { LOG_ACTIONS } <span style="color:var(--blue)">from</span> <span style="color:var(--green)">'@/lib/logger/actions'</span>;
+<span style="color:var(--blue)">import</span> { extractRequestMeta } <span style="color:var(--blue)">from</span> <span style="color:var(--green)">'@/lib/logger/utils'</span>;
+
+<span style="color:var(--text-muted)">// void = await bekleme yok, ana akışı bloke etmez</span>
+<span style="color:var(--purple)">void</span> <span style="color:var(--honey)">createLog</span>({
+  level:       <span style="color:var(--green)">'INFO'</span>,
+  category:    <span style="color:var(--green)">'ORDER'</span>,
+  action:      LOG_ACTIONS.ORDER_CREATED,
+  message:     <span style="color:var(--green)">`Sipariş oluşturuldu: #${order.orderNumber}`</span>,
+  actorId:     session?.user?.id,
+  actorRole:   session?.user?.role,
+  actorEmail:  session?.user?.email,
+  targetType:  <span style="color:var(--green)">'Order'</span>,
+  targetId:    order.id,
+  targetLabel: <span style="color:var(--green)">`Sipariş #${order.orderNumber}`</span>,
+  detail:      { total: order.total, items: order.items.length },
+  statusCode:  <span style="color:var(--blue)">201</span>,
+  duration:    Date.<span style="color:var(--honey)">now</span>() - startTime,
+  ...<span style="color:var(--honey)">extractRequestMeta</span>(req),
+});</pre>
+      </div>
+
+      <!-- DEĞİŞTİRİLEN DOSYALAR -->
+      <div class="card" style="margin-top:12px">
+        <h3>Oluşturulan / Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Durum</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>prisma/schema.prisma</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>ActivityLog, TelegramAlertConfig, LogSummary modelleri + LogLevel, LogCategory enum'ları eklendi</td></tr>
+            <tr><td><code>lib/logger/index.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Ana createLog() fonksiyonu</td></tr>
+            <tr><td><code>lib/logger/actions.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>60+ LOG_ACTIONS sabiti</td></tr>
+            <tr><td><code>lib/logger/sanitize.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Hassas veri temizleyici</td></tr>
+            <tr><td><code>lib/logger/utils.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>extractRequestMeta, diffObjects</td></tr>
+            <tr><td><code>lib/logger/cache.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Telegram config cache (5dk TTL)</td></tr>
+            <tr><td><code>lib/logger/telegram.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Telegram alert servisi + rate limiter</td></tr>
+            <tr><td><code>lib/logger/permissions.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>isSuperAdmin tabanlı erişim kontrolleri</td></tr>
+            <tr><td><code>app/api/admin/logs/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Filtreli log listesi API</td></tr>
+            <tr><td><code>app/api/admin/logs/[id]/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Log detayı API</td></tr>
+            <tr><td><code>app/api/admin/logs/export/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>CSV/JSON export</td></tr>
+            <tr><td><code>app/api/admin/logs/stats/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>İstatistik API</td></tr>
+            <tr><td><code>app/api/admin/logs/telegram/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Telegram kanal CRUD</td></tr>
+            <tr><td><code>app/api/admin/logs/telegram/[id]/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Kanal güncelleme/silme</td></tr>
+            <tr><td><code>app/api/admin/logs/telegram/test/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Test mesajı gönderme</td></tr>
+            <tr><td><code>app/api/admin/logs/cleanup/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Manuel log temizleme</td></tr>
+            <tr><td><code>app/api/account/activity/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Müşteri kendi aktivite logu</td></tr>
+            <tr><td><code>app/api/cron/logs/daily-summary/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Günlük özet cron</td></tr>
+            <tr><td><code>app/api/cron/logs/cleanup/route.ts</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Otomatik temizleme cron</td></tr>
+            <tr><td><code>app/admin/logs/page.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Ana log listesi sayfası</td></tr>
+            <tr><td><code>app/admin/logs/loading.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Skeleton loading</td></tr>
+            <tr><td><code>app/admin/logs/stats/page.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>İstatistik dashboard sayfası</td></tr>
+            <tr><td><code>app/admin/logs/telegram/page.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Telegram konfigürasyon sayfası</td></tr>
+            <tr><td><code>app/admin/logs/telegram/TelegramPageClient.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Client wrapper (state yönetimi)</td></tr>
+            <tr><td><code>components/admin/logs/LogTable.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Tıklanabilir filtreli log tablosu</td></tr>
+            <tr><td><code>components/admin/logs/LogFilters.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>URL-synchronized filtre paneli</td></tr>
+            <tr><td><code>components/admin/logs/LogDetailDrawer.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Sağdan açılan detay drawer</td></tr>
+            <tr><td><code>components/admin/logs/LogStatsBar.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Üst istatistik kartları</td></tr>
+            <tr><td><code>components/admin/logs/LogLevelBadge.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Renkli seviye badge'i</td></tr>
+            <tr><td><code>components/admin/logs/LogCategoryBadge.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Kategori badge'i (Türkçe etiketler)</td></tr>
+            <tr><td><code>components/admin/logs/JsonViewer.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Collapsible JSON görüntüleyici</td></tr>
+            <tr><td><code>components/admin/logs/LogExportButton.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>CSV/JSON export butonu</td></tr>
+            <tr><td><code>components/admin/logs/TelegramConfigForm.tsx</code></td><td><span class="badge badge-green" style="font-size:10px">Yeni</span></td><td>Telegram kanal yönetim formu</td></tr>
+            <tr><td><code>app/api/auth/register/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>USER_REGISTERED logu eklendi</td></tr>
+            <tr><td><code>app/api/auth/forgot-password/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>PASSWORD_RESET_REQUESTED logu eklendi</td></tr>
+            <tr><td><code>app/api/auth/reset-password/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>PASSWORD_RESET_COMPLETED logu eklendi</td></tr>
+            <tr><td><code>app/api/auth/verify-email/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>USER_EMAIL_VERIFIED logu eklendi</td></tr>
+            <tr><td><code>app/api/orders/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>ORDER_CREATED ve PAYMENT_FAILED logları eklendi</td></tr>
+            <tr><td><code>app/api/payment/qnb/callback/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>PAYMENT_SUCCESS ve PAYMENT_FAILED logları eklendi</td></tr>
+            <tr><td><code>app/api/admin/orders/[id]/status/route.ts</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>ORDER_STATUS_CHANGED logu eklendi</td></tr>
+            <tr><td><code>.env.example</code></td><td><span class="badge badge-blue" style="font-size:10px">Güncellendi</span></td><td>8 yeni loglama env değişkeni eklendi</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 4 Haziran 2026, 18:00 — Adım 187 (Slider &amp; Banner Kırpma) · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 4 Haziran 2026, 23:00 — Adım 188 (Kapsamlı Loglama Modülü) · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

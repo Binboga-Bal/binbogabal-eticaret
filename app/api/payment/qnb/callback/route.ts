@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { QNBPayAdapter } from "@/lib/payment";
 import { pushOrderToErp } from "@/lib/dia-erp/sync";
 import { sendOrderConfirmedEmail } from "@/lib/mail/mail.service";
+import { createLog } from "@/lib/logger";
+import { LOG_ACTIONS } from "@/lib/logger/actions";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -19,6 +21,15 @@ export async function POST(req: Request) {
 
   if (!result.success || !result.orderId) {
     console.error("QNBPay callback doğrulama başarısız:", result.error, params);
+    void createLog({
+      level: "ERROR",
+      category: "PAYMENT",
+      action: LOG_ACTIONS.PAYMENT_FAILED,
+      message: `QNB callback doğrulama başarısız: ${result.error ?? "bilinmeyen hata"}`,
+      method: "POST",
+      path: "/api/payment/qnb/callback",
+      statusCode: 303,
+    });
     return NextResponse.redirect(`${baseUrl}/odeme/hata`, { status: 303 });
   }
 
@@ -81,6 +92,22 @@ export async function POST(req: Request) {
       Number(fullOrder.total),
     ).catch((err) => console.error("[qnb-callback] mail hata:", err));
   }
+
+  void createLog({
+    level: "INFO",
+    category: "PAYMENT",
+    action: LOG_ACTIONS.PAYMENT_SUCCESS,
+    message: `Ödeme başarılı: Sipariş #${orderNumber}`,
+    actorId: fullOrder?.user?.id,
+    actorEmail: fullOrder?.user?.email,
+    targetType: "Order",
+    targetId: order.id,
+    targetLabel: `Sipariş #${orderNumber}`,
+    detail: { transactionId: result.transactionId, amount: Number(order.total) },
+    method: "POST",
+    path: "/api/payment/qnb/callback",
+    statusCode: 303,
+  });
 
   return NextResponse.redirect(
     `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`,

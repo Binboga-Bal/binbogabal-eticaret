@@ -1403,6 +1403,110 @@ model GeoTargeting {
   @@map("geo_targeting")
 }
 
+// ─── AKTİVİTE LOGLAMA ────────────────────────────────────────────────────────
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum LogCategory {
+  AUTH
+  SESSION
+  PASSWORD
+  USER
+  ACCOUNT
+  VERIFICATION
+  ORDER
+  PAYMENT
+  CART
+  COUPON
+  PRODUCT
+  CATEGORY
+  INVENTORY
+  CAMPAIGN
+  DISCOUNT
+  ADMIN
+  ROLE
+  SETTINGS
+  SECURITY
+  PERMISSION
+  RATE_LIMIT
+  SYSTEM
+  API
+  CRON
+  DATA_EXPORT
+  DATA_DELETE
+  GDPR
+}
+
+model ActivityLog {
+  id           String      @id @default(cuid())
+  level        LogLevel    @default(INFO)
+  category     LogCategory
+  action       String
+  actorId      String?
+  actorRole    String?
+  actorEmail   String?
+  actorIp      String?
+  userAgent    String?
+  targetType   String?
+  targetId     String?
+  targetLabel  String?
+  message      String
+  detail       Json?
+  method       String?
+  path         String?
+  statusCode   Int?
+  duration     Int?
+  telegramSent Boolean     @default(false)
+  telegramMsgId String?
+  createdAt    DateTime    @default(now())
+
+  @@index([actorId])
+  @@index([category])
+  @@index([level])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@index([actorIp])
+  @@map("activity_logs")
+}
+
+model TelegramAlertConfig {
+  id         String        @id @default(cuid())
+  chatId     String
+  label      String
+  isActive   Boolean       @default(true)
+  levels     LogLevel[]    @default([ERROR, CRITICAL])
+  categories LogCategory[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("telegram_alert_configs")
+}
+
+model LogSummary {
+  id            String   @id @default(cuid())
+  date          DateTime
+  totalLogs     Int      @default(0)
+  debugCount    Int      @default(0)
+  infoCount     Int      @default(0)
+  warningCount  Int      @default(0)
+  errorCount    Int      @default(0)
+  criticalCount Int      @default(0)
+  topCategories Json?
+  topActions    Json?
+  uniqueIps     Int      @default(0)
+  uniqueUsers   Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@unique([date])
+  @@map("log_summaries")
+}
+
 // ─── LLM İÇERİK DEPOSU (GENERATIVE SEO) ──────────────────────────────────────
 
 model LlmContentStore {

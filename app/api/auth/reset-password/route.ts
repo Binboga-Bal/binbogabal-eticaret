@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { sendPasswordChangedEmail } from "@/lib/mail/mail.service";
+import { createLog } from "@/lib/logger";
+import { LOG_ACTIONS } from "@/lib/logger/actions";
 
 const schema = z.object({
   token: z.string().min(1),
@@ -31,6 +33,17 @@ export async function POST(req: Request) {
   });
 
   await sendPasswordChangedEmail(user.email, user.name ?? "Müşterimiz").catch(() => null);
+
+  void createLog({
+    level: "INFO",
+    category: "PASSWORD",
+    action: LOG_ACTIONS.PASSWORD_RESET_COMPLETED,
+    message: `Şifre sıfırlama tamamlandı: ${user.email}`,
+    actorId: user.id,
+    actorEmail: user.email,
+    method: "POST",
+    path: "/api/auth/reset-password",
+  });
 
   return NextResponse.json({ message: "Şifreniz başarıyla güncellendi" });
 }

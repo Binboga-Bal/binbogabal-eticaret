@@ -3,10 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { sendPasswordResetEmail } from "@/lib/mail/mail.service";
+import { createLog } from "@/lib/logger";
+import { LOG_ACTIONS } from "@/lib/logger/actions";
 
 const schema = z.object({ email: z.string().email() });
 
 export async function POST(req: Request) {
+  const actorIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? req.headers.get("x-real-ip") ?? undefined;
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
@@ -26,6 +29,18 @@ export async function POST(req: Request) {
     });
 
     await sendPasswordResetEmail(user.email, user.name ?? "Müşterimiz", token).catch(() => null);
+
+    void createLog({
+      level: "INFO",
+      category: "PASSWORD",
+      action: LOG_ACTIONS.PASSWORD_RESET_REQUESTED,
+      message: `Şifre sıfırlama talebi: ${user.email}`,
+      actorId: user.id,
+      actorEmail: user.email,
+      actorIp,
+      method: "POST",
+      path: "/api/auth/forgot-password",
+    });
   }
 
   return NextResponse.json({ message: "Şifre sıfırlama bağlantısı e-postanıza gönderildi" });

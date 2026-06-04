@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { sendVerifyEmail, sendWelcomeEmail } from "@/lib/mail/mail.service";
+import { createLog } from "@/lib/logger";
+import { LOG_ACTIONS } from "@/lib/logger/actions";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -16,6 +18,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  const actorIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? req.headers.get("x-real-ip") ?? undefined;
   const body = await req.json();
   const parsed = schema.safeParse(body);
 
@@ -24,7 +27,7 @@ export async function POST(req: Request) {
   }
 
   const { name, email, phone, password, kvkkConsent, newsletterConsent, smsConsent } = parsed.data;
-  const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? undefined;
+  const ip = actorIp ?? undefined;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -63,6 +66,23 @@ export async function POST(req: Request) {
     .catch((err) => console.error("[register] sendVerifyEmail hata:", err));
   await sendWelcomeEmail(user.email, user.name ?? "Müşterimiz")
     .catch((err) => console.error("[register] sendWelcomeEmail hata:", err));
+
+  void createLog({
+    level: "INFO",
+    category: "ACCOUNT",
+    action: LOG_ACTIONS.USER_REGISTERED,
+    message: `Yeni kayıt: ${email}`,
+    actorId: user.id,
+    actorEmail: user.email,
+    actorRole: "CUSTOMER",
+    actorIp: actorIp,
+    targetType: "User",
+    targetId: user.id,
+    targetLabel: user.email,
+    method: "POST",
+    path: "/api/auth/register",
+    statusCode: 200,
+  });
 
   return NextResponse.json({ message: "Kayıt başarılı. E-postanızı doğrulayın." });
 }
