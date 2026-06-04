@@ -161,9 +161,6 @@ export class QNBPayAdapter implements PaymentAdapter {
 
       const body = response.data;
 
-      // Raw yanıtı logla — format analizi için
-      console.log("[QNBPay] checkstatus raw:", JSON.stringify(body).substring(0, 600));
-
       // QNBpay çeşitli nested yapılarda yanıt dönebilir; hepsini tara
       const data = body?.data ?? body;
 
