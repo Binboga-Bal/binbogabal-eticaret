@@ -1,4 +1,5 @@
 import { type ActivityLog } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { getTelegramConfigs, configMatchesLog } from "./cache";
 
 // In-memory rate limit: action+ip → last sent timestamp
@@ -63,7 +64,6 @@ export async function sendTelegramAlert(log: ActivityLog): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token || process.env.LOG_TELEGRAM_ENABLED === "false") return;
 
-  // Rate limit check
   const rateLimitKey = `${log.action}::${log.actorIp ?? ""}`;
   const lastSent = rateLimitMap.get(rateLimitKey) ?? 0;
   if (Date.now() - lastSent < RATE_LIMIT_MS) return;
@@ -75,7 +75,6 @@ export async function sendTelegramAlert(log: ActivityLog): Promise<void> {
     const configs = await getTelegramConfigs();
     const matchingConfigs = configs.filter((c) => configMatchesLog(c, log.level, log.category));
 
-    // Also check default chat if no configs match or list is empty
     if (matchingConfigs.length === 0 && process.env.TELEGRAM_DEFAULT_CHAT_ID) {
       const msgId = await sendToChat(
         process.env.TELEGRAM_DEFAULT_CHAT_ID,
@@ -83,7 +82,6 @@ export async function sendTelegramAlert(log: ActivityLog): Promise<void> {
         token,
       );
       if (msgId) {
-        const { prisma } = await import("@/lib/prisma");
         await prisma.activityLog.update({
           where: { id: log.id },
           data: { telegramSent: true, telegramMsgId: msgId },
@@ -92,7 +90,6 @@ export async function sendTelegramAlert(log: ActivityLog): Promise<void> {
       return;
     }
 
-    const { prisma } = await import("@/lib/prisma");
     const message = formatTelegramMessage(log, appUrl);
     let firstMsgId: string | null = null;
 

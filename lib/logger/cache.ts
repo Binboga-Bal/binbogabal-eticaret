@@ -1,4 +1,5 @@
 import { type TelegramAlertConfig, type LogLevel, type LogCategory } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
 interface CacheEntry {
   configs: TelegramAlertConfig[];
@@ -13,8 +14,6 @@ export async function getTelegramConfigs(): Promise<TelegramAlertConfig[]> {
     return cache.configs;
   }
 
-  // Lazy import to avoid circular deps
-  const { prisma } = await import("@/lib/prisma");
   const configs = await prisma.telegramAlertConfig.findMany({
     where: { isActive: true },
   });

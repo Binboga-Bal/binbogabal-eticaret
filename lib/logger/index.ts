@@ -1,4 +1,5 @@
 import { type LogLevel, type LogCategory } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { sanitizeDetail } from "./sanitize";
 import { sendTelegramAlert } from "./telegram";
 
@@ -41,15 +42,13 @@ export async function createLog(params: CreateLogParams): Promise<void> {
     const level: LogLevel = params.level ?? "INFO";
     const minLevel = getConfiguredMinLevel();
 
-    // Skip paths check
     const skipPaths = (process.env.LOG_SKIP_PATHS ?? "/api/health,/api/metrics,/_next").split(",");
     if (params.path && skipPaths.some((p) => params.path!.startsWith(p.trim()))) return;
 
     if (MIN_LEVEL_ORDER[level] < MIN_LEVEL_ORDER[minLevel]) return;
 
-    const sanitized = params.detail ? sanitizeDetail(params.detail) : undefined;
+    const sanitized = params.detail ? sanitizeDetail(params.detail) : null;
 
-    const { prisma } = await import("@/lib/prisma");
     const log = await prisma.activityLog.create({
       data: {
         level,
@@ -64,7 +63,8 @@ export async function createLog(params: CreateLogParams): Promise<void> {
         targetType: params.targetType ?? null,
         targetId: params.targetId ?? null,
         targetLabel: params.targetLabel ?? null,
-        detail: sanitized ?? undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        detail: sanitized as any,
         method: params.method ?? null,
         path: params.path ?? null,
         statusCode: params.statusCode ?? null,
@@ -72,7 +72,6 @@ export async function createLog(params: CreateLogParams): Promise<void> {
       },
     });
 
-    // Send Telegram alert for WARNING+ levels
     if (MIN_LEVEL_ORDER[level] >= MIN_LEVEL_ORDER["WARNING"]) {
       sendTelegramAlert(log).catch((err) => console.error("[logger] telegram hata:", err));
     }
