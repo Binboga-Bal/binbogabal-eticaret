@@ -11,17 +11,17 @@ export async function GET(req: Request) {
 
   const now = new Date();
 
-  // APPROVED + startsAt geçmiş → ACTIVE
+  // APPROVED + startsAt geçmiş → ACTIVE (admin onayladı, artık requiresApproval kontrolü anlamsız)
   const result = await prisma.campaign.updateMany({
     where: {
       status: "APPROVED",
       startsAt: { lte: now },
-      requiresApproval: false,
+      OR: [{ endsAt: null }, { endsAt: { gte: now } }],
     },
     data: { status: "ACTIVE" },
   });
 
-  // DRAFT/APPROVED + startsAt geçmiş ama requiresApproval=false → ACTIVE
+  // DRAFT + onay gerektirmeyen + startsAt geçmiş → ACTIVE
   const result2 = await prisma.campaign.updateMany({
     where: {
       status: "DRAFT",
