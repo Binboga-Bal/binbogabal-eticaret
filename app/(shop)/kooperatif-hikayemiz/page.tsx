@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Kooperatif Hikayemiz | Binboğa Kooperatif Balı",
@@ -89,30 +91,49 @@ const stats = [
   { value: "50+", label: "Yıllık Deneyim" },
 ];
 
-export default function KooperatifHikayemizPage() {
+export default async function KooperatifHikayemizPage() {
+  const bannerSetting = await prisma.siteSetting.findUnique({ where: { key: "banner_kooperatif_hikayemiz" } });
+  const bannerImage = bannerSetting?.value ?? null;
+
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section className="relative bg-honey-dark overflow-hidden py-24">
-        {/* Dekoratif altıgen desen */}
-        <div className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='52' viewBox='0 0 60 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 17.3 L60 34.7 L30 52 L0 34.7 L0 17.3Z' fill='%23fff' fill-opacity='1'/%3E%3C/svg%3E")`,
-            backgroundSize: "60px 52px",
-          }}
-        />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block bg-honey-bright/20 text-honey-bright text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-            S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
-            Arının Emeği,<br />
-            <span className="text-honey-bright">Kooperatifin Güvencesi</span>
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl mx-auto leading-relaxed">
-            1973'te bir avuç arıcının kurduğu bu yapı, bugün 1800'den fazla aileyi
-            birbirine bağlıyor. Kâr değil dayanışma; hissedar değil arıcı önce.
-          </p>
+      <section className="relative h-72 md:h-[420px] overflow-hidden bg-honey-dark">
+        {bannerImage ? (
+          <>
+            <Image
+              src={bannerImage}
+              alt="Kooperatif Hikayemiz banner"
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+          </>
+        ) : (
+          <div
+            className="absolute inset-0 opacity-[0.07]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='52' viewBox='0 0 60 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 17.3 L60 34.7 L30 52 L0 34.7 L0 17.3Z' fill='%23fff' fill-opacity='1'/%3E%3C/svg%3E")`,
+              backgroundSize: "60px 52px",
+            }}
+          />
+        )}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span className="inline-block bg-honey-bright/20 text-honey-bright text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+              S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi
+            </span>
+            <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+              Arının Emeği,<br />
+              <span className="text-honey-bright">Kooperatifin Güvencesi</span>
+            </h1>
+            <p className="text-white/80 text-lg max-w-2xl mx-auto leading-relaxed">
+              1973&apos;te bir avuç arıcının kurduğu bu yapı, bugün 1800&apos;den fazla aileyi
+              birbirine bağlıyor. Kâr değil dayanışma; hissedar değil arıcı önce.
+            </p>
+          </div>
         </div>
       </section>
 

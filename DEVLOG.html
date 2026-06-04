@@ -618,6 +618,9 @@
       <a href="#step183" class="nav-link"><span class="dot"></span>183 — Meta Editör (7 Sekme)</a>
       <a href="#step184" class="nav-link"><span class="dot"></span>184 — SEO Cron Job'lar</a>
 
+      <div class="nav-section-label">4 Haziran 2026 — Sayfa Bannerleri</div>
+      <a href="#step185" class="nav-link"><span class="dot"></span>185 — Hakkımızda &amp; Hikayemiz Banner</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -7932,10 +7935,96 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ─────────────────────────── STEP 185 -->
+    <div class="date-header">
+      <span class="date-pill">📅 4 Haziran 2026 — Sayfa Bannerleri</span>
+      <div class="date-line"></div>
+    </div>
+
+    <section class="section" id="step185">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🖼️</div>
+        <div>
+          <h2>185 — Hakkımızda &amp; Kooperatif Hikayemiz Sayfa Bannerleri</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-green">feat</span>
+            <span class="tag tag-honey">admin</span>
+            <span class="tag tag-blue">ui</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Amaç</h3>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.7">
+          Diğer sayfalarda (Ürünlerimiz, Bal Rehberi) mevcut olan admin'den yönetilebilir tam-genişlik
+          banner sistemi, <code>/hakkimizda</code> ve <code>/kooperatif-hikayemiz</code> sayfalarına
+          da eklendi. Görsel yüklenmediyse her sayfa kendi dekoratif fallback'ini gösteriyor.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/(shop)/hakkimizda/</span><br>
+          &nbsp;&nbsp;<span class="file mod">  page.tsx</span> — async yapıldı; <code>banner_hakkimizda</code> SiteSetting'den çekiliyor; image-based hero<br><br>
+          <span class="dir">app/(shop)/kooperatif-hikayemiz/</span><br>
+          &nbsp;&nbsp;<span class="file mod">  page.tsx</span> — async yapıldı; <code>banner_kooperatif_hikayemiz</code> SiteSetting'den çekiliyor; image-based hero<br><br>
+          <span class="dir">app/admin/bannerlar/</span><br>
+          &nbsp;&nbsp;<span class="file mod">  page.tsx</span> — <code>ALL_KEYS</code> listesi ve "Sayfa Bannerleri" grubu güncellendi
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Mimari Detay</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--green)"></div>
+            <div class="step-body">
+              <h4>DB Key: <code>banner_hakkimizda</code></h4>
+              <p>Key zaten <code>ALL_KEYS</code>'te tanımlıydı fakat sayfa hiç kullanmıyordu. Sayfa artık <code>prisma.siteSetting.findUnique</code> ile görsel URL'sini çekiyor.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--honey)"></div>
+            <div class="step-body">
+              <h4>DB Key: <code>banner_kooperatif_hikayemiz</code> (yeni)</h4>
+              <p><code>ALL_KEYS</code> dizisine ve "Sayfa Bannerleri" grubuna eklendi. Admin → Görsel Yönetimi → Sayfa Bannerleri ekranından yüklenebilir.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--blue)"></div>
+            <div class="step-body">
+              <h4>Render Mantığı</h4>
+              <p>Görsel varsa: <code>next/image fill</code> + <code>bg-gradient-to-r from-black/60</code> overlay. Görsel yoksa: her sayfanın özgün dekoratif arka planı (animasyonsuz, deterministik — SSR uyumlu).</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-dot" style="background:var(--purple)"></div>
+            <div class="step-body">
+              <h4>Boyut Önerisi</h4>
+              <p>Admin panelde her iki banner için önerilen boyut: <strong>1920 × 600 px</strong> — diğer sayfa bannerleriyle tutarlı.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Özet Tablo</h3>
+        <table>
+          <thead><tr><th>Sayfa</th><th>SiteSetting Key</th><th>Admin Görünümü</th><th>Fallback</th></tr></thead>
+          <tbody>
+            <tr><td><code>/hakkimizda</code></td><td><code>banner_hakkimizda</code></td><td>Sayfa Bannerleri → Hakkımızda</td><td>Dekoratif yuvarlak daireler (honey-dark zemin)</td></tr>
+            <tr><td><code>/kooperatif-hikayemiz</code></td><td><code>banner_kooperatif_hikayemiz</code></td><td>Sayfa Bannerleri → Kooperatif Hikayemiz</td><td>Altıgen SVG desen (honey-dark zemin)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 4 Haziran 2026, 14:00 — Adım 184 (SEO &amp; GEO Modülü) · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 4 Haziran 2026, 15:30 — Adım 185 (Sayfa Bannerleri) · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

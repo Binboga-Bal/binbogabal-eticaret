@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Hakkımızda | Binboğa Kooperatif Balı",
@@ -47,34 +49,53 @@ const timeline = [
   { year: "2024", event: "E-ticaret platformumuz açıldı; arıcıdan tüketiciye doğrudan satış başladı." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const bannerSetting = await prisma.siteSetting.findUnique({ where: { key: "banner_hakkimizda" } });
+  const bannerImage = bannerSetting?.value ?? null;
+
   return (
     <>
       {/* Hero */}
-      <section className="bg-honey-dark py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-honey-bright"
-              style={{
-                width: Math.random() * 80 + 20,
-                height: Math.random() * 80 + 20,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-              }}
+      <section className="relative h-72 md:h-[420px] overflow-hidden bg-honey-dark">
+        {bannerImage ? (
+          <>
+            <Image
+              src={bannerImage}
+              alt="Hakkımızda banner"
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
             />
-          ))}
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-honey-bright text-sm font-bold uppercase tracking-widest mb-3">1973'ten Bugüne</p>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
-            Şirket Değil, Kooperatif!
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl mx-auto">
-            Kozan dağlarının arıcıları 50 yılı aşkın süredir tek bir amaç etrafında birleşiyor:
-            doğal balı, adil bir fiyatla, doğrudan sizin sofranzıa taşımak.
-          </p>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+          </>
+        ) : (
+          <div className="absolute inset-0 opacity-10">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-honey-bright"
+                style={{
+                  width: (((i * 37) % 80) + 20),
+                  height: (((i * 53) % 80) + 20),
+                  top: `${(i * 17) % 100}%`,
+                  left: `${(i * 23) % 100}%`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-honey-bright text-sm font-bold uppercase tracking-widest mb-3">1973&apos;ten Bugüne</p>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
+              Şirket Değil, Kooperatif!
+            </h1>
+            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+              Kozan dağlarının arıcıları 50 yılı aşkın süredir tek bir amaç etrafında birleşiyor:
+              doğal balı, adil bir fiyatla, doğrudan sizin sofranıza taşımak.
+            </p>
+          </div>
         </div>
       </section>
 

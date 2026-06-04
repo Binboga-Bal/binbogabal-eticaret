@@ -19,7 +19,7 @@ const ALL_KEYS = [
   "img_home_hikayemiz", "img_home_hakkimizda",
   "img_badge_1", "img_badge_2", "img_badge_3", "img_badge_4",
   "img_process_1", "img_process_2", "img_process_3", "img_process_4",
-  "banner_bal_rehberi", "banner_hakkimizda", "banner_urunlerimiz", "banner_iletisim",
+  "banner_bal_rehberi", "banner_hakkimizda", "banner_kooperatif_hikayemiz", "banner_urunlerimiz", "banner_iletisim",
   "img_bal_rehberi_guvence",
 ];
 
@@ -80,6 +80,7 @@ export default async function AdminBannersPage() {
         { key: "banner_bal_rehberi", label: "Bal Rehberi", hint: "/bal-rehberi", currentUrl: db.banner_bal_rehberi ?? balRehberiTheme.banner.image, recommendedSize: "1920 × 600 px" },
         { key: "img_bal_rehberi_guvence", label: "Bal Rehberi — Güvence Bölümü", hint: "Kooperatif güvencesi arka plan", currentUrl: db.img_bal_rehberi_guvence ?? "/images/bal-rehberi/bal-rehberi-kooperatif-guvencesi.jpg", recommendedSize: "1920 × 600 px" },
         { key: "banner_hakkimizda", label: "Hakkımızda", hint: "/hakkimizda", currentUrl: db.banner_hakkimizda ?? null, recommendedSize: "1920 × 600 px" },
+        { key: "banner_kooperatif_hikayemiz", label: "Kooperatif Hikayemiz", hint: "/kooperatif-hikayemiz", currentUrl: db.banner_kooperatif_hikayemiz ?? null, recommendedSize: "1920 × 600 px" },
         { key: "banner_urunlerimiz", label: "Ürünlerimiz", hint: "/urunlerimiz", currentUrl: db.banner_urunlerimiz ?? "/images/urunlerimiz/urunlerimiz-banner.webp", recommendedSize: "1920 × 600 px" },
         { key: "banner_iletisim", label: "İletişim", hint: "/iletisim", currentUrl: db.banner_iletisim ?? null, recommendedSize: "1920 × 600 px" },
       ],
