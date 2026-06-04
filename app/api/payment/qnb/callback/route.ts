@@ -18,6 +18,12 @@ function safeQnbParams(params: Record<string, string>) {
 // QNBPay response_method:"GET" ile return_url'i GET query param ile çağırır,
 // bazı entegrasyonlar POST ile çağırabilir — ikisi de desteklenir.
 async function handleCallback(params: Record<string, string>, req: Request) {
+  // invoice_id veya order_no yoksa QNBpay'den gelen gerçek bir callback değil
+  // (bot/crawler taraması) — sessizce 400 döndür, log yazma
+  if (!params.invoice_id && !params.order_no) {
+    return new NextResponse("Bad Request", { status: 400 });
+  }
+
   const startTime = Date.now();
   const actorIp =
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
