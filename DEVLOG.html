@@ -9024,10 +9024,160 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ═══ STEP 192 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step192">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.1)">📬</div>
+        <h2>
+          <span class="step-num">192</span>
+          Telegram Alert Eşiği INFO'ya Düşürüldü
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-honey">feat(logger)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Daha önce yalnızca <code>WARNING</code> ve üstü loglar Telegram'a gönderiliyordu.
+        Sipariş oluşturma, ödeme başlatma, kullanıcı girişi gibi önemli <code>INFO</code>
+        seviyesi olaylar bildirim üretmiyordu. Eşik <code>INFO</code>'ya çekildi;
+        <code>DEBUG</code> hariç tüm eventlar artık Telegram'a iletiliyor.
+      </p>
+
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <table>
+          <thead><tr><th>Önce</th><th>Sonra</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>MIN_LEVEL_ORDER[level] &gt;= MIN_LEVEL_ORDER["WARNING"]</code></td>
+              <td><code>MIN_LEVEL_ORDER[level] &gt;= MIN_LEVEL_ORDER["INFO"]</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;color:var(--text-muted);font-size:13px">
+          <code>DEBUG</code> logları hariç — bunlar geliştirme ortamına özgü, kanalı gürültüyle doldurur.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosya</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>lib/logger/index.ts</code></td>
+              <td>Telegram tetikleme eşiği <code>WARNING</code> → <code>INFO</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 193 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step193">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">🔔</div>
+        <h2>
+          <span class="step-num">193</span>
+          Telegram Merkezi Bildirim Sistemi — Activity + Audit Log Desteği
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-blue">feat(telegram)</span>
+        <span class="tag tag-honey">feat(audit)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Telegram bildirim sistemi yalnızca <code>ActivityLog</code>'u destekliyordu;
+        admin panelde yapılan kritik değişiklikleri izleyen <code>AuditLog</code> için
+        hiç bildirim gönderilmiyordu. Ayrı bir sistem oluşturmak yerine mevcut
+        <code>TelegramAlertConfig</code> altyapısı genişletildi: tek admin sayfasından
+        her iki log kaynağı için filtreli kanal konfigürasyonu yapılabiliyor.
+      </p>
+
+      <div class="card">
+        <h3>Schema Değişiklikleri</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">
+          <code>TelegramAlertConfig</code> modeline üç alan eklendi:
+        </p>
+        <table>
+          <thead><tr><th>Alan</th><th>Tip</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>logSource</code></td>
+              <td><code>TelegramLogSource</code> enum</td>
+              <td><code>ACTIVITY</code> / <code>AUDIT</code> / <code>ALL</code> — hangi kaynak izlensin</td>
+            </tr>
+            <tr>
+              <td><code>auditModules</code></td>
+              <td><code>String[]</code></td>
+              <td>Audit log modül filtresi (boş = tümü): <code>auth</code>, <code>admin_users</code>, <code>roles</code>, <code>security</code>…</td>
+            </tr>
+            <tr>
+              <td><code>minRiskScore</code></td>
+              <td><code>Int</code> (0–100)</td>
+              <td>Bu eşiğin altındaki audit loglar gönderilmez (0 = hepsi)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Bildirim Akışı</h3>
+        <table>
+          <thead><tr><th>Log Türü</th><th>Tetiklenme</th><th>Filtre Mantığı</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>ActivityLog</code></td>
+              <td><code>createLog()</code> → level ≥ INFO</td>
+              <td><code>logSource ∈ {ACTIVITY, ALL}</code> + level + category eşleşmesi</td>
+            </tr>
+            <tr>
+              <td><code>AuditLog</code></td>
+              <td><code>logAction()</code> → her audit kaydı</td>
+              <td><code>logSource ∈ {AUDIT, ALL}</code> + minRiskScore + auditModules eşleşmesi</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          Her iki kaynak da eşleşen konfigürasyon yoksa <code>TELEGRAM_DEFAULT_CHAT_ID</code>
+          fallback'ine düşer.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Admin UI — Konfigürasyon Formu</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">
+          <strong>Logs → Telegram</strong> sayfasına kaynak seçici ve koşullu filtre alanları eklendi:
+        </p>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:20px;line-height:1.8">
+          <li><strong>Log Kaynağı</strong> radio: Tümü / Sadece Activity / Sadece Audit</li>
+          <li><strong>Activity seçiliyse:</strong> Alert Seviyeleri checkbox listesi (DEBUG–CRITICAL)</li>
+          <li><strong>Audit seçiliyse:</strong> Modül checkbox listesi + Risk Skoru range kaydırıcı (0–100)</li>
+          <li>Mevcut kanallar kartında kaynak, modüller ve min. risk skoru gösteriliyor</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr><td><code>prisma/schema.prisma</code></td><td><code>TelegramLogSource</code> enum + <code>TelegramAlertConfig</code>'e <code>logSource</code>, <code>auditModules</code>, <code>minRiskScore</code></td></tr>
+            <tr><td><code>lib/logger/cache.ts</code></td><td><code>configMatchesActivityLog</code> + <code>configMatchesAuditLog</code> fonksiyonları; eski <code>configMatchesLog</code> deprecated wrapper olarak bırakıldı</td></tr>
+            <tr><td><code>lib/logger/telegram.ts</code></td><td><code>sendAuditTelegramAlert()</code> + <code>formatAuditTelegramMessage()</code> eklendi; activity eşleşmesi <code>configMatchesActivityLog</code>'a geçirildi</td></tr>
+            <tr><td><code>lib/audit/logger.ts</code></td><td>Audit log oluşturulduktan sonra <code>sendAuditTelegramAlert()</code> async çağrısı</td></tr>
+            <tr><td><code>app/api/admin/logs/telegram/route.ts</code></td><td>POST şemasına <code>logSource</code>, <code>auditModules</code>, <code>minRiskScore</code> eklendi</td></tr>
+            <tr><td><code>app/api/admin/logs/telegram/[id]/route.ts</code></td><td>PATCH şemasına aynı alanlar eklendi</td></tr>
+            <tr><td><code>components/admin/logs/TelegramConfigForm.tsx</code></td><td>Kaynak seçici radio + koşullu Activity/Audit filtre panelleri + risk skoru kaydırıcı</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 4 Haziran 2026 - Adim 191 (QNBpay Guvenlik + Log &amp; Cancel Duzeltmeleri) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 4 Haziran 2026 - Adim 193 (Telegram Merkezi Bildirim Sistemi) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>
