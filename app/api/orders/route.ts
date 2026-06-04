@@ -238,7 +238,7 @@ export async function POST(req: Request) {
       quantity: item.quantity,
     })),
     callbackUrl: `${baseUrl}/api/payment/qnb/callback`,
-    cancelUrl: `${baseUrl}/odeme/hata`,
+    cancelUrl: `${baseUrl}/api/payment/qnb/cancel`,
     // 🔒 Kart verisi parametresini buradan tamamen sildik. Sadece sipariş verileri gidiyor.
   });
 
