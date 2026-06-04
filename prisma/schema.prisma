@@ -1475,15 +1475,26 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
+enum TelegramLogSource {
+  ACTIVITY
+  AUDIT
+  ALL
+}
+
 model TelegramAlertConfig {
-  id         String        @id @default(cuid())
-  chatId     String
-  label      String
-  isActive   Boolean       @default(true)
-  levels     LogLevel[]    @default([ERROR, CRITICAL])
-  categories LogCategory[]
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  id            String             @id @default(cuid())
+  chatId        String
+  label         String
+  isActive      Boolean            @default(true)
+  logSource     TelegramLogSource  @default(ALL)
+  // Activity log filters
+  levels        LogLevel[]         @default([ERROR, CRITICAL])
+  categories    LogCategory[]
+  // Audit log filters
+  auditModules  String[]           @default([])
+  minRiskScore  Int                @default(0)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
   @@map("telegram_alert_configs")
 }

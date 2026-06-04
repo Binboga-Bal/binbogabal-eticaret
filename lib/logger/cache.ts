@@ -26,12 +26,33 @@ export function invalidateTelegramCache(): void {
   cache = null;
 }
 
+export function configMatchesActivityLog(
+  config: TelegramAlertConfig,
+  level: LogLevel,
+  category: LogCategory,
+): boolean {
+  if (config.logSource === "AUDIT") return false;
+  if (!config.levels.includes(level)) return false;
+  if (config.categories.length > 0 && !config.categories.includes(category)) return false;
+  return true;
+}
+
+export function configMatchesAuditLog(
+  config: TelegramAlertConfig,
+  module: string,
+  riskScore: number,
+): boolean {
+  if (config.logSource === "ACTIVITY") return false;
+  if (riskScore < config.minRiskScore) return false;
+  if (config.auditModules.length > 0 && !config.auditModules.includes(module)) return false;
+  return true;
+}
+
+/** @deprecated use configMatchesActivityLog */
 export function configMatchesLog(
   config: TelegramAlertConfig,
   level: LogLevel,
   category: LogCategory,
 ): boolean {
-  if (!config.levels.includes(level)) return false;
-  if (config.categories.length > 0 && !config.categories.includes(category)) return false;
-  return true;
+  return configMatchesActivityLog(config, level, category);
 }

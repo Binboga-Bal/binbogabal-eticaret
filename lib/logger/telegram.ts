@@ -1,6 +1,6 @@
-import { type ActivityLog } from "@prisma/client";
+import { type ActivityLog, type AuditLog } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getTelegramConfigs, configMatchesLog } from "./cache";
+import { getTelegramConfigs, configMatchesActivityLog, configMatchesAuditLog } from "./cache";
 
 // In-memory rate limit: action+ip → last sent timestamp
 const rateLimitMap = new Map<string, number>();
@@ -73,7 +73,7 @@ export async function sendTelegramAlert(log: ActivityLog): Promise<void> {
 
   try {
     const configs = await getTelegramConfigs();
-    const matchingConfigs = configs.filter((c) => configMatchesLog(c, log.level, log.category));
+    const matchingConfigs = configs.filter((c) => configMatchesActivityLog(c, log.level, log.category));
 
     if (matchingConfigs.length === 0 && process.env.TELEGRAM_DEFAULT_CHAT_ID) {
       const msgId = await sendToChat(
@@ -106,6 +106,60 @@ export async function sendTelegramAlert(log: ActivityLog): Promise<void> {
     }
   } catch (err) {
     console.error("[telegram] alert gönderilemedi:", err);
+  }
+}
+
+function formatAuditTelegramMessage(log: AuditLog, appUrl: string): string {
+  const date = new Date(log.createdAt).toLocaleString("tr-TR", {
+    timeZone: "Europe/Istanbul",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  const riskEmoji = log.riskScore >= 60 ? "🔴" : log.riskScore >= 30 ? "🟠" : "🟡";
+
+  const lines = [
+    `${riskEmoji} <b>AUDIT</b> | ${log.module}`,
+    "",
+    `🎯 <b>Aksiyon:</b> ${log.action}`,
+  ];
+
+  if (log.adminName) lines.push(`👤 <b>Admin:</b> ${log.adminName}`);
+  if (log.ipAddress) lines.push(`🌐 <b>IP:</b> ${log.ipAddress}`);
+  if (log.targetLabel) lines.push(`🎯 <b>Hedef:</b> ${log.targetLabel}`);
+  lines.push(`⚠️ <b>Risk Skoru:</b> ${log.riskScore}/100`);
+  lines.push("");
+  lines.push(`🕐 ${date}`);
+  lines.push(`🔗 ${appUrl}/admin/audit-log`);
+
+  return lines.join("\n");
+}
+
+export async function sendAuditTelegramAlert(log: AuditLog): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || process.env.LOG_TELEGRAM_ENABLED === "false") return;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+  try {
+    const configs = await getTelegramConfigs();
+    const matchingConfigs = configs.filter((c) => configMatchesAuditLog(c, log.module, log.riskScore));
+
+    if (matchingConfigs.length === 0 && process.env.TELEGRAM_DEFAULT_CHAT_ID) {
+      await sendToChat(process.env.TELEGRAM_DEFAULT_CHAT_ID, formatAuditTelegramMessage(log, appUrl), token);
+      return;
+    }
+
+    const message = formatAuditTelegramMessage(log, appUrl);
+    for (const config of matchingConfigs) {
+      await sendToChat(config.chatId, message, token);
+    }
+  } catch (err) {
+    console.error("[telegram] audit alert gönderilemedi:", err);
   }
 }
 

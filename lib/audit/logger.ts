@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { sendAuditTelegramAlert } from "@/lib/logger/telegram";
 
 interface LogActionParams {
   adminId?: string;
@@ -37,7 +38,7 @@ export async function logAction(params: LogActionParams): Promise<void> {
     const ip = getClientIP(params.req);
     const ua = params.req?.headers.get("user-agent") ?? null;
 
-    await prisma.auditLog.create({
+    const log = await prisma.auditLog.create({
       data: {
         adminId: params.adminId ?? null,
         adminName: params.adminName ?? null,
@@ -52,6 +53,8 @@ export async function logAction(params: LogActionParams): Promise<void> {
         riskScore,
       },
     });
+
+    sendAuditTelegramAlert(log).catch((err) => console.error("[audit] telegram hata:", err));
   } catch (err) {
     // Audit log failure must never crash the main flow
     console.error("[AuditLog] Failed to log action:", err);
