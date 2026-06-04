@@ -56,7 +56,7 @@ export default async function AboutPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative h-80 md:h-[500px] overflow-hidden bg-gray-900">
+      <section className="relative aspect-[2/1] min-h-[200px] max-h-[500px] overflow-hidden bg-gray-900">
         {bannerImage ? (
           <>
             <Image
@@ -91,7 +91,7 @@ export default async function AboutPage() {
             <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
               Şirket Değil, Kooperatif!
             </h1>
-            <p className="text-white/80 text-lg max-w-2xl">
+            <p className="hidden sm:block text-white/80 text-lg max-w-2xl">
               Kozan dağlarının arıcıları 50 yılı aşkın süredir tek bir amaç etrafında birleşiyor:
               doğal balı, adil bir fiyatla, doğrudan sizin sofranıza taşımak.
             </p>

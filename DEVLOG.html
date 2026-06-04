@@ -624,6 +624,9 @@
       <div class="nav-section-label">4 Haziran 2026 — Banner &amp; Sayfa UI</div>
       <a href="#step186" class="nav-link"><span class="dot"></span>186 — Banner Hizalama, ProcessFlow Entegrasyonu</a>
 
+      <div class="nav-section-label">4 Haziran 2026 — Responsive Görsel</div>
+      <a href="#step187" class="nav-link"><span class="dot"></span>187 — Slider &amp; Banner Kırpma Düzeltmesi</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -8099,10 +8102,134 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ════════════════════════════════════════════════════════════════
+         ADIM 187 — Slider & Banner Responsive Kırpma Düzeltmesi
+         4 Haziran 2026
+    ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="step187">
+      <div class="section-header">
+        <div>
+          <div class="section-meta">4 Haziran 2026 · Adım 187</div>
+          <h2 class="section-title">Slider &amp; Banner Responsive Kırpma Düzeltmesi</h2>
+        </div>
+        <span class="badge badge-blue">UI / Responsive</span>
+      </div>
+
+      <div class="card">
+        <h3>Problem</h3>
+        <p>Anasayfa slider'ı ve diğer sayfalardaki banner görselleri, ekran genişliği azaldıkça aşırı <strong>dikey kırpma</strong> yapıyordu. Sabit piksel yüksekliği (<code>min-height: 520px</code> mobil, <code>600px</code> masaüstü) ile dar viewport kombinasyonu portrait-benzeri bir alan yaratıyordu. 375px genişlikte slider 0.72:1 oranına sahipken, 1920×600 banner görselinin yalnızca <strong>%40</strong>'ı yatayda görünüyordu.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Kök Neden Analizi</h3>
+        <table>
+          <thead><tr><th>Ekran</th><th>Eski Yükseklik</th><th>Görsel Oran</th><th>Yatay Görünürlük</th></tr></thead>
+          <tbody>
+            <tr><td>375px (mobil)</td><td>520px sabit</td><td>0.72 : 1 (portrait!)</td><td>~40%</td></tr>
+            <tr><td>768px (tablet)</td><td>600px sabit</td><td>1.28 : 1</td><td>~65%</td></tr>
+            <tr><td>1366px (laptop)</td><td>600px sabit</td><td>2.28 : 1</td><td>~71%</td></tr>
+            <tr><td>1920px (FHD)</td><td>600px sabit</td><td>3.20 : 1</td><td>~100%</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px">Sorun: yükseklik sabitlendikçe dar viewport'larda banner neredeyse kare görünüyor, <code>object-cover</code> görseli merkezden agresif kırpıyor.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Çözüm — <code>clamp()</code> &amp; <code>aspect-ratio</code></h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--blue)"></div>
+            <div class="step-body">
+              <h4>HeroSlider — Mobil Yükseklik</h4>
+              <p><code>min-height: 520px</code> → <code>clamp(300px, 72vw, 520px)</code><br>
+              375px'de: 520px → <strong>300px</strong> (yatay görünürlük %40 → %66)</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--honey)"></div>
+            <div class="step-body">
+              <h4>HeroSlider — Masaüstü Yükseklik (kritik düzeltme)</h4>
+              <p><code>clamp(400px, 44vw, 600px)</code> → <code>clamp(380px, 32vw, 600px)</code><br>
+              1366px'de: 600px → <strong>437px</strong> (yatay görünürlük %71 → %97)<br>
+              1440px'de: 600px → <strong>461px</strong> (görünürlük %75 → %97)<br>
+              Formül: 32vw ≈ 1920×600 banner'ın doğal oranı (%31.25), tüm genişliklerde tutarlı görünüm.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--green)"></div>
+            <div class="step-body">
+              <h4>HeroSlider — Ok Butonları &amp; Pagination</h4>
+              <p>Prev/next okları mobilde (<code>&lt; 768px</code>) gizlendi — dokunmatik ekranda gereksiz, alanı kaplıyordu.<br>
+              Pagination noktaları wave SVG'nin üzerine biniyordu; <code>bottom: 46px</code> (mobil) / <code>66px</code> (masaüstü) ile wave'in üstüne taşındı.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--purple)"></div>
+            <div class="step-body">
+              <h4>HeroSlider — Gradient Slide İçerik Uyarlaması</h4>
+              <p>Yükseklik azalınca gradient slide içeriği aşıyordu. Responsive gizleme eşikleri güncellendi:</p>
+              <ul style="margin-top:6px; padding-left:18px; font-size:13px; color:var(--text-muted)">
+                <li>Başlık font: <code>text-3xl md:text-5xl</code> → <code>text-2xl sm:text-3xl md:text-5xl</code></li>
+                <li>Alt başlık çizgisi: <code>flex</code> → <code>hidden sm:flex</code> (640px altında gizli)</li>
+                <li>Açıklama metni: <code>hidden sm:block</code> → <code>hidden xl:block</code> (1280px altında gizli)</li>
+                <li>İstatistikler: <code>hidden sm:flex</code> → <code>hidden 2xl:flex</code> (1536px altında gizli)</li>
+                <li>Padding: <code>md:pt-16 md:pb-14</code> → <code>md:pt-10 md:pb-10</code></li>
+              </ul>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot" style="background:var(--teal)"></div>
+            <div class="step-body">
+              <h4>HeroSlider — Image Slide CTA Butonu</h4>
+              <p>Image-only slide'larda hiç etkileşim yoktu. Alt kısma hafif bir karartma gradyanı ve <code>primaryBtn</code> CTA butonu eklendi. Tüm slide'lar artık tıklanabilir.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-dot" style="background:var(--red)"></div>
+            <div class="step-body">
+              <h4>Banner Sayfaları — aspect-ratio ile Orantılı Yükseklik</h4>
+              <p>Hakkımızda, Kooperatif Hikayemiz, Ürünlerimiz sayfalarındaki banner bölümleri sabit yükseklikten (<code>h-80 md:h-[500px]</code>) <strong>viewport-orantılı</strong> yüksekliğe geçirildi:</p>
+              <ul style="margin-top:6px; padding-left:18px; font-size:13px; color:var(--text-muted)">
+                <li><code>aspect-[2/1] min-h-[200px] max-h-[500px]</code> — 375px'de 200px, 1000px'de 500px (kırpılmaz)</li>
+                <li>Açıklama paragrafları <code>hidden sm:block</code> ile 640px altında gizlendi (kısa banner'a sığması için)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sonuç Karşılaştırması</h3>
+        <table>
+          <thead><tr><th>Ekran</th><th>Eski Yükseklik</th><th>Yeni Yükseklik</th><th>Yatay Görünürlük</th></tr></thead>
+          <tbody>
+            <tr><td>375px mobil</td><td>520px</td><td><strong>300px</strong></td><td>%40 → <strong>%66</strong></td></tr>
+            <tr><td>768px tablet</td><td>600px</td><td><strong>380px</strong></td><td>%65 → <strong>%95</strong></td></tr>
+            <tr><td>1366px laptop</td><td>600px</td><td><strong>437px</strong></td><td>%71 → <strong>%97</strong></td></tr>
+            <tr><td>1440px</td><td>600px</td><td><strong>461px</strong></td><td>%75 → <strong>%97</strong></td></tr>
+            <tr><td>1920px FHD</td><td>600px</td><td>600px</td><td>%100 → <strong>%100</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr><td><code>components/shop/home/HeroSlider.tsx</code></td><td>clamp yükseklik, ok gizleme, pagination, CTA, içerik eşikleri</td></tr>
+            <tr><td><code>app/(shop)/hakkimizda/page.tsx</code></td><td>Banner <code>aspect-[2/1]</code>, açıklama <code>hidden sm:block</code></td></tr>
+            <tr><td><code>app/(shop)/kooperatif-hikayemiz/page.tsx</code></td><td>Banner <code>aspect-[2/1]</code>, açıklama <code>hidden sm:block</code></td></tr>
+            <tr><td><code>app/(shop)/urunlerimiz/page.tsx</code></td><td>Banner <code>aspect-[2/1] min-h-[180px] max-h-[520px]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 4 Haziran 2026, 18:00 — Adım 186 (Banner &amp; UI) · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 4 Haziran 2026, 18:00 — Adım 187 (Slider &amp; Banner Kırpma) · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

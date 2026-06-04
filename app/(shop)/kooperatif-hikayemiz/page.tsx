@@ -77,7 +77,7 @@ export default async function KooperatifHikayemizPage() {
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section className="relative h-80 md:h-[500px] overflow-hidden bg-gray-900">
+      <section className="relative aspect-[2/1] min-h-[200px] max-h-[500px] overflow-hidden bg-gray-900">
         {bannerImage ? (
           <>
             <Image
@@ -108,7 +108,7 @@ export default async function KooperatifHikayemizPage() {
               Arının Emeği,<br />
               <span className="text-honey-bright">Kooperatifin Güvencesi</span>
             </h1>
-            <p className="text-white/80 text-lg max-w-2xl leading-relaxed">
+            <p className="hidden sm:block text-white/80 text-lg max-w-2xl leading-relaxed">
               1973&apos;te bir avuç arıcının kurduğu bu yapı, bugün 1800&apos;den fazla aileyi
               birbirine bağlıyor. Kâr değil dayanışma; hissedar değil arıcı önce.
             </p>
