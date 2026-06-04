@@ -2,7 +2,6 @@
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination, EffectFade } from "swiper/modules";
-import Link from "next/link";
 import { sliderTheme } from "@/lib/theme";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -48,15 +47,13 @@ export function HeroSlider({ images = [] }: HeroSliderProps) {
         .hero-slider-wrapper,
         .hero-slider-wrapper .swiper,
         .hero-slide-section {
-          min-height: clamp(300px, 72vw, ${sliderTheme.heightMobile}px);
+          min-height: clamp(320px, 76vw, ${sliderTheme.heightMobile}px);
         }
         @media (min-width: 768px) {
           .hero-slider-wrapper,
           .hero-slider-wrapper .swiper,
           .hero-slide-section {
-            /* 32vw → 1366px'de 437px, 1440px'de 461px, 1920px'de 614px
-               Görsel yatayda 1920×600 banner için ~97% görünürlük sağlar */
-            min-height: clamp(380px, 32vw, ${sliderTheme.height}px);
+            min-height: clamp(400px, 36vw, ${sliderTheme.height}px);
           }
         }
 
@@ -161,13 +158,6 @@ function SlideContent({ slide }: { slide: Slide }) {
           alt={slide.badge}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Hafif alt karartma + CTA butonu */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-12 px-4 sm:px-6 lg:px-8 flex items-center">
-          <Link href={slide.primaryBtn.href} className="btn-secondary text-xs sm:text-sm">
-            {slide.primaryBtn.label}
-          </Link>
-        </div>
         <div className="absolute left-0 right-0 pointer-events-none" style={{ bottom: '-2px' }}>
           <svg viewBox="0 0 1440 60" className="hero-slide-wave w-full block" preserveAspectRatio="none">
             <path d="M0,60 C360,0 1080,60 1440,20 L1440,60 Z" fill="white" />
@@ -233,21 +223,6 @@ function SlideContent({ slide }: { slide: Slide }) {
           <p className="hidden xl:block text-white/80 text-sm leading-relaxed mb-8 max-w-md">
             {slide.description}
           </p>
-
-          {/* Butonlar */}
-          <div className="flex gap-3 flex-wrap">
-            <Link href={slide.primaryBtn.href} className="btn-secondary text-sm">
-              {slide.primaryBtn.label}
-            </Link>
-            {slide.secondaryBtn && (
-              <Link
-                href={slide.secondaryBtn.href}
-                className="inline-flex items-center gap-2 border-2 border-white/60 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-white hover:text-honey-dark transition-all duration-200 text-sm"
-              >
-                {slide.secondaryBtn.label}
-              </Link>
-            )}
-          </div>
 
           {/* İstatistikler — sadece çok geniş ekranlarda (1536px+) göster */}
           {slide.stats && (
