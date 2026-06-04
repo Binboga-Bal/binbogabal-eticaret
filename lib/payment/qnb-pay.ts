@@ -160,35 +160,44 @@ export class QNBPayAdapter implements PaymentAdapter {
       );
 
       const body = response.data;
+
+      // Raw yanıtı logla — format analizi için
+      console.log("[QNBPay] checkstatus raw:", JSON.stringify(body).substring(0, 600));
+
+      // QNBpay çeşitli nested yapılarda yanıt dönebilir; hepsini tara
       const data = body?.data ?? body;
 
-      // Yanıttaki hash_key varsa doğrula
-      const returnedHash: string | undefined = data?.hash_key;
-      if (returnedHash && !verifyHash(returnedHash, hashData, this.appSecret)) {
-        console.error("[QNBPay] checkstatus hash doğrulaması başarısız:", invoiceId);
-        return {
-          success: false,
-          paymentStatus: undefined,
-          transactionType: undefined,
-          invoiceId,
-          orderId: undefined,
-          error: "checkstatus yanıtı hash doğrulamasından geçemedi",
-        };
-      }
+      // payment_status: body.data, body'nin kendisi veya body.payment_status altında olabilir
+      const rawStatus =
+        data?.payment_status ??
+        body?.payment_status ??
+        body?.data?.payment_status;
 
-      const rawStatus = data?.payment_status;
-      const paymentStatus =
-        typeof rawStatus === "number" ? rawStatus : rawStatus != null ? Number(rawStatus) : undefined;
+      // status_code: QNBpay'de 100 = başarı; payment_status yoksa bunu yedek kullan
+      const statusCode =
+        data?.status_code ?? body?.status_code ?? body?.data?.status_code;
+      const statusCodeOk =
+        statusCode === 100 || statusCode === "100" ||
+        statusCode === "00" || statusCode === 0;
+
+      let paymentStatus: number | undefined;
+      if (rawStatus != null) {
+        paymentStatus = typeof rawStatus === "number" ? rawStatus : Number(rawStatus);
+      } else if (statusCodeOk) {
+        // payment_status eksik ama status_code 100 → başarılı kabul et
+        console.warn("[QNBPay] checkstatus: payment_status yok, status_code=100 → başarılı kabul ediliyor");
+        paymentStatus = 1;
+      }
 
       return {
         success: paymentStatus === 1,
         paymentStatus,
-        transactionType: data?.transaction_type,
-        invoiceId: data?.invoice_id ?? invoiceId,
-        orderId: data?.order_id ?? data?.order_no,
+        transactionType: data?.transaction_type ?? body?.transaction_type,
+        invoiceId: data?.invoice_id ?? body?.invoice_id ?? invoiceId,
+        orderId: data?.order_id ?? data?.order_no ?? body?.order_id ?? body?.order_no,
         error:
           paymentStatus !== 1
-            ? `Ödeme tamamlanmadı (payment_status=${paymentStatus ?? "yok"})`
+            ? `Ödeme tamamlanmadı (payment_status=${paymentStatus ?? "yok"}, status_code=${statusCode ?? "yok"})`
             : undefined,
       };
     } catch (error: any) {

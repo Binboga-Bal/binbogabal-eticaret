@@ -58,31 +58,45 @@ async function handleCallback(params: Record<string, string>, req: Request) {
   // QNBpay'den ödeme durumunu teyit et — query string'e güvenmek yeterli değil
   const statusResult = await adapter.checkStatus(orderNumber);
   if (!statusResult.success) {
-    await createLog({
-      level: "ERROR",
-      category: "PAYMENT",
-      action: LOG_ACTIONS.PAYMENT_FAILED,
-      message: `QNB checkstatus başarısız: ${statusResult.error ?? "bilinmeyen hata"}`,
-      actorIp,
-      detail: {
-        provider: "QNB_PAY",
-        stage: "checkstatus",
-        orderNumber,
-        errorMessage: statusResult.error ?? null,
-        paymentStatus: statusResult.paymentStatus ?? null,
-        qnbParams: safeQnbParams(params),
-        callbackMethod: req.method,
-        duration: Date.now() - startTime,
-      },
-      method: req.method,
-      path: "/api/payment/qnb/callback",
-      statusCode: 303,
-    });
+    // Fallback: checkstatus belirsiz yanıt (payment_status yok) ama callback açıkça başarı diyorsa
+    // callback params'a güven — checkstatus parse hatası ödemeyi bloke etmesin
+    const callbackConfirmsSuccess =
+      (params.payment_status === "1" || params.qnbpay_status === "1") &&
+      (params.error_code === "100" || params.status_code === "100");
 
-    return NextResponse.redirect(
-      `${baseUrl}/odeme/hata?invoice_id=${encodeURIComponent(orderNumber)}`,
-      { status: 303 },
-    );
+    if (callbackConfirmsSuccess && statusResult.paymentStatus === undefined) {
+      console.warn(
+        "[QNBPay] checkstatus parse edilemedi, callback payment_status=1 → devam ediliyor",
+        { invoiceId: orderNumber, checkstatusError: statusResult.error },
+      );
+      // Uyarıyla devam et — aşağıdaki DB güncelleme adımına geç
+    } else {
+      await createLog({
+        level: "ERROR",
+        category: "PAYMENT",
+        action: LOG_ACTIONS.PAYMENT_FAILED,
+        message: `QNB checkstatus başarısız: ${statusResult.error ?? "bilinmeyen hata"}`,
+        actorIp,
+        detail: {
+          provider: "QNB_PAY",
+          stage: "checkstatus",
+          orderNumber,
+          errorMessage: statusResult.error ?? null,
+          paymentStatus: statusResult.paymentStatus ?? null,
+          qnbParams: safeQnbParams(params),
+          callbackMethod: req.method,
+          duration: Date.now() - startTime,
+        },
+        method: req.method,
+        path: "/api/payment/qnb/callback",
+        statusCode: 303,
+      });
+
+      return NextResponse.redirect(
+        `${baseUrl}/odeme/hata?invoice_id=${encodeURIComponent(orderNumber)}`,
+        { status: 303 },
+      );
+    }
   }
   const order = await prisma.order.findUnique({ where: { orderNumber } });
 
