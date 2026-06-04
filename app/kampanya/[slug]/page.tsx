@@ -4,16 +4,23 @@ import { notFound } from "next/navigation";
 import { CampaignBanner } from "@/components/campaign-display/CampaignBanner";
 import { CountdownTimer } from "@/components/campaign-display/CountdownTimer";
 import Link from "next/link";
+import { buildMetadata } from "@/lib/seo/meta.service";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const c = await prisma.campaign.findUnique({ where: { slug }, select: { name: true, description: true } });
-  return {
-    title: c ? `${c.name} | Binboğa Kooperatif Balı` : "Kampanya",
-    description: c?.description,
-  };
+  const c = await prisma.campaign.findUnique({
+    where: { slug },
+    select: { id: true, name: true, description: true, ogImageUrl: true },
+  });
+  if (!c) return { title: "Kampanya" };
+  return buildMetadata("campaign", c.id, {
+    title: `${c.name} | Binboğa Kooperatif Balı`,
+    description: c.description,
+    image: c.ogImageUrl,
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/kampanya/${slug}`,
+  });
 }
 
 export default async function CampaignLandingPage({ params }: Props) {

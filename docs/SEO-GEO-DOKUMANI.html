@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEO & GEO Modülü — Binboğa Bal Teknik Dokümantasyon</title>
+  <style>
+    :root {
+      --honey:        #F9B10B;
+      --honey-dark:   #C57930;
+      --honey-bright: #FCD908;
+      --honey-light:  #FCE7A5;
+      --bg:           #0f1117;
+      --bg2:          #181c27;
+      --bg3:          #1e2333;
+      --border:       #2a3050;
+      --text:         #e2e8f0;
+      --text-muted:   #8892a4;
+      --green:        #22c55e;
+      --red:          #f87171;
+      --blue:         #60a5fa;
+      --purple:       #a78bfa;
+      --teal:         #2dd4bf;
+      --orange:       #fb923c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 270px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 0;
+    }
+    .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .sidebar-logo h1 { font-size: 14px; font-weight: 700; color: var(--honey); }
+    .sidebar-logo p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .sidebar nav { padding: 0 10px; }
+    .nav-group-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-muted);
+      padding: 10px 10px 4px;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 6px;
+      font-size: 12.5px; color: var(--text-muted);
+      text-decoration: none; transition: all .15s;
+    }
+    .nav-link:hover { background: var(--bg3); color: var(--text); }
+    .nav-link .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--honey-dark); flex-shrink: 0; }
+
+    /* ── MAIN ── */
+    .content { flex: 1; max-width: 980px; padding: 48px 52px; overflow-x: hidden; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, rgba(197,121,48,.12) 0%, rgba(167,139,250,.08) 100%);
+      border: 1px solid rgba(197,121,48,.25);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 48px;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(197,121,48,.2); color: var(--honey);
+      font-size: 10px; font-weight: 800; letter-spacing: .12em;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .hero h1 { font-size: 30px; font-weight: 800; color: #fff; line-height: 1.2; }
+    .hero p { margin-top: 10px; color: var(--text-muted); font-size: 14.5px; max-width: 680px; }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 60px; scroll-margin-top: 32px; }
+    .section-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header .icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 20px; font-weight: 700; color: #fff; }
+    .section-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 14px;
+    }
+    .card h3 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .card p, .card li { font-size: 13.5px; color: var(--text-muted); line-height: 1.7; }
+    .card ul { padding-left: 18px; }
+    .card ul li { margin-bottom: 5px; }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow {
+      display: flex; align-items: center; gap: 0;
+      flex-wrap: wrap; margin: 16px 0;
+    }
+    .flow-step {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: var(--text);
+      text-align: center;
+      min-width: 110px;
+    }
+    .flow-step .step-label { font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+    .flow-step strong { color: var(--honey); font-size: 12px; }
+    .flow-arrow { color: var(--border); font-size: 18px; padding: 0 8px; }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+    th {
+      background: var(--bg3); padding: 10px 14px;
+      text-align: left; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px; border-bottom: 1px solid rgba(42,48,80,.5);
+      color: var(--text-muted); vertical-align: top;
+    }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── CODE ── */
+    pre {
+      background: #0d1117; border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 20px;
+      overflow-x: auto; font-family: 'Cascadia Code','Fira Code','Consolas',monospace;
+      font-size: 12.5px; line-height: 1.7; margin: 12px 0; color: #cdd6f4;
+    }
+    .kw { color: #cba6f7; } .str { color: #a6e3a1; }
+    .cm { color: #585b70; font-style: italic; } .fn { color: #89b4fa; }
+    .nm { color: #fab387; } .tp { color: #f38ba8; }
+    code {
+      background: rgba(255,255,255,.07); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Cascadia Code',monospace; font-size: 12.5px;
+      color: var(--honey-bright);
+    }
+
+    /* ── TAGS ── */
+    .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin: 2px; }
+    .tag-green  { background: rgba(34,197,94,.15);  color: var(--green); }
+    .tag-blue   { background: rgba(96,165,250,.15); color: var(--blue); }
+    .tag-purple { background: rgba(167,139,250,.15);color: var(--purple); }
+    .tag-honey  { background: rgba(197,121,48,.2);  color: var(--honey); }
+    .tag-red    { background: rgba(248,113,113,.15);color: var(--red); }
+    .tag-teal   { background: rgba(45,212,191,.15); color: var(--teal); }
+    .tag-orange { background: rgba(251,146,60,.15); color: var(--orange); }
+
+    /* ── ALERT ── */
+    .alert { border-left: 3px solid; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+    .alert-warn { border-color: var(--honey); background: rgba(249,177,11,.06); color: #fbbf24; }
+    .alert-info { border-color: var(--blue);  background: rgba(96,165,250,.06);  color: var(--blue); }
+    .alert-fix  { border-color: var(--green); background: rgba(34,197,94,.06);   color: var(--green); }
+    .alert-label { font-weight: 700; margin-right: 6px; }
+
+    /* ── SCORE BADGE ── */
+    .score-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
+    .score-item {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+    }
+    .score-item .score-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .score-item .score-val { font-size: 22px; font-weight: 800; }
+    .score-item .score-desc { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── FILE TREE ── */
+    .file-tree {
+      background: #0d1117; border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 20px;
+      font-family: monospace; font-size: 13px; line-height: 1.9;
+    }
+    .file-tree .dir  { color: var(--blue); font-weight: 600; }
+    .file-tree .file { color: var(--text-muted); }
+    .file-tree .new  { color: var(--green); }
+    .file-tree .api  { color: var(--purple); }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch-box {
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; background: var(--bg3);
+      text-align: center; font-size: 12.5px;
+    }
+    .arch-box .arch-title { font-weight: 700; color: var(--honey); font-size: 12px; margin-bottom: 4px; }
+    .arch-box .arch-items { color: var(--text-muted); font-size: 11.5px; line-height: 1.6; }
+    .arch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) { .sidebar { display: none; } .content { padding: 24px 16px; } }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--honey-dark); }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>🍯 SEO & GEO Modülü</h1>
+      <p>Binboğa Bal — Teknik Dokümantasyon</p>
+    </div>
+    <nav>
+      <div class="nav-group-label">Genel Bakış</div>
+      <a href="#overview"    class="nav-link"><span class="dot"></span>Nedir & Neden?</a>
+      <a href="#architecture" class="nav-link"><span class="dot"></span>Mimari Harita</a>
+      <a href="#database"    class="nav-link"><span class="dot"></span>Veritabanı Modelleri</a>
+
+      <div class="nav-group-label">Geleneksel SEO</div>
+      <a href="#meta-system" class="nav-link"><span class="dot"></span>Meta Yönetim Sistemi</a>
+      <a href="#json-ld"     class="nav-link"><span class="dot"></span>JSON-LD Schema</a>
+      <a href="#sitemap"     class="nav-link"><span class="dot"></span>Sitemap</a>
+      <a href="#robots"      class="nav-link"><span class="dot"></span>Robots.txt</a>
+      <a href="#redirects"   class="nav-link"><span class="dot"></span>Redirect Motoru</a>
+      <a href="#score"       class="nav-link"><span class="dot"></span>SEO Skoru (0-100)</a>
+
+      <div class="nav-group-label">Generative SEO (GEO)</div>
+      <a href="#geo-overview"  class="nav-link"><span class="dot"></span>GEO Nedir?</a>
+      <a href="#llms-txt"      class="nav-link"><span class="dot"></span>llms.txt Standardı</a>
+      <a href="#llm-content"   class="nav-link"><span class="dot"></span>LLM Content Endpoint</a>
+      <a href="#bot-detector"  class="nav-link"><span class="dot"></span>Bot Detector & Logging</a>
+      <a href="#llm-score"     class="nav-link"><span class="dot"></span>LLM Skoru (0-100)</a>
+
+      <div class="nav-group-label">AI SEO Motoru</div>
+      <a href="#ai-overview"   class="nav-link"><span class="dot"></span>Claude API Entegrasyonu</a>
+      <a href="#ai-jobs"       class="nav-link"><span class="dot"></span>Job Queue & SSE</a>
+      <a href="#ai-modes"      class="nav-link"><span class="dot"></span>Üretim Modları</a>
+
+      <div class="nav-group-label">Admin Panel</div>
+      <a href="#admin-routes"  class="nav-link"><span class="dot"></span>API Routes</a>
+      <a href="#admin-ui"      class="nav-link"><span class="dot"></span>Sayfalar & Bileşenler</a>
+      <a href="#cron"          class="nav-link"><span class="dot"></span>Cron Job'lar</a>
+
+      <div class="nav-group-label">Referans</div>
+      <a href="#env-vars"      class="nav-link"><span class="dot"></span>Env Değişkenleri</a>
+      <a href="#next-steps"    class="nav-link"><span class="dot"></span>Sonraki Sprint</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="badge">Teknik Dokümantasyon — v1.0</div>
+      <h1>SEO & GEO Modülü<br>İşleyiş Kılavuzu</h1>
+      <p>Binboğa Bal e-ticaret platformunun geleneksel SEO altyapısı ve Generative Engine Optimization (GEO) sisteminin kapsamlı teknik açıklaması. 4 Haziran 2026 sprintiyle eklendi.</p>
+    </div>
+
+    <!-- ═══════════════════════ 1. GENEL BAKIŞ -->
+    <section class="section" id="overview">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(197,121,48,.15)">🎯</div>
+        <div>
+          <h2>Nedir & Neden?</h2>
+          <p>Modülün amacı ve kapsadığı iki farklı optimizasyon katmanı</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Geleneksel SEO</h3>
+        <p>Google, Bing, Yandex gibi <strong>arama motorlarının</strong> siteyi doğru indekslemesini sağlar. Meta etiketler, JSON-LD yapısal veri, sitemap, robots.txt, yönlendirme yönetimi, SEO skoru hesaplama ve AI destekli meta üretimini kapsar.</p>
+      </div>
+      <div class="card">
+        <h3>Generative Engine Optimization (GEO)</h3>
+        <p><strong>ChatGPT, Perplexity, Google Gemini, Claude, Bing Copilot</strong> gibi yapay zeka asistanlarının siteyi anlayıp kullanıcı sorgularında doğru alıntı yapmasını sağlar. Bu yeni disiplin "GEO" (Generative Engine Optimization) olarak da bilinir.</p>
+        <p style="margin-top:8px">GEO'nun temel ilkesi: LLM botlarına <em>insan okur gibi değil, makine okur gibi</em> yapılandırılmış, belirsizlikten arındırılmış, olgusal içerik sunmak.</p>
+      </div>
+      <div class="card">
+        <h3>Kapsam Özeti</h3>
+        <table>
+          <thead><tr><th>Katman</th><th>Araç</th><th>Hedef</th></tr></thead>
+          <tbody>
+            <tr><td>Geleneksel SEO</td><td>Meta, JSON-LD, Sitemap, Redirect</td><td>Google, Bing, Yandex</td></tr>
+            <tr><td>Generative SEO</td><td>llms.txt, LLM endpoint, Bot logger</td><td>ChatGPT, Perplexity, Gemini, Claude</td></tr>
+            <tr><td>AI Üretimi</td><td>Anthropic Claude API</td><td>Meta + LLM içerik otomasyonu</td></tr>
+            <tr><td>Admin Paneli</td><td>13 sayfa, 17+ API route</td><td>Tüm SEO operasyonları</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 2. MİMARİ -->
+    <section class="section" id="architecture">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🗺️</div>
+        <div>
+          <h2>Mimari Harita</h2>
+          <p>İstek akışı ve katmanların birbirleriyle ilişkisi</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>İstek Akışı — Normal Kullanıcı</h3>
+        <div class="flow" style="margin:16px 0">
+          <div class="flow-step"><span class="step-label">1. İstek</span><strong>Tarayıcı</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">2. Middleware</span><strong>Redirect?</strong><br><span style="font-size:11px;color:var(--text-muted)">Bot log</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">3. Next.js</span><strong>generateMetadata</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">4. DB</span><strong>SeoMeta</strong><br><span style="font-size:11px;color:var(--text-muted)">→ fallback</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">5. HTML</span><strong>meta + JSON-LD</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>İstek Akışı — LLM Bot</h3>
+        <div class="flow" style="margin:16px 0">
+          <div class="flow-step"><span class="step-label">1. Bot</span><strong>GPTBot vb.</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">2. /robots.txt</span><strong>İzin?</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">3. /llms.txt</span><strong>Site özeti</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">4. Sayfa HTML</span><strong>Schema + llmSummary</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">5. /llm-content/</span><strong>JSON endpoint</strong></div>
+        </div>
+        <p style="margin-top:8px;font-size:12.5px;color:var(--text-muted)">Middleware, bot UA'yı tespit edip <code>LlmBotAccess</code> tablosuna loglar (async, istek bloklenmez).</p>
+      </div>
+
+      <div class="card">
+        <h3>AI Meta Üretim Akışı</h3>
+        <div class="flow" style="margin:16px 0">
+          <div class="flow-step"><span class="step-label">Admin</span><strong>"AI Üret"</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">API</span><strong>/ai-generate</strong><br><span style="font-size:11px;color:var(--text-muted)">entity verisini çek</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">Claude API</span><strong>claude-sonnet-4-6</strong></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">Skor</span><strong>SEO + LLM</strong><br><span style="font-size:11px;color:var(--text-muted)">hesapla</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span class="step-label">DB</span><strong>SeoMeta upsert</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Dizin Haritası</h3>
+        <div class="file-tree">
+          <span class="dir">lib/seo/</span><br>
+          &nbsp;&nbsp;<span class="new">meta.service.ts</span> &nbsp;<span style="color:var(--text-muted);font-size:11px">← buildMetadata() + SeoMeta CRUD</span><br>
+          &nbsp;&nbsp;<span class="new">score-calculator.ts</span> &nbsp;<span style="color:var(--text-muted);font-size:11px">← SEO (0-100) + LLM (0-100) skor</span><br>
+          &nbsp;&nbsp;<span class="new">redirect.service.ts</span> &nbsp;<span style="color:var(--text-muted);font-size:11px">← in-memory cache + DB</span><br>
+          &nbsp;&nbsp;<span class="dir">schema/</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="new">product.schema.ts</span> &nbsp;<span class="new">blog.schema.ts</span> &nbsp;<span class="new">organization.schema.ts</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="new">breadcrumb.schema.ts</span> &nbsp;<span class="new">faq.schema.ts</span> &nbsp;<span class="new">local-business.schema.ts</span><br>
+          &nbsp;&nbsp;<span class="dir">generative/</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="new">bot-detector.ts</span> &nbsp;<span class="new">llms-txt-generator.ts</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="new">llm-score-calculator.ts</span> &nbsp;<span class="new">structured-answer.ts</span><br>
+          &nbsp;&nbsp;<span class="dir">ai/</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="new">client.ts</span> &nbsp;<span class="new">meta-generator.ts</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="new">llm-optimizer.ts</span> &nbsp;<span class="new">queue-processor.ts</span><br>
+          <br>
+          <span class="dir">app/</span><br>
+          &nbsp;&nbsp;<span class="new">sitemap.ts</span> &nbsp;<span class="new">robots.ts</span><br>
+          &nbsp;&nbsp;<span class="dir">llms.txt/</span><span class="api">route.ts</span><br>
+          &nbsp;&nbsp;<span class="dir">llm-content/[entityType]/[entityId]/</span><span class="api">route.ts</span><br>
+          &nbsp;&nbsp;<span class="dir">admin/seo/</span> &nbsp;<span style="color:var(--text-muted);font-size:11px">← 13 admin sayfası</span><br>
+          &nbsp;&nbsp;<span class="dir">api/admin/seo/</span> &nbsp;<span style="color:var(--text-muted);font-size:11px">← 17+ API endpoint</span><br>
+          &nbsp;&nbsp;<span class="dir">api/cron/seo/</span> &nbsp;<span style="color:var(--text-muted);font-size:11px">← 5 cron route</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 3. VERİTABANI -->
+    <section class="section" id="database">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🗄️</div>
+        <div>
+          <h2>Veritabanı Modelleri (17 Yeni Tablo)</h2>
+          <p>Supabase PostgreSQL'e <code>pnpm db:push</code> ile eklendi</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Merkez Tablo: SeoMeta</h3>
+        <p>Tüm entity tiplerinin (product, category, blog, campaign, page) SEO verilerini tutar. Unique kısıt: <code>[entityType, entityId, locale]</code> — çoklu dil desteğine hazır.</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Alan Grubu</th><th>Alanlar</th></tr></thead>
+          <tbody>
+            <tr><td>Temel Meta</td><td>title, description, keywords[], canonicalUrl, noIndex, noFollow</td></tr>
+            <tr><td>Open Graph</td><td>ogTitle, ogDescription, ogImage, ogType</td></tr>
+            <tr><td>Twitter Card</td><td>twitterCard, twitterTitle, twitterDescription, twitterImage</td></tr>
+            <tr><td>Yapısal Veri</td><td>schemaMarkup (JSON)</td></tr>
+            <tr><td>Generative SEO</td><td>llmSummary, llmKeyFacts, llmQaPairs, llmEntityData, llmLastOptimizedAt, llmOptimizedFor[]</td></tr>
+            <tr><td>AI Üretim Meta</td><td>aiGenerated, aiGeneratedAt, aiModel, aiPromptUsed, aiTokensUsed</td></tr>
+            <tr><td>Puanlama</td><td>seoScore (0-100), llmScore (0-100), readabilityScore, lastAuditedAt</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Diğer Önemli Tablolar</h3>
+        <div class="arch-grid">
+          <div class="arch-box">
+            <div class="arch-title">Redirect</div>
+            <div class="arch-items">fromPath, toPath<br>statusCode (301/302/307/308)<br>hitCount, isActive</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-title">LlmBotAccess</div>
+            <div class="arch-items">botName, url<br>userAgent, ipAddress<br>accessedAt</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-title">AiSeoJob</div>
+            <div class="arch-items">jobType, entityType/Id<br>status (PENDING→DONE)<br>tokensUsed, errorMessage</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-title">KeywordTracking</div>
+            <div class="arch-items">keyword, locale, country<br>targetUrl → KeywordRanking[]<br>position, ctr, impressions</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-title">LlmMention</div>
+            <div class="arch-items">source (chatgpt vb.)<br>query, response<br>mentioned, mentionUrl, rank</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-title">LlmContentStore</div>
+            <div class="arch-items">entityType/Id, locale<br>contentType (faq/guide)<br>content, structuredData</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 4. META SİSTEMİ -->
+    <section class="section" id="meta-system">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🏷️</div>
+        <div>
+          <h2>Meta Yönetim Sistemi</h2>
+          <p>SeoMeta tablosundan okuma, fallback zinciri, admin düzenleme</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>buildMetadata() — Öncelik Zinciri</h3>
+        <p><code>lib/seo/meta.service.ts</code> içindeki <code>buildMetadata(entityType, entityId, fallback)</code> fonksiyonu tüm sayfalar tarafından kullanılır:</p>
+        <div class="flow" style="margin:16px 0;flex-direction:column;align-items:flex-start;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="background:rgba(34,197,94,.2);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:24px;text-align:center">1</span>
+            <span style="font-size:13px"><code>SeoMeta</code> tablosu (admin'den kaydedilmiş)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="background:rgba(249,177,11,.2);color:var(--honey);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:24px;text-align:center">2</span>
+            <span style="font-size:13px"><code>Product.metaTitle</code> / <code>BlogPost.metaTitle</code> (mevcut alan)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="background:rgba(96,165,250,.2);color:var(--blue);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:24px;text-align:center">3</span>
+            <span style="font-size:13px"><code>Product.name</code> / <code>BlogPost.title</code> (son fallback)</span>
+          </div>
+        </div>
+        <p>OG ve Twitter Card etiketleri de aynı zinciri izler. Tüm çıktı standart Next.js <code>Metadata</code> nesnesine dönüştürülür.</p>
+      </div>
+
+      <div class="card">
+        <h3>Güncellenen Sayfalar</h3>
+        <table>
+          <thead><tr><th>Sayfa</th><th>buildMetadata Entity</th><th>JSON-LD Schema</th></tr></thead>
+          <tbody>
+            <tr><td><code>app/(shop)/page.tsx</code></td><td>page / "home"</td><td>Organization + WebSite + LocalBusiness</td></tr>
+            <tr><td><code>app/(shop)/urunlerimiz/[slug]/page.tsx</code></td><td>product / product.id</td><td>Product + Breadcrumb</td></tr>
+            <tr><td><code>app/(shop)/bal-rehberi/[slug]/page.tsx</code></td><td>blog / post.id</td><td>Article</td></tr>
+            <tr><td><code>app/kampanya/[slug]/page.tsx</code></td><td>campaign / campaign.id</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 5. JSON-LD -->
+    <section class="section" id="json-ld">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(96,165,250,.15)">📋</div>
+        <div>
+          <h2>JSON-LD Schema Sistemi</h2>
+          <p>Google Rich Results için yapısal veri enjeksiyonu</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Üretilen Schema Tipleri</h3>
+        <table>
+          <thead><tr><th>Fonksiyon</th><th>Schema.org Tipi</th><th>Öne Çıkan Alanlar</th></tr></thead>
+          <tbody>
+            <tr><td><code>buildProductSchema()</code></td><td>Product + Offer + AggregateRating</td><td>price, currency, availability, rating, reviewCount</td></tr>
+            <tr><td><code>buildArticleSchema()</code></td><td>Article</td><td>headline, datePublished, dateModified, author</td></tr>
+            <tr><td><code>buildOrganizationSchema()</code></td><td>Organization</td><td>name, url, logo, contactPoint</td></tr>
+            <tr><td><code>buildWebSiteSchema()</code></td><td>WebSite + SearchAction</td><td>potentialAction → /urunlerimiz?q= arama</td></tr>
+            <tr><td><code>buildLocalBusinessSchema()</code></td><td>LocalBusiness</td><td>address (Kozan/Adana), areaServed: TR</td></tr>
+            <tr><td><code>buildBreadcrumbSchema()</code></td><td>BreadcrumbList</td><td>ItemList, position, item.url</td></tr>
+            <tr><td><code>buildFaqSchema()</code></td><td>FAQPage</td><td>llmQaPairs → Question + Answer</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">💡 FAQPage:</span> <code>llmQaPairs</code> alanı hem Generative SEO (LLM alıntılaması) hem de Google'ın FAQ Rich Result'u için çift işlev görür. Admin'de SSS eklediğinizde otomatik FAQPage schema üretilir.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Ürün Schema Örneği</h3>
+        <pre>{
+  <span class="str">"@context"</span>: <span class="str">"https://schema.org"</span>,
+  <span class="str">"@type"</span>: <span class="str">"Product"</span>,
+  <span class="str">"name"</span>: <span class="str">"Çiçek Balı 850g"</span>,
+  <span class="str">"brand"</span>: { <span class="str">"@type"</span>: <span class="str">"Brand"</span>, <span class="str">"name"</span>: <span class="str">"Binboğa Kooperatif Balı"</span> },
+  <span class="str">"offers"</span>: {
+    <span class="str">"@type"</span>: <span class="str">"Offer"</span>,
+    <span class="str">"priceCurrency"</span>: <span class="str">"TRY"</span>,
+    <span class="str">"price"</span>: <span class="str">"450.00"</span>,
+    <span class="str">"availability"</span>: <span class="str">"https://schema.org/InStock"</span>
+  },
+  <span class="str">"aggregateRating"</span>: {
+    <span class="str">"@type"</span>: <span class="str">"AggregateRating"</span>,
+    <span class="str">"ratingValue"</span>: <span class="str">"4.8"</span>,
+    <span class="str">"reviewCount"</span>: <span class="nm">127</span>
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 6. SITEMAP -->
+    <section class="section" id="sitemap">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🗺️</div>
+        <div>
+          <h2>Sitemap</h2>
+          <p>app/sitemap.ts — ISR 24 saatlik dinamik üretim</p>
+        </div>
+      </div>
+      <div class="card">
+        <p>Next.js <code>MetadataRoute.Sitemap</code> formatı — <code>/sitemap.xml</code> adresi otomatik oluşur. Tüm aktif ürünler, kategoriler, yayınlanmış blog yazıları ve aktif kampanyalar dahil edilir.</p>
+        <p style="margin-top:8px">ERP senkronu (<code>/api/admin/erp</code>) çalışınca <code>revalidatePath("/sitemap.xml")</code> çağrılır — sitemap anlık güncellenir.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 7. ROBOTS -->
+    <section class="section" id="robots">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(248,113,113,.15)">🤖</div>
+        <div>
+          <h2>Robots.txt — LLM Bot Kuralları</h2>
+          <p>app/robots.ts — Her bot için ayrı User-agent bloğu</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kural Mantığı</h3>
+        <table>
+          <thead><tr><th>Bot Grubu</th><th>İzin Verilen Path'ler</th><th>Engellenen Path'ler</th></tr></thead>
+          <tbody>
+            <tr><td>Tüm botlar (*)</td><td>/</td><td>/admin/, /api/, /hesabim/, /sepet/, /odeme/</td></tr>
+            <tr><td>GPTBot, PerplexityBot, ClaudeBot vb.</td><td>/, /urunlerimiz/, /bal-rehberi/, <strong>/llm-content/</strong>, <strong>/llms.txt</strong></td><td>Aynı hassas path'ler</td></tr>
+            <tr><td>Bytespider (TikTok)</td><td>—</td><td><strong>Tüm site</strong></td></tr>
+            <tr><td>CCBot (Common Crawl)</td><td>—</td><td><strong>Tüm site</strong></td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">💡:</span> LLM botlarına <code>/llm-content/</code> ve <code>/llms.txt</code> özellikle açık bırakılmıştır — bu adresler makine okunabilir içerik sunar.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 8. REDIRECT -->
+    <section class="section" id="redirects">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(251,146,60,.15)">↩️</div>
+        <div>
+          <h2>Redirect Motoru</h2>
+          <p>Middleware tabanlı, in-memory cache'li yönlendirme sistemi</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Çalışma Prensibi</h3>
+        <ol style="padding-left:18px;color:var(--text-muted);font-size:13.5px">
+          <li style="margin-bottom:6px">İstek middleware'e gelir (<code>/admin/</code>, <code>/api/</code>, statik dosyalar atlanır)</li>
+          <li style="margin-bottom:6px"><code>findRedirect(pathname)</code> önce bellek cache'ini kontrol eder (5 dk TTL)</li>
+          <li style="margin-bottom:6px">Cache miss → <code>Redirect</code> tablosu sorgulanır, sonuç cache'e yazılır</li>
+          <li style="margin-bottom:6px">Eşleşme varsa <code>NextResponse.redirect()</code> ile 301/302/307/308 döner</li>
+          <li>Hit count <code>incrementHitCount()</code> ile async artırılır</li>
+        </ol>
+        <div class="alert alert-warn" style="margin-top:12px">
+          <span class="alert-label">⚠ Ölçeklendirme:</span> In-memory cache tek sunucu örneğiyle çalışır. Birden fazla Vercel instance'ı için <code>REDIS_URL</code> env değişkeni eklenip <code>redirect.service.ts</code> Redis backend'e geçirilmelidir.
+        </div>
+      </div>
+      <div class="card">
+        <h3>Redirect Zinciri Tespiti</h3>
+        <p><code>POST /api/admin/seo/redirects/detect-chains</code> endpoint'i A→B→C gibi zincirleri tespit eder. Zincirler SEO açısından zararlıdır — tespitte düzeltilmesi gerekir.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 9. SEO SKORU -->
+    <section class="section" id="score">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(34,197,94,.15)">📊</div>
+        <div>
+          <h2>SEO Skoru (0-100)</h2>
+          <p>lib/seo/score-calculator.ts — calculateSeoScore()</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Puan Dağılımı</h3>
+        <div class="score-grid">
+          <div class="score-item">
+            <div class="score-label">Title</div>
+            <div class="score-val" style="color:var(--honey)">25p</div>
+            <div class="score-desc">Var: +10, İdeal uzunluk (30-60 char): +15</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Description</div>
+            <div class="score-val" style="color:var(--blue)">20p</div>
+            <div class="score-desc">Var: +5, İdeal uzunluk (120-160 char): +15</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Keywords</div>
+            <div class="score-val" style="color:var(--green)">10p</div>
+            <div class="score-desc">3+ kelime: +10, 1-2 kelime: +5</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Canonical URL</div>
+            <div class="score-val" style="color:var(--purple)">5p</div>
+            <div class="score-desc">Tanımlı ise +5</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">OG Etiketleri</div>
+            <div class="score-val" style="color:var(--teal)">20p</div>
+            <div class="score-desc">ogTitle: +5, ogDesc: +5, ogImage: +10</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">JSON-LD Schema</div>
+            <div class="score-val" style="color:var(--orange)">15p</div>
+            <div class="score-desc">Herhangi schema eklenmiş: +15</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">noIndex Cezası</div>
+            <div class="score-val" style="color:var(--red)">-20p</div>
+            <div class="score-desc">noIndex=true ise 20 puan düşülür</div>
+          </div>
+        </div>
+        <table style="margin-top:12px">
+          <thead><tr><th>Skor Aralığı</th><th>Renk</th><th>Değerlendirme</th></tr></thead>
+          <tbody>
+            <tr><td>71-100</td><td><span class="tag tag-green">Yeşil</span></td><td>İyi — arama motorlarına hazır</td></tr>
+            <tr><td>41-70</td><td><span class="tag tag-honey">Sarı</span></td><td>Orta — iyileştirme önerilir</td></tr>
+            <tr><td>0-40</td><td><span class="tag tag-red">Kırmızı</span></td><td>Zayıf — eksik kritik alanlar var</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════ 10. GEO GENEL BAKIŞ -->
+    <section class="section" id="geo-overview">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🧠</div>
+        <div>
+          <h2>Generative Engine Optimization (GEO) Nedir?</h2>
+          <p>LLM botları için içerik optimizasyonunun temelleri</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>GEO vs SEO Farkı</h3>
+        <table>
+          <thead><tr><th>Boyut</th><th>Geleneksel SEO</th><th>Generative SEO (GEO)</th></tr></thead>
+          <tbody>
+            <tr><td>Hedef</td><td>Google/Bing arama sonuç sayfası</td><td>ChatGPT/Perplexity/Gemini cevabı</td></tr>
+            <tr><td>Sinyal</td><td>Backlink, keyword, CTR</td><td>Alıntılanma, içerik netliği, olgusallık</td></tr>
+            <tr><td>İçerik Formu</td><td>Okunabilir metin</td><td>Yapılandırılmış, belirsizliksiz, makine dostu</td></tr>
+            <tr><td>Teknik Araç</td><td>Meta tags, schema.org</td><td>llms.txt, llmSummary, keyFacts, qaPairs</td></tr>
+            <tr><td>Ölçüm</td><td>Pozisyon, CTR, impression</td><td>Alıntı sayısı, görünürlük oranı, LLM skoru</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>GEO İçin En İyi Pratikler</h3>
+        <ul>
+          <li><strong>Net olgular:</strong> "Bu ürün X'tir, Y özelliği vardır, Z fiyatına satılmaktadır" — belirsizlik yok</li>
+          <li><strong>Sayısal veriler öne çıkar:</strong> Rakamlar, fiyatlar, boyutlar, garantiler</li>
+          <li><strong>SSS formatı:</strong> LLM'ler soru-cevap çiftlerini doğal alıntılar</li>
+          <li><strong>Yapısal veri:</strong> JSON-LD Schema.org uyumlu entity verileri</li>
+          <li><strong>Taze içerik:</strong> Son 30 gün içinde güncellenen sayfalar tercih edilir</li>
+          <li><strong>Bot erişimi açık:</strong> robots.txt'de LLM botlarına explicit izin</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 11. LLMS.TXT -->
+    <section class="section" id="llms-txt">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(45,212,191,.15)">📄</div>
+        <div>
+          <h2>llms.txt Standardı</h2>
+          <p>app/llms.txt/route.ts — Tüm LLM botlarının okuduğu site özeti</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>llms.txt Nedir?</h3>
+        <p><code>robots.txt</code>'in LLM karşılığı olarak önerilen yeni bir standart. Botlar bu dosyayı okuyarak sitenin içeriğini, ürünlerini ve politikalarını hızla kavrayabilir. <code>https://siteniz.com/llms.txt</code> adresinde erişilebilir olmalıdır.</p>
+      </div>
+      <div class="card">
+        <h3>İçerik Yapısı</h3>
+        <pre><span class="cm"># Binboğa Kooperatif Balı</span>
+[1-2 cümle site açıklaması]
+
+<span class="kw">## Hakkında</span>
+[Ne yapıyoruz, ürünlerimiz...]
+
+<span class="kw">## Kategoriler</span>
+- [Kategori Adı](URL): Kısa açıklama
+
+<span class="kw">## Popüler Ürünler</span>
+- [Ürün Adı](URL) | Fiyat — Kısa açıklama
+
+<span class="kw">## Güncel Kampanyalar</span>
+- [Kampanya](URL): Açıklama
+
+<span class="kw">## İletişim & Politikalar</span>
+- [İletişim](URL), [İade Politikası](URL)...
+
+<span class="kw">## Makine Okunabilir İçerik</span>
+- Ürün detayları: /llm-content/product/[id]
+
+<span class="cm">&gt; Son güncelleme: 2026-06-04</span></pre>
+      </div>
+      <div class="card">
+        <h3>Güncelleme Stratejisi</h3>
+        <ul>
+          <li><strong>ISR:</strong> <code>revalidate = 86400</code> — 24 saatlik otomatik yenileme</li>
+          <li><strong>Cron:</strong> <code>/api/cron/seo/llms-txt-refresh</code> günlük tetiklenir</li>
+          <li><strong>Admin:</strong> <code>/admin/seo/generative/llms-txt</code> sayfasında anlık önizleme</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 12. LLM CONTENT ENDPOINT -->
+    <section class="section" id="llm-content">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🔗</div>
+        <div>
+          <h2>LLM Content Endpoint</h2>
+          <p>/llm-content/[entityType]/[entityId] — Makine okunabilir içerik</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>İki Format Desteği</h3>
+        <table>
+          <thead><tr><th>Accept Header</th><th>Format</th><th>Kullanım Durumu</th></tr></thead>
+          <tbody>
+            <tr><td><code>application/json</code></td><td>Yapılandırılmış JSON</td><td>Bot'un doğrudan veri çekmesi</td></tr>
+            <tr><td><code>text/plain</code></td><td>Markdown düz metin</td><td>LLM'lerin okuma kolaylığı için</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>JSON Yanıt Yapısı</h3>
+        <pre>{
+  <span class="str">"entity"</span>: { <span class="str">"type"</span>: <span class="str">"product"</span>, <span class="str">"id"</span>: <span class="str">"clxxx..."</span>, <span class="str">"locale"</span>: <span class="str">"tr"</span> },
+  <span class="str">"summary"</span>: <span class="str">"Çiçek Balı 850g, Kozan'ın Toros dağlarından..."</span>,
+  <span class="str">"keyFacts"</span>: {
+    <span class="str">"Marka"</span>: <span class="str">"Binboğa Kooperatif Balı"</span>,
+    <span class="str">"Net Ağırlık"</span>: <span class="str">"850 gram"</span>,
+    <span class="str">"Fiyat"</span>: <span class="str">"450 ₺"</span>,
+    <span class="str">"Kargo"</span>: <span class="str">"500₺ üzeri ücretsiz"</span>,
+    <span class="str">"Garanti"</span>: <span class="str">"Üretici garantisi"</span>
+  },
+  <span class="str">"qaPairs"</span>: [
+    { <span class="str">"q"</span>: <span class="str">"Çiçek balı nedir?"</span>, <span class="str">"a"</span>: <span class="str">"Kır çiçeklerinin poleninden..."</span> },
+    { <span class="str">"q"</span>: <span class="str">"Fiyatı nedir?"</span>, <span class="str">"a"</span>: <span class="str">"850g için 450 ₺'dir."</span> }
+  ],
+  <span class="str">"canonicalUrl"</span>: <span class="str">"https://binbogabal.com.tr/urunlerimiz/cicek-bali"</span>,
+  <span class="str">"lastUpdated"</span>: <span class="str">"2026-06-04T14:00:00.000Z"</span>
+}</pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 13. BOT DETECTOR -->
+    <section class="section" id="bot-detector">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(45,212,191,.15)">🔍</div>
+        <div>
+          <h2>Bot Detector &amp; Loglama</h2>
+          <p>lib/seo/generative/bot-detector.ts — Middleware entegrasyonu</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Tespit Mekanizması</h3>
+        <p>Her HTTP isteğinde <code>User-Agent</code> header'ı 10 bilinen LLM botuna karşı kontrol edilir. Tespit case-insensitive substring matching ile yapılır.</p>
+        <pre><span class="cm">// Örnek: "Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)"</span>
+<span class="kw">const</span> bot = <span class="fn">detectLlmBot</span>(userAgent);
+<span class="cm">// → { name: "GPTBot", company: "OpenAI", allowed: true }</span></pre>
+      </div>
+      <div class="card">
+        <h3>Loglama Akışı</h3>
+        <p>Middleware'de tespit edilen botlar, isteği <em>bloklamadan</em> <code>LlmBotAccess</code> tablosuna yazılır:</p>
+        <pre><span class="cm">// middleware.ts</span>
+prisma.llmBotAccess.create({
+  <span class="fn">data</span>: { botName, url: pathname, statusCode: <span class="nm">200</span>, userAgent, ipAddress }
+}).<span class="fn">catch</span>(() => <span class="kw">null</span>); <span class="cm">// fire-and-forget</span></pre>
+        <p style="margin-top:8px">Admin panelinden <code>/admin/seo/generative/bot-access</code> ile loglar izlenebilir. Haftalık cron 90 günden eski kayıtları temizler.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 14. LLM SKORU -->
+    <section class="section" id="llm-score">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(167,139,250,.15)">⭐</div>
+        <div>
+          <h2>LLM Skoru (0-100)</h2>
+          <p>Generative SEO görünürlük ölçüsü</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Puan Dağılımı</h3>
+        <div class="score-grid">
+          <div class="score-item">
+            <div class="score-label">llmSummary</div>
+            <div class="score-val" style="color:var(--purple)">20p</div>
+            <div class="score-desc">150+ kelime: +20, 80-149: +10, var: +5</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">llmKeyFacts</div>
+            <div class="score-val" style="color:var(--blue)">15p</div>
+            <div class="score-desc">5+ fact: +15, 3-4 fact: +8</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">llmQaPairs</div>
+            <div class="score-val" style="color:var(--teal)">20p</div>
+            <div class="score-desc">3+ çift: +20, 1-2 çift: +10</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">JSON-LD Schema</div>
+            <div class="score-val" style="color:var(--green)">10p</div>
+            <div class="score-desc">Herhangi schema: +10</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">llms.txt'de Var</div>
+            <div class="score-val" style="color:var(--honey)">10p</div>
+            <div class="score-desc">Top 30 ürün listesinde: +10</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">LLM Bot İzni</div>
+            <div class="score-val" style="color:var(--orange)">10p</div>
+            <div class="score-desc">robots.txt'de izin verilmiş: +10</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Taze İçerik</div>
+            <div class="score-val" style="color:var(--green)">5p</div>
+            <div class="score-desc">Son 30 günde güncellendi: +5</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════ 15. AI MOTORU -->
+    <section class="section" id="ai-overview">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(249,177,11,.15)">✨</div>
+        <div>
+          <h2>Claude API Entegrasyonu</h2>
+          <p>@anthropic-ai/sdk — claude-sonnet-4-6 modeli</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kurulum &amp; Aktifleştirme</h3>
+        <pre>pnpm add @anthropic-ai/sdk  <span class="cm"># 0.100.1 yüklendi</span>
+<span class="cm"># .env dosyasına ekleyin:</span>
+<span class="str">ANTHROPIC_API_KEY</span>=sk-ant-...</pre>
+        <p style="margin-top:8px"><code>isAiEnabled()</code> fonksiyonu env check yapar — key tanımlı değilse AI endpoint'leri 503 döner (graceful degradation).</p>
+      </div>
+      <div class="card">
+        <h3>Meta Üretimi — Sistem Promptu</h3>
+        <pre><span class="cm">// meta-generator.ts</span>
+<span class="cm">// Sistem: SEO uzmanı, TR pazarı, title 50-60 char, desc 140-160 char</span>
+<span class="cm">// User: entity adı + açıklama + mevcut keywords</span>
+<span class="cm">// Çıktı: { title, description, keywords[] } JSON</span></pre>
+      </div>
+      <div class="card">
+        <h3>LLM Optimizasyon Promptu</h3>
+        <pre><span class="cm">// llm-optimizer.ts</span>
+<span class="cm">// Sistem: GEO uzmanı, olgusal içerik, belirsizlik yok</span>
+<span class="cm">// User: entity adı + açıklama + fiyat</span>
+<span class="cm">// Çıktı: { llmSummary, llmKeyFacts{}, llmQaPairs[] } JSON</span></pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 16. JOB QUEUE -->
+    <section class="section" id="ai-jobs">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(96,165,250,.15)">⚡</div>
+        <div>
+          <h2>Job Queue &amp; SSE Canlı İlerleme</h2>
+          <p>Toplu AI optimizasyonu için rate-limited kuyruk</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Rate Limiting</h3>
+        <p>Anthropic API'nin dakika başına 50 istek limitini aşmamak için <code>queue-processor.ts</code>'de yazılım tabanlı throttle uygulanır:</p>
+        <pre><span class="cm">// Dakikada 50 istek limiti</span>
+<span class="kw">const</span> RATE_LIMIT_PER_MINUTE = <span class="nm">50</span>;
+<span class="cm">// Her çağrıda limit kontrolü + gerekirse bekleme</span>
+<span class="kw">await</span> <span class="fn">waitForRateLimit</span>();</pre>
+      </div>
+      <div class="card">
+        <h3>SSE Akışı</h3>
+        <p><code>GET /api/admin/seo/meta/ai-jobs?stream=true</code> endpoint'i Server-Sent Events ile 2 saniyede bir ilerleme yayınlar. Tüm işler bitince (pending=0, running=0) stream kapanır.</p>
+        <pre><span class="str">data: {"pending":50,"running":5,"completed":0,"failed":0}</span>
+<span class="str">data: {"pending":45,"running":5,"completed":5,"failed":0}</span>
+<span class="cm">... (her 2 saniye)</span>
+<span class="str">data: {"pending":0,"running":0,"completed":55,"failed":0}</span>
+<span class="cm">// Stream kapandı</span></pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 17. AI MODLAR -->
+    <section class="section" id="ai-modes">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🎛️</div>
+        <div>
+          <h2>Üretim Modları</h2>
+          <p>Tekil ve toplu AI optimizasyon seçenekleri</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>mode: "meta"</h3>
+        <p>Sadece <code>title</code>, <code>description</code> ve <code>keywords</code> üretir. Hızlı, az token kullanır. Geleneksel SEO için yeterli.</p>
+      </div>
+      <div class="card">
+        <h3>mode: "llm"</h3>
+        <p><code>llmSummary</code> (150-200 kelime), <code>llmKeyFacts</code> (key-value çiftleri) ve <code>llmQaPairs</code> (SSS listesi) üretir. Generative SEO için.</p>
+      </div>
+      <div class="card">
+        <h3>mode: "full"</h3>
+        <p>Her iki modu birleştirir. İki ayrı Claude API çağrısı yapar, tüm alanları günceller. Hem SEO hem LLM skorunu otomatik hesaplar ve SeoMeta'ya yazar.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════ 18. ADMIN ROUTES -->
+    <section class="section" id="admin-routes">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🔌</div>
+        <div>
+          <h2>Admin API Routes</h2>
+          <p>app/api/admin/seo/ — Tüm endpoint listesi</p>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Path</th><th>Metot</th><th>İşlev</th></tr></thead>
+          <tbody>
+            <tr><td colspan="3" style="color:var(--honey);font-weight:700;background:var(--bg3)">Meta Yönetimi</td></tr>
+            <tr><td><code>/meta</code></td><td>GET, POST</td><td>Liste (filtreli, sayfalı) + upsert</td></tr>
+            <tr><td><code>/meta/[type]/[id]/[locale]</code></td><td>GET, PUT, DELETE</td><td>Tekil CRUD + otomatik skor</td></tr>
+            <tr><td><code>/meta/preview</code></td><td>POST</td><td>SERP önizleme + karakter durum analizi</td></tr>
+            <tr><td><code>/meta/ai-generate</code></td><td>POST</td><td>Anında AI üretimi (meta/llm/full)</td></tr>
+            <tr><td><code>/meta/ai-generate-bulk</code></td><td>POST</td><td>Toplu kuyruğa ekleme</td></tr>
+            <tr><td><code>/meta/ai-jobs</code></td><td>GET</td><td>İş listesi + SSE canlı akış</td></tr>
+            <tr><td colspan="3" style="color:var(--honey);font-weight:700;background:var(--bg3)">Generative SEO</td></tr>
+            <tr><td><code>/generative/dashboard</code></td><td>GET</td><td>LLM alıntı + bot erişim özeti</td></tr>
+            <tr><td><code>/generative/bot-access</code></td><td>GET</td><td>Bot erişim logu (filtrelenebilir)</td></tr>
+            <tr><td><code>/generative/llms-txt-preview</code></td><td>GET</td><td>Anlık llms.txt önizleme</td></tr>
+            <tr><td colspan="3" style="color:var(--honey);font-weight:700;background:var(--bg3)">Teknik SEO</td></tr>
+            <tr><td><code>/templates</code></td><td>GET, POST</td><td>SEO şablonları CRUD</td></tr>
+            <tr><td><code>/redirects</code></td><td>GET, POST</td><td>Redirect CRUD + path güvenliği</td></tr>
+            <tr><td><code>/redirects/detect-chains</code></td><td>POST</td><td>A→B→C zincir tespiti</td></tr>
+            <tr><td><code>/robots</code></td><td>GET, PUT</td><td>Robots içerik yönetimi</td></tr>
+            <tr><td><code>/sitemap/config</code></td><td>GET, PUT</td><td>Entity bazında sitemap config</td></tr>
+            <tr><td><code>/keywords</code></td><td>GET, POST</td><td>Kelime takibi CRUD</td></tr>
+            <tr><td><code>/reports/overview</code></td><td>GET</td><td>Dashboard genel istatistikleri</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-fix" style="margin-top:12px">
+          <span class="alert-label">🔒 Auth:</span> Tüm endpoint'ler <code>getAdminSession()</code> + <code>can(adminId, "seo", action)</code> korumalıdır.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 19. ADMIN UI -->
+    <section class="section" id="admin-ui">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🖥️</div>
+        <div>
+          <h2>Admin Sayfaları &amp; Bileşenler</h2>
+          <p>app/admin/seo/ — 13 sayfa, 5 client bileşen</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Sayfa Rehberi</h3>
+        <table>
+          <thead><tr><th>Sayfa</th><th>Ne Gösterir/Yapar</th></tr></thead>
+          <tbody>
+            <tr><td><code>/admin/seo</code></td><td>Dashboard — 8 stat card, geleneksel SEO + GEO hızlı erişim</td></tr>
+            <tr><td><code>/admin/seo/meta</code></td><td>Tüm SeoMeta kayıtları, filtre, SEO/LLM skor renkleri, sayfalama</td></tr>
+            <tr><td><code>/admin/seo/meta/[type]/[id]</code></td><td>7 sekmeli editör (Temel Meta, OG, Schema, Generative, Gelişmiş) + AI butonu + SERP önizleme</td></tr>
+            <tr><td><code>/admin/seo/generative</code></td><td>LLM alıntı metrikleri, bot erişim bar chart</td></tr>
+            <tr><td><code>/admin/seo/generative/llms-txt</code></td><td>llms.txt içerik önizlemesi (canlı linkle)</td></tr>
+            <tr><td><code>/admin/seo/generative/bot-access</code></td><td>LlmBotAccess tablosu — bot, URL, status, zaman</td></tr>
+            <tr><td><code>/admin/seo/ai/jobs</code></td><td>AiSeoJob kuyruğu — durum sayıları + tablo</td></tr>
+            <tr><td><code>/admin/seo/templates</code></td><td>SEO şablonları CRUD ({{name}}, {{price}} değişkenler)</td></tr>
+            <tr><td><code>/admin/seo/keywords</code></td><td>Anahtar kelime ekleme, trend okları (↑↓)</td></tr>
+            <tr><td><code>/admin/seo/redirects</code></td><td>Redirect CRUD, toggle aktif/pasif, hit count</td></tr>
+            <tr><td><code>/admin/seo/technical/robots</code></td><td>RobotsConfig metin editörü</td></tr>
+            <tr><td><code>/admin/seo/technical/sitemap</code></td><td>Sitemap URL sayı istatistikleri</td></tr>
+            <tr><td><code>/admin/seo/reports</code></td><td>SEO + LLM skor dağılım grafikleri, bot ve alıntı özeti</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Client Bileşenler (components/admin/seo/)</h3>
+        <table>
+          <thead><tr><th>Bileşen</th><th>Özellikler</th></tr></thead>
+          <tbody>
+            <tr><td><code>SeoMetaEditor</code></td><td>5 sekmeli form, SERP önizleme, AI üret, kaydet + skor güncelleme</td></tr>
+            <tr><td><code>RedirectsManager</code></td><td>Satır içi ekleme formu, toggle, silme, arama</td></tr>
+            <tr><td><code>TemplatesManager</code></td><td>Şablon CRUD, varsayılan yıldızı</td></tr>
+            <tr><td><code>KeywordsManager</code></td><td>Kelime ekleme, trend ikonları (TrendingUp/Down/Minus)</td></tr>
+            <tr><td><code>RobotsEditor</code></td><td>Textarea editör, GET ile mevcut config yükleme, PUT ile kaydetme</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 20. CRON -->
+    <section class="section" id="cron">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(34,197,94,.15)">⏱️</div>
+        <div>
+          <h2>Cron Job'lar</h2>
+          <p>app/api/cron/seo/ — 5 otomatik görev</p>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Vercel Cron Önerisi</th><th>İşlev</th></tr></thead>
+          <tbody>
+            <tr><td><code>llms-txt-refresh</code></td><td><code>0 3 * * *</code> (günlük 03:00)</td><td>llms.txt ISR cache'ini yeniler</td></tr>
+            <tr><td><code>llm-bot-log-cleanup</code></td><td><code>0 2 * * 0</code> (pazar 02:00)</td><td>90 günden eski bot loglarını siler</td></tr>
+            <tr><td><code>ai-job-processor</code></td><td><code>* * * * *</code> (dakikalık)</td><td>10 PENDING iş alıp işler</td></tr>
+            <tr><td><code>seo-score-recalc</code></td><td><code>0 4 * * *</code> (günlük 04:00)</td><td>Tüm SeoMeta skorlarını yeniden hesaplar</td></tr>
+            <tr><td><code>sitemap-refresh</code></td><td><code>0 5 * * *</code> (günlük 05:00)</td><td>Sitemap ISR'ını tetikler</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">ℹ️ Vercel:</span> <code>vercel.json</code>'a cron tanımı ekleyin. Her cron isteğinde <code>Authorization: Bearer {CRON_SECRET}</code> header'ı otomatik gönderilir.
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════ 21. ENV VARS -->
+    <section class="section" id="env-vars">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(248,113,113,.15)">🔑</div>
+        <div>
+          <h2>Env Değişkenleri</h2>
+          <p>SEO modülü için gereken ortam değişkenleri</p>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Değişken</th><th>Durum</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>ANTHROPIC_API_KEY</code></td><td><span class="tag tag-red">Eksik</span></td><td>AI meta + LLM üretimi için zorunlu. Yoksa AI özellikler pasif.</td></tr>
+            <tr><td><code>CRON_SECRET</code></td><td><span class="tag tag-honey">Önerilen</span></td><td>Cron endpoint güvenliği. Yoksa herkes tetikleyebilir.</td></tr>
+            <tr><td><code>NEXT_PUBLIC_APP_URL</code></td><td><span class="tag tag-green">Mevcut</span></td><td>Canonical URL, sitemap, llms.txt için kullanılır.</td></tr>
+            <tr><td><code>NEXT_PUBLIC_APP_NAME</code></td><td><span class="tag tag-green">Mevcut</span></td><td>Organization schema, llms.txt başlığı.</td></tr>
+            <tr><td><code>REDIS_URL</code></td><td><span class="tag tag-blue">Opsiyonel</span></td><td>Redirect cache için. Yoksa in-memory Map kullanılır.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 22. SONRAKI SPRINT -->
+    <section class="section" id="next-steps">
+      <div class="section-header">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🚀</div>
+        <div>
+          <h2>Sonraki Sprint — Neler Bekliyor?</h2>
+          <p>Bu modülün dışında kalan ve planlanan özellikler</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Öncelik Sırası</h3>
+        <table>
+          <thead><tr><th>Özellik</th><th>Öncelik</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td>ANTHROPIC_API_KEY Ekleme</td><td><span class="tag tag-red">Kritik</span></td><td>AI özelliklerini aktifleştirmek için .env'e eklenmeli</td></tr>
+            <tr><td>Google Search Console</td><td><span class="tag tag-honey">Yüksek</span></td><td>GSC API → tıklama, gösterim, pozisyon, AI Overviews impression</td></tr>
+            <tr><td>Bing IndexNow</td><td><span class="tag tag-honey">Yüksek</span></td><td>Yeni/güncellenen URL'leri Bing'e anında bildir</td></tr>
+            <tr><td>Google Analytics 4</td><td><span class="tag tag-blue">Orta</span></td><td>Organik kanal gelir katkısı, Consent Mode v2</td></tr>
+            <tr><td>Google Merchant Center</td><td><span class="tag tag-blue">Orta</span></td><td>XML feed + Content API entegrasyonu</td></tr>
+            <tr><td>Yandex Webmaster</td><td><span class="tag tag-blue">Orta</span></td><td>Yandex API + IndexNow</td></tr>
+            <tr><td>i18n (Çoklu Dil)</td><td><span class="tag tag-purple">Büyük Sprint</span></td><td>app/[locale]/ yapısına geçiş — DE, EN, FR, NL desteği</td></tr>
+            <tr><td>LLM Alıntı Takibi</td><td><span class="tag tag-teal">Gelecek</span></td><td>Perplexity API ile kendi sitemizi sorgulama otomasyonu</td></tr>
+            <tr><td>Kırık Link Tarayıcı</td><td><span class="tag tag-teal">Gelecek</span></td><td>CrawlResult tablosunu dolduracak site tarayıcı</td></tr>
+            <tr><td>Core Web Vitals</td><td><span class="tag tag-teal">Gelecek</span></td><td>PageSpeed Insights API + LCP/CLS/INP dashboard</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div style="border-top:1px solid var(--border);padding-top:24px;margin-top:16px;color:var(--text-muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span>🍯 Binboğa Bal — SEO &amp; GEO Modülü Teknik Dokümantasyonu</span>
+      <span>Oluşturulma: 4 Haziran 2026 · v1.0 · Claude tarafından yazıldı</span>
+    </div>
+  </main>
+</div>
+</body>
+</html>

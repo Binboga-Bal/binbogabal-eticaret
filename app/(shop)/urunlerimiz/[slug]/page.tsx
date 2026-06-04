@@ -3,6 +3,7 @@
 export const revalidate = 600;
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Script from "next/script";
 import Link from "next/link";
 import {
   ChevronRight,
@@ -16,6 +17,9 @@ import {
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils/serialize";
+import { buildMetadata } from "@/lib/seo/meta.service";
+import { buildProductSchema } from "@/lib/seo/schema/product.schema";
+import { buildBreadcrumbSchema } from "@/lib/seo/schema/breadcrumb.schema";
 import { Container } from "@/components/layout/Container";
 import { StarRating } from "@/components/ui/StarRating";
 import { Badge } from "@/components/ui/Badge";
@@ -58,25 +62,17 @@ export async function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProduct(slug);
   if (!product) return { title: "Ürün Bulunamadı" };
 
-  return {
+  return buildMetadata("product", product.id, {
     title: product.metaTitle ?? product.name,
-    description:
-      product.metaDescription ?? product.shortDescription ?? undefined,
-    openGraph: {
-      title: product.name,
-      description: product.shortDescription ?? undefined,
-      images: (product.images as string[])[0]
-        ? [(product.images as string[])[0]]
-        : [],
-    },
-  };
+    description: product.metaDescription ?? product.shortDescription,
+    image: (product.images as string[])[0] ?? null,
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/urunlerimiz/${slug}`,
+  });
 }
 
 
@@ -93,8 +89,27 @@ export default async function ProductDetailPage({ params }: PageProps) {
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0;
 
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const productSchema = buildProductSchema({
+    ...product,
+    images: product.images as string[],
+    variants: rawProduct.variants.map((v) => ({ ...v, price: v.price.toString(), discountedPrice: v.discountedPrice?.toString() ?? null })),
+    reviews: rawProduct.reviews.map((r) => ({ ...r, user: { name: r.user.name } })),
+    categories: rawProduct.categories,
+  });
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Anasayfa", url: `${BASE_URL}/` },
+    { name: "Ürünlerimiz", url: `${BASE_URL}/urunlerimiz` },
+    ...(product.categories?.[0]
+      ? [{ name: product.categories[0].name, url: `${BASE_URL}/urunlerimiz?kategori=${product.categories[0].slug}` }]
+      : []),
+    { name: product.name, url: `${BASE_URL}/urunlerimiz/${slug}` },
+  ]);
+
   return (
     <Container className="pt-24 pb-8 max-w-5xl">
+      <Script id="product-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      <Script id="breadcrumb-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-gray-500 mb-6 flex-wrap">
         <Link href="/" className="hover:text-honey-dark transition-colors">

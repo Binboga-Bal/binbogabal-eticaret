@@ -1071,3 +1071,356 @@ model PasswordPolicy {
 
   @@map("password_policy")
 }
+
+// ─── SEO META YÖNETİMİ ───────────────────────────────────────────────────────
+
+model SeoMeta {
+  id                 String    @id @default(cuid())
+  entityType         String    // "product"|"category"|"blog"|"campaign"|"page"
+  entityId           String
+  locale             String    @default("tr")
+
+  title              String?
+  description        String?
+  keywords           String[]
+  canonicalUrl       String?
+  noIndex            Boolean   @default(false)
+  noFollow           Boolean   @default(false)
+
+  ogTitle            String?
+  ogDescription      String?
+  ogImage            String?
+  ogType             String?   @default("website")
+
+  twitterCard        String?   @default("summary_large_image")
+  twitterTitle       String?
+  twitterDescription String?
+  twitterImage       String?
+
+  schemaMarkup       Json?
+
+  llmSummary         String?   @db.Text
+  llmKeyFacts        Json?
+  llmQaPairs         Json?
+  llmEntityData      Json?
+  llmLastOptimizedAt DateTime?
+  llmOptimizedFor    String[]
+
+  aiGenerated        Boolean   @default(false)
+  aiGeneratedAt      DateTime?
+  aiModel            String?
+  aiPromptUsed       String?   @db.Text
+  aiTokensUsed       Int?
+
+  seoScore           Int?
+  llmScore           Int?
+  readabilityScore   Int?
+  lastAuditedAt      DateTime?
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([entityType, entityId, locale])
+  @@index([entityType, locale])
+  @@index([seoScore])
+  @@index([llmScore])
+  @@map("seo_meta")
+}
+
+// ─── GENERATIVE SEO — LLM KAYNAK TAKİBİ ─────────────────────────────────────
+
+model LlmMention {
+  id          String   @id @default(cuid())
+  source      String   // "chatgpt"|"perplexity"|"gemini"|"claude"|"bing_chat"|"other"
+  query       String
+  response    String   @db.Text
+  mentioned   Boolean  @default(false)
+  mentionUrl  String?
+  mentionType String?  // "direct"|"indirect"|"competitor_mentioned"
+  rank        Int?
+  competitors String[]
+  recordedAt  DateTime @default(now())
+
+  @@index([source, recordedAt])
+  @@index([mentioned])
+  @@map("llm_mentions")
+}
+
+// ─── LLM BOT ERİŞİM LOGU ─────────────────────────────────────────────────────
+
+model LlmBotAccess {
+  id         String   @id @default(cuid())
+  botName    String
+  url        String
+  statusCode Int
+  userAgent  String?
+  ipAddress  String?
+  accessedAt DateTime @default(now())
+
+  @@index([botName, accessedAt])
+  @@index([url])
+  @@map("llm_bot_access")
+}
+
+// ─── HREFLANG EŞLEŞTİRMESİ ───────────────────────────────────────────────────
+
+model HreflangMapping {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  locale     String
+  url        String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@unique([entityType, entityId, locale])
+  @@map("hreflang_mappings")
+}
+
+// ─── REDIRECT YÖNETİMİ ────────────────────────────────────────────────────────
+
+model Redirect {
+  id         String   @id @default(cuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  locale     String?
+  isActive   Boolean  @default(true)
+  hitCount   Int      @default(0)
+  note       String?
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("redirects")
+}
+
+// ─── ROBOTS.TXT YÖNETİMİ ─────────────────────────────────────────────────────
+
+model RobotsConfig {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  isActive  Boolean  @default(true)
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("robots_config")
+}
+
+// ─── SİTEMAP YAPILANDIRMASI ───────────────────────────────────────────────────
+
+model SitemapConfig {
+  id             String   @id @default(cuid())
+  entityType     String   @unique
+  isIncluded     Boolean  @default(true)
+  changeFreq     String   @default("weekly")
+  priority       Float    @default(0.5)
+  includeImages  Boolean  @default(true)
+  includeLocales String[]
+  updatedAt      DateTime @updatedAt
+
+  @@map("sitemap_configs")
+}
+
+// ─── KIRIK LİNK & TARAMA SONUÇLARI ───────────────────────────────────────────
+
+model CrawlResult {
+  id           String   @id @default(cuid())
+  url          String
+  statusCode   Int
+  redirectsTo  String?
+  title        String?
+  metaDesc     String?
+  h1           String?
+  canonicalUrl String?
+  noIndex      Boolean  @default(false)
+  issueTypes   String[]
+  responseTime Int?
+  crawledAt    DateTime @default(now())
+
+  @@index([statusCode])
+  @@index([crawledAt])
+  @@map("crawl_results")
+}
+
+// ─── ANAHTAR KELİME TAKİBİ ───────────────────────────────────────────────────
+
+model KeywordTracking {
+  id        String           @id @default(cuid())
+  keyword   String
+  locale    String
+  country   String
+  targetUrl String?
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  rankings  KeywordRanking[]
+
+  @@unique([keyword, locale, country])
+  @@map("keyword_tracking")
+}
+
+model KeywordRanking {
+  id           String          @id @default(cuid())
+  keywordId    String
+  keyword      KeywordTracking @relation(fields: [keywordId], references: [id])
+  position     Int?
+  previousPos  Int?
+  url          String?
+  searchVolume Int?
+  ctr          Float?
+  clicks       Int?
+  impressions  Int?
+  recordedAt   DateTime        @default(now())
+
+  @@index([keywordId, recordedAt])
+  @@map("keyword_rankings")
+}
+
+// ─── RAKİP TAKİBİ ─────────────────────────────────────────────────────────────
+
+model Competitor {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("competitors")
+}
+
+// ─── GOOGLE MERCHANT CENTER FEED ─────────────────────────────────────────────
+
+model MerchantFeedConfig {
+  id              String    @id @default(cuid())
+  locale          String    @unique
+  country         String
+  currency        String
+  language        String
+  isActive        Boolean   @default(true)
+  lastGeneratedAt DateTime?
+  lastSubmittedAt DateTime?
+  productCount    Int       @default(0)
+  errorCount      Int       @default(0)
+  feedUrl         String?
+  updatedAt       DateTime  @updatedAt
+
+  @@map("merchant_feed_configs")
+}
+
+// ─── SEO ENTEGRASYON AYARLARI ─────────────────────────────────────────────────
+
+model SeoIntegration {
+  id           String    @id @default(cuid())
+  provider     String    @unique
+  isActive     Boolean   @default(false)
+  credentials  Json?
+  siteUrl      String?
+  propertyId   String?
+  lastSyncAt   DateTime?
+  syncStatus   String?
+  errorMessage String?
+  updatedAt    DateTime  @updatedAt
+
+  @@map("seo_integrations")
+}
+
+// ─── SEO ŞABLONLARI ───────────────────────────────────────────────────────────
+
+model SeoTemplate {
+  id           String   @id @default(cuid())
+  name         String
+  entityType   String
+  locale       String
+  titlePattern String
+  descPattern  String
+  isDefault    Boolean  @default(false)
+  createdBy    String?
+  createdAt    DateTime @default(now())
+
+  @@unique([entityType, locale, isDefault])
+  @@map("seo_templates")
+}
+
+// ─── AI SEO GÖREV KUYRUĞU ─────────────────────────────────────────────────────
+
+model AiSeoJob {
+  id           String    @id @default(cuid())
+  jobType      String    // "meta_generate"|"llm_optimize"|"content_analyze"|"keyword_suggest"|"schema_generate"|"qa_generate"|"llm_score"
+  entityType   String?
+  entityId     String?
+  locale       String?
+  status       String    @default("PENDING")
+  inputData    Json?
+  outputData   Json?
+  errorMessage String?
+  tokensUsed   Int?
+  model        String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([status, createdAt])
+  @@map("ai_seo_jobs")
+}
+
+// ─── CORE WEB VITALS ─────────────────────────────────────────────────────────
+
+model CoreWebVitals {
+  id         String   @id @default(cuid())
+  url        String
+  locale     String?
+  device     String
+  lcp        Float?
+  fid        Float?
+  inp        Float?
+  cls        Float?
+  fcp        Float?
+  ttfb       Float?
+  score      Int?
+  source     String
+  recordedAt DateTime @default(now())
+
+  @@index([url, device, recordedAt])
+  @@map("core_web_vitals")
+}
+
+// ─── GEO HEDEFLEME ────────────────────────────────────────────────────────────
+
+model GeoTargeting {
+  id              String   @id @default(cuid())
+  countryCode     String   @unique
+  locale          String
+  currency        String
+  isActive        Boolean  @default(true)
+  priceMultiplier Float    @default(1.0)
+  customDomain    String?
+  hreflangCode    String
+  gdprRequired    Boolean  @default(false)
+  vatRate         Float    @default(0)
+  updatedAt       DateTime @updatedAt
+
+  @@map("geo_targeting")
+}
+
+// ─── LLM İÇERİK DEPOSU (GENERATIVE SEO) ──────────────────────────────────────
+
+model LlmContentStore {
+  id             String    @id @default(cuid())
+  entityType     String
+  entityId       String
+  locale         String
+  contentType    String    // "faq"|"comparison"|"guide"|"definition"|"review_summary"
+  title          String
+  content        String    @db.Text
+  structuredData Json?
+  targetBots     String[]
+  isPublished    Boolean   @default(true)
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([entityType, entityId, locale, contentType])
+  @@index([entityType, locale])
+  @@map("llm_content_store")
+}

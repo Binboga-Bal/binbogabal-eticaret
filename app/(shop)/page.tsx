@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { prisma } from "@/lib/prisma";
+import { buildMetadata } from "@/lib/seo/meta.service";
+import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/schema/organization.schema";
+import { buildLocalBusinessSchema } from "@/lib/seo/schema/local-business.schema";
 import { serializeProduct } from "@/lib/utils/serialize";
 import { HeroSlider } from "@/components/shop/home/HeroSlider";
 import { TrustBadges } from "@/components/shop/home/TrustBadges";
@@ -12,11 +16,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 
-export const metadata: Metadata = {
-  title: "Kozan'dan Doğal Bal | Binboğa Kooperatif Balı",
-  description:
-    "1973'ten bu yana 745 Sayılı Kozan Bal Tarım Satış Kooperatifi. Doğal, analizi yapılmış kooperatif balı.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata("page", "home", {
+    title: "Kozan'dan Doğal Bal | Binboğa Kooperatif Balı",
+    description: "1973'ten bu yana 745 Sayılı Kozan Bal Tarım Satış Kooperatifi. Doğal, analizi yapılmış kooperatif balı.",
+    canonical: process.env.NEXT_PUBLIC_APP_URL ?? "/",
+  });
+}
 
 // Katalog içeriği statik üretilir ve ISR ile 5 dk'da bir tazelenir.
 // ERP senkronu (app/api/admin/erp) ayrıca on-demand revalidate tetikler.
@@ -83,6 +89,9 @@ export default async function HomePage() {
 
   return (
     <>
+      <Script id="org-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildOrganizationSchema()) }} />
+      <Script id="website-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSiteSchema()) }} />
+      <Script id="local-biz-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildLocalBusinessSchema()) }} />
       <HeroSlider images={sliderImages} />
       <TrustBadges images={badgeImages} />
 

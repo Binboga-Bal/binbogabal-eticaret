@@ -601,6 +601,23 @@
       <a href="#step168" class="nav-link"><span class="dot"></span>168 — pg_trgm Arama</a>
       <a href="#step169" class="nav-link"><span class="dot"></span>169 — Pool & Doküman</a>
 
+      <div class="nav-section-label">4 Haziran 2026 — SEO & GEO</div>
+      <a href="#step170" class="nav-link"><span class="dot"></span>170 — Prisma: 17 SEO Modeli</a>
+      <a href="#step171" class="nav-link"><span class="dot"></span>171 — Sitemap & Robots.txt</a>
+      <a href="#step172" class="nav-link"><span class="dot"></span>172 — JSON-LD Schema Sistemi</a>
+      <a href="#step173" class="nav-link"><span class="dot"></span>173 — SeoMeta Servis Katmanı</a>
+      <a href="#step174" class="nav-link"><span class="dot"></span>174 — generateMetadata Entegrasyonu</a>
+      <a href="#step175" class="nav-link"><span class="dot"></span>175 — Middleware Redirect Motoru</a>
+      <a href="#step176" class="nav-link"><span class="dot"></span>176 — Admin SEO API Routes</a>
+      <a href="#step177" class="nav-link"><span class="dot"></span>177 — llms.txt & LLM Endpoint</a>
+      <a href="#step178" class="nav-link"><span class="dot"></span>178 — LLM Bot Detector</a>
+      <a href="#step179" class="nav-link"><span class="dot"></span>179 — Generative SEO Admin API</a>
+      <a href="#step180" class="nav-link"><span class="dot"></span>180 — AI SEO Motoru (Claude)</a>
+      <a href="#step181" class="nav-link"><span class="dot"></span>181 — AI Job Queue & SSE</a>
+      <a href="#step182" class="nav-link"><span class="dot"></span>182 — Admin SEO Dashboard</a>
+      <a href="#step183" class="nav-link"><span class="dot"></span>183 — Meta Editör (7 Sekme)</a>
+      <a href="#step184" class="nav-link"><span class="dot"></span>184 — SEO Cron Job'lar</a>
+
       <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -7383,10 +7400,542 @@ URL    : /admin/auth/login</pre>
       </div>
     </section>
 
+    <!-- ════════════════════════════════════════════ 4 HAZIRAN 2026 — SEO & GEO -->
+    <div class="date-header" id="seo-geo-section">
+      <div class="date-pill">4 Haziran 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 170–184 · SEO, GEO &amp; Generative SEO Modülü</div>
+    </div>
+
+    <!-- STEP 170 -->
+    <section class="section" id="step170">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🗄️</div>
+        <div>
+          <h2>170 — Prisma Schema: 17 Yeni SEO/GEO Modeli</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-purple">feat</span>
+            <span class="tag tag-blue">database</span>
+            <span class="tag tag-green">schema</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Eklenen Modeller</h3>
+        <p>Mevcut <code>prisma/schema.prisma</code> dosyasına 17 yeni model eklendi ve <code>pnpm db:push</code> ile Supabase'e aktarıldı.</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Model</th><th>Amaç</th></tr></thead>
+          <tbody>
+            <tr><td><code>SeoMeta</code></td><td>Tüm entity tipleri için title/desc/OG/Twitter/JSON-LD/LLM alanları + SEO &amp; LLM skoru</td></tr>
+            <tr><td><code>LlmMention</code></td><td>ChatGPT/Perplexity'de alıntılanma kaydı</td></tr>
+            <tr><td><code>LlmBotAccess</code></td><td>LLM bot erişim logu (botName, url, UA, IP)</td></tr>
+            <tr><td><code>HreflangMapping</code></td><td>Çoklu dil URL eşleştirmeleri</td></tr>
+            <tr><td><code>Redirect</code></td><td>301/302/307/308 yönlendirme tablosu (hitCount, aktif/pasif)</td></tr>
+            <tr><td><code>RobotsConfig</code></td><td>Admin panelden robots.txt özel içerik</td></tr>
+            <tr><td><code>SitemapConfig</code></td><td>Entity bazında changeFreq, priority, includeImages</td></tr>
+            <tr><td><code>CrawlResult</code></td><td>Site tarama sonuçları (broken link, noindex, canonical)</td></tr>
+            <tr><td><code>KeywordTracking</code> + <code>KeywordRanking</code></td><td>Anahtar kelime + sıralama geçmişi</td></tr>
+            <tr><td><code>Competitor</code></td><td>Rakip domain listesi</td></tr>
+            <tr><td><code>MerchantFeedConfig</code></td><td>Google Merchant feed ayarları</td></tr>
+            <tr><td><code>SeoIntegration</code></td><td>GSC/GA4/Bing/Yandex OAuth token kaydı</td></tr>
+            <tr><td><code>SeoTemplate</code></td><td>Title/desc pattern şablonları ({{name}}, {{price}})</td></tr>
+            <tr><td><code>AiSeoJob</code></td><td>AI görev kuyruğu (PENDING→RUNNING→COMPLETED)</td></tr>
+            <tr><td><code>CoreWebVitals</code></td><td>LCP/CLS/INP/FCP/TTFB kayıtları</td></tr>
+            <tr><td><code>GeoTargeting</code></td><td>Ülke bazında dil/para birimi/GDPR/KDV</td></tr>
+            <tr><td><code>LlmContentStore</code></td><td>LLM botlar için optimize içerik deposu (FAQ, kılavuz, karşılaştırma)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Composite Unique Index</h3>
+        <p><code>SeoMeta</code> tablosunda <code>@@unique([entityType, entityId, locale])</code> kısıtı — aynı entity için birden fazla locale kaydı tutulabilir (çoklu dil hazırlığı). Şu an aktif locale: <code>tr</code>.</p>
+      </div>
+    </section>
+
+    <!-- STEP 171 -->
+    <section class="section" id="step171">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🗺️</div>
+        <div>
+          <h2>171 — Dinamik Sitemap &amp; LLM-Aware robots.txt</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-green">feat</span>
+            <span class="tag tag-blue">seo</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>app/sitemap.ts — ISR Sitemap</h3>
+        <p>Next.js <code>MetadataRoute.Sitemap</code> formatında ISR (24 saat) ile üretilir. Ürün, kategori, blog, kampanya ve statik sayfa URL'lerini kapsar.</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Bölüm</th><th>changeFreq</th><th>priority</th></tr></thead>
+          <tbody>
+            <tr><td>Ana sayfa</td><td>daily</td><td>1.0</td></tr>
+            <tr><td>Ürün detay</td><td>weekly</td><td>0.8</td></tr>
+            <tr><td>Kategoriler</td><td>weekly</td><td>0.7</td></tr>
+            <tr><td>Blog yazıları</td><td>monthly</td><td>0.6</td></tr>
+            <tr><td>Kampanyalar</td><td>daily</td><td>0.7</td></tr>
+            <tr><td>Statik sayfalar</td><td>monthly</td><td>0.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>app/robots.ts — LLM Bot Kuralları</h3>
+        <p>Her LLM botu için ayrı <code>User-agent</code> bloku. İzin verilen botlar <code>/llm-content/*</code> ve <code>/llms.txt</code>'e özel erişim alır. Zararlı botlar tüm siteden engellenir.</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Bot</th><th>Şirket</th><th>Durum</th></tr></thead>
+          <tbody>
+            <tr><td>GPTBot, ChatGPT-User</td><td>OpenAI</td><td><span class="tag tag-green">İzinli</span></td></tr>
+            <tr><td>PerplexityBot</td><td>Perplexity</td><td><span class="tag tag-green">İzinli</span></td></tr>
+            <tr><td>ClaudeBot, anthropic-ai</td><td>Anthropic</td><td><span class="tag tag-green">İzinli</span></td></tr>
+            <tr><td>Google-Extended</td><td>Google (Gemini)</td><td><span class="tag tag-green">İzinli</span></td></tr>
+            <tr><td>Amazonbot</td><td>Amazon (Alexa)</td><td><span class="tag tag-green">İzinli</span></td></tr>
+            <tr><td>Bytespider</td><td>TikTok/ByteDance</td><td><span class="tag tag-red">Engelli</span></td></tr>
+            <tr><td>CCBot</td><td>Common Crawl</td><td><span class="tag tag-red">Engelli</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- STEP 172 -->
+    <section class="section" id="step172">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">📋</div>
+        <div>
+          <h2>172 — JSON-LD Schema Sistemi</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-blue">feat</span>
+            <span class="tag tag-green">structured-data</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>lib/seo/schema/ — 7 Schema Dosyası</h3>
+        <p>Her sayfa tipi için ayrı Schema.org JSON-LD üreticisi. Sayfalar <code>next/script</code> ile <code>&lt;Script type="application/ld+json"&gt;</code> olarak enjekte eder.</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Dosya</th><th>Schema Tipi</th><th>Kullanıldığı Yer</th></tr></thead>
+          <tbody>
+            <tr><td><code>product.schema.ts</code></td><td>Product + Offer + AggregateRating + Review</td><td>Ürün detay sayfası</td></tr>
+            <tr><td><code>blog.schema.ts</code></td><td>Article + Author</td><td>Bal Rehberi yazı</td></tr>
+            <tr><td><code>category.schema.ts</code></td><td>CollectionPage</td><td>Kategori sayfaları</td></tr>
+            <tr><td><code>organization.schema.ts</code></td><td>Organization + WebSite + SearchAction</td><td>Ana sayfa</td></tr>
+            <tr><td><code>local-business.schema.ts</code></td><td>LocalBusiness (Kozan, Adana)</td><td>Ana sayfa</td></tr>
+            <tr><td><code>breadcrumb.schema.ts</code></td><td>BreadcrumbList</td><td>Tüm iç sayfalar</td></tr>
+            <tr><td><code>faq.schema.ts</code></td><td>FAQPage</td><td>llmQaPairs'den otomatik</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- STEP 173 -->
+    <section class="section" id="step173">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">⚙️</div>
+        <div>
+          <h2>173 — SeoMeta Servis Katmanı</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-honey">feat</span>
+            <span class="tag tag-blue">service</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>lib/seo/meta.service.ts</h3>
+        <p><code>buildMetadata(entityType, entityId, fallback)</code> fonksiyonu — SeoMeta tablosundan okur, bulamazsa fallback'e düşer, bulamazsa Next.js varsayılanlarına. Tüm sayfalar bu zinciri kullanır.</p>
+        <pre><span class="cm">// Öncelik sırası:</span>
+<span class="cm">// 1. SeoMeta tablosu (admin'den düzenlenmiş)</span>
+<span class="cm">// 2. Product.metaTitle / BlogPost.metaTitle  (mevcut alan)</span>
+<span class="cm">// 3. Product.name / BlogPost.title           (fallback)</span></pre>
+      </div>
+      <div class="card">
+        <h3>lib/seo/score-calculator.ts — İki Skor</h3>
+        <table>
+          <thead><tr><th>Skor</th><th>Bileşenler</th><th>Toplam</th></tr></thead>
+          <tbody>
+            <tr><td><strong>SEO Skoru</strong></td><td>Title (25p) + Desc (20p) + Keywords (10p) + Canonical (5p) + OG Image (10p) + Schema (15p)</td><td>0-100</td></tr>
+            <tr><td><strong>LLM Skoru</strong></td><td>llmSummary 150+ kelime (20p) + KeyFacts 5+ (15p) + QAPairs 3+ (20p) + Schema (10p) + llms.txt'de var (10p) + Bot izni (10p) + Taze içerik (5p)</td><td>0-100</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>lib/seo/redirect.service.ts — In-Memory Cache</h3>
+        <p>Redirect tablosunu sorgular, 5 dakika TTL'li bellek içi <code>Map</code> ile cache'ler. Production'da <code>REDIS_URL</code> env değişkeni ile Redis'e yükseltilebilir.</p>
+      </div>
+    </section>
+
+    <!-- STEP 174 -->
+    <section class="section" id="step174">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🏷️</div>
+        <div>
+          <h2>174 — generateMetadata Entegrasyonu</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-green">feat</span>
+            <span class="tag tag-blue">next.js</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Güncellenen Sayfalar</h3>
+        <p>4 mevcut sayfa dosyası <code>buildMetadata()</code> kullanacak şekilde güncellendi. JSON-LD schema'ları <code>next/script</code> ile enjekte edildi:</p>
+        <ul style="padding-left:18px;margin-top:8px;color:var(--text-muted);font-size:13.5px">
+          <li><code>app/(shop)/page.tsx</code> → Organization + WebSite + LocalBusiness schema</li>
+          <li><code>app/(shop)/urunlerimiz/[slug]/page.tsx</code> → Product + Breadcrumb schema</li>
+          <li><code>app/(shop)/bal-rehberi/[slug]/page.tsx</code> → Article schema</li>
+          <li><code>app/kampanya/[slug]/page.tsx</code> → ogImage Campaign.ogImageUrl alanından</li>
+        </ul>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">ℹ️ Backward Compat:</span> Product.metaTitle ve BlogPost.metaTitle alanları kaldırılmadı — fallback zincirinde ikinci halka olarak çalışıyor.
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 175 -->
+    <section class="section" id="step175">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">↩️</div>
+        <div>
+          <h2>175 — Middleware Redirect Motoru</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-red">feat</span>
+            <span class="tag tag-blue">middleware</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>middleware.ts Güncellemesi</h3>
+        <p>Mevcut auth logic'e dokunulmadan iki yeni özellik eklendi:</p>
+        <div class="step-list" style="margin-top:12px">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>LLM Bot Logging</h4>
+              <p>Her istekte User-Agent <code>detectLlmBot()</code> ile analiz edilir. Tanınan bir bot ise <code>LlmBotAccess</code> tablosuna async (fire-and-forget) kaydedilir. Middleware geciktirmez.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Redirect Motoru</h4>
+              <p><code>/api/</code>, <code>/_next/</code>, <code>/admin/</code> ve statik dosyalar hariç her path için Redirect tablosu sorgulanır. Eşleşme bulunursa 301/302/307/308 ile yönlendirilir, hit count arttırılır.</p>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warn" style="margin-top:12px">
+          <span class="alert-label">⚠ Dikkat:</span> Middleware Supabase pooler bağlantısı kullanıyor — her redirectcheck DB sorgusudur. Yüksek trafikte Redis cache şiddetle önerilir.
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 176 -->
+    <section class="section" id="step176">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">🔌</div>
+        <div>
+          <h2>176 — Admin SEO API Routes (17 Endpoint)</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-blue">feat</span>
+            <span class="tag tag-purple">api</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>app/api/admin/seo/ dizini</h3>
+        <table>
+          <thead><tr><th>Endpoint</th><th>Metot</th><th>İşlev</th></tr></thead>
+          <tbody>
+            <tr><td><code>/meta</code></td><td>GET, POST</td><td>Liste + upsert</td></tr>
+            <tr><td><code>/meta/[type]/[id]</code></td><td>GET</td><td>Entity'ye ait tüm locale kayıtları</td></tr>
+            <tr><td><code>/meta/[type]/[id]/[locale]</code></td><td>GET, PUT, DELETE</td><td>Tekil kayıt — otomatik skor hesaplama</td></tr>
+            <tr><td><code>/meta/preview</code></td><td>POST</td><td>SERP önizleme + karakter sayım durumu</td></tr>
+            <tr><td><code>/meta/ai-generate</code></td><td>POST</td><td>Tekil AI üretim (meta/llm/full mode)</td></tr>
+            <tr><td><code>/meta/ai-generate-bulk</code></td><td>POST</td><td>Toplu kuyruğa alma</td></tr>
+            <tr><td><code>/meta/ai-jobs</code></td><td>GET</td><td>İş listesi + SSE canlı ilerleme</td></tr>
+            <tr><td><code>/templates</code></td><td>GET, POST</td><td>Şablon CRUD</td></tr>
+            <tr><td><code>/redirects</code></td><td>GET, POST</td><td>Redirect CRUD + path traversal koruması</td></tr>
+            <tr><td><code>/redirects/detect-chains</code></td><td>POST</td><td>A→B→C zincir tespiti</td></tr>
+            <tr><td><code>/robots</code></td><td>GET, PUT</td><td>RobotsConfig CRUD</td></tr>
+            <tr><td><code>/sitemap/config</code></td><td>GET, PUT</td><td>SitemapConfig per-entity</td></tr>
+            <tr><td><code>/keywords</code></td><td>GET, POST</td><td>Kelime takibi</td></tr>
+            <tr><td><code>/keywords/[id]</code></td><td>GET, DELETE</td><td>Geçmiş + soft-delete</td></tr>
+            <tr><td><code>/reports/overview</code></td><td>GET</td><td>Dashboard istatistikleri</td></tr>
+            <tr><td><code>/generative/dashboard</code></td><td>GET</td><td>LLM alıntı + bot erişim özeti</td></tr>
+            <tr><td><code>/generative/bot-access</code></td><td>GET</td><td>Bot erişim logu</td></tr>
+            <tr><td><code>/generative/llms-txt-preview</code></td><td>GET</td><td>llms.txt önizleme</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-fix" style="margin-top:12px">
+          <span class="alert-label">🔒 Auth:</span> Tüm endpoint'ler <code>getAdminSession()</code> + <code>can(adminId, "seo", action)</code> RBAC korumasıyla güvenli.
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 177 -->
+    <section class="section" id="step177">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🤖</div>
+        <div>
+          <h2>177 — llms.txt &amp; LLM Content Endpoint</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-purple">feat</span>
+            <span class="tag tag-blue">generative-seo</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>/llms.txt — LLM Standart Dosyası</h3>
+        <p><code>app/llms.txt/route.ts</code> — 24 saatlik ISR cache ile dinamik üretilir. ChatGPT, Perplexity vb. botlar bu dosyayı okuyarak sitenin içeriğini anlar.</p>
+        <p style="margin-top:8px">İçerik yapısı: Site başlığı → Hakkında → Kategoriler (link+açıklama) → Top 30 Ürün (ad+fiyat+URL) → Aktif Kampanyalar → İletişim &amp; Politikalar → Makine okunabilir endpoint adresleri.</p>
+        <pre><span class="cm"># Binboğa Kooperatif Balı</span>
+Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
+
+<span class="cm">## Popüler Ürünler</span>
+- [Çiçek Balı 850g](/urunlerimiz/cicek-bali) | 450 ₺ — Doğal kır çiçeklerinden...
+- [Kekik Balı 850g](/urunlerimiz/kekik-bali) | 520 ₺ — Toros dağlarından...</pre>
+      </div>
+      <div class="card">
+        <h3>/llm-content/[entityType]/[entityId] — Makine Okunabilir Endpoint</h3>
+        <p>LLM botları bu endpoint'i doğrudan çekebilir. <code>Accept: application/json</code> → yapılandırılmış JSON döner. <code>Accept: text/plain</code> → Markdown formatında düz metin döner.</p>
+        <pre>{
+  <span class="str">"entity"</span>: { <span class="str">"type"</span>: <span class="str">"product"</span>, <span class="str">"id"</span>: <span class="str">"..."</span>, <span class="str">"locale"</span>: <span class="str">"tr"</span> },
+  <span class="str">"summary"</span>: <span class="str">"150-200 kelimelik olgusal özet..."</span>,
+  <span class="str">"keyFacts"</span>: { <span class="str">"Marka"</span>: <span class="str">"Binboğa"</span>, <span class="str">"Fiyat"</span>: <span class="str">"450 ₺"</span>, ... },
+  <span class="str">"qaPairs"</span>: [{ <span class="str">"q"</span>: <span class="str">"..."</span>, <span class="str">"a"</span>: <span class="str">"..."</span> }],
+  <span class="str">"canonicalUrl"</span>: <span class="str">"https://..."</span>,
+  <span class="str">"lastUpdated"</span>: <span class="str">"2026-06-04T..."</span>
+}</pre>
+      </div>
+    </section>
+
+    <!-- STEP 178 -->
+    <section class="section" id="step178">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(45,212,191,.15)">🔍</div>
+        <div>
+          <h2>178 — LLM Bot Detector</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-teal">feat</span>
+            <span class="tag tag-purple">generative-seo</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>lib/seo/generative/bot-detector.ts</h3>
+        <p>User-Agent string'ini analiz ederek 10 bilinen LLM botunu tespit eder. Her bot için şirket bilgisi ve izin durumu tanımlıdır.</p>
+        <p style="margin-top:8px">Middleware'de her istekte çalışır — tespit edilen botlar <code>LlmBotAccess</code> tablosuna async olarak loglanır (fire-and-forget, middleware'i bloklamaz).</p>
+      </div>
+    </section>
+
+    <!-- STEP 179 -->
+    <section class="section" id="step179">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">📊</div>
+        <div>
+          <h2>179 — Generative SEO Admin API</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-purple">feat</span>
+            <span class="tag tag-blue">api</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Generative Dashboard Metrikleri</h3>
+        <p><code>/api/admin/seo/generative/dashboard</code> son 30 günlük LLM görünürlük özetini döndürür:</p>
+        <ul style="padding-left:18px;margin-top:8px;color:var(--text-muted);font-size:13.5px">
+          <li>Toplam LLM sorgusu vs alıntılanan sorgu sayısı</li>
+          <li>Bot bazında erişim dağılımı (GPTBot, PerplexityBot vb.)</li>
+          <li>En çok alıntılanan URL'ler (top 5)</li>
+          <li>Ortalama LLM skoru + düşük skorlu sayfa sayısı</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- STEP 180 -->
+    <section class="section" id="step180">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">✨</div>
+        <div>
+          <h2>180 — AI SEO Motoru (Claude API)</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-honey">feat</span>
+            <span class="tag tag-purple">ai</span>
+            <span class="tag tag-blue">anthropic</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kurulum</h3>
+        <pre>pnpm add @anthropic-ai/sdk   <span class="cm"># 0.100.1</span></pre>
+        <div class="alert alert-warn" style="margin-top:8px">
+          <span class="alert-label">⚠ Env:</span> <code>ANTHROPIC_API_KEY</code> henüz .env'de yok. AI özellikler pasif. Eklendiğinde otomatik aktif olur — <code>isAiEnabled()</code> env check kullanılıyor.
+        </div>
+      </div>
+      <div class="card">
+        <h3>lib/seo/ai/ — 3 Ana Servis</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Model</th><th>Çıktı</th></tr></thead>
+          <tbody>
+            <tr><td><code>meta-generator.ts</code></td><td>claude-sonnet-4-6</td><td>title (50-60 char) + description (140-160 char) + keywords listesi</td></tr>
+            <tr><td><code>llm-optimizer.ts</code></td><td>claude-sonnet-4-6</td><td>llmSummary (150-200 kelime) + llmKeyFacts (JSON) + llmQaPairs (SSS)</td></tr>
+            <tr><td><code>queue-processor.ts</code></td><td>—</td><td>Rate-limited iş kuyruğu işleyici (50 req/dk throttle)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>AI Çalışma Modu</h3>
+        <p>Admin panelinden tetiklenen üç mod:</p>
+        <ul style="padding-left:18px;margin-top:8px;color:var(--text-muted);font-size:13.5px">
+          <li><strong>meta</strong> — sadece title + description + keywords üret</li>
+          <li><strong>llm</strong> — sadece llmSummary + keyFacts + qaPairs üret</li>
+          <li><strong>full</strong> — her ikisini birden üret, tüm alanları güncelle</li>
+        </ul>
+        <p style="margin-top:8px">Üretilen içerik önce admin'e gösterilir, kaydet butonuyla DB'ye yazılır.</p>
+      </div>
+    </section>
+
+    <!-- STEP 181 -->
+    <section class="section" id="step181">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">⚡</div>
+        <div>
+          <h2>181 — AI Job Queue &amp; SSE Canlı İlerleme</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-blue">feat</span>
+            <span class="tag tag-purple">ai</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>AiSeoJob Kuyruğu</h3>
+        <p>Toplu AI optimizasyonunda (tüm ürünler gibi) işler <code>AiSeoJob</code> tablosuna <code>PENDING</code> olarak eklenir. Cron (<code>/api/cron/seo/ai-job-processor</code>) her dakika 10 iş alır ve işler.</p>
+        <p style="margin-top:8px">Durum geçişi: <code>PENDING → RUNNING → COMPLETED / FAILED</code></p>
+      </div>
+      <div class="card">
+        <h3>SSE Canlı İlerleme</h3>
+        <p><code>GET /api/admin/seo/meta/ai-jobs?stream=true</code> — Server-Sent Events ile 2 saniyede bir PENDING/RUNNING/COMPLETED/FAILED sayılarını yayınlar. Tüm işler bitince stream kapanır (5 dakika timeout).</p>
+        <pre><span class="str">data: {"pending":45,"running":5,"completed":12,"failed":0}</span>
+<span class="str">data: {"pending":40,"running":5,"completed":17,"failed":0}</span>
+...</pre>
+      </div>
+    </section>
+
+    <!-- STEP 182 -->
+    <section class="section" id="step182">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">🖥️</div>
+        <div>
+          <h2>182 — Admin SEO Dashboard &amp; Sayfalar</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-green">feat</span>
+            <span class="tag tag-blue">admin-ui</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>app/admin/seo/ — 13 Yeni Sayfa</h3>
+        <div class="file-tree">
+          <span class="dir">app/admin/seo/</span><br>
+          &nbsp;&nbsp;<span class="file new">page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Ana dashboard (8 stat card + hızlı erişim)</span><br>
+          &nbsp;&nbsp;<span class="file new">meta/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Meta listesi (filtre, skor renkleri, sayfalama)</span><br>
+          &nbsp;&nbsp;<span class="file new">meta/[entityType]/[entityId]/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← 7 sekmeli editör</span><br>
+          &nbsp;&nbsp;<span class="file new">generative/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Bot erişim bar chart + LLM metrikleri</span><br>
+          &nbsp;&nbsp;<span class="file new">generative/llms-txt/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← llms.txt önizleme</span><br>
+          &nbsp;&nbsp;<span class="file new">generative/bot-access/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← LLM bot erişim logu tablosu</span><br>
+          &nbsp;&nbsp;<span class="file new">ai/jobs/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← AI iş kuyruğu (PENDING/RUNNING/COMPLETED)</span><br>
+          &nbsp;&nbsp;<span class="file new">templates/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← SEO şablonları ({{name}}, {{price}})</span><br>
+          &nbsp;&nbsp;<span class="file new">keywords/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Anahtar kelime takibi</span><br>
+          &nbsp;&nbsp;<span class="file new">redirects/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Yönlendirme CRUD (toggle, hit count)</span><br>
+          &nbsp;&nbsp;<span class="file new">technical/robots/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Robots.txt editörü</span><br>
+          &nbsp;&nbsp;<span class="file new">technical/sitemap/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← Sitemap istatistikleri</span><br>
+          &nbsp;&nbsp;<span class="file new">reports/page.tsx</span> &nbsp;&nbsp;<span style="color:var(--text-muted);font-size:12px">← SEO + LLM skor dağılımı + alıntı özeti</span>
+        </div>
+        <p style="margin-top:12px">Sidebar'a <code>Search</code> ikonlu "SEO &amp; GEO" menüsü eklendi (15 alt link).</p>
+      </div>
+    </section>
+
+    <!-- STEP 183 -->
+    <section class="section" id="step183">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">✏️</div>
+        <div>
+          <h2>183 — SEO Meta Editörü (7 Sekme)</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-purple">feat</span>
+            <span class="tag tag-blue">admin-ui</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>components/admin/seo/SeoMetaEditor.tsx</h3>
+        <p>Client bileşeni — her entity için tam SEO düzenleme arayüzü:</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Sekme</th><th>İçerik</th></tr></thead>
+          <tbody>
+            <tr><td>1. Temel Meta</td><td>Title (karakter sayaç 30-60) + Desc (120-160) + Keywords + SERP önizleme</td></tr>
+            <tr><td>2. Open Graph</td><td>ogTitle, ogDescription, ogImage, ogType</td></tr>
+            <tr><td>3. Yapısal Veri</td><td>JSON-LD textarea (monospace, syntax)</td></tr>
+            <tr><td>4. Generative SEO</td><td>llmSummary (kelime sayacı) + KeyFacts JSON + QAPairs JSON + AI üret butonu</td></tr>
+            <tr><td>5. Gelişmiş</td><td>canonicalUrl + noIndex + noFollow checkbox</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px">Üst bar: SEO skoru + LLM skoru badge + "AI Tam Optimize" + "Kaydet" butonları. Kaydet sonrası otomatik skor güncellenir.</p>
+      </div>
+    </section>
+
+    <!-- STEP 184 -->
+    <section class="section" id="step184">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.15)">⏱️</div>
+        <div>
+          <h2>184 — SEO Cron Job'lar (5 Adet)</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+            <span class="tag tag-green">feat</span>
+            <span class="tag tag-blue">cron</span>
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>app/api/cron/seo/</h3>
+        <table>
+          <thead><tr><th>Route</th><th>Sıklık (Önerilen)</th><th>İşlev</th></tr></thead>
+          <tbody>
+            <tr><td><code>llms-txt-refresh</code></td><td>Günlük</td><td>llms.txt ISR cache'ini yeniler</td></tr>
+            <tr><td><code>llm-bot-log-cleanup</code></td><td>Haftalık</td><td>90 günden eski LlmBotAccess kayıtlarını siler</td></tr>
+            <tr><td><code>ai-job-processor</code></td><td>Dakikalık</td><td>AiSeoJob kuyruğundan 10 iş alıp işler</td></tr>
+            <tr><td><code>seo-score-recalc</code></td><td>Günlük</td><td>Tüm SeoMeta kayıtlarının SEO + LLM skorunu yeniden hesaplar</td></tr>
+            <tr><td><code>sitemap-refresh</code></td><td>Günlük</td><td>Sitemap ISR'ını tetikler, URL sayısını loglar</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">ℹ️ Auth:</span> Tüm cron endpoint'leri <code>Authorization: Bearer CRON_SECRET</code> header'ı kontrolü yapar. Vercel Cron veya harici scheduler ile tetiklenebilir.
+        </div>
+      </div>
+
+      <!-- Sprint Özeti -->
+      <div class="card" style="margin-top:16px;border-color:rgba(249,177,11,.3)">
+        <h3 style="color:var(--honey)">📦 Sprint Özeti — SEO &amp; GEO Modülü</h3>
+        <table style="margin-top:8px">
+          <thead><tr><th>Kategori</th><th>Yeni Dosya</th><th>Değiştirilen</th></tr></thead>
+          <tbody>
+            <tr><td>DB (Prisma)</td><td>17 model</td><td>schema.prisma</td></tr>
+            <tr><td>Next.js Routes (public)</td><td>sitemap.ts, robots.ts, llms.txt, llm-content/[...]</td><td>—</td></tr>
+            <tr><td>Lib/Servis</td><td>meta.service, score-calculator, redirect.service, 7× schema, 3× ai/, 4× generative/</td><td>—</td></tr>
+            <tr><td>API Routes</td><td>17 admin endpoint + 5 cron</td><td>—</td></tr>
+            <tr><td>Admin Sayfaları</td><td>13 sayfa</td><td>—</td></tr>
+            <tr><td>UI Bileşenleri</td><td>5 bileşen (SeoMetaEditor, RedirectsManager, TemplatesManager, KeywordsManager, RobotsEditor)</td><td>AdminSidebar.tsx</td></tr>
+            <tr><td>Mevcut Sayfalar</td><td>—</td><td>4 sayfa (home, product, blog, campaign)</td></tr>
+            <tr><td>Middleware</td><td>—</td><td>middleware.ts (bot log + redirect)</td></tr>
+            <tr><td><strong>Toplam</strong></td><td>~75 yeni dosya</td><td>~9 dosya</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-warn" style="margin-top:12px">
+          <span class="alert-label">📋 Sonraki Sprint:</span> ANTHROPIC_API_KEY .env'e eklenmeli. Dış entegrasyonlar (GSC, GA4, Google Merchant, Bing IndexNow) sonraki sprint. i18n (<code>app/[locale]/</code>) ayrı sprint.
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 2 Haziran 2026, 15:40 — Adım 169 (Performans) · Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 4 Haziran 2026, 14:00 — Adım 184 (SEO &amp; GEO Modülü) · Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

@@ -21,6 +21,7 @@ import {
   Shield,
   ScrollText,
   UserCog,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -66,6 +67,26 @@ const navItems: NavItem[] = [
     ],
   },
   { href: "/admin/bannerlar", label: "Görsel Yönetimi", icon: <Image size={18} />, permission: "media:view" },
+  {
+    href: "/admin/seo",
+    label: "SEO & GEO",
+    icon: <Search size={18} />,
+    permission: "seo:view",
+    children: [
+      { href: "/admin/seo", label: "Dashboard" },
+      { href: "/admin/seo/meta", label: "Meta Yönetimi" },
+      { href: "/admin/seo/generative", label: "Generative SEO" },
+      { href: "/admin/seo/generative/llms-txt", label: "llms.txt" },
+      { href: "/admin/seo/generative/bot-access", label: "Bot Erişim Logu" },
+      { href: "/admin/seo/ai/jobs", label: "AI İş Kuyruğu" },
+      { href: "/admin/seo/templates", label: "SEO Şablonları" },
+      { href: "/admin/seo/keywords", label: "Anahtar Kelimeler" },
+      { href: "/admin/seo/redirects", label: "Yönlendirmeler" },
+      { href: "/admin/seo/technical/robots", label: "Robots.txt" },
+      { href: "/admin/seo/technical/sitemap", label: "Sitemap" },
+      { href: "/admin/seo/reports", label: "Raporlar" },
+    ],
+  },
   { href: "/admin/erp-sync", label: "ERP Senkron.", icon: <RefreshCw size={18} />, permission: "erp:view" },
   { href: "/admin/ayarlar", label: "Ayarlar", icon: <Settings size={18} />, permission: "settings:view" },
   {

@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { verifyAccessToken } from "@/lib/admin-auth/jwt";
 import { ADMIN_ACCESS_COOKIE, ADMIN_REFRESH_COOKIE } from "@/lib/admin-auth/session";
 import { prisma } from "@/lib/prisma";
+import { findRedirect, incrementHitCount } from "@/lib/seo/redirect.service";
+import { detectLlmBot } from "@/lib/seo/generative/bot-detector";
 
 export const runtime = "nodejs";
 
@@ -22,6 +24,38 @@ const PUBLIC_CUSTOMER_PATHS = [
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // ─── LLM Bot tespiti & loglama ────────────────────────────────────
+  const userAgent = req.headers.get("user-agent") ?? "";
+  const llmBot = detectLlmBot(userAgent);
+  if (llmBot) {
+    // Arkaplan logu — middleware'i bloklamaz
+    prisma.llmBotAccess.create({
+      data: {
+        botName: llmBot.name,
+        url: pathname,
+        statusCode: 200,
+        userAgent,
+        ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+      },
+    }).catch(() => null);
+  }
+
+  // ─── Redirect motoru ───────────────────────────────────────────────
+  // Sadece navigasyon isteklerinde çalış (API, statik asset, _next hariç)
+  if (
+    !pathname.startsWith("/api/") &&
+    !pathname.startsWith("/_next/") &&
+    !pathname.startsWith("/admin/") &&
+    !pathname.match(/\.(ico|png|jpg|jpeg|gif|svg|webp|css|js|woff2?)$/)
+  ) {
+    const redirect = await findRedirect(pathname).catch(() => null);
+    if (redirect) {
+      // Hit count'u arkaplan görevine bırak (middleware'i yavaşlatmaz)
+      incrementHitCount(redirect.id).catch(() => null);
+      return NextResponse.redirect(new URL(redirect.toPath, req.url), redirect.statusCode);
+    }
+  }
 
   // ─── Admin routes ─────────────────────────────────────────────────
   if (pathname.startsWith("/admin")) {
@@ -77,5 +111,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/hesabim/:path*"],
+  // Redirect motoru için tüm sayfa route'larını ekle (API ve statik dosyalar hariç)
+  matcher: [
+    "/admin/:path*",
+    "/hesabim/:path*",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|woff2?)).*)",
+  ],
 };
