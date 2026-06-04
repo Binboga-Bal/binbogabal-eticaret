@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -633,7 +633,13 @@
       <div class="nav-section-label">4 Haziran 2026 — Logger Bugfix</div>
       <a href="#step189" class="nav-link"><span class="dot"></span>189 — Logger Hata Düzeltmeleri &amp; QNB Logu</a>
 
-      <div class="nav-section-label">Referans</div>
+            <div class="nav-section-label">4 Haziran 2026 — QNBpay</div>
+      <a href="#step190" class="nav-link"><span class="dot"></span>190 — Hash Utils + checkStatus</a>
+
+      <div class="nav-section-label">4 Haziran 2026 — Log Düzeltme</div>
+      <a href="#step191" class="nav-link"><span class="dot"></span>191 — Log Görünürlük &amp; Cancel POST</a>
+
+<div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
       <a href="#commits"     class="nav-link"><span class="dot"></span>Commit Geçmişi</a>
@@ -8817,10 +8823,211 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
 
     </section>
 
+
+    <!-- ═══ STEP 190 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step190">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.1)">🔐</div>
+        <h2>
+          <span class="step-num">190</span>
+          QNBpay paySmart3D — Hash Utils, checkStatus &amp; Güvenlik
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-purple">feat(payment)</span>
+        <span class="tag tag-red">security</span>
+        <span class="tag tag-blue">AES-256-CBC</span>
+        <span class="tag tag-green">test: 8/8</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Mevcut entegrasyonda 5 kritik eksik tespit edildi ve düzeltildi: callback hash doğrulaması,
+        gerçek ödeme durumu teyidi (checkstatus), is_comission_from_user hatası,
+        response_method ortama göre ayarlanması ve birim testleri.
+        Tüm hash mantığı bağımsız bir modüle alındı.
+      </p>
+
+      <div class="card">
+        <h3>Yeni Dosya — <code>lib/payment/qnb-hash.ts</code></h3>
+        <p>Hash fonksiyonları <code>qnb-pay.ts</code>'ten ayrı, bağımsız olarak test edilebilir bir modüle taşındı:</p>
+        <ul style="margin-top:8px">
+          <li><code>generateHashKey(data, appSecret)</code> — AES-256-CBC, rastgele iv/salt, "/" → "__"</li>
+          <li><code>decryptHash(bundle, appSecret)</code> — QNBpay'den dönen hash_key'i çözer, hata durumunda null döner</li>
+          <li><code>verifyHash(bundle, expected, appSecret)</code> — bundle'ı çözüp beklenen veriyle karşılaştırır</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni Metod — <code>QNBPayAdapter.checkStatus(invoiceId)</code></h3>
+        <p>Başarılı callback'ten sonra QNBpay'in <code>/ccpayment/api/checkstatus</code> API'si
+        çağrılarak gerçek ödeme durumu teyit edilir — yalnızca query string'e güvenmek yeterli değil.</p>
+        <div class="step-list" style="margin-top:12px">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Token alınır → hash üretilir (<code>invoice_id|merchant_key</code>)</h4>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>API çağrısı yapılır, yanıt hash'i AES ile doğrulanır</h4>
+              <p>QNBpay'den gelen <code>hash_key</code> çözülerek <code>invoice_id|merchant_key</code> eşleşmesi kontrol edilir — sahte yanıt koruması.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-body">
+              <h4><code>payment_status === 1</code> ise ödeme gerçek; callback DB'yi günceller</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Güvenlik Düzeltmeleri</h3>
+        <table>
+          <thead><tr><th>Sorun</th><th>Kök Neden</th><th>Düzeltme</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Callback hash doğrulaması yoktu</td>
+              <td>Sahte GET isteğiyle sipariş PAID yapılabilirdi</td>
+              <td><code>verifyPayment()</code>'e <code>verifyHash(params.hash_key)</code> eklendi</td>
+            </tr>
+            <tr>
+              <td>checkstatus çağrılmıyordu</td>
+              <td>Yalnızca callback query string'e güveniliyordu</td>
+              <td>Başarılı callback → <code>adapter.checkStatus()</code> zorunlu hale getirildi</td>
+            </tr>
+            <tr>
+              <td><code>is_comission_from_user: "2"</code> tek çekimde gönderiliyordu</td>
+              <td>Sabit değer; doküman "tek çekimde gönderme" diyor</td>
+              <td>Alan kaldırıldı, <code>Smart3DFormPayload</code>'da opsiyonel yapıldı</td>
+            </tr>
+            <tr>
+              <td><code>response_method</code> her ortamda "GET"</td>
+              <td>Sabit kodlanmıştı</td>
+              <td><code>isSandbox ? "GET" : "POST"</code> env'den kontrol edilir</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Birim Testleri — <code>pnpm test:hash</code></h3>
+        <table>
+          <thead><tr><th>Test</th><th>Kontrol Edilen</th></tr></thead>
+          <tbody>
+            <tr><td>Hash bundle formatı</td><td>iv=16 kar., salt=4 kar., "/" → "__"</td></tr>
+            <tr><td>decrypt(generate(x)) == x</td><td>AES gidiş-dönüş tutarlılığı</td></tr>
+            <tr><td>Her çalıştırmada farklı hash</td><td>Rastgele iv/salt davranışı</td></tr>
+            <tr><td>verifyHash doğru veri → true</td><td>Temel doğrulama akışı</td></tr>
+            <tr><td>verifyHash değiştirilmiş tutar → false</td><td>Tutar manipülasyonu koruması</td></tr>
+            <tr><td>verifyHash yanlış secret → false</td><td>Yetkisiz doğrulama engeli</td></tr>
+            <tr><td>Bozuk bundle → null</td><td>Hatalı girdi dayanıklılığı</td></tr>
+            <tr><td>checkstatus hash doğrulanabilir</td><td><code>invoice_id|merchant_key</code> formatı</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px">Sonuç: <strong style="color:var(--green)">8/8 geçti</strong>, <code>pnpm tsc --noEmit</code> hatasız.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr><td><code>lib/payment/qnb-hash.ts</code></td><td>YENİ — generateHashKey, decryptHash, verifyHash</td></tr>
+            <tr><td><code>lib/payment/qnb-pay.ts</code></td><td>qnb-hash modülü; checkStatus() eklendi; is_comission_from_user kaldırıldı; response_method env'den; verifyPayment() hash kontrolü</td></tr>
+            <tr><td><code>lib/payment/types.ts</code></td><td>CheckStatusResult eklendi; is_comission_from_user opsiyonel</td></tr>
+            <tr><td><code>lib/payment/index.ts</code></td><td>CheckStatusResult export'a eklendi</td></tr>
+            <tr><td><code>lib/payment/qnb-pay.test.ts</code></td><td>YENİ — 8 birim test</td></tr>
+            <tr><td><code>app/api/payment/qnb/callback/route.ts</code></td><td>checkStatus() eklendi; safeQnbParams blocklist'e geçildi</td></tr>
+            <tr><td><code>components/shop/checkout/CheckoutForm.tsx</code></td><td>Opsiyonel is_comission_from_user spread düzeltildi</td></tr>
+            <tr><td><code>package.json</code></td><td>test:hash scripti eklendi</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 191 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step191">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.1)">🪲</div>
+        <h2>
+          <span class="step-num">191</span>
+          Log Görünürlük &amp; cancel_url POST Desteği
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-red">fix(logs)</span>
+        <span class="tag tag-honey">fix(payment)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Canlı ortamda <code>response_method:"POST"</code> devreye girince QNBpay
+        <code>cancel_url</code>'e form-data POST atıyordu. <code>/odeme/hata</code> Server Component'i
+        yalnızca GET <code>searchParams</code> okuduğundan tüm parametreler kayboluyordu:
+        log detayı boş görünüyordu ve ödeme "kullanıcı tarafından iptal edildi" olarak
+        yanlış loglanıyordu. Üç kök neden tespit edilip düzeltildi.
+      </p>
+
+      <div class="card">
+        <h3>Kök Neden 1 — cancel_url POST body okunmuyordu</h3>
+        <p>QNBpay <code>response_method:"POST"</code> modunda cancel_url'e form-data POST atar.
+        <code>/odeme/hata</code> Next.js Server Component yalnızca <code>searchParams</code> (GET)
+        okuduğundan POST body görünmez; <code>invoice_id</code>, <code>error_code</code> vb. hepsi
+        boş gelir → <code>isCancelled=true</code> → "Ödeme İptal Edildi" yanlış gösterilir.</p>
+        <p style="margin-top:8px"><strong style="color:var(--green)">Düzeltme:</strong>
+        <code>cancelUrl</code> → <code>/api/payment/qnb/cancel</code> API route'una alındı.
+        Route hem GET hem POST destekler; tüm güvenli parametreleri
+        <code>/odeme/hata?invoice_id=...&amp;error_code=...</code> query string olarak iletir.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Kök Neden 2 — <code>safeQnbParams()</code> yanlış alan adları arıyordu</h3>
+        <p>Log fonksiyonu <code>["status","mdStatus","errorCode","order_id",...]</code> allowlist'i
+        kullanıyordu. QNBpay gerçekte <code>qnbpay_status</code>, <code>order_no</code>,
+        <code>error_code</code> (snake_case) gönderiyor — bunların <strong>hiçbiri</strong> listede
+        yoktu. Logdaki <code>qnbParams</code> neredeyse her zaman boş görünüyordu.</p>
+        <p style="margin-top:8px"><strong style="color:var(--green)">Düzeltme:</strong>
+        Allowlist → <strong>blocklist</strong>: <code>hash_key</code>, kart numarası, CVV ve expiry
+        dışındaki her şey loglanır. Aynı düzeltme <code>/odeme/hata</code> sayfasına da uygulandı.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Kök Neden 3 — JsonViewer alt nesneleri kapalı açıyordu</h3>
+        <p><code>collapsed = useState(indent &gt; 1)</code> ile <code>detail</code> altındaki
+        <code>qnbParams</code> alt nesnesi (indent=2) varsayılan kapalı geliyordu.
+        Kullanıcı <code>{...N}</code> görüp "detay boş" sanıyordu.</p>
+        <p style="margin-top:8px"><strong style="color:var(--green)">Düzeltme:</strong>
+        <code>indent &gt; 1</code> → <code>indent &gt; 2</code>. Artık <code>qnbParams</code>
+        drawer açıldığında doğrudan görünür; yalnızca 3. seviye ve daha derin nesneler kapalı açılır.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Log Tablosuna Mesaj Satırı</h3>
+        <p>Admin log tablosunda <em>Aksiyon</em> sütunu yalnızca <code>PAYMENT_FAILED</code> gibi
+        sabit enum değerlerini gösteriyordu; bağlamı anlamak için drawer açmak gerekiyordu.</p>
+        <p style="margin-top:8px"><strong style="color:var(--green)">Düzeltme:</strong>
+        Aksiyon hücresinin altına küçük gri renkte <code>log.message</code> satırı eklendi —
+        <em>"Ödeme başarısız: Sipariş #BB-XXX (kod: 14)"</em> gibi. Tıklamaya gerek kalmadan okunur.</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr><td><code>app/api/payment/qnb/cancel/route.ts</code></td><td>GET+POST destekli; safe params /odeme/hata'ya query string olarak iletiliyor</td></tr>
+            <tr><td><code>app/api/payment/qnb/callback/route.ts</code></td><td>safeQnbParams allowlist → blocklist</td></tr>
+            <tr><td><code>app/api/orders/route.ts</code></td><td>cancelUrl: /odeme/hata → /api/payment/qnb/cancel</td></tr>
+            <tr><td><code>app/(shop)/odeme/hata/page.tsx</code></td><td>qnbParams filtresi allowlist → blocklist</td></tr>
+            <tr><td><code>components/admin/logs/JsonViewer.tsx</code></td><td>collapsed eşiği indent&gt;1 → indent&gt;2</td></tr>
+            <tr><td><code>components/admin/logs/LogTable.tsx</code></td><td>Aksiyon hücresine log.message satırı eklendi</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 4 Haziran 2026, 23:45 — Adım 189 (Logger Bugfix &amp; QNB Ödeme Logu) · Claude tarafından yazıldı</span>
+      <span>Son guncelleme: 4 Haziran 2026 - Adim 191 (QNBpay Guvenlik + Log &amp; Cancel Duzeltmeleri) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>
