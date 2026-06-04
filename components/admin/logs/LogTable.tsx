@@ -65,7 +65,12 @@ export function LogTable({ logs }: Props) {
                   <td className="px-3 py-2 text-xs text-slate-500 whitespace-nowrap">{date}</td>
                   <td className="px-3 py-2"><LogLevelBadge level={log.level} /></td>
                   <td className="px-3 py-2"><LogCategoryBadge category={log.category} /></td>
-                  <td className="px-3 py-2 font-mono text-xs text-slate-700 max-w-[180px] truncate">{log.action}</td>
+                  <td className="px-3 py-2 max-w-[220px]">
+                    <span className="font-mono text-xs text-slate-700 block truncate">{log.action}</span>
+                    {log.message && (
+                      <span className="text-xs text-slate-400 block truncate mt-0.5">{log.message}</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2">
                     {log.actorEmail ? (
                       <button
