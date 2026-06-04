@@ -59,6 +59,36 @@ async function handleCallback(params: Record<string, string>, req: Request) {
   }
 
   const orderNumber = result.orderId;
+
+  // QNBpay'den ödeme durumunu teyit et — query string'e güvenmek yeterli değil
+  const statusResult = await adapter.checkStatus(orderNumber);
+  if (!statusResult.success) {
+    await createLog({
+      level: "ERROR",
+      category: "PAYMENT",
+      action: LOG_ACTIONS.PAYMENT_FAILED,
+      message: `QNB checkstatus başarısız: ${statusResult.error ?? "bilinmeyen hata"}`,
+      actorIp,
+      detail: {
+        provider: "QNB_PAY",
+        stage: "checkstatus",
+        orderNumber,
+        errorMessage: statusResult.error ?? null,
+        paymentStatus: statusResult.paymentStatus ?? null,
+        qnbParams: safeQnbParams(params),
+        callbackMethod: req.method,
+        duration: Date.now() - startTime,
+      },
+      method: req.method,
+      path: "/api/payment/qnb/callback",
+      statusCode: 303,
+    });
+
+    return NextResponse.redirect(
+      `${baseUrl}/odeme/hata?invoice_id=${encodeURIComponent(orderNumber)}`,
+      { status: 303 },
+    );
+  }
   const order = await prisma.order.findUnique({ where: { orderNumber } });
 
   if (!order) {

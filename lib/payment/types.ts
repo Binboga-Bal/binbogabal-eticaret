@@ -59,12 +59,22 @@ export interface Smart3DFormPayload {
   items: string;
   ip: string;
   transaction_type: string;
-  is_comission_from_user: string;
+  // Yalnızca 2+ taksitte gönderilir; tek çekimde (installments=1) undefined
+  is_comission_from_user?: string;
   response_method: string;
   return_url: string;
   cancel_url: string;
   hash_key: string;
   endpoint: string;
+}
+
+export interface CheckStatusResult {
+  success: boolean;
+  paymentStatus: number | undefined;
+  transactionType: string | undefined;
+  invoiceId: string | undefined;
+  orderId: string | undefined;
+  error?: string;
 }
 
 export interface PaymentResult {

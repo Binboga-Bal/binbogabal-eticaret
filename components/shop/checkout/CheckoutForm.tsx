@@ -74,7 +74,9 @@ function submitToQNBPay(payload: Smart3DFormPayload, card: CardData) {
     items: payload.items,
     ip: payload.ip,
     transaction_type: payload.transaction_type,
-    is_comission_from_user: payload.is_comission_from_user,
+    ...(payload.is_comission_from_user
+      ? { is_comission_from_user: payload.is_comission_from_user }
+      : {}),
     response_method: payload.response_method,
     return_url: payload.return_url,
     cancel_url: payload.cancel_url,

@@ -1,7 +1,7 @@
 import type { PaymentAdapter } from "./types";
 import { QNBPayAdapter } from "./qnb-pay";
 
-export type { PaymentAdapter, CreatePaymentParams, PaymentResult, VerifyPaymentResult, Smart3DFormPayload } from "./types";
+export type { PaymentAdapter, CreatePaymentParams, PaymentResult, VerifyPaymentResult, Smart3DFormPayload, CheckStatusResult } from "./types";
 
 const adapters: Record<string, () => PaymentAdapter> = {
   QNB_PAY: () => new QNBPayAdapter(),
