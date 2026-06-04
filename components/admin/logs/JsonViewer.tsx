@@ -8,7 +8,7 @@ interface Props {
 }
 
 function JsonNode({ data, indent = 0 }: Props) {
-  const [collapsed, setCollapsed] = useState(indent > 1);
+  const [collapsed, setCollapsed] = useState(indent > 2);
   const pad = "  ".repeat(indent);
 
   if (data === null) return <span className="text-slate-400">null</span>;

@@ -8,15 +8,10 @@ import { LOG_ACTIONS } from "@/lib/logger/actions";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-// QNB params'tan sadece güvenli alanları alır (kart/CVV yok)
+// QNB params'tan kart/hash verisi dışında her şeyi loglar
 function safeQnbParams(params: Record<string, string>) {
-  const safeKeys = [
-    "status", "mdStatus", "message", "errorCode",
-    "responseCode", "order_id", "transaction_id", "invoice_id", "amount", "installments",
-  ];
-  return Object.fromEntries(
-    Object.entries(params).filter(([k]) => safeKeys.includes(k)),
-  );
+  const strip = new Set(["hash_key", "cc_no", "cvv", "expiry_month", "expiry_year", "cc_holder_name"]);
+  return Object.fromEntries(Object.entries(params).filter(([k]) => !strip.has(k)));
 }
 
 // Hem GET hem POST callback aynı mantıkla işlenir.

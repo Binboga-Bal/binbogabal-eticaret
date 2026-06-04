@@ -100,8 +100,7 @@ export default async function PaymentFailurePage({
       userMessage: userMessage ?? null,
       qnbParams: Object.fromEntries(
         Object.entries(params).filter(([k]) =>
-          ["invoice_id", "error_code", "status_code", "status", "mdStatus",
-           "status_description", "payment_status", "order_id"].includes(k)
+          !["hash_key", "cc_no", "cvv", "expiry_month", "expiry_year", "cc_holder_name"].includes(k)
         )
       ),
     },
