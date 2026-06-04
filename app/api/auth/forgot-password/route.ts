@@ -30,16 +30,18 @@ export async function POST(req: Request) {
 
     await sendPasswordResetEmail(user.email, user.name ?? "Müşterimiz", token).catch(() => null);
 
-    void createLog({
+    await createLog({
       level: "INFO",
       category: "PASSWORD",
       action: LOG_ACTIONS.PASSWORD_RESET_REQUESTED,
-      message: `Şifre sıfırlama talebi: ${user.email}`,
+      message: `Şifre sıfırlama bağlantısı talep edildi`,
       actorId: user.id,
       actorEmail: user.email,
       actorIp,
+      detail: { tokenExpiry: "1 saat" },
       method: "POST",
       path: "/api/auth/forgot-password",
+      statusCode: 200,
     });
   }
 

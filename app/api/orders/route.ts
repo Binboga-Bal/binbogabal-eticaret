@@ -160,7 +160,7 @@ export async function POST(req: Request) {
       ).catch((err) => console.error("[orders] kapida guest mail hata:", err));
     }
 
-    void createLog({
+    await createLog({
       level: "INFO",
       category: "ORDER",
       action: LOG_ACTIONS.ORDER_CREATED,
@@ -172,7 +172,19 @@ export async function POST(req: Request) {
       targetType: "Order",
       targetId: order.id,
       targetLabel: `Sipariş #${order.orderNumber}`,
-      detail: { total: data.total, items: data.items.length, paymentMethod: "CASH_ON_DELIVERY" },
+      detail: {
+        orderNumber: order.orderNumber,
+        paymentMethod: "CASH_ON_DELIVERY",
+        subtotal: data.subtotal,
+        shippingFee: data.shippingFee,
+        discount: data.discount,
+        total: data.total,
+        itemCount: data.items.length,
+        couponCode: data.couponCode ?? null,
+        isGuest: !session?.user?.id,
+        city: data.shippingAddress.city,
+        duration: Date.now() - startTime,
+      },
       method: "POST",
       path: "/api/orders",
       statusCode: 200,
@@ -242,18 +254,25 @@ export async function POST(req: Request) {
   });
 
   if (!paymentResult.success) {
-    void createLog({
+    await createLog({
       level: "ERROR",
       category: "PAYMENT",
       action: LOG_ACTIONS.PAYMENT_FAILED,
-      message: `Ödeme başlatılamadı: ${paymentResult.error}`,
+      message: `QNB ödeme başlatılamadı: ${paymentResult.error}`,
       actorId: session?.user?.id,
       actorEmail: session?.user?.email ?? data.shippingAddress.email,
       actorIp,
       targetType: "Order",
       targetId: order.id,
       targetLabel: `Sipariş #${order.orderNumber}`,
-      detail: { error: paymentResult.error },
+      detail: {
+        provider: "QNB_PAY",
+        stage: "payment_init",
+        orderNumber: order.orderNumber,
+        amount: data.total,
+        errorMessage: paymentResult.error ?? null,
+        duration: Date.now() - startTime,
+      },
       method: "POST",
       path: "/api/orders",
       statusCode: 500,
@@ -265,11 +284,11 @@ export async function POST(req: Request) {
     );
   }
 
-  void createLog({
+  await createLog({
     level: "INFO",
     category: "ORDER",
     action: LOG_ACTIONS.ORDER_CREATED,
-    message: `Sipariş oluşturuldu (QNB): #${order.orderNumber}`,
+    message: `Sipariş oluşturuldu (QNB 3D): #${order.orderNumber}`,
     actorId: session?.user?.id,
     actorRole: session?.user?.role ?? "CUSTOMER",
     actorEmail: session?.user?.email ?? data.shippingAddress.email,
@@ -277,7 +296,19 @@ export async function POST(req: Request) {
     targetType: "Order",
     targetId: order.id,
     targetLabel: `Sipariş #${order.orderNumber}`,
-    detail: { total: data.total, items: data.items.length, paymentMethod: "QNB_PAY" },
+    detail: {
+      orderNumber: order.orderNumber,
+      paymentMethod: "QNB_PAY",
+      subtotal: data.subtotal,
+      shippingFee: data.shippingFee,
+      discount: data.discount,
+      total: data.total,
+      itemCount: data.items.length,
+      couponCode: data.couponCode ?? null,
+      isGuest: !session?.user?.id,
+      city: data.shippingAddress.city,
+      duration: Date.now() - startTime,
+    },
     method: "POST",
     path: "/api/orders",
     statusCode: 200,

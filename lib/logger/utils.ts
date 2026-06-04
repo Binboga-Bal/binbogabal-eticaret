@@ -1,5 +1,18 @@
 import { type NextRequest } from "next/server";
 
+/** user@example.com → u***@example.com (KVKK uyumlu e-posta maskeleme) */
+export function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return "***";
+  return `${local.charAt(0)}***@${domain}`;
+}
+
+/** +905551234567 → +90555***4567 */
+export function maskPhone(phone: string): string {
+  if (phone.length < 7) return "***";
+  return `${phone.slice(0, -4).replace(/\d(?=\d{2})/g, "*")}${phone.slice(-4)}`;
+}
+
 export function extractRequestMeta(req: NextRequest | Request) {
   const headers = req.headers;
   return {

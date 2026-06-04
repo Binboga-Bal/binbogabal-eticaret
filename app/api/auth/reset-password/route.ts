@@ -34,15 +34,17 @@ export async function POST(req: Request) {
 
   await sendPasswordChangedEmail(user.email, user.name ?? "Müşterimiz").catch(() => null);
 
-  void createLog({
+  await createLog({
     level: "INFO",
     category: "PASSWORD",
     action: LOG_ACTIONS.PASSWORD_RESET_COMPLETED,
-    message: `Şifre sıfırlama tamamlandı: ${user.email}`,
+    message: `Şifre sıfırlama tamamlandı`,
     actorId: user.id,
     actorEmail: user.email,
+    detail: { method: "reset_token" },
     method: "POST",
     path: "/api/auth/reset-password",
+    statusCode: 200,
   });
 
   return NextResponse.json({ message: "Şifreniz başarıyla güncellendi" });

@@ -67,18 +67,23 @@ export async function POST(req: Request) {
   await sendWelcomeEmail(user.email, user.name ?? "Müşterimiz")
     .catch((err) => console.error("[register] sendWelcomeEmail hata:", err));
 
-  void createLog({
+  await createLog({
     level: "INFO",
     category: "ACCOUNT",
     action: LOG_ACTIONS.USER_REGISTERED,
-    message: `Yeni kayıt: ${email}`,
+    message: `Yeni üye kaydı`,
     actorId: user.id,
     actorEmail: user.email,
     actorRole: "CUSTOMER",
     actorIp: actorIp,
     targetType: "User",
     targetId: user.id,
-    targetLabel: user.email,
+    detail: {
+      kvkkConsent: kvkkConsent,
+      newsletterConsent: newsletterConsent ?? false,
+      smsConsent: smsConsent ?? false,
+      hasPhone: !!phone,
+    },
     method: "POST",
     path: "/api/auth/register",
     statusCode: 200,

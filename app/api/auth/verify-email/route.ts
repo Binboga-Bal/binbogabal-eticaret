@@ -21,15 +21,19 @@ export async function GET(req: Request) {
     data: { emailVerified: new Date(), emailVerifyToken: null },
   });
 
-  void createLog({
+  await createLog({
     level: "INFO",
     category: "VERIFICATION",
     action: LOG_ACTIONS.USER_EMAIL_VERIFIED,
-    message: `E-posta doğrulandı: ${user.email}`,
+    message: `E-posta adresi doğrulandı`,
     actorId: user.id,
     actorEmail: user.email,
+    targetType: "User",
+    targetId: user.id,
+    detail: { verifiedAt: new Date().toISOString() },
     method: "GET",
     path: "/api/auth/verify-email",
+    statusCode: 302,
   });
 
   return NextResponse.redirect(new URL("/hesabim?verified=1", req.url));

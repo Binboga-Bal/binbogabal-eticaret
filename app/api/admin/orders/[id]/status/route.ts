@@ -61,7 +61,7 @@ export async function PATCH(
     ).catch((err) => console.error("[admin-status] guest mail hata:", err));
   }
 
-  void createLog({
+  await createLog({
     level: "INFO",
     category: "ORDER",
     action: LOG_ACTIONS.ORDER_STATUS_CHANGED,
@@ -72,9 +72,17 @@ export async function PATCH(
     targetType: "Order",
     targetId: order.id,
     targetLabel: `Sipariş #${order.orderNumber}`,
-    detail: { newStatus: status, cargoTrackingNo, cargoCompany },
+    detail: {
+      orderNumber: order.orderNumber,
+      previousStatus: order.status,
+      newStatus: status,
+      cargoTrackingNo: cargoTrackingNo ?? null,
+      cargoCompany: cargoCompany ?? null,
+      changedBy: session.email,
+    },
     method: "PATCH",
     path: `/api/admin/orders/${id}/status`,
+    statusCode: 200,
   });
 
   return NextResponse.json({ id: order.id, status: order.status });
