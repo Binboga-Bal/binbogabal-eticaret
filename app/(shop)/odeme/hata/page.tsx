@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { XCircle, RefreshCw } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { createLog } from "@/lib/logger";
+import { LOG_ACTIONS } from "@/lib/logger/actions";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = { title: "Ödeme Başarısız | Binboğa Bal" };
 
@@ -37,7 +40,14 @@ export default async function PaymentFailurePage({
   const rawErrorDesc = (params.error ?? params.status_description ?? "")
     .replace(/\+/g, " ");
 
+  const headersList = await headers();
+  const actorIp =
+    headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
+    headersList.get("x-real-ip") ??
+    undefined;
+
   // DB'yi güncelle: PENDING transaction → FAILED (idempotent)
+  let orderId: string | undefined;
   if (invoiceId) {
     try {
       const order = await prisma.order.findUnique({
@@ -45,6 +55,7 @@ export default async function PaymentFailurePage({
         select: { id: true },
       });
       if (order) {
+        orderId = order.id;
         await prisma.paymentTransaction.updateMany({
           where: { orderId: order.id, status: "PENDING" },
           data: {
@@ -67,6 +78,34 @@ export default async function PaymentFailurePage({
 
   const isCancelled =
     !errorCode && !params.payment_status && !invoiceId;
+
+  // Ödeme başarısız logu — cancel_url veya return_url üzerinden gelen tüm başarısız ödemeleri yakalar
+  await createLog({
+    level: isCancelled ? "WARNING" : "ERROR",
+    category: "PAYMENT",
+    action: LOG_ACTIONS.PAYMENT_FAILED,
+    message: isCancelled
+      ? "Ödeme iptal edildi"
+      : `Ödeme başarısız${invoiceId ? `: Sipariş #${invoiceId}` : ""}${errorCode ? ` (kod: ${errorCode})` : ""}`,
+    actorIp,
+    targetType: orderId ? "Order" : undefined,
+    targetId: orderId,
+    targetLabel: invoiceId ? `Sipariş #${invoiceId}` : undefined,
+    detail: {
+      provider: "QNB_PAY",
+      stage: isCancelled ? "user_cancel" : "payment_failed",
+      orderNumber: invoiceId ?? null,
+      errorCode: errorCode ?? null,
+      errorDescription: rawErrorDesc || null,
+      userMessage: userMessage ?? null,
+      qnbParams: Object.fromEntries(
+        Object.entries(params).filter(([k]) =>
+          ["invoice_id", "error_code", "status_code", "status", "mdStatus",
+           "status_description", "payment_status", "order_id"].includes(k)
+        )
+      ),
+    },
+  });
 
   return (
     <div className="px-4 pt-28 pb-16">
