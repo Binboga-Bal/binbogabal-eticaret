@@ -36,6 +36,8 @@ export interface CreatePaymentParams {
   orderNumber: string;
   amount: number;
   currency?: string;
+  shippingFee?: number;
+  discount?: number;
   customer: PaymentCustomer;
   shippingAddress: PaymentAddress;
   items: PaymentItem[];

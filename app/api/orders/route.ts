@@ -216,6 +216,8 @@ export async function POST(req: Request) {
     orderId: order.id,
     orderNumber: order.orderNumber,
     amount: data.total,
+    shippingFee: data.shippingFee,
+    discount: data.discount,
     customer: {
       name: data.shippingAddress.firstName,
       surname: data.shippingAddress.lastName,

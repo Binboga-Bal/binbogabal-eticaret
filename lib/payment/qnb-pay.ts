@@ -32,6 +32,48 @@ export class QNBPayAdapter implements PaymentAdapter {
       : "https://portal.qnbpay.com.tr";
   }
 
+  // QNBpay items dizisini oluşturur.
+  // Kural: sum(item.price * item.quantity) == total (kargo + indirim dahil).
+  // Kargo ve indirim ayrı satır olarak eklenir; toplam hâlâ uyuşmuyorsa
+  // (float yuvarlama vb.) tek özetleme öğesiyle güvenli fallback yapılır.
+  private buildQnbItems(params: CreatePaymentParams): string {
+    type QnbItem = { name: string; price: number; quantity: number; description: string };
+
+    const lines: QnbItem[] = params.items.map((item) => ({
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      description: item.name,
+    }));
+
+    const shippingFee = params.shippingFee ?? 0;
+    const discount    = params.discount    ?? 0;
+
+    if (shippingFee > 0) {
+      lines.push({ name: "Kargo Ücreti", price: shippingFee, quantity: 1, description: "Standart Kargo" });
+    }
+    if (discount > 0) {
+      lines.push({ name: "İndirim", price: -discount, quantity: 1, description: "Kampanya / Kupon İndirimi" });
+    }
+
+    // Doğrulama: toplam eşleşmeli
+    const sum     = Math.round(lines.reduce((s, l) => s + l.price * l.quantity, 0) * 100) / 100;
+    const total   = Math.round(params.amount * 100) / 100;
+
+    if (Math.abs(sum - total) > 0.009) {
+      // Güvenli fallback — tek öğe, tutar garantili eşleşir
+      console.warn(`[QNBPay] items toplamı (${sum}) != total (${total}), fallback kullanılıyor`);
+      return JSON.stringify([{
+        name: params.items.map((i) => `${i.name} x${i.quantity}`).join(", ").substring(0, 200),
+        price: params.amount,
+        quantity: 1,
+        description: `Sipariş #${params.orderNumber}`,
+      }]);
+    }
+
+    return JSON.stringify(lines);
+  }
+
   // Sunucu tarafında JWT token alır — kart verisi içermez, PCI-DSS uyumlu
   private async getToken(): Promise<string> {
     const response = await axios.post(
@@ -71,14 +113,7 @@ export class QNBPayAdapter implements PaymentAdapter {
         name: params.customer.name,
         surname: params.customer.surname,
         total,
-        items: JSON.stringify(
-          params.items.map((item) => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            description: item.name,
-          })),
-        ),
+        items: this.buildQnbItems(params),
         ip: params.customer.ip,
         transaction_type: "Auth",
         // is_comission_from_user yalnızca taksit >= 2 ise gönderilir;
