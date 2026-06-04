@@ -72,7 +72,7 @@ export async function createLog(params: CreateLogParams): Promise<void> {
       },
     });
 
-    if (MIN_LEVEL_ORDER[level] >= MIN_LEVEL_ORDER["WARNING"]) {
+    if (MIN_LEVEL_ORDER[level] >= MIN_LEVEL_ORDER["INFO"]) {
       sendTelegramAlert(log).catch((err) => console.error("[logger] telegram hata:", err));
     }
   } catch (err) {
