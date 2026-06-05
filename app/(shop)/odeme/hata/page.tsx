@@ -72,9 +72,10 @@ export default async function PaymentFailurePage({
   }
 
   const userMessage =
-    errorCode && ERROR_MESSAGES[errorCode]
+    rawErrorDesc ||
+    (errorCode && ERROR_MESSAGES[errorCode]
       ? ERROR_MESSAGES[errorCode]
-      : null;
+      : null);
 
   const isCancelled =
     !errorCode && !params.payment_status && !invoiceId;
