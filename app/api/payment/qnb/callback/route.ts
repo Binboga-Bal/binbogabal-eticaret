@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { QNBPayAdapter } from "@/lib/payment";
 import { pushOrderToErp } from "@/lib/dia-erp/sync";
@@ -14,30 +15,110 @@ function safeQnbParams(params: Record<string, string>) {
   return Object.fromEntries(Object.entries(params).filter(([k]) => !strip.has(k)));
 }
 
-// Ödeme başarısız olduğunda PENDING siparişi tamamen siler — PAID olanları dokunmaz.
-async function deletePendingOrder(orderNumber: string) {
+// Ödeme başarısız olduğunda geçici checkout session'ı siler.
+async function deleteCheckoutSession(sessionId: string) {
   try {
-    const order = await prisma.order.findUnique({ where: { orderNumber } });
-    if (!order || order.paymentStatus !== "PENDING") return;
-
-    await prisma.$transaction([
-      // PaymentTransaction'da cascade yok — önce silinmeli
-      prisma.paymentTransaction.deleteMany({ where: { orderId: order.id } }),
-      // OrderItem cascade var ama transaction içinde açıkça silmek daha güvenli
-      prisma.orderItem.deleteMany({ where: { orderId: order.id } }),
-      prisma.order.delete({ where: { id: order.id } }),
-    ]);
+    await prisma.checkoutSession.deleteMany({ where: { id: sessionId } });
   } catch (err) {
-    console.error("[deletePendingOrder] hata:", orderNumber, err);
+    console.error("[deleteCheckoutSession] hata:", sessionId, err);
   }
 }
 
+// Başarılı ödemede CheckoutSession'dan gerçek Order oluşturur.
+// Idempotency: session yoksa (callback 2x geldiyse) Order'ı döndürür.
+async function createOrderFromSession(sessionId: string, transactionId?: string, providerResponse?: Record<string, string>) {
+  // Önce idempotency kontrolü — Order zaten oluşturulmuş mu?
+  const existing = await prisma.order.findUnique({ where: { orderNumber: sessionId } });
+  if (existing) return existing;
+
+  const session = await prisma.checkoutSession.findUnique({ where: { id: sessionId } });
+  if (!session) return null;
+
+  const items = session.items as Array<{
+    variantId: string;
+    quantity: number;
+    price: number;
+    productName: string;
+    variantInfo: string;
+  }>;
+
+  const shippingAddress = session.shippingAddress as Record<string, string>;
+  const appliedCampaignIds = (session.appliedCampaignIds as string[]) ?? [];
+
+  const order = await prisma.$transaction(async (tx) => {
+    const newOrder = await tx.order.create({
+      data: {
+        orderNumber: session.id,
+        userId: session.userId ?? undefined,
+        guestEmail: session.userId ? undefined : shippingAddress.email,
+        guestPhone: session.userId ? undefined : shippingAddress.phone,
+        shippingAddress: session.shippingAddress as Prisma.InputJsonValue,
+        status: "CONFIRMED",
+        paymentStatus: "PAID",
+        subtotal: session.subtotal,
+        shippingFee: session.shippingFee,
+        discount: session.discount,
+        total: session.total,
+        couponCode: session.couponCode ?? null,
+        notes: session.notes ?? null,
+        items: {
+          create: items.map((item) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+            price: item.price,
+            productName: item.productName,
+            variantInfo: item.variantInfo,
+          })),
+        },
+      },
+    });
+
+    await tx.paymentTransaction.create({
+      data: {
+        orderId: newOrder.id,
+        provider: "QNB_PAY",
+        status: "SUCCESS",
+        amount: session.total,
+        providerRefId: transactionId ?? undefined,
+        providerResponse: providerResponse as Prisma.InputJsonValue | undefined,
+      },
+    });
+
+    await tx.checkoutSession.delete({ where: { id: sessionId } });
+
+    return newOrder;
+  });
+
+  // Kupon kullanımını artır
+  if (session.couponCode) {
+    await prisma.coupon
+      .update({ where: { code: session.couponCode }, data: { usedCount: { increment: 1 } } })
+      .catch(() => {});
+  }
+
+  // Kampanya kullanımlarını kaydet
+  if (appliedCampaignIds.length > 0) {
+    const discountPerCampaign = Number(session.discount) / appliedCampaignIds.length;
+    await Promise.all(
+      appliedCampaignIds.map((campaignId) =>
+        Promise.all([
+          prisma.campaignUsage.create({
+            data: { campaignId, customerId: session.userId ?? null, orderId: order.id, discountAmount: discountPerCampaign },
+          }).catch(() => {}),
+          prisma.campaign.update({
+            where: { id: campaignId },
+            data: { budgetUsed: { increment: discountPerCampaign } },
+          }).catch(() => {}),
+        ])
+      )
+    );
+  }
+
+  return order;
+}
+
 // Hem GET hem POST callback aynı mantıkla işlenir.
-// QNBPay response_method:"GET" ile return_url'i GET query param ile çağırır,
-// bazı entegrasyonlar POST ile çağırabilir — ikisi de desteklenir.
 async function handleCallback(params: Record<string, string>, req: Request) {
-  // invoice_id veya order_no yoksa QNBpay'den gelen gerçek bir callback değil
-  // (bot/crawler taraması) — sessizce 400 döndür, log yazma
   if (!params.invoice_id && !params.order_no) {
     return new NextResponse("Bad Request", { status: 400 });
   }
@@ -54,8 +135,8 @@ async function handleCallback(params: Record<string, string>, req: Request) {
   if (!result.success || !result.orderId) {
     console.error("QNBPay callback doğrulama başarısız:", result.error, safeQnbParams(params));
 
-    const failedOrderNumber = params.invoice_id ?? params.order_no;
-    if (failedOrderNumber) await deletePendingOrder(failedOrderNumber);
+    const failedSessionId = params.invoice_id ?? params.order_no;
+    if (failedSessionId) await deleteCheckoutSession(failedSessionId);
 
     await createLog({
       level: "ERROR",
@@ -66,7 +147,7 @@ async function handleCallback(params: Record<string, string>, req: Request) {
       detail: {
         provider: "QNB_PAY",
         stage: "callback_verify",
-        orderNumber: failedOrderNumber ?? null,
+        orderNumber: failedSessionId ?? null,
         errorMessage: result.error ?? null,
         qnbParams: safeQnbParams(params),
         callbackMethod: req.method,
@@ -80,13 +161,11 @@ async function handleCallback(params: Record<string, string>, req: Request) {
     return NextResponse.redirect(`${baseUrl}/odeme/hata`, { status: 303 });
   }
 
-  const orderNumber = result.orderId;
+  const sessionId = result.orderId;
 
-  // QNBpay'den ödeme durumunu teyit et — query string'e güvenmek yeterli değil
-  const statusResult = await adapter.checkStatus(orderNumber);
+  // QNBpay'den ödeme durumunu teyit et
+  const statusResult = await adapter.checkStatus(sessionId);
   if (!statusResult.success) {
-    // Fallback: checkstatus belirsiz yanıt (payment_status yok) ama callback açıkça başarı diyorsa
-    // callback params'a güven — checkstatus parse hatası ödemeyi bloke etmesin
     const callbackConfirmsSuccess =
       (params.payment_status === "1" || params.qnbpay_status === "1") &&
       (params.error_code === "100" || params.status_code === "100");
@@ -94,11 +173,10 @@ async function handleCallback(params: Record<string, string>, req: Request) {
     if (callbackConfirmsSuccess && statusResult.paymentStatus === undefined) {
       console.warn(
         "[QNBPay] checkstatus parse edilemedi, callback payment_status=1 → devam ediliyor",
-        { invoiceId: orderNumber, checkstatusError: statusResult.error },
+        { invoiceId: sessionId, checkstatusError: statusResult.error },
       );
-      // Uyarıyla devam et — aşağıdaki DB güncelleme adımına geç
     } else {
-      await deletePendingOrder(orderNumber);
+      await deleteCheckoutSession(sessionId);
 
       await createLog({
         level: "ERROR",
@@ -109,7 +187,7 @@ async function handleCallback(params: Record<string, string>, req: Request) {
         detail: {
           provider: "QNB_PAY",
           stage: "checkstatus",
-          orderNumber,
+          orderNumber: sessionId,
           errorMessage: statusResult.error ?? null,
           paymentStatus: statusResult.paymentStatus ?? null,
           qnbParams: safeQnbParams(params),
@@ -122,27 +200,24 @@ async function handleCallback(params: Record<string, string>, req: Request) {
       });
 
       return NextResponse.redirect(
-        `${baseUrl}/odeme/hata?invoice_id=${encodeURIComponent(orderNumber)}`,
+        `${baseUrl}/odeme/hata?invoice_id=${encodeURIComponent(sessionId)}`,
         { status: 303 },
       );
     }
   }
-  const order = await prisma.order.findUnique({ where: { orderNumber } });
+
+  // Ödeme başarılı — CheckoutSession'dan gerçek siparişi oluştur
+  const order = await createOrderFromSession(sessionId, result.transactionId, safeQnbParams(params));
 
   if (!order) {
-    console.error("Sipariş bulunamadı:", orderNumber);
+    console.error("CheckoutSession bulunamadı ve Order da yok:", sessionId);
     await createLog({
       level: "ERROR",
       category: "PAYMENT",
       action: LOG_ACTIONS.PAYMENT_FAILED,
-      message: `QNB callback: sipariş bulunamadı #${orderNumber}`,
+      message: `QNB callback: session/sipariş bulunamadı #${sessionId}`,
       actorIp,
-      detail: {
-        provider: "QNB_PAY",
-        stage: "order_lookup",
-        orderNumber,
-        qnbParams: safeQnbParams(params),
-      },
+      detail: { provider: "QNB_PAY", stage: "order_create", orderNumber: sessionId, qnbParams: safeQnbParams(params) },
       method: req.method,
       path: "/api/payment/qnb/callback",
       statusCode: 303,
@@ -150,46 +225,22 @@ async function handleCallback(params: Record<string, string>, req: Request) {
     return NextResponse.redirect(`${baseUrl}/odeme/hata`, { status: 303 });
   }
 
-  // Idempotency — zaten ödenmişse direkt başarı sayfasına
-  if (order.paymentStatus === "PAID") {
-    return NextResponse.redirect(
-      `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`,
-      { status: 303 },
-    );
-  }
-
-  await prisma.$transaction([
-    prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "PAID", status: "CONFIRMED" },
-    }),
-    prisma.paymentTransaction.updateMany({
-      where: { orderId: order.id, status: "PENDING" },
-      data: {
-        status: "SUCCESS",
-        providerRefId: result.transactionId,
-        providerResponse: params as Record<string, string>,
-      },
-    }),
-  ]);
-
+  // ERP push
   pushOrderToErp(order.id).catch((err) =>
     console.error("ERP push başarısız, sipariş:", order.id, err),
   );
 
+  // Onay maili
   const fullOrder = await prisma.order.findUnique({
     where: { id: order.id },
     include: { items: true, user: { select: { id: true, email: true, name: true } } },
   });
 
   if (fullOrder) {
-    const toEmail =
-      fullOrder.user?.email ??
-      (fullOrder.shippingAddress as Record<string, string>).email;
-    const toName =
-      fullOrder.user?.name ??
-      (fullOrder.shippingAddress as Record<string, string>).firstName ??
-      "Müşterimiz";
+    const shippingAddress = fullOrder.shippingAddress as Record<string, string>;
+    const toEmail = fullOrder.user?.email ?? shippingAddress.email;
+    const toName  = fullOrder.user?.name  ?? shippingAddress.firstName ?? "Müşterimiz";
+
     await sendOrderConfirmedEmail(
       fullOrder.user?.id ?? "",
       toEmail,
@@ -210,16 +261,16 @@ async function handleCallback(params: Record<string, string>, req: Request) {
     level: "INFO",
     category: "PAYMENT",
     action: LOG_ACTIONS.PAYMENT_SUCCESS,
-    message: `Ödeme başarılı: Sipariş #${orderNumber}`,
+    message: `Ödeme başarılı: Sipariş #${order.orderNumber}`,
     actorId: fullOrder?.user?.id,
     actorEmail: fullOrder?.user?.email,
     actorIp,
     targetType: "Order",
     targetId: order.id,
-    targetLabel: `Sipariş #${orderNumber}`,
+    targetLabel: `Sipariş #${order.orderNumber}`,
     detail: {
       provider: "QNB_PAY",
-      orderNumber,
+      orderNumber: order.orderNumber,
       amount: Number(order.total),
       transactionId: result.transactionId ?? null,
       itemCount: fullOrder?.items.length ?? 0,
@@ -235,29 +286,21 @@ async function handleCallback(params: Record<string, string>, req: Request) {
   });
 
   return NextResponse.redirect(
-    `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(orderNumber)}`,
+    `${baseUrl}/odeme/basari?siparis=${encodeURIComponent(order.orderNumber)}`,
     { status: 303 },
   );
 }
 
-// QNBPay response_method:"GET" → return_url'e GET ile gönderir
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const params: Record<string, string> = {};
-  url.searchParams.forEach((value, key) => {
-    params[key] = value;
-  });
-
-  // Hiç param yoksa doğrudan cancel_url'den gelmiştir (handleCallback bunu da yakalar)
+  url.searchParams.forEach((value, key) => { params[key] = value; });
   return handleCallback(params, req);
 }
 
-// Bazı entegrasyonlarda POST ile de gelebilir
 export async function POST(req: Request) {
   const formData = await req.formData();
   const params: Record<string, string> = {};
-  formData.forEach((value, key) => {
-    params[key] = value.toString();
-  });
+  formData.forEach((value, key) => { params[key] = value.toString(); });
   return handleCallback(params, req);
 }
