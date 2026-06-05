@@ -151,7 +151,7 @@ export function CheckoutForm({
   });
   const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
 
-  const { items, subtotal, total, couponCode, couponDiscount, campaignResult, clearCart } =
+  const { items, subtotal, total, couponCode, couponDiscount, campaignResult } =
     useCartStore();
 
   const {
@@ -255,8 +255,6 @@ export function CheckoutForm({
       const result = await res.json();
       if (result.error) throw new Error(result.error);
 
-      clearCart();
-
       if (result.formPayload) {
         // Browser doğrudan QNBPay'e POST eder — kart verisi sunucuya uğramaz
         submitToQNBPay(result.formPayload as Smart3DFormPayload, card);
@@ -270,6 +268,15 @@ export function CheckoutForm({
       setError(err.message || "Bir hata oluştu. Lütfen tekrar deneyin.");
       setLoading(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center py-20 flex flex-col items-center gap-4 text-gray-500">
+        <div className="w-10 h-10 border-4 border-honey border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-medium">Lütfen bekleyiniz...</p>
+      </div>
+    );
   }
 
   if (items.length === 0) {

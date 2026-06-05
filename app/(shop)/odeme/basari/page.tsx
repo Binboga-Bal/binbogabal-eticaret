@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
+import CartClearer from "@/components/shop/checkout/CartClearer";
 
 export const metadata: Metadata = { title: "Sipariş Alındı | Binboğa Bal" };
 
@@ -14,6 +15,7 @@ export default async function PaymentSuccessPage({
 
   return (
     <div className="px-4 pt-28 pb-16">
+      <CartClearer />
       <div className="max-w-md w-full mx-auto text-center">
         <div className="flex justify-center mb-6">
           <div className="bg-green-100 rounded-full p-4">

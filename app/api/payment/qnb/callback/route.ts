@@ -14,6 +14,27 @@ function safeQnbParams(params: Record<string, string>) {
   return Object.fromEntries(Object.entries(params).filter(([k]) => !strip.has(k)));
 }
 
+// Ödeme başarısız olduğunda PENDING siparişi iptal eder — PAID olanları dokunmaz.
+async function cancelPendingOrder(orderNumber: string) {
+  try {
+    const order = await prisma.order.findUnique({ where: { orderNumber } });
+    if (!order || order.paymentStatus !== "PENDING") return;
+
+    await prisma.$transaction([
+      prisma.order.update({
+        where: { id: order.id },
+        data: { status: "CANCELLED", paymentStatus: "FAILED" },
+      }),
+      prisma.paymentTransaction.updateMany({
+        where: { orderId: order.id, status: "PENDING" },
+        data: { status: "FAILED" },
+      }),
+    ]);
+  } catch (err) {
+    console.error("[cancelPendingOrder] hata:", orderNumber, err);
+  }
+}
+
 // Hem GET hem POST callback aynı mantıkla işlenir.
 // QNBPay response_method:"GET" ile return_url'i GET query param ile çağırır,
 // bazı entegrasyonlar POST ile çağırabilir — ikisi de desteklenir.
@@ -36,6 +57,9 @@ async function handleCallback(params: Record<string, string>, req: Request) {
   if (!result.success || !result.orderId) {
     console.error("QNBPay callback doğrulama başarısız:", result.error, safeQnbParams(params));
 
+    const failedOrderNumber = params.invoice_id ?? params.order_no;
+    if (failedOrderNumber) await cancelPendingOrder(failedOrderNumber);
+
     await createLog({
       level: "ERROR",
       category: "PAYMENT",
@@ -45,7 +69,7 @@ async function handleCallback(params: Record<string, string>, req: Request) {
       detail: {
         provider: "QNB_PAY",
         stage: "callback_verify",
-        orderNumber: params.invoice_id ?? null,
+        orderNumber: failedOrderNumber ?? null,
         errorMessage: result.error ?? null,
         qnbParams: safeQnbParams(params),
         callbackMethod: req.method,
@@ -77,6 +101,8 @@ async function handleCallback(params: Record<string, string>, req: Request) {
       );
       // Uyarıyla devam et — aşağıdaki DB güncelleme adımına geç
     } else {
+      await cancelPendingOrder(orderNumber);
+
       await createLog({
         level: "ERROR",
         category: "PAYMENT",
