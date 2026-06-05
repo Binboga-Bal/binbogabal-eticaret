@@ -369,16 +369,16 @@ export function CheckoutForm({
                     key={addr.id}
                     type="button"
                     onClick={() => applyAddress(addr.id)}
-                    className={`text-left p-4 rounded-xl border-2 transition-colors ${
+                    className={`w-full flex flex-col text-left p-4 rounded-xl border-2 transition-colors ${
                       selectedAddressId === addr.id
                         ? "border-honey-dark bg-honey-cream"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-bold text-gray-800">{addr.title}</p>
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <p className="text-sm font-bold text-gray-800 truncate min-w-0 mr-2">{addr.title}</p>
                       {addr.isDefault && (
-                        <span className="text-xs bg-honey-light text-honey-dark px-2 py-0.5 rounded-full font-semibold">
+                        <span className="flex-shrink-0 text-xs bg-honey-light text-honey-dark px-2 py-0.5 rounded-full font-semibold">
                           Varsayılan
                         </span>
                       )}
@@ -396,7 +396,7 @@ export function CheckoutForm({
                       (f) => setValue(f, "")
                     );
                   }}
-                  className={`text-left p-4 rounded-xl border-2 border-dashed transition-colors ${
+                  className={`w-full flex flex-col text-left p-4 rounded-xl border-2 border-dashed transition-colors ${
                     selectedAddressId === null
                       ? "border-honey-dark bg-honey-cream"
                       : "border-gray-200 hover:border-gray-300"
