@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { XCircle, RefreshCw } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { createLog } from "@/lib/logger";
 import { LOG_ACTIONS } from "@/lib/logger/actions";
@@ -161,11 +161,11 @@ export default async function PaymentFailurePage({
         )}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/odeme" className="btn-primary flex items-center gap-2">
-            <RefreshCw size={14} /> Tekrar Dene
-          </Link>
-          <Link href="/sepet" className="btn-secondary">
+          <Link href="/sepet" className="btn-primary">
             Sepete Dön
+          </Link>
+          <Link href="/urunlerimiz" className="btn-secondary">
+            Alışverişe Devam Et
           </Link>
         </div>
 
