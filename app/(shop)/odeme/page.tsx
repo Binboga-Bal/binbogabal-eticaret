@@ -30,7 +30,7 @@ export default async function CheckoutPage() {
 
   return (
     /* max-w-wide kısıtla: checkout formu çok geniş uzamasın */
-    <Container size="content" className="pt-24 pb-10 max-w-3xl px-8 lg:px-12">
+    <Container size="content" className="pt-24 pb-10 max-w-5xl">
       <CheckoutForm codEnabled={codEnabled} savedAddresses={addresses} userEmail={userEmail} shippingFee={shippingFee} shippingThreshold={shippingThreshold} />
     </Container>
   );

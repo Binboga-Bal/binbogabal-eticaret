@@ -424,13 +424,13 @@ export function CheckoutForm({
                 <button
                   type="button"
                   onClick={() => setGuestReady(false)}
-                  className="text-xs text-honeyDark hover:underline flex-shrink-0 ml-3"
+                  className="text-xs text-honey-dark hover:underline flex-shrink-0 ml-3"
                 >
                   Değiştir
                 </button>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Ad"
                 {...register("firstName")}
@@ -444,7 +444,7 @@ export function CheckoutForm({
                 readOnly={isGuest}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <Input
                 label="E-posta"
                 type="email"
@@ -459,7 +459,7 @@ export function CheckoutForm({
                 error={errors.phone?.message}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <Input
                 label="Şehir"
                 {...register("city")}
@@ -621,7 +621,7 @@ export function CheckoutForm({
               </div>
 
               {/* Son kullanma tarihi + CVV */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Ay
