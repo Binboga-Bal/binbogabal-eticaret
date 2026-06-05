@@ -14,24 +14,21 @@ function safeQnbParams(params: Record<string, string>) {
   return Object.fromEntries(Object.entries(params).filter(([k]) => !strip.has(k)));
 }
 
-// Ödeme başarısız olduğunda PENDING siparişi iptal eder — PAID olanları dokunmaz.
-async function cancelPendingOrder(orderNumber: string) {
+// Ödeme başarısız olduğunda PENDING siparişi tamamen siler — PAID olanları dokunmaz.
+async function deletePendingOrder(orderNumber: string) {
   try {
     const order = await prisma.order.findUnique({ where: { orderNumber } });
     if (!order || order.paymentStatus !== "PENDING") return;
 
     await prisma.$transaction([
-      prisma.order.update({
-        where: { id: order.id },
-        data: { status: "CANCELLED", paymentStatus: "FAILED" },
-      }),
-      prisma.paymentTransaction.updateMany({
-        where: { orderId: order.id, status: "PENDING" },
-        data: { status: "FAILED" },
-      }),
+      // PaymentTransaction'da cascade yok — önce silinmeli
+      prisma.paymentTransaction.deleteMany({ where: { orderId: order.id } }),
+      // OrderItem cascade var ama transaction içinde açıkça silmek daha güvenli
+      prisma.orderItem.deleteMany({ where: { orderId: order.id } }),
+      prisma.order.delete({ where: { id: order.id } }),
     ]);
   } catch (err) {
-    console.error("[cancelPendingOrder] hata:", orderNumber, err);
+    console.error("[deletePendingOrder] hata:", orderNumber, err);
   }
 }
 
@@ -58,7 +55,7 @@ async function handleCallback(params: Record<string, string>, req: Request) {
     console.error("QNBPay callback doğrulama başarısız:", result.error, safeQnbParams(params));
 
     const failedOrderNumber = params.invoice_id ?? params.order_no;
-    if (failedOrderNumber) await cancelPendingOrder(failedOrderNumber);
+    if (failedOrderNumber) await deletePendingOrder(failedOrderNumber);
 
     await createLog({
       level: "ERROR",
@@ -101,7 +98,7 @@ async function handleCallback(params: Record<string, string>, req: Request) {
       );
       // Uyarıyla devam et — aşağıdaki DB güncelleme adımına geç
     } else {
-      await cancelPendingOrder(orderNumber);
+      await deletePendingOrder(orderNumber);
 
       await createLog({
         level: "ERROR",
