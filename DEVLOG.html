@@ -639,6 +639,20 @@
       <div class="nav-section-label">4 Haziran 2026 — Log Düzeltme</div>
       <a href="#step191" class="nav-link"><span class="dot"></span>191 — Log Görünürlük &amp; Cancel POST</a>
 
+      <div class="nav-section-label">4 Haziran 2026 — Telegram Bildirimleri</div>
+      <a href="#step192" class="nav-link"><span class="dot"></span>192 — Telegram Eşiği INFO'ya Düşürüldü</a>
+      <a href="#step193" class="nav-link"><span class="dot"></span>193 — Telegram Merkezi Bildirim Sistemi</a>
+
+      <div class="nav-section-label">5 Haziran 2026 — QNBpay Hata Mesajı</div>
+      <a href="#step194" class="nav-link"><span class="dot"></span>194 — Ödeme Hata Mesajı Düzeltmesi</a>
+
+      <div class="nav-section-label">5 Haziran 2026 — Sepet &amp; Ödeme Akışı</div>
+      <a href="#step195" class="nav-link"><span class="dot"></span>195 — Sepet Yalnızca Başarılı Ödemede Sıfırlanır</a>
+      <a href="#step196" class="nav-link"><span class="dot"></span>196 — Ödeme Sırasında "Lütfen Bekleyiniz"</a>
+      <a href="#step197" class="nav-link"><span class="dot"></span>197 — Başarısız Ödemede Sipariş Silinir</a>
+      <a href="#step198" class="nav-link"><span class="dot"></span>198 — CheckoutSession: Sipariş Yalnızca Ödeme Onayında</a>
+      <a href="#step199" class="nav-link"><span class="dot"></span>199 — Hata Sayfasından "Tekrar Dene" Kaldırıldı</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -9174,10 +9188,368 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ═══ STEP 194 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step194">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.1)">💳</div>
+        <h2>
+          <span class="step-num">194</span>
+          Ödeme Hata Sayfası — Bankanın Kendi Mesajı Gösterilsin
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-red">fix(payment)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Kullanıcı yanlış son kullanma tarihi girdiğinde QNBPay <code>error_code=41</code>
+        ve <code>status_description="Kartın son kullanma tarihi hatalı, lütfen tekrar deneyiniz."</code>
+        döndürüyordu. Ancak sabit <code>ERROR_MESSAGES</code> tablosunda <code>41</code> "Bu kart bloke edilmiş.
+        Bankanızla iletişime geçin." olarak eşleştirilmişti — hem hatalı hem yanıltıcı. Bankanın
+        gönderdiği <code>error</code> / <code>status_description</code> parametresi artık öncelikli
+        olarak gösteriliyor; tablo yalnızca banka mesajı yokken devreye giriyor.
+      </p>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <table>
+          <thead><tr><th>error_code</th><th>Eski gösterilen mesaj</th><th>Bankanın gerçek açıklaması</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>41</code></td>
+              <td><span style="color:var(--red)">Bu kart bloke edilmiş. Bankanızla iletişime geçin.</span></td>
+              <td><span style="color:var(--green)">Kartın son kullanma tarihi hatalı, lütfen tekrar deneyiniz.</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          ISO 8583'te 41 "lost card" anlamına gelir ancak QNBPay bunu farklı durumlarda kullanıyor;
+          sabit tablo bu sapmaları yakalayamaz.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Düzeltme</h3>
+        <table>
+          <thead><tr><th>Önce</th><th>Sonra</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>userMessage = ERROR_MESSAGES[errorCode] ?? null</code></td>
+              <td><code>userMessage = rawErrorDesc || ERROR_MESSAGES[errorCode] || null</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          <code>rawErrorDesc</code> zaten hesaplanıyordu (<code>params.error ?? params.status_description</code>)
+          ama yalnızca DB kaydına yazılıyordu; artık kullanıcıya da gösteriliyor.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosya</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>app/(shop)/odeme/hata/page.tsx</code></td>
+              <td><code>userMessage</code> türetimi — <code>rawErrorDesc</code> öncelikli, tablo fallback</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Commit</h3>
+        <p style="font-size:13px"><code>835cd52</code> — fix(payment): hata sayfasında bankanın kendi mesajı gösterilsin</p>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 195 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step195">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.1)">🛒</div>
+        <h2>
+          <span class="step-num">195</span>
+          Sepet Yalnızca Başarılı Ödemede Sıfırlanır
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">fix(cart)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        <code>clearCart()</code> çağrısı sipariş oluşturduktan hemen sonra (QNBPay'e yönlendirmeden önce)
+        yapılıyordu. Ödeme başarısız olsa bile sepet siliniyordu. Artık sepet yalnızca
+        <code>/odeme/basari</code> sayfası açıldığında temizleniyor.
+      </p>
+
+      <div class="card">
+        <h3>Değişiklik</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>components/shop/checkout/CheckoutForm.tsx</code></td>
+              <td><code>clearCart()</code> submit handler'dan ve destructuring'den kaldırıldı</td>
+            </tr>
+            <tr>
+              <td><code>components/shop/checkout/CartClearer.tsx</code></td>
+              <td>Yeni client bileşeni — mount olduğunda <code>clearCart()</code> çağırır</td>
+            </tr>
+            <tr>
+              <td><code>app/(shop)/odeme/basari/page.tsx</code></td>
+              <td><code>&lt;CartClearer /&gt;</code> eklendi (server component içinde client ada)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Akış</h3>
+        <table>
+          <thead><tr><th>Senaryo</th><th>Sepet</th></tr></thead>
+          <tbody>
+            <tr><td>Ödeme başarısız</td><td><span style="color:var(--green)">Korunur — kullanıcı yeniden deneyebilir</span></td></tr>
+            <tr><td>Ödeme başarılı → <code>/odeme/basari</code></td><td><span style="color:var(--green)">CartClearer mount olur → sıfırlanır</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Commit</h3>
+        <p style="font-size:13px"><code>bf160a2</code> — fix(cart): odeme basarisiz oldugunda sepet korunur, siparis iptal edilir</p>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 196 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step196">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.1)">⏳</div>
+        <h2>
+          <span class="step-num">196</span>
+          Ödeme Sırasında "Lütfen Bekleyiniz" Spinner'ı
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-yellow">fix(ux)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Form gönderildiğinde <code>loading=true</code> iken hâlâ ana form render ediliyordu.
+        Eskiden <code>clearCart()</code> da çağrıldığı için "Sepetiniz boş" ekranı anlık
+        görünüyordu. <code>loading</code> kontrolü <code>items.length === 0</code> bloğunun
+        önüne alındı; ödeme API'si çağrısından QNBPay yönlendirmesine kadar spinner gösteriliyor.
+      </p>
+
+      <div class="card">
+        <h3>Render Önceliği</h3>
+        <table>
+          <thead><tr><th>Sıra</th><th>Koşul</th><th>Gösterilen</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>loading === true</code></td><td>Honey spinner + "Lütfen bekleyiniz..."</td></tr>
+            <tr><td>2</td><td><code>items.length === 0</code></td><td>"Sepetiniz boş"</td></tr>
+            <tr><td>3</td><td><code>!guestReady</code></td><td>Misafir bilgi formu</td></tr>
+            <tr><td>4</td><td>—</td><td>Ana checkout formu</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosya</h3>
+        <p style="font-size:13px"><code>components/shop/checkout/CheckoutForm.tsx</code> — <code>if (loading)</code> bloğu eklendi</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Commit</h3>
+        <p style="font-size:13px"><code>bf160a2</code> — aynı commit (Adım 195 ile birlikte)</p>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 197 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step197">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.1)">🗑️</div>
+        <h2>
+          <span class="step-num">197</span>
+          Başarısız Ödemede PENDING Sipariş Tamamen Silinir
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-red">fix(payment)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        İlk düzeltmede başarısız ödemede sipariş <code>CANCELLED</code> olarak işaretleniyordu.
+        Ancak kullanıcı tekrar deneyince yeni sipariş oluşuyor, veritabanında eski
+        <code>CANCELLED</code> + yeni <code>PENDING</code> olmak üzere 2 kayıt birikiyordu.
+        <code>cancelPendingOrder</code> → <code>deletePendingOrder</code>: artık
+        <code>PaymentTransaction</code>, <code>OrderItem</code> ve <code>Order</code>
+        sırasıyla tamamen siliniyor.
+      </p>
+
+      <div class="card">
+        <h3>Silme Sırası (FK kısıtı)</h3>
+        <table>
+          <thead><tr><th>Adım</th><th>İşlem</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>paymentTransaction.deleteMany</code> — cascade yok, önce silinmeli</td></tr>
+            <tr><td>2</td><td><code>orderItem.deleteMany</code> — cascade var ama transaction içinde açık silim</td></tr>
+            <tr><td>3</td><td><code>order.delete</code></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          Yalnızca <code>paymentStatus === "PENDING"</code> olan siparişler etkilenir; <code>PAID</code> olanlara dokunulmaz (idempotency).
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Commit</h3>
+        <p style="font-size:13px"><code>df3fe31</code> — fix(payment): basarisiz odemede PENDING siparis silinir (iptal degil)</p>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 198 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step198">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.1)">🏗️</div>
+        <h2>
+          <span class="step-num">198</span>
+          CheckoutSession Mimarisi — Sipariş Yalnızca Ödeme Onayında Oluşur
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-blue">feat(payment)</span>
+        <span class="tag tag-purple">db</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Köklü mimari değişiklik. Eskiden sipariş QNBPay'e gitmeden önce oluşturuluyordu;
+        başarısız ödemede silmek gerekiyordu. Artık ödeme onaylanana kadar gerçek
+        <code>Order</code> hiç yaratılmıyor. Bunun yerine geçici bir
+        <code>CheckoutSession</code> kaydı kullanılıyor.
+      </p>
+
+      <div class="card">
+        <h3>Yeni Akış — QNB_PAY</h3>
+        <table>
+          <thead><tr><th>Adım</th><th>Eskiden</th><th>Şimdi</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Form gönderilir</td>
+              <td><code>Order</code> + <code>OrderItem</code> oluşur</td>
+              <td><code>CheckoutSession</code> oluşur (geçici)</td>
+            </tr>
+            <tr>
+              <td>QNBPay <code>invoice_id</code></td>
+              <td><code>orderNumber</code> (BB-xxx)</td>
+              <td><code>CheckoutSession.id</code> (BB-xxx — aynı format)</td>
+            </tr>
+            <tr>
+              <td>Callback — başarılı</td>
+              <td>Order <code>PAID</code> güncellenir</td>
+              <td>Session'dan <code>Order</code> + <code>OrderItem</code> + <code>PaymentTransaction</code> tek transaction'da yaratılır; session silinir</td>
+            </tr>
+            <tr>
+              <td>Callback — başarısız</td>
+              <td>Order silinirdi</td>
+              <td>Yalnızca <code>CheckoutSession</code> silinir — Order hiç oluşmamış</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Şema Değişikliği</h3>
+        <table>
+          <thead><tr><th>Model</th><th>Alan</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>CheckoutSession</code></td><td><code>id String @id</code></td><td>BB-xxx orderNumber = QNBPay invoice_id</td></tr>
+            <tr><td></td><td><code>expiresAt DateTime</code></td><td>30 dk geçerlilik</td></tr>
+            <tr><td></td><td><code>shippingAddress Json</code></td><td>Teslimat adresi</td></tr>
+            <tr><td></td><td><code>items Json</code></td><td>Sepet kalemleri (fiyat dahil)</td></tr>
+            <tr><td></td><td><code>appliedCampaignIds Json</code></td><td>Kampanya ID listesi</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          <code>pnpm db:push</code> ile Supabase'e uygulandı. Kupon kullanım artışı ve
+          kampanya kaydı da callback başarı yoluna taşındı.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Idempotency</h3>
+        <p style="font-size:13px;color:var(--text-muted)">
+          Callback iki kez gelirse: önce <code>Order.findUnique({orderNumber: sessionId})</code>
+          kontrol edilir; varsa tekrar oluşturmaz, direkt döner.
+          CASH_ON_DELIVERY akışı değişmedi — sipariş anında oluşmaya devam eder.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <table>
+          <thead><tr><th>Dosya</th><th>Değişiklik</th></tr></thead>
+          <tbody>
+            <tr><td><code>prisma/schema.prisma</code></td><td><code>CheckoutSession</code> modeli eklendi</td></tr>
+            <tr><td><code>app/api/orders/route.ts</code></td><td>QNB_PAY yolu → CheckoutSession yazar, CASH_ON_DELIVERY değişmez</td></tr>
+            <tr><td><code>app/api/payment/qnb/callback/route.ts</code></td><td><code>createOrderFromSession()</code> + <code>deleteCheckoutSession()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Commit</h3>
+        <p style="font-size:13px"><code>184ac59</code> — feat(payment): siparis yalnizca odeme onayinda olusturulur</p>
+      </div>
+    </section>
+
+    <!-- ═══ STEP 199 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step199">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.1)">🚫</div>
+        <h2>
+          <span class="step-num">199</span>
+          Ödeme Hata Sayfasından "Tekrar Dene" Kaldırıldı
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-red">fix(payment)</span>
+        <span class="tag tag-yellow">fix(ux)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        QNBPay sandbox ortamında merchant aktivasyonu bekleniyor (error_code 14/12).
+        "Tekrar Dene" butonu kullanıcıyı tekrar aynı hataya yönlendirdiğinden
+        <code>/odeme/hata</code> sayfasından kaldırıldı. Yerine daha anlamlı
+        yönlendirmeler eklendi.
+      </p>
+
+      <div class="card">
+        <h3>Buton Değişikliği</h3>
+        <table>
+          <thead><tr><th>Eskiden</th><th>Şimdi</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>Tekrar Dene</code> (primary) → <code>/odeme</code></td>
+              <td><code>Sepete Dön</code> (primary) → <code>/sepet</code></td>
+            </tr>
+            <tr>
+              <td><code>Sepete Dön</code> (secondary) → <code>/sepet</code></td>
+              <td><code>Alışverişe Devam Et</code> (secondary) → <code>/urunlerimiz</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosya</h3>
+        <p style="font-size:13px"><code>app/(shop)/odeme/hata/page.tsx</code> — buton grubu güncellendi, <code>RefreshCw</code> import kaldırıldı</p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Commit</h3>
+        <p style="font-size:13px"><code>48fdca7</code> — fix(payment): hata sayfasindan Tekrar Dene butonu kaldirildi</p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 4 Haziran 2026 - Adim 193 (Telegram Merkezi Bildirim Sistemi) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 5 Haziran 2026 - Adim 199 (Tekrar Dene Kaldırıldı) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>
