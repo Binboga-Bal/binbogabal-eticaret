@@ -5,7 +5,10 @@ import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const logoSetting = await prisma.siteSetting.findUnique({ where: { key: "img_logo" } }).catch(() => null);
+  const [logoSetting, whatsappSetting] = await Promise.all([
+    prisma.siteSetting.findUnique({ where: { key: "img_logo" } }).catch(() => null),
+    prisma.siteSetting.findUnique({ where: { key: "social_whatsapp" } }).catch(() => null),
+  ]);
   const logoSrc = logoSetting?.value ?? footerTheme.logo.src;
 
   return (
@@ -14,7 +17,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       {/* paddingTop = duyuru bandı + nav — wave (waveDepth) içeriğin üstüne biner */}
       <main style={{ paddingTop: headerTheme.announcementHeight + headerTheme.navHeight }}>{children}</main>
       <Footer logoSrc={logoSrc} />
-      <SupportFAB />
+      <SupportFAB whatsappNumber={whatsappSetting?.value ?? ""} />
     </>
   );
 }

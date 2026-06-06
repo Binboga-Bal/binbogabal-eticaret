@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { X, MessageCircle, Send, Headphones } from "lucide-react";
 
-const WHATSAPP_NUMBER = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "905XXXXXXXXX").replace(/\D/g, "");
 
 type Message = {
   id: string;
@@ -39,7 +38,8 @@ function getTime() {
   });
 }
 
-export function SupportFAB() {
+export function SupportFAB({ whatsappNumber = "" }: { whatsappNumber?: string }) {
+  const number = whatsappNumber.replace(/\D/g, "");
   const [isOpen, setIsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -234,7 +234,7 @@ export function SupportFAB() {
                 WhatsApp
               </span>
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                href={number ? `https://wa.me/${number}` : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110"
