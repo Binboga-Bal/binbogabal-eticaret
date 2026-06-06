@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X, MessageCircle, Send, Headphones } from "lucide-react";
 
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "905XXXXXXXXX";
+const WHATSAPP_NUMBER = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "905XXXXXXXXX").replace(/\D/g, "");
 
 type Message = {
   id: string;
