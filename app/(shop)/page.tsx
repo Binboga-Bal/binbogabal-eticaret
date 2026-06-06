@@ -92,6 +92,8 @@ export default async function HomePage() {
       <Script id="org-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildOrganizationSchema()) }} />
       <Script id="website-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSiteSchema()) }} />
       <Script id="local-biz-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildLocalBusinessSchema()) }} />
+      {/* İlk slider görseli JS hydration öncesi preload edilir (HeroSlider client component olduğu için) */}
+      {sliderImages[0] && <link rel="preload" as="image" href={sliderImages[0]} />}
       <HeroSlider images={sliderImages} />
       <TrustBadges images={badgeImages} />
 

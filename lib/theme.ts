@@ -104,7 +104,9 @@ export const sliderTheme = {
 
   /** Slider yüksekliği (px) — HeroSlider bu değerden okur */
   heightMobile: 520, // ≤ md breakpoint
-  height: 600, // md+
+  height: 620,       // md+ (768px–1919px)
+  height3xl: 760,    // 1920px+ (3xl)
+  height4xl: 900,    // 2560px+ (4xl)
 
   /** Önceki/sonraki ok butonlarının arka plan rengi */
   navBtnBg: palette.honeyDark,
@@ -359,8 +361,6 @@ export const homeBannersTheme = {
 export const balRehberiTheme = {
   banner: {
     image: "/images/bal-rehberi/bal-rehberi-banner.png",
-    /** Banner yüksekliği (Tailwind arbitrary değeri veya sınıf) */
-    height: "30.3rem",
     /** Görselin dikey hizalaması — objectPosition için (örn. "center 10%") */
     objectPosition: "center top",
     /** Karartma katmanı opaklığı (0–1) */

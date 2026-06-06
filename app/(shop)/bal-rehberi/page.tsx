@@ -27,9 +27,8 @@ export default async function HoneyGuidePage() {
     <div>
       {/* Hero */}
       <div
-        className="relative overflow-hidden flex flex-col items-center justify-end text-center text-white px-4 pb-20"
+        className="relative overflow-hidden flex flex-col items-center justify-end text-center text-white px-4 pb-20 h-[30rem] md:h-[32rem] xl:h-[36rem] 2xl:h-[38rem] 3xl:h-[42rem] 4xl:h-[48rem] bg-honey-cream"
         style={{
-          height: balRehberiTheme.banner.height,
           backgroundImage: `url(${bannerImage})`,
           backgroundSize: "cover",
           backgroundPosition: balRehberiTheme.banner.objectPosition,

@@ -200,7 +200,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       ) : (
         <>
           {/* Hero */}
-          <div className="relative h-72 xs:h-80 md:h-[520px] 3xl:aspect-[21/9] 3xl:h-auto overflow-hidden">
+          <div className="relative h-72 xs:h-80 md:h-[520px] xl:h-[575px] 2xl:h-[625px] 3xl:h-[680px] 4xl:h-[760px] overflow-hidden bg-honey-cream">
             <Image
               src={bannerImage}
               alt="Ürünlerimiz banner"

@@ -77,7 +77,7 @@ export default async function KooperatifHikayemizPage() {
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section className="relative h-80 md:h-[500px] overflow-hidden bg-gray-900">
+      <section className="relative h-80 md:h-[500px] xl:h-[560px] 2xl:h-[620px] 3xl:h-[680px] 4xl:h-[760px] overflow-hidden bg-honey-cream">
         {bannerImage ? (
           <>
             <Image

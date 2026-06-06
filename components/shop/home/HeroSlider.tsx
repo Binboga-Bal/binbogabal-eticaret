@@ -32,6 +32,11 @@ interface HeroSliderProps {
   images?: (string | null)[];
 }
 
+interface SlideProps {
+  slide: Slide;
+  eager?: boolean;
+}
+
 export function HeroSlider({ images = [] }: HeroSliderProps) {
   const slides = baseSlides.map((slide, i) => ({
     ...slide,
@@ -54,6 +59,20 @@ export function HeroSlider({ images = [] }: HeroSliderProps) {
           .hero-slider-wrapper .swiper,
           .hero-slide-section {
             min-height: clamp(400px, 36vw, ${sliderTheme.height}px);
+          }
+        }
+        @media (min-width: 1920px) {
+          .hero-slider-wrapper,
+          .hero-slider-wrapper .swiper,
+          .hero-slide-section {
+            min-height: clamp(580px, 32vw, ${sliderTheme.height3xl}px);
+          }
+        }
+        @media (min-width: 2560px) {
+          .hero-slider-wrapper,
+          .hero-slider-wrapper .swiper,
+          .hero-slide-section {
+            min-height: clamp(680px, 30vw, ${sliderTheme.height4xl}px);
           }
         }
 
@@ -138,7 +157,7 @@ export function HeroSlider({ images = [] }: HeroSliderProps) {
       >
         {slides.map((slide, i) => (
           <SwiperSlide key={i}>
-            <SlideContent slide={slide} />
+            <SlideContent slide={slide} eager={i === 0} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -146,17 +165,19 @@ export function HeroSlider({ images = [] }: HeroSliderProps) {
   );
 }
 
-function SlideContent({ slide }: { slide: Slide }) {
+function SlideContent({ slide, eager }: SlideProps) {
   // ── IMAGE SLIDE ──────────────────────────────────────────────────────────────
   // image tanımlıysa: sadece tam ekran görsel, overlay/metin yok
   if (slide.image) {
     return (
-      <section className="hero-slide-section relative overflow-hidden bg-white">
+      <section className="hero-slide-section relative overflow-hidden bg-honey-cream">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={slide.image}
           alt={slide.badge}
           className="absolute inset-0 w-full h-full object-cover"
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : "auto"}
         />
         <div className="absolute left-0 right-0 pointer-events-none" style={{ bottom: '-2px' }}>
           <svg viewBox="0 0 1440 60" className="hero-slide-wave w-full block" preserveAspectRatio="none">

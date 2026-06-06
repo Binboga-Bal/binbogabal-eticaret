@@ -9546,10 +9546,163 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <section class="section" id="step200">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.1)">📐</div>
+        <h2>
+          <span class="step-num">200</span>
+          Banner'lar Widescreen İçin Orantılandı
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-yellow">fix(ui)</span>
+        <span class="tag tag-blue">responsive</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Tüm sayfa banner'ları 1920px+ ekranlarda orantısız görünüyordu. HeroSlider 600px'de
+        donuyor, Ürünlerimiz banner'ı 3xl breakpoint'te 520px'den 823px'e aniden sıçrıyordu,
+        diğer sayfalar ise <code>md</code> sonrasında hiç ölçeklenmiyordu. Tüm banner'lar
+        için <code>xl → 2xl → 3xl → 4xl</code> kademeli yükseklik skalası eklendi.
+      </p>
+
+      <div class="card">
+        <h3>Sorunlar</h3>
+        <table>
+          <thead><tr><th>Bileşen</th><th>Sorun</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>HeroSlider</td>
+              <td><code>clamp(400px, 36vw, 600px)</code> — 1667px+ genişlikte 600px'de donuyor</td>
+            </tr>
+            <tr>
+              <td>Ürünlerimiz banner</td>
+              <td><code>md:h-[520px]</code> → <code>3xl:aspect-[21/9]</code> — 1919→1920px arası 520→823px sıçraması</td>
+            </tr>
+            <tr>
+              <td>Hakkımızda / Kooperatif</td>
+              <td><code>md:h-[500px]</code> sonrası hiç ölçeklenmiyor</td>
+            </tr>
+            <tr>
+              <td>Bal Rehberi</td>
+              <td>Sabit <code>height: "30.3rem"</code> inline stil, hiç responsive değil</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Çözüm — Kademeli Yükseklik Skalası</h3>
+        <table>
+          <thead><tr><th>Breakpoint</th><th>Genişlik</th><th>Banner Yüksekliği</th></tr></thead>
+          <tbody>
+            <tr><td>md</td><td>768px</td><td>500–520px (mevcut)</td></tr>
+            <tr><td>xl</td><td>1280px</td><td>560–580px (+)</td></tr>
+            <tr><td>2xl</td><td>1536px</td><td>620–640px (+)</td></tr>
+            <tr><td>3xl</td><td>1920px</td><td>680–700px (+)</td></tr>
+            <tr><td>4xl</td><td>2560px</td><td>760–780px (+)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>HeroSlider — Widescreen CSS</h3>
+        <p style="font-size:13px">
+          <code>lib/theme.ts</code>'e <code>height3xl: 760</code> ve <code>height4xl: 900</code> eklendi.
+          <code>HeroSlider.tsx</code>'te <code>@media (min-width: 1920px)</code> ve
+          <code>@media (min-width: 2560px)</code> media query'leri eklendi.
+          1920px'de <code>clamp(580px, 32vw, 760px)</code>, 2560px'de <code>clamp(680px, 30vw, 900px)</code>.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Bal Rehberi</h3>
+        <p style="font-size:13px">
+          Inline <code>height: balRehberiTheme.banner.height</code> kaldırıldı,
+          Tailwind responsive sınıfları eklendi: <code>h-[30rem] md:h-[32rem] xl:h-[36rem] 2xl:h-[38rem] 3xl:h-[42rem] 4xl:h-[48rem]</code>.
+          Artık kullanılmayan <code>height</code> anahtarı <code>balRehberiTheme.banner</code>'dan silindi.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <ul style="font-size:13px;line-height:1.8">
+          <li><code>lib/theme.ts</code> — sliderTheme'e height3xl/height4xl eklendi, balRehberiTheme.banner.height silindi</li>
+          <li><code>components/shop/home/HeroSlider.tsx</code> — 3xl/4xl media query eklendi</li>
+          <li><code>app/(shop)/urunlerimiz/page.tsx</code> — aspect-[21/9] kaldırıldı, kademeli yükseklik</li>
+          <li><code>app/(shop)/hakkimizda/page.tsx</code> — xl/2xl/3xl/4xl yükseklik eklendi</li>
+          <li><code>app/(shop)/kooperatif-hikayemiz/page.tsx</code> — xl/2xl/3xl/4xl yükseklik eklendi</li>
+          <li><code>app/(shop)/bal-rehberi/page.tsx</code> — inline height → responsive Tailwind sınıfları</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="step201">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(99,102,241,.1)">⚡</div>
+        <h2>
+          <span class="step-num">201</span>
+          Banner Görselleri Anında Yüklenir Hale Getirildi
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-blue">perf</span>
+        <span class="tag tag-yellow">fix(ux)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Sayfa açılışında banner görselleri bir süre görünmüyordu. HeroSlider bir
+        <code>"use client"</code> bileşeni olduğu için SSR'da DOM'a <code>&lt;img&gt;</code>
+        üretemiyor; Swiper hydrate olana kadar tarayıcı görseli tanımıyor. Diğer sayfalarda ise
+        <code>&lt;Image fill priority&gt;</code> mevcut ama container arka planı beyaz olduğundan
+        resim yüklenene kadar boş alan görünüyor.
+      </p>
+
+      <div class="card">
+        <h3>Sorunlar ve Çözümler</h3>
+        <table>
+          <thead><tr><th>Sorun</th><th>Çözüm</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>HeroSlider ilk resim JS'den önce bilinmiyor</td>
+              <td><code>app/(shop)/page.tsx</code>'te <code>&lt;link rel="preload" as="image"&gt;</code> eklendi — tarayıcı HTML head'den itibaren başlatır</td>
+            </tr>
+            <tr>
+              <td>Slider'da tüm slide'lar eşit öncelikle yükleniyor</td>
+              <td>İlk slide'a <code>loading="eager" fetchPriority="high"</code>, diğerlerine <code>loading="lazy"</code></td>
+            </tr>
+            <tr>
+              <td>Resim yüklenene kadar beyaz boşluk</td>
+              <td>Tüm banner container'larına <code>bg-honey-cream</code> eklendi — warm placeholder rengi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>HeroSlider Değişikliği</h3>
+        <p style="font-size:13px">
+          <code>SlideContent</code> fonksiyonuna <code>eager?: boolean</code> prop eklendi.
+          Slide listesinde <code>i === 0</code> olan ilk slide'a <code>eager={true}</code> iletiliyor.
+          Bileşen arka planı da <code>bg-white</code>'dan <code>bg-honey-cream</code>'e güncellendi.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <ul style="font-size:13px;line-height:1.8">
+          <li><code>app/(shop)/page.tsx</code> — ilk slider görseli için <code>&lt;link rel="preload"&gt;</code></li>
+          <li><code>components/shop/home/HeroSlider.tsx</code> — eager prop, fetchPriority, bg-honey-cream</li>
+          <li><code>app/(shop)/urunlerimiz/page.tsx</code> — <code>bg-honey-cream</code> placeholder</li>
+          <li><code>app/(shop)/hakkimizda/page.tsx</code> — <code>bg-honey-cream</code> placeholder (bg-gray-900 yerini aldı)</li>
+          <li><code>app/(shop)/kooperatif-hikayemiz/page.tsx</code> — <code>bg-honey-cream</code> placeholder</li>
+          <li><code>app/(shop)/bal-rehberi/page.tsx</code> — <code>bg-honey-cream</code> placeholder</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 5 Haziran 2026 - Adim 199 (Tekrar Dene Kaldırıldı) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 6 Haziran 2026 - Adim 201 (Banner Yükleme İyileştirmeleri) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>
