@@ -1,5 +1,6 @@
 import { Header } from "@/components/shop/header/Header";
 import { Footer } from "@/components/shop/footer/Footer";
+import { SupportFAB } from "@/components/shop/support/SupportFAB";
 import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
 
@@ -13,6 +14,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       {/* paddingTop = duyuru bandı + nav — wave (waveDepth) içeriğin üstüne biner */}
       <main style={{ paddingTop: headerTheme.announcementHeight + headerTheme.navHeight }}>{children}</main>
       <Footer logoSrc={logoSrc} />
+      <SupportFAB />
     </>
   );
 }

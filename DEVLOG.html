@@ -653,6 +653,11 @@
       <a href="#step198" class="nav-link"><span class="dot"></span>198 — CheckoutSession: Sipariş Yalnızca Ödeme Onayında</a>
       <a href="#step199" class="nav-link"><span class="dot"></span>199 — Hata Sayfasından "Tekrar Dene" Kaldırıldı</a>
 
+      <div class="nav-section-label">6 Haziran 2026 — UI &amp; Destek</div>
+      <a href="#step200" class="nav-link"><span class="dot"></span>200 — Banner'lar Widescreen İçin Orantılandı</a>
+      <a href="#step201" class="nav-link"><span class="dot"></span>201 — Banner Görselleri Anında Yüklenir Hale Getirildi</a>
+      <a href="#step202" class="nav-link"><span class="dot"></span>202 — WhatsApp Destek FAB &amp; Chatbot</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -9699,10 +9704,82 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <section class="section" id="step202">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.1)">💬</div>
+        <h2>
+          <span class="step-num">202</span>
+          WhatsApp Destek FAB &amp; Chatbot
+        </h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">feat(ui)</span>
+        <span class="tag tag-blue">support</span>
+        <span class="tag tag-honey">ux</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Tüm mağaza sayfalarının sağ alt köşesine kalıcı bir destek FAB (Floating Action Button) eklendi.
+        Butona tıklanınca WhatsApp ve Canlı Destek (chatbot) seçenekleri animasyonlu olarak açılır.
+        Chatbot paneli hazır cevaplar, yazıyor animasyonu ve mesaj giriş alanı içerir.
+        WhatsApp numarası <code>NEXT_PUBLIC_WHATSAPP_NUMBER</code> env değişkeninden okunur.
+      </p>
+
+      <div class="card">
+        <h3>Eklenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">components/shop/support/</span><br>
+          &nbsp;&nbsp;<span class="file new">SupportFAB.tsx</span> <span style="color:var(--text-muted);font-size:12px">— FAB + chatbot panel (client component)</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <ul style="font-size:13px;line-height:1.8">
+          <li><code>app/(shop)/layout.tsx</code> — <code>&lt;SupportFAB /&gt;</code> import edilip layout'a eklendi</li>
+          <li><code>.env.example</code> — <code>NEXT_PUBLIC_WHATSAPP_NUMBER</code> değişkeni eklendi</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>FAB Davranışı</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Ana buton</h4>
+              <p>Bal gradyanı (<code>#C57930 → #F9B10B</code>), pulse animasyonu, <code>MessageCircle</code> ikonu. Açıkken <code>X</code> ikonu + koyu arka plana geçer.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>WhatsApp sub-butonu</h4>
+              <p><code>#25D366</code> yeşil, tıklayınca <code>https://wa.me/{WHATSAPP_NUMBER}</code> yeni sekmede açılır. Numara <code>NEXT_PUBLIC_WHATSAPP_NUMBER</code> env'den gelir.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-body">
+              <h4>Canlı Destek / Chatbot sub-butonu</h4>
+              <p>Tıklayınca chatbot paneli açılır. Panel: başlık çubuğu (çevrimiçi göstergesi), mesaj alanı, hızlı yanıt butonları (<em>Siparişim nerede?, Ürün bilgisi, Kargo süresi, İade/Değişim</em>), yazıyor animasyonu (3 zıplayan nokta), mesaj giriş + gönder butonu.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Env Değişkeni</h3>
+        <pre><span class="cm"># .env.local</span>
+<span class="str">NEXT_PUBLIC_WHATSAPP_NUMBER</span>=<span class="nm">"905XXXXXXXXX"</span>  <span class="cm"># başında + olmadan</span></pre>
+        <p style="font-size:13px;margin-top:8px">
+          <code>NEXT_PUBLIC_</code> prefix'i zorunludur — component client-side çalıştığından
+          sunucu ortam değişkenlerine erişemez. Değer tanımlı değilse fallback olarak
+          <code>"905XXXXXXXXX"</code> kullanılır.
+        </p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 6 Haziran 2026 - Adim 201 (Banner Yükleme İyileştirmeleri) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 6 Haziran 2026 - Adim 202 (WhatsApp FAB &amp; Chatbot) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>
