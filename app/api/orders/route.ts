@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getPaymentAdapter } from "@/lib/payment";
 import { generateOrderNumber } from "@/lib/utils/format";
 import { sendOrderConfirmedEmail } from "@/lib/mail/mail.service";
+import { pushOrderToErp } from "@/lib/dia-erp/sync";
 import { z } from "zod";
 import { createLog } from "@/lib/logger";
 import { LOG_ACTIONS } from "@/lib/logger/actions";
@@ -118,6 +119,11 @@ export async function POST(req: Request) {
         )
       );
     }
+
+    // ERP push (fire-and-forget)
+    pushOrderToErp(order.id).catch((err) =>
+      console.error("ERP push başarısız (kapıda ödeme):", order.id, err),
+    );
 
     // Onay maili
     const toEmail = session?.user?.email ?? data.shippingAddress.email;

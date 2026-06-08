@@ -53,16 +53,31 @@ export interface ProxyCallResponse<T = unknown> {
   from_cache: boolean;
 }
 
-// ─── ERP order payload (pushOrderToErp için) ─────────────────────────────────
+// ─── ERP order/customer payload (pushOrderToErp için) ────────────────────────
+
+export interface DiaCustomer {
+  code: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  district: string;
+  address: string;
+  erpCariAdresKey?: number; // Daha önce kaydedilmiş ERP cari adres key'i (tekrar siparişlerde kullanılır)
+}
+
+export interface DiaOrderLine {
+  variantCode: string;
+  variantKey: number;    // ERP stok kartının integer _key → _key_kalemturu
+  unitKey: number;       // ERP birimin integer _key → _key_scf_kalem_birimleri
+  quantity: number;
+  unitPrice: number;     // Müşteriye yansıtılan fiyat (KDV dahil)
+  kdvRate: number;       // KDV oranı (örn. 18)
+}
 
 export interface DiaOrder {
   erpOrderCode: string;
-  lines: {
-    variantCode: string;
-    quantity: number;
-    unitPrice: number;
-  }[];
-  customerCode?: string;
+  lines: DiaOrderLine[];
   shippingAddress: {
     name: string;
     city: string;
@@ -71,4 +86,18 @@ export interface DiaOrder {
     phone: string;
   };
   totalAmount: number;
+  shippingFee?: number;
+  discount?: number;
+  notes?: string;
+}
+
+export interface ProxyOrderRequest {
+  customer: DiaCustomer;
+  order: DiaOrder;
+}
+
+export interface ProxyOrderResponse {
+  erpOrderCode: string;     // ERP'nin atadığı fisno (ör. E2TC001858)
+  erpCustomerCode: string;
+  erpCariAdresKey?: number; // ERP cari adres _key — User.erpCariAdresKey'e kaydedilir
 }

@@ -1,4 +1,4 @@
-import type { ProxyProduct, ProxyListResponse, ProxyCallResponse } from "./types";
+import type { ProxyProduct, ProxyListResponse, ProxyCallResponse, ProxyOrderRequest, ProxyOrderResponse } from "./types";
 
 interface TokenCache {
   token: string;
@@ -87,6 +87,13 @@ export class DiaProxyClient {
       body: JSON.stringify({ action, params: params ?? {} }),
     });
     return body.data;
+  }
+
+  async pushOrder(payload: ProxyOrderRequest): Promise<ProxyOrderResponse> {
+    return this.request<ProxyOrderResponse>("/api/orders", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
   }
 }
 

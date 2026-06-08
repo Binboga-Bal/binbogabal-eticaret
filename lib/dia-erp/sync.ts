@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getDiaErpClient } from "./client";
 import { createSlug } from "@/lib/utils/slug";
-import type { DiaOrder, ProxyProduct } from "./types";
+import type { ProxyOrderRequest, ProxyProduct } from "./types";
 
 // Varyant eşleştirme için stok kart kodunu kullanır
 function resolveErpVariantCode(product: ProxyProduct): string {
@@ -43,6 +43,11 @@ export async function syncProductsFromErp(): Promise<{ synced: number; errors: s
           const basePrice = resolvePrice(product);
           const discountedPrice = resolveDiscountedPrice(basePrice, product.b2c.discount_rate);
 
+          // ERP integer key'leri — sipariş oluştururken _key_kalemturu ve _key_scf_kalem_birimleri için gerekli
+          const erpVariantKey = product.id;                     // raw._key (string olarak saklanır)
+          const erpUnitKey = product.units[0]?.key ?? "";       // birincil birimin _key'i
+          const erpKdvRate = product.prices.vat_rate ?? 20;
+
           const savedProduct = await prisma.product.upsert({
             where: { erpProductCode: product.code },
             create: {
@@ -77,12 +82,18 @@ export async function syncProductsFromErp(): Promise<{ synced: number; errors: s
               discountedPrice,
               stock: 0,
               erpVariantCode,
+              erpVariantKey,
+              erpUnitKey,
+              erpKdvRate,
               isActive,
             },
             update: {
               price: basePrice,
               discountedPrice,
               isActive,
+              erpVariantKey,
+              erpUnitKey,
+              erpKdvRate,
             },
             select: { id: true },
           });
@@ -180,47 +191,72 @@ export async function syncStockFromErp(): Promise<{ updated: number }> {
 }
 
 export async function pushOrderToErp(orderId: string): Promise<string> {
-  const orderAction = process.env.DIA_PROXY_ORDER_ACTION;
-  if (!orderAction) {
-    throw new Error("DIA_PROXY_ORDER_ACTION env değişkeni tanımlanmamış");
-  }
-
   const order = await prisma.order.findUniqueOrThrow({
     where: { id: orderId },
-    include: { items: { include: { variant: true } } },
+    include: {
+      items: { include: { variant: true } },
+      user: { select: { id: true, email: true, erpCariAdresKey: true } },
+    },
   });
 
-  const shippingAddress = order.shippingAddress as {
+  const addr = order.shippingAddress as {
     firstName: string;
     lastName: string;
+    email?: string;
     city: string;
     district: string;
     fullAddress: string;
     phone: string;
   };
 
-  const payload: DiaOrder = {
-    erpOrderCode: order.orderNumber,
-    lines: order.items.map((item) => ({
-      variantCode: item.variant.erpVariantCode ?? item.variantId,
-      quantity: item.quantity,
-      unitPrice: parseFloat(item.price.toString()),
-    })),
-    shippingAddress: {
-      name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
-      city: shippingAddress.city,
-      district: shippingAddress.district,
-      address: shippingAddress.fullAddress,
-      phone: shippingAddress.phone,
+  const customerEmail = order.user?.email ?? addr.email ?? "";
+  const customerCode = buildCustomerCode(order.user?.id ?? null, customerEmail);
+  const fullName = `${addr.firstName} ${addr.lastName}`.trim();
+
+  const lines = order.items.map((item) => ({
+    variantCode: item.variant.erpVariantCode ?? item.variantId,
+    variantKey: parseInt(item.variant.erpVariantKey ?? "0") || 0,
+    unitKey: parseInt(item.variant.erpUnitKey ?? "0") || 0,
+    quantity: item.quantity,
+    unitPrice: parseFloat(item.price.toString()),
+    kdvRate: item.variant.erpKdvRate ?? 20,
+  }));
+
+  const payload: ProxyOrderRequest = {
+    customer: {
+      code: customerCode,
+      name: fullName,
+      email: customerEmail,
+      phone: addr.phone,
+      city: addr.city,
+      district: addr.district,
+      address: addr.fullAddress,
+      // Kayıtlı üyenin daha önceki siparişten saklanan ERP cari adres key'i
+      erpCariAdresKey: order.user?.erpCariAdresKey
+        ? parseInt(order.user.erpCariAdresKey)
+        : undefined,
     },
-    totalAmount: parseFloat(order.total.toString()),
+    order: {
+      erpOrderCode: order.orderNumber,
+      lines,
+      shippingAddress: {
+        name: fullName,
+        city: addr.city,
+        district: addr.district,
+        address: addr.fullAddress,
+        phone: addr.phone,
+      },
+      totalAmount: parseFloat(order.total.toString()),
+      shippingFee: parseFloat(order.shippingFee.toString()),
+      discount: parseFloat(order.discount.toString()),
+      notes: order.notes ?? "",
+    },
   };
 
   const client = getDiaErpClient();
-  const result = await client.erpCall<{ erpOrderCode?: string }>(orderAction, {
-    order: payload,
-  });
+  const result = await client.pushOrder(payload);
 
+  // ERP'nin atadığı fiş numarasını (ör. "E2TC001858") kaydet
   const erpOrderCode = result?.erpOrderCode ?? order.orderNumber;
 
   await prisma.order.update({
@@ -228,7 +264,34 @@ export async function pushOrderToErp(orderId: string): Promise<string> {
     data: { erpOrderCode },
   });
 
+  // Kayıtlı üye için ERP cari adres key'ini sakla (tekrar siparişlerde kullanılır)
+  if (result?.erpCariAdresKey && order.user?.id && !order.user.erpCariAdresKey) {
+    await prisma.user
+      .update({
+        where: { id: order.user.id },
+        data: { erpCariAdresKey: String(result.erpCariAdresKey) },
+      })
+      .catch((err) => console.error("[pushOrderToErp] erpCariAdresKey kaydedilemedi:", err));
+  }
+
   return erpOrderCode;
+}
+
+/**
+ * Deterministik ERP cari kodu üretir.
+ * Format: {prefix}{6 rakamlı hash} — örn. "B2C003805"
+ * Prefix, DIA_PROXY_CARI_CODE_PREFIX env değişkeninden okunur (varsayılan: "B2C").
+ * Kayıtlı üye için userId, misafir için email kullanılır.
+ */
+function buildCustomerCode(userId: string | null, email: string): string {
+  const prefix = process.env.DIA_PROXY_CARI_CODE_PREFIX ?? "B2C";
+  const input = userId ?? email;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = (Math.imul(31, hash) + input.charCodeAt(i)) | 0;
+  }
+  const num = String(Math.abs(hash) % 1_000_000).padStart(6, "0");
+  return `${prefix}${num}`;
 }
 
 async function generateUniqueSlug(name: string): Promise<string> {

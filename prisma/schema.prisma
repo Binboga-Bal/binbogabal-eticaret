@@ -25,6 +25,7 @@ model User {
   role              UserRole  @default(CUSTOMER)
   isActive          Boolean   @default(true)
   scheduledDeleteAt DateTime?
+  erpCariAdresKey   String?   // ERP cari adres _key (tekrar siparişlerde _key_scf_carikart_adresleri için)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -205,6 +206,9 @@ model ProductVariant {
   maxOrderQuantity Int?
   sku              String?       @unique
   erpVariantCode   String?       @unique
+  erpVariantKey    String?       // ERP stok kartının integer _key değeri (_key_kalemturu)
+  erpUnitKey       String?       // ERP birimin integer _key değeri (_key_scf_kalem_birimleri)
+  erpKdvRate       Float?        // KDV oranı (%)
   isActive         Boolean       @default(true)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt

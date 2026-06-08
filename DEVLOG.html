@@ -9965,10 +9965,117 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ═══════════════════════════════ ADIM 205 — Dia ERP Sipariş/Cari Entegrasyonu (2026-06-08) -->
+    <section class="section" id="step205">
+      <div class="step-header">
+        <span class="step-badge">Adım 205</span>
+        <span class="step-title">Dia ERP Sipariş &amp; Cari Entegrasyonu</span>
+        <span class="step-meta">2026-06-08</span>
+      </div>
+      <p>Kullanıcı sipariş oluşturduğunda platform otomatik olarak Dia ERP Proxy API'ye istek atıyor: önce <code>scf_carikart_ekle</code> ile müşteri kaydı açılıyor, ardından <code>scf_siparis_ekle</code> ile ERP'de sipariş oluşturuluyor. Her iki ödeme yöntemi (QNB Pay ve kapıda ödeme) için fire-and-forget pattern kullanılıyor.</p>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Akış</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>1. Sipariş oluşturma</h4>
+              <p>QNB Pay başarılı callback (<code>app/api/payment/qnbpay/route.ts</code>) veya kapıda ödeme siparişi (<code>app/api/orders/route.ts</code>) onaylandıktan sonra <code>pushOrderToErp(orderId)</code> çağrılır.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>2. Cari oluşturma — <code>scf_carikart_ekle</code></h4>
+              <p>Müşteri için deterministik kod üretilir: <code>B2C{6 rakamlı hash}</code> (userId veya email'den). ERP'ye gönderilir; cari zaten varsa hata yakalanıp loglama yapılır, akış devam eder. Cevaptan gelen <code>extra.addresskeys[0]</code> kullanıcının <code>erpCariAdresKey</code> alanına kaydedilir.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>3. Sipariş oluşturma — <code>scf_siparis_ekle</code></h4>
+              <p>Her sipariş kalemi için <code>_key_kalemturu</code> (ürünün ERP integer key'i) ve <code>_key_scf_kalem_birimleri</code> (birim key'i) gönderilir. <code>kdvdurumu: "D"</code> — fiyatlar KDV dahil; <code>kdvtutari = fiyat × miktar × oran / 100</code>. Kargo kalemi <code>kalemturu: "HZMT"</code> olarak eklenir.</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-body">
+              <h4>4. ERP fiş no kaydı</h4>
+              <p>ERP'nin döndürdüğü <code>extra.fisno</code> değeri <code>Order.erpOrderCode</code> alanına yazılır.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Schema Değişiklikleri (Prisma)</h3>
+        <pre><span class="cm">// ProductVariant — ERP integer key'leri ürün senkronizasyonunda doldurulur</span>
+<span class="kw">erpVariantKey</span>   String?   <span class="cm">// _key_kalemturu (ERP stok kartı integer key)</span>
+<span class="kw">erpUnitKey</span>      String?   <span class="cm">// _key_scf_kalem_birimleri (ERP birim key)</span>
+<span class="kw">erpKdvRate</span>      Float?    <span class="cm">// KDV oranı (% — ör. 20)</span>
+
+<span class="cm">// User — tekrar siparişlerde cari adres key saklanır</span>
+<span class="kw">erpCariAdresKey</span> String?   <span class="cm">// ERP cari adres _key (extra.addresskeys[0])</span></pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen / Oluşturulan Dosyalar</h3>
+        <ul>
+          <li><code>lib/dia-erp/types.ts</code> — <code>DiaCustomer</code>, <code>DiaOrderLine</code>, <code>DiaOrder</code>, <code>ProxyOrderRequest</code>, <code>ProxyOrderResponse</code> tipleri eklendi</li>
+          <li><code>lib/dia-erp/client.ts</code> — <code>pushOrder(payload)</code> metodu eklendi (<code>POST /api/orders</code>)</li>
+          <li><code>lib/dia-erp/sync.ts</code> — <code>syncProductsFromErp()</code> artık <code>erpVariantKey/erpUnitKey/erpKdvRate</code> kaydediyor; <code>pushOrderToErp()</code> fonksiyonu eklendi; <code>buildCustomerCode()</code> yardımcı fonksiyonu eklendi</li>
+          <li><code>app/api/orders/route.ts</code> — kapıda ödeme siparişlerinde fire-and-forget ERP push eklendi</li>
+          <li><code>prisma/schema.prisma</code> — 4 yeni alan eklendi; <code>pnpm db:push</code> ile uygulandı</li>
+          <li><code>dia-proxy-api/src/routes/orders.js</code> — <strong>yeni dosya</strong>; <code>buildCariKart()</code>, <code>buildKalemler()</code>, <code>buildTotals()</code> fonksiyonları, <code>POST /api/orders</code> route'u</li>
+          <li><code>dia-proxy-api/src/app.js</code> — orders router kayıt edildi</li>
+          <li><code>dia-proxy-api/src/config/index.js</code> — 12 yeni ERP sabit değişkeni eklendi</li>
+          <li><code>dia-proxy-api/.env.example</code> — Postman'dan alınan gerçek değerler eklendi</li>
+          <li><code>.env.example</code> — <code>DIA_PROXY_CARI_CODE_PREFIX</code> eklendi</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Önemli ERP Alan Detayları</h3>
+        <pre><span class="cm">// scf_carikart_ekle</span>
+carikayitturu: <span class="str">"SHS"</span>            <span class="cm">// Postman'dan alınan gerçek değer</span>
+_key_sis_vergidairesi: {}         <span class="cm">// boş obje — vergi dairesi yok</span>
+ekalan1: <span class="str">"BinbogaETicaret"</span>    <span class="cm">// kaynak tanımlayıcı</span>
+
+<span class="cm">// scf_siparis_ekle — kalem</span>
+kdvdurumu: <span class="str">"D"</span>                  <span class="cm">// KDV dahil fiyat</span>
+birimfiyati = sonbirimfiyati     <span class="cm">// tüketici fiyatı (KDV dahil)</span>
+kdvtutari = fiyat × miktar × oran / 100
+
+<span class="cm">// Kargo kalemi</span>
+kalemturu: <span class="str">"HZMT"</span>              <span class="cm">// hizmet — m_varyantlar YOK</span>
+
+<span class="cm">// Teslimat alanları</span>
+teslimat_adi/sehir/ilce/adres: <span class="str">""</span>  <span class="cm">// tümü boş string</span></pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni .env Değişkenleri (dia-proxy-api)</h3>
+        <pre>ERP_CARI_FIRMA_KODU=1          <span class="cm"># scf_carikart_ekle firma kodu</span>
+ERP_CARI_DONEM_KODU=2          <span class="cm"># scf_carikart_ekle dönem kodu</span>
+ERP_CARI_CODE_PREFIX=B2C       <span class="cm"># ör. B2C003805</span>
+ERP_CARI_KAYIT_TURU=SHS
+ERP_CARI_EKALAN1=BinbogaETicaret
+ERP_CARI_TCKIMLIKNO=11111111111
+ERP_DEPO_KEY=2676448           <span class="cm"># _key_sis_depo_source</span>
+ERP_SUBE_KEY=2314              <span class="cm"># _key_sis_sube_source</span>
+ERP_ODEME_PLANI_KODU=00000038
+ERP_KARGO_KALEMTURU_KEY=3588739
+ERP_KARGO_BIRIM_KEY=3588740
+ERP_KARGO_KDV_RATE=20</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px; border-color: var(--green)">
+        <h3>✅ Sonuç</h3>
+        <p>Her iki ödeme akışında (QNB Pay + kapıda ödeme) sipariş ERP'ye otomatik gönderilir. Cari kodu deterministiktir — aynı müşteri tekrar sipariş verdiğinde yeni cari açılmaz. TypeScript kontrolü (<code>pnpm tsc --noEmit</code>) temiz geçti.</p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 8 Haziran 2026 - Adim 204 (Tüm Sayfalarda Metin Yönetimi) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 8 Haziran 2026 - Adim 205 (Dia ERP Sipariş/Cari Entegrasyonu) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>

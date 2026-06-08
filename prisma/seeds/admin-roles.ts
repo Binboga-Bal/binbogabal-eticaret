@@ -4,12 +4,48 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 const SYSTEM_ROLES = [
-  { name: "Süper Admin", slug: "super_admin", description: "Tüm sisteme tam erişim", color: "#ef4444", isSystem: true },
-  { name: "Admin", slug: "admin", description: "Genel yönetim yetkisi", color: "#f97316", isSystem: true },
-  { name: "Editör", slug: "editor", description: "İçerik ve ürün yönetimi", color: "#3b82f6", isSystem: true },
-  { name: "Muhasebe", slug: "accounting", description: "Finans, fatura ve raporlar", color: "#22c55e", isSystem: true },
-  { name: "Kargo Görevlisi", slug: "shipping", description: "Sipariş ve kargo yönetimi", color: "#a855f7", isSystem: true },
-  { name: "Müşteri Hizmetleri", slug: "support", description: "Müşteri ve sipariş görüntüleme", color: "#06b6d4", isSystem: true },
+  {
+    name: "Süper Admin",
+    slug: "super_admin",
+    description: "Tüm sisteme tam erişim",
+    color: "#ef4444",
+    isSystem: true,
+  },
+  {
+    name: "Admin",
+    slug: "admin",
+    description: "Genel yönetim yetkisi",
+    color: "#f97316",
+    isSystem: true,
+  },
+  {
+    name: "Editör",
+    slug: "editor",
+    description: "İçerik ve ürün yönetimi",
+    color: "#3b82f6",
+    isSystem: true,
+  },
+  {
+    name: "Muhasebe",
+    slug: "accounting",
+    description: "Finans, fatura ve raporlar",
+    color: "#22c55e",
+    isSystem: true,
+  },
+  {
+    name: "Kargo Görevlisi",
+    slug: "shipping",
+    description: "Sipariş ve kargo yönetimi",
+    color: "#a855f7",
+    isSystem: true,
+  },
+  {
+    name: "Müşteri Hizmetleri",
+    slug: "support",
+    description: "Müşteri ve sipariş görüntüleme",
+    color: "#06b6d4",
+    isSystem: true,
+  },
 ];
 
 // module, action, scope?, fieldGroup?
@@ -21,7 +57,13 @@ const ALL_PERMISSIONS = [
   { module: "products", action: "create", description: "Ürün oluştur" },
   { module: "products", action: "update", description: "Ürün güncelle" },
   { module: "products", action: "delete", description: "Ürün sil" },
-  { module: "products", action: "view", scope: "pricing", fieldGroup: "pricing", description: "Ürün fiyat bilgisi görüntüle" },
+  {
+    module: "products",
+    action: "view",
+    scope: "pricing",
+    fieldGroup: "pricing",
+    description: "Ürün fiyat bilgisi görüntüle",
+  },
   // Siparişler
   { module: "orders", action: "view", description: "Sipariş görüntüle" },
   { module: "orders", action: "update", description: "Sipariş güncelle" },
@@ -29,7 +71,13 @@ const ALL_PERMISSIONS = [
   { module: "orders", action: "export", description: "Sipariş dışa aktar" },
   // Müşteriler
   { module: "customers", action: "view", description: "Müşteri görüntüle" },
-  { module: "customers", action: "view", scope: "personal_data", fieldGroup: "personal_data", description: "Müşteri kişisel veri görüntüle" },
+  {
+    module: "customers",
+    action: "view",
+    scope: "personal_data",
+    fieldGroup: "personal_data",
+    description: "Müşteri kişisel veri görüntüle",
+  },
   { module: "customers", action: "update", description: "Müşteri güncelle" },
   { module: "customers", action: "delete", description: "Müşteri sil" },
   // Kampanyalar
@@ -38,24 +86,60 @@ const ALL_PERMISSIONS = [
   { module: "campaigns", action: "update", description: "Kampanya güncelle" },
   { module: "campaigns", action: "delete", description: "Kampanya sil" },
   // Finans
-  { module: "finance", action: "view", description: "Finans raporları görüntüle" },
-  { module: "finance", action: "export", description: "Finans raporu dışa aktar" },
+  {
+    module: "finance",
+    action: "view",
+    description: "Finans raporları görüntüle",
+  },
+  {
+    module: "finance",
+    action: "export",
+    description: "Finans raporu dışa aktar",
+  },
   // Admin kullanıcılar
-  { module: "admin_users", action: "view", description: "Admin kullanıcı görüntüle" },
-  { module: "admin_users", action: "create", description: "Admin kullanıcı oluştur" },
-  { module: "admin_users", action: "update", description: "Admin kullanıcı güncelle" },
-  { module: "admin_users", action: "delete", description: "Admin kullanıcı sil" },
+  {
+    module: "admin_users",
+    action: "view",
+    description: "Admin kullanıcı görüntüle",
+  },
+  {
+    module: "admin_users",
+    action: "create",
+    description: "Admin kullanıcı oluştur",
+  },
+  {
+    module: "admin_users",
+    action: "update",
+    description: "Admin kullanıcı güncelle",
+  },
+  {
+    module: "admin_users",
+    action: "delete",
+    description: "Admin kullanıcı sil",
+  },
   // Rol yönetimi
   { module: "roles", action: "view", description: "Rol görüntüle" },
   { module: "roles", action: "create", description: "Rol oluştur" },
   { module: "roles", action: "update", description: "Rol güncelle" },
   { module: "roles", action: "delete", description: "Rol sil" },
   // Sistem ayarları
-  { module: "settings", action: "view", description: "Sistem ayarları görüntüle" },
-  { module: "settings", action: "update", description: "Sistem ayarları güncelle" },
+  {
+    module: "settings",
+    action: "view",
+    description: "Sistem ayarları görüntüle",
+  },
+  {
+    module: "settings",
+    action: "update",
+    description: "Sistem ayarları güncelle",
+  },
   // Audit log
   { module: "audit_log", action: "view", description: "Audit log görüntüle" },
-  { module: "audit_log", action: "export", description: "Audit log dışa aktar" },
+  {
+    module: "audit_log",
+    action: "export",
+    description: "Audit log dışa aktar",
+  },
   // İçerik
   { module: "content", action: "view", description: "İçerik görüntüle" },
   { module: "content", action: "create", description: "İçerik oluştur" },
@@ -67,21 +151,53 @@ const ALL_PERMISSIONS = [
   { module: "categories", action: "update", description: "Kategori güncelle" },
   { module: "categories", action: "delete", description: "Kategori sil" },
   // Hacim indirimleri
-  { module: "volume_discounts", action: "view", description: "Hacim indirimi görüntüle" },
-  { module: "volume_discounts", action: "create", description: "Hacim indirimi oluştur" },
-  { module: "volume_discounts", action: "update", description: "Hacim indirimi güncelle" },
-  { module: "volume_discounts", action: "delete", description: "Hacim indirimi sil" },
+  {
+    module: "volume_discounts",
+    action: "view",
+    description: "Hacim indirimi görüntüle",
+  },
+  {
+    module: "volume_discounts",
+    action: "create",
+    description: "Hacim indirimi oluştur",
+  },
+  {
+    module: "volume_discounts",
+    action: "update",
+    description: "Hacim indirimi güncelle",
+  },
+  {
+    module: "volume_discounts",
+    action: "delete",
+    description: "Hacim indirimi sil",
+  },
   // ERP
   { module: "erp", action: "view", description: "ERP sync görüntüle" },
   { module: "erp", action: "sync", description: "ERP sync başlat" },
   // Görsel / Medya yönetimi
-  { module: "media", action: "view", description: "Banner ve görsel yönetimi görüntüle" },
-  { module: "media", action: "update", description: "Banner ve görsel yönetimi güncelle" },
+  {
+    module: "media",
+    action: "view",
+    description: "Banner ve görsel yönetimi görüntüle",
+  },
+  {
+    module: "media",
+    action: "update",
+    description: "Banner ve görsel yönetimi güncelle",
+  },
 ];
 
 // role_slug -> [{ module, action, scope?, granted }]
-const ROLE_PERMISSIONS: Record<string, { module: string; action: string; scope?: string; granted: boolean }[]> = {
-  super_admin: ALL_PERMISSIONS.map((p) => ({ module: p.module, action: p.action, scope: p.scope, granted: true })),
+const ROLE_PERMISSIONS: Record<
+  string,
+  { module: string; action: string; scope?: string; granted: boolean }[]
+> = {
+  super_admin: ALL_PERMISSIONS.map((p) => ({
+    module: p.module,
+    action: p.action,
+    scope: p.scope,
+    granted: true,
+  })),
   admin: [
     { module: "dashboard", action: "view", granted: true },
     { module: "products", action: "view", granted: true },
@@ -93,7 +209,12 @@ const ROLE_PERMISSIONS: Record<string, { module: string; action: string; scope?:
     { module: "orders", action: "update", granted: true },
     { module: "orders", action: "export", granted: true },
     { module: "customers", action: "view", granted: true },
-    { module: "customers", action: "view", scope: "personal_data", granted: true },
+    {
+      module: "customers",
+      action: "view",
+      scope: "personal_data",
+      granted: true,
+    },
     { module: "customers", action: "update", granted: true },
     { module: "campaigns", action: "view", granted: true },
     { module: "campaigns", action: "create", granted: true },
@@ -148,7 +269,12 @@ const ROLE_PERMISSIONS: Record<string, { module: string; action: string; scope?:
     { module: "dashboard", action: "view", granted: true },
     { module: "orders", action: "view", granted: true },
     { module: "customers", action: "view", granted: true },
-    { module: "customers", action: "view", scope: "personal_data", granted: true },
+    {
+      module: "customers",
+      action: "view",
+      scope: "personal_data",
+      granted: true,
+    },
   ],
 };
 
@@ -178,7 +304,13 @@ export async function seedAdminRoles() {
   // Upsert all permissions
   for (const p of ALL_PERMISSIONS) {
     await prisma.permission.upsert({
-      where: { module_action_scope: { module: p.module, action: p.action, scope: p.scope ?? "" } },
+      where: {
+        module_action_scope: {
+          module: p.module,
+          action: p.action,
+          scope: p.scope ?? "",
+        },
+      },
       create: {
         module: p.module,
         action: p.action,
@@ -197,7 +329,11 @@ export async function seedAdminRoles() {
     await prisma.adminRole.upsert({
       where: { slug: role.slug },
       create: role,
-      update: { name: role.name, description: role.description, color: role.color },
+      update: {
+        name: role.name,
+        description: role.description,
+        color: role.color,
+      },
     });
   }
   console.log("✅ Sistem rolleri oluşturuldu");
@@ -209,13 +345,25 @@ export async function seedAdminRoles() {
 
     for (const p of perms) {
       const permission = await prisma.permission.findUnique({
-        where: { module_action_scope: { module: p.module, action: p.action, scope: p.scope ?? "" } },
+        where: {
+          module_action_scope: {
+            module: p.module,
+            action: p.action,
+            scope: p.scope ?? "",
+          },
+        },
       });
       if (!permission) continue;
 
       await prisma.adminRolePermission.upsert({
-        where: { roleId_permissionId: { roleId: role.id, permissionId: permission.id } },
-        create: { roleId: role.id, permissionId: permission.id, granted: p.granted },
+        where: {
+          roleId_permissionId: { roleId: role.id, permissionId: permission.id },
+        },
+        create: {
+          roleId: role.id,
+          permissionId: permission.id,
+          granted: p.granted,
+        },
         update: { granted: p.granted },
       });
     }
@@ -223,14 +371,16 @@ export async function seedAdminRoles() {
   console.log("✅ Rol izinleri atandı");
 
   // Create super admin user
-  const superAdminRole = await prisma.adminRole.findUnique({ where: { slug: "super_admin" } });
+  const superAdminRole = await prisma.adminRole.findUnique({
+    where: { slug: "super_admin" },
+  });
   if (!superAdminRole) throw new Error("super_admin role not found");
 
-  const passwordHash = await bcrypt.hash("Admin123!@#", 12);
+  const passwordHash = await bcrypt.hash("BnbgKoop745125", 12);
   const superAdmin = await prisma.adminUser.upsert({
-    where: { email: "superadmin@binbogabal.com.tr" },
+    where: { email: "gokaybaz@binbogabal.com.tr" },
     create: {
-      email: "superadmin@binbogabal.com.tr",
+      email: "gokaybaz@binbogabal.com.tr",
       passwordHash,
       name: "Süper Admin",
       status: "ACTIVE",
@@ -241,10 +391,14 @@ export async function seedAdminRoles() {
   });
 
   await prisma.adminUserRole.upsert({
-    where: { userId_roleId: { userId: superAdmin.id, roleId: superAdminRole.id } },
+    where: {
+      userId_roleId: { userId: superAdmin.id, roleId: superAdminRole.id },
+    },
     create: { userId: superAdmin.id, roleId: superAdminRole.id },
     update: {},
   });
 
-  console.log("✅ Süper Admin kullanıcısı oluşturuldu (superadmin@binbogabal.com.tr / Admin123!@#)");
+  console.log(
+    "✅ Süper Admin kullanıcısı oluşturuldu (gokaybaz@binbogabal.com.tr / CHANGE_ME_STRONG_PASSWORD)",
+  );
 }
