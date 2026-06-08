@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
@@ -19,6 +20,14 @@ export async function PUT(req: Request) {
       })
     )
   );
+
+  // Sayfa içerik ayarları değiştiğinde ISR cache'i anında temizle
+  revalidatePath("/");
+  revalidatePath("/urunlerimiz");
+  revalidatePath("/hakkimizda");
+  revalidatePath("/kooperatif-hikayemiz");
+  revalidatePath("/bal-rehberi");
+  revalidatePath("/iletisim");
 
   return NextResponse.json({ success: true });
 }

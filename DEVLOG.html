@@ -9776,10 +9776,123 @@ Binboğa Kooperatif Balı, Türkiye'nin Adana ili Kozan ilçesinde...
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════════════
+         ADIM 203 — Admin: Sayfalar Yönetimi (2026-06-08)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="log-entry" style="margin-top:40px">
+      <div class="entry-header">
+        <div class="entry-meta">
+          <span class="step-badge">Adım 203</span>
+          <span class="entry-date">8 Haziran 2026</span>
+        </div>
+        <h2 class="entry-title">Admin — Sayfalar Yönetimi</h2>
+        <p class="entry-desc">
+          Admin paneline <strong>Sayfalar</strong> bölümü eklendi. Mevcut "Görsel Yönetimi" menüsü kaldırılıp
+          bu yeni bölüme entegre edildi. Her sayfa için görsellerin yanı sıra başlık, metin ve buton
+          içerikleri de DB üzerinden yönetilebilir hale getirildi. Değişiklikler kaydedildiğinde ISR
+          cache'i anında temizleniyor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Motivasyon</h3>
+        <p style="font-size:13px;line-height:1.8">
+          Önceki yapıda yalnızca görsel yüklenebiliyordu (Görsel Yönetimi → <code>/admin/bannerlar</code>).
+          Anasayfadaki "Hikayemiz", "Hakkımızda", "Süreç Adımları" ve "Güven Rozetleri" bölümlerinin metin
+          içerikleri theme.ts'te hardcode'du; her değişiklik için deploy gerekiliyordu. Yeni yapıda tüm statik
+          sayfa içerikleri admin panelinden anında güncellenebiliyor.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sidebar Değişikliği</h3>
+        <p style="font-size:13px;line-height:1.8;margin-bottom:10px">
+          <code>Görsel Yönetimi</code> (<code>media:view</code> izni) kaldırıldı.
+          Yerine <code>Sayfalar</code> menüsü eklendi:
+        </p>
+        <div class="file-tree">
+          <span style="color:var(--honey)">Sayfalar</span> (<code>Globe</code> ikonu)<br>
+          &nbsp;&nbsp;<span class="file new">Anasayfa</span> → <code>/admin/sayfalar/anasayfa</code><br>
+          &nbsp;&nbsp;<span class="file new">Ürünlerimiz</span> → <code>/admin/sayfalar/urunlerimiz</code><br>
+          &nbsp;&nbsp;<span class="file new">Hakkımızda</span> → <code>/admin/sayfalar/hakkimizda</code><br>
+          &nbsp;&nbsp;<span class="file new">Kooperatif Hikayemiz</span> → <code>/admin/sayfalar/kooperatif-hikayemiz</code><br>
+          &nbsp;&nbsp;<span class="file new">Bal Rehberi</span> → <code>/admin/sayfalar/bal-rehberi</code><br>
+          &nbsp;&nbsp;<span class="file new">İletişim</span> → <code>/admin/sayfalar/iletisim</code>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file new">PageContentManager.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Görsel yükleme + metin düzenleme ortak bileşeni</span><br><br>
+          <span class="dir">app/admin/sayfalar/</span><br>
+          &nbsp;&nbsp;<span class="file new">page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— /admin/sayfalar/anasayfa'ya redirect</span><br>
+          &nbsp;&nbsp;<span class="file new">anasayfa/page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Logo · Slider · Hikayemiz · Hakkımızda · Rozetler · Süreç</span><br>
+          &nbsp;&nbsp;<span class="file new">urunlerimiz/page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Sayfa banneri</span><br>
+          &nbsp;&nbsp;<span class="file new">hakkimizda/page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Sayfa banneri</span><br>
+          &nbsp;&nbsp;<span class="file new">kooperatif-hikayemiz/page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Sayfa banneri</span><br>
+          &nbsp;&nbsp;<span class="file new">bal-rehberi/page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Banner + Güvence bölümü görseli</span><br>
+          &nbsp;&nbsp;<span class="file new">iletisim/page.tsx</span> <span style="color:var(--text-muted);font-size:12px">— Sayfa banneri</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosyalar</h3>
+        <ul style="font-size:13px;line-height:1.8">
+          <li><code>components/admin/AdminSidebar.tsx</code> — <code>Image</code> import kaldırıldı, <code>Globe</code> eklendi; "Görsel Yönetimi" yerine "Sayfalar" + alt menüleri</li>
+          <li><code>app/admin/bannerlar/page.tsx</code> — <code>/admin/sayfalar/anasayfa</code>'ya redirect</li>
+          <li><code>app/api/admin/settings/route.ts</code> — Kayıt sonrası <code>revalidatePath</code> ile 6 sayfa cache'i anında temizleniyor</li>
+          <li><code>app/(shop)/page.tsx</code> — <code>SETTING_KEYS</code> 13 → 38 key; metin değerleri DB'den okunup bileşenlere prop olarak geçiliyor</li>
+          <li><code>components/shop/home/ProcessFlow.tsx</code> — <code>heading?</code> ve <code>stepTexts?</code> prop'ları eklendi</li>
+          <li><code>components/shop/home/TrustBadges.tsx</code> — <code>badgeTexts?</code> prop'u eklendi</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yönetilebilen İçerikler (Anasayfa)</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Görseller (14 adet)</h4>
+              <p>Logo · 3× Hero Slider · Hikayemiz arka planı · Hakkımızda arka planı · 4× Güven Rozeti · 4× Süreç Adımı</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Metinler (25 adet)</h4>
+              <p>Hikayemiz: başlık, alt başlık, içerik, buton · Hakkımızda: başlık, alt başlık, içerik, buton · Süreç: bölüm başlığı + 4× (adım başlık + açıklama) · 4× Rozet (başlık + açıklama)</p>
+            </div>
+          </div>
+          <div class="step-item" style="margin-bottom:0">
+            <div class="step-body">
+              <h4>Fallback Sistemi</h4>
+              <p>DB'de kayıtlı değer yoksa <code>lib/theme.ts</code>'teki varsayılan değer kullanılır. Deploy gerekmez.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>SiteSettings Key Şeması (Yeni)</h3>
+        <pre><span class="cm">// Metin anahtarları</span>
+<span class="str">text_home_hikayemiz_heading</span>      <span class="cm">// "HİKAYEMİZ"</span>
+<span class="str">text_home_hikayemiz_subheading</span>   <span class="cm">// "ŞİRKET DEĞİL, KOOPERATİFİZ!"</span>
+<span class="str">text_home_hikayemiz_body</span>         <span class="cm">// Uzun paragraf metni</span>
+<span class="str">text_home_hikayemiz_btn</span>          <span class="cm">// "HİKAYENİN DEVAMI ▶"</span>
+<span class="str">text_home_hakkimizda_*</span>           <span class="cm">// Aynı pattern</span>
+<span class="str">text_home_process_heading</span>        <span class="cm">// Süreç bölümü başlığı</span>
+<span class="str">text_home_process_{1-4}_title</span>    <span class="cm">// Adım başlıkları</span>
+<span class="str">text_home_process_{1-4}_desc</span>     <span class="cm">// Adım açıklamaları</span>
+<span class="str">text_home_badge_{1-4}_title</span>      <span class="cm">// Rozet başlıkları</span>
+<span class="str">text_home_badge_{1-4}_desc</span>       <span class="cm">// Rozet açıklamaları</span></pre>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 6 Haziran 2026 - Adim 202 (WhatsApp FAB &amp; Chatbot) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 8 Haziran 2026 - Adim 203 (Admin Sayfalar Yönetimi) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>

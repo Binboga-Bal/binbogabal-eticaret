@@ -4,12 +4,20 @@ import { Container } from "@/components/layout/Container";
 
 const baseBadges = trustBadgesTheme.badges;
 
+interface BadgeText { title?: string; description?: string }
+
 interface TrustBadgesProps {
   images?: (string | null)[];
+  badgeTexts?: BadgeText[];
 }
 
-export function TrustBadges({ images = [] }: TrustBadgesProps) {
-  const badges = baseBadges.map((b, i) => ({ ...b, image: images[i] ?? b.image }));
+export function TrustBadges({ images = [], badgeTexts = [] }: TrustBadgesProps) {
+  const badges = baseBadges.map((b, i) => ({
+    ...b,
+    image: images[i] ?? b.image,
+    title: badgeTexts[i]?.title || b.title,
+    description: badgeTexts[i]?.description || b.description,
+  }));
   return (
     <section className="bg-gradient-to-b from-white to-honey-cream section-padding">
       <Container size="wide">

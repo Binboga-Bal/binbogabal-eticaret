@@ -62,30 +62,65 @@ async function getFaqs() {
   });
 }
 
-const IMAGE_KEYS = [
+const SETTING_KEYS = [
   "img_slider_1", "img_slider_2", "img_slider_3",
   "img_home_hikayemiz", "img_home_hakkimizda",
   "img_badge_1", "img_badge_2", "img_badge_3", "img_badge_4",
   "img_process_1", "img_process_2", "img_process_3", "img_process_4",
+  "text_home_hikayemiz_heading", "text_home_hikayemiz_subheading",
+  "text_home_hikayemiz_body", "text_home_hikayemiz_btn",
+  "text_home_hakkimizda_heading", "text_home_hakkimizda_subheading",
+  "text_home_hakkimizda_body", "text_home_hakkimizda_btn",
+  "text_home_process_heading",
+  "text_home_badge_1_title", "text_home_badge_1_desc",
+  "text_home_badge_2_title", "text_home_badge_2_desc",
+  "text_home_badge_3_title", "text_home_badge_3_desc",
+  "text_home_badge_4_title", "text_home_badge_4_desc",
+  "text_home_process_1_title", "text_home_process_1_desc",
+  "text_home_process_2_title", "text_home_process_2_desc",
+  "text_home_process_3_title", "text_home_process_3_desc",
+  "text_home_process_4_title", "text_home_process_4_desc",
 ];
 
 export default async function HomePage() {
-  const [rawBestsellers, rawFeatured, faqs, imgSettings] = await Promise.all([
+  const [rawBestsellers, rawFeatured, faqs, settingRows] = await Promise.all([
     getBestsellers(),
     getFeaturedProducts(),
     getFaqs(),
-    prisma.siteSetting.findMany({ where: { key: { in: IMAGE_KEYS } } }),
+    prisma.siteSetting.findMany({ where: { key: { in: SETTING_KEYS } } }),
   ]);
 
   const bestsellers = rawBestsellers.map(serializeProduct);
   const featured = rawFeatured.map(serializeProduct);
-  const imgs = Object.fromEntries(imgSettings.map((s) => [s.key, s.value]));
+  const s = Object.fromEntries(settingRows.map((r) => [r.key, r.value]));
 
-  const sliderImages = [imgs.img_slider_1, imgs.img_slider_2, imgs.img_slider_3];
-  const badgeImages = [imgs.img_badge_1, imgs.img_badge_2, imgs.img_badge_3, imgs.img_badge_4];
-  const processImages = [imgs.img_process_1, imgs.img_process_2, imgs.img_process_3, imgs.img_process_4];
-  const hikayemizImage = imgs.img_home_hikayemiz ?? homeBannersTheme.hikayemiz.image;
-  const hakkimizdaImage = imgs.img_home_hakkimizda ?? homeBannersTheme.hakkimizda.image;
+  const sliderImages = [s.img_slider_1, s.img_slider_2, s.img_slider_3];
+  const badgeImages = [s.img_badge_1, s.img_badge_2, s.img_badge_3, s.img_badge_4];
+  const processImages = [s.img_process_1, s.img_process_2, s.img_process_3, s.img_process_4];
+  const hikayemizImage = s.img_home_hikayemiz ?? homeBannersTheme.hikayemiz.image;
+  const hakkimizdaImage = s.img_home_hakkimizda ?? homeBannersTheme.hakkimizda.image;
+
+  const badgeTexts = [1, 2, 3, 4].map((n) => ({
+    title: s[`text_home_badge_${n}_title`] || undefined,
+    description: s[`text_home_badge_${n}_desc`] || undefined,
+  }));
+  const stepTexts = [1, 2, 3, 4].map((n) => ({
+    title: s[`text_home_process_${n}_title`] || undefined,
+    description: s[`text_home_process_${n}_desc`] || undefined,
+  }));
+
+  const hikayemiz = {
+    heading:    s.text_home_hikayemiz_heading    || homeBannersTheme.hikayemiz.heading,
+    subheading: s.text_home_hikayemiz_subheading || homeBannersTheme.hikayemiz.subheading,
+    body:       s.text_home_hikayemiz_body       || homeBannersTheme.hikayemiz.body,
+    btnLabel:   s.text_home_hikayemiz_btn        || homeBannersTheme.hikayemiz.btn.label,
+  };
+  const hakkimizda = {
+    heading:    s.text_home_hakkimizda_heading    || homeBannersTheme.hakkimizda.heading,
+    subheading: s.text_home_hakkimizda_subheading || homeBannersTheme.hakkimizda.subheading,
+    body:       s.text_home_hakkimizda_body       || homeBannersTheme.hakkimizda.body,
+    btnLabel:   s.text_home_hakkimizda_btn        || homeBannersTheme.hakkimizda.btn.label,
+  };
 
   return (
     <>
@@ -95,11 +130,15 @@ export default async function HomePage() {
       {/* İlk slider görseli JS hydration öncesi preload edilir (HeroSlider client component olduğu için) */}
       {sliderImages[0] && <link rel="preload" as="image" href={sliderImages[0]} />}
       <HeroSlider images={sliderImages} />
-      <TrustBadges images={badgeImages} />
+      <TrustBadges images={badgeImages} badgeTexts={badgeTexts} />
 
       <CategoryGrid />
 
-      <ProcessFlow images={processImages} />
+      <ProcessFlow
+        images={processImages}
+        heading={s.text_home_process_heading || undefined}
+        stepTexts={stepTexts}
+      />
 
       {/* Çok Satanlar */}
       {bestsellers.length > 0 && (
@@ -135,13 +174,13 @@ export default async function HomePage() {
         <div className="relative w-full py-16 md:py-24">
           <Container size="wide">
             <div className="max-w-lg">
-              <h2 className="text-white font-black text-fluid-2xl mb-2">{homeBannersTheme.hikayemiz.heading}</h2>
-              <p className="text-honey-bright font-bold text-fluid-lg mb-4">{homeBannersTheme.hikayemiz.subheading}</p>
+              <h2 className="text-white font-black text-fluid-2xl mb-2">{hikayemiz.heading}</h2>
+              <p className="text-honey-bright font-bold text-fluid-lg mb-4">{hikayemiz.subheading}</p>
               <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
-                {homeBannersTheme.hikayemiz.body}
+                {hikayemiz.body}
               </p>
               <Link href={homeBannersTheme.hikayemiz.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
-                {homeBannersTheme.hikayemiz.btn.label}
+                {hikayemiz.btnLabel}
               </Link>
             </div>
           </Container>
@@ -180,13 +219,13 @@ export default async function HomePage() {
         <div className="relative w-full py-16 md:py-24">
           <Container size="wide" className="flex justify-end">
             <div className="max-w-lg">
-              <h2 className="text-white font-black text-fluid-2xl mb-2">{homeBannersTheme.hakkimizda.heading}</h2>
-              <p className="text-honey-bright font-bold text-fluid-lg mb-4">{homeBannersTheme.hakkimizda.subheading}</p>
+              <h2 className="text-white font-black text-fluid-2xl mb-2">{hakkimizda.heading}</h2>
+              <p className="text-honey-bright font-bold text-fluid-lg mb-4">{hakkimizda.subheading}</p>
               <p className="text-white/90 text-sm leading-relaxed mb-6 whitespace-pre-line">
-                {homeBannersTheme.hakkimizda.body}
+                {hakkimizda.body}
               </p>
               <Link href={homeBannersTheme.hakkimizda.btn.href} className="btn-secondary text-white inline-flex items-center gap-2 rounded-2xl">
-                {homeBannersTheme.hakkimizda.btn.label}
+                {hakkimizda.btnLabel}
               </Link>
             </div>
           </Container>

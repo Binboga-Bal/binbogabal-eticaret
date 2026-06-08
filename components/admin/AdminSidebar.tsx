@@ -16,13 +16,13 @@ import {
   Settings,
   ChevronDown,
   Layers,
-  Image,
   Star,
   Shield,
   ScrollText,
   UserCog,
   Search,
   Activity,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -67,7 +67,20 @@ const navItems: NavItem[] = [
       { href: "/admin/icerik/faq", label: "SSS" },
     ],
   },
-  { href: "/admin/bannerlar", label: "Görsel Yönetimi", icon: <Image size={18} />, permission: "media:view" },
+  {
+    href: "/admin/sayfalar",
+    label: "Sayfalar",
+    icon: <Globe size={18} />,
+    permission: "media:view",
+    children: [
+      { href: "/admin/sayfalar/anasayfa", label: "Anasayfa" },
+      { href: "/admin/sayfalar/urunlerimiz", label: "Ürünlerimiz" },
+      { href: "/admin/sayfalar/hakkimizda", label: "Hakkımızda" },
+      { href: "/admin/sayfalar/kooperatif-hikayemiz", label: "Kooperatif Hikayemiz" },
+      { href: "/admin/sayfalar/bal-rehberi", label: "Bal Rehberi" },
+      { href: "/admin/sayfalar/iletisim", label: "İletişim" },
+    ],
+  },
   {
     href: "/admin/seo",
     label: "SEO & GEO",
