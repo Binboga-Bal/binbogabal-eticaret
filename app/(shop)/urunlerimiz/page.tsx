@@ -39,7 +39,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const hasVariantFilter = params.boyut || params.ambalaj || params.minFiyat || params.maxFiyat;
 
-  const [honeyTypes, allCategories, bannerSetting] = await Promise.all([
+  const URUNLER_KEYS = ["banner_urunlerimiz", "page_urunlerimiz_hero_text1", "page_urunlerimiz_hero_text2"];
+  const [honeyTypes, allCategories, settingRows] = await Promise.all([
     prisma.honeyType.findMany({
       where: { isActive: true },
       orderBy: { order: "asc" },
@@ -49,10 +50,13 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       where: { isActive: true },
       select: { slug: true, name: true },
     }),
-    prisma.siteSetting.findUnique({ where: { key: "banner_urunlerimiz" } }),
+    prisma.siteSetting.findMany({ where: { key: { in: URUNLER_KEYS } } }),
   ]);
 
-  const bannerImage = bannerSetting?.value ?? "/images/urunlerimiz/urunlerimiz-banner.webp";
+  const dbSettings = Object.fromEntries(settingRows.map((r) => [r.key, r.value]));
+  const bannerImage = dbSettings.banner_urunlerimiz ?? "/images/urunlerimiz/urunlerimiz-banner.webp";
+  const heroText1 = dbSettings.page_urunlerimiz_hero_text1 || "Arıcıdan Aracısız";
+  const heroText2 = dbSettings.page_urunlerimiz_hero_text2 || "Kooperatif Tecrübesiyle";
 
   const where: Prisma.ProductWhereInput = {
     isActive: true,
@@ -214,10 +218,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               <Container className="w-full">
                 <div className="max-w-xl drop-shadow-2xl">
                   <p className="font-script text-fluid-3xl text-white leading-[1.2]">
-                    Arıcıdan Aracısız
+                    {heroText1}
                   </p>
                   <p className="font-script text-fluid-xl text-honey leading-snug mt-2">
-                    Kooperatif Tecrübesiyle
+                    {heroText2}
                   </p>
                 </div>
               </Container>

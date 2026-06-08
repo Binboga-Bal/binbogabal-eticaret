@@ -9,49 +9,86 @@ export const metadata: Metadata = {
     "1973'ten bu yana Kozan'ın dağlarından gelen doğal bal. S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin hikayesi.",
 };
 
-const stats = [
-  { value: "1973", label: "Kuruluş Yılı" },
-  { value: "1800+", label: "Arıcı Üye" },
-  { value: "50+", label: "Yıllık Deneyim" },
-  { value: "%100", label: "Doğal Bal" },
-];
+// ── Varsayılan içerikler (DB boşsa bu değerler kullanılır) ──────────────────
+const D = {
+  hero_tag: "1973'ten Bugüne",
+  hero_h1: "Şirket Değil, Kooperatif!",
+  hero_subtitle:
+    "Kozan dağlarının arıcıları 50 yılı aşkın süredir tek bir amaç etrafında birleşiyor: doğal balı, adil bir fiyatla, doğrudan sizin sofranıza taşımak.",
 
-const values = [
-  {
-    icon: "🤝",
-    title: "Kooperatif Ruhu",
-    desc: "Kâr değil, adalet peşindeyiz. Arıcılarımız ne kazanıyorsa kooperatif de o kadar kazanıyor.",
-  },
-  {
-    icon: "🔬",
-    title: "Bilimsel Kalite",
-    desc: "Her seri üretimde Türk Gıda Kodeksi standartlarına uygun bağımsız laboratuvar analizleri yapılır.",
-  },
-  {
-    icon: "🌿",
-    title: "Doğallık",
-    desc: "Arılarımız Toros dağlarının endemik bitki örtüsünden nektar toplar. Şeker şurubu veya katkı maddesi asla kullanmayız.",
-  },
-  {
-    icon: "📦",
-    title: "Şeffaflık",
-    desc: "Ürünlerimizin her birinde hangi sezondan geldiğini, üretici kooperatifin kim olduğunu açıkça belirtiriz.",
-  },
-];
+  stat_1_value: "1973",  stat_1_label: "Kuruluş Yılı",
+  stat_2_value: "1800+", stat_2_label: "Arıcı Üye",
+  stat_3_value: "50+",   stat_3_label: "Yıllık Deneyim",
+  stat_4_value: "%100",  stat_4_label: "Doğal Bal",
 
-const timeline = [
-  { year: "1973", event: "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi kuruldu." },
-  { year: "1985", event: "İlk modern ambalajlama tesisi devreye alındı; raf ömrü ve hijyen standartları yükseltildi." },
-  { year: "1997", event: "İhracat başladı. Almanya ve Hollanda pazarlarına ilk sevkiyatlar gerçekleşti." },
-  { year: "2008", event: "ISO 22000 Gıda Güvenliği sertifikası alındı." },
-  { year: "2015", event: "Üye sayısı 1 000'i aştı; Toros dağlarındaki kovanlar 45 000'e ulaştı." },
-  { year: "2022", event: "London Honey Gold ödülüne layık görüldük." },
-  { year: "2024", event: "E-ticaret platformumuz açıldı; arıcıdan tüketiciye doğrudan satış başladı." },
-];
+  story_heading: "Hikayemiz",
+  story_p1:
+    "1973 yılında, Adana'nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor olduğunu biliyorlardı. İşte o gün, yükü paylaşmak için bir araya geldiler. S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi böyle doğdu.",
+  story_p2:
+    "Bugün 1800'den fazla arıcı üyesiyle Türkiye'nin en köklü bal kooperatiflerinden biriyiz. Toroslar'ın endemik çiçeklerinden — kekik, keven, narenciye, çalıkuşu — beslenen arılarımız yılda iki sezon hasat verir.",
+  story_p3:
+    "Ama en önemli farkımız bu değil. En önemli farkımız şu: kâr amacımız yok. Kooperatif yapımız sayesinde arıcılarımıza piyasa fiyatının üzerinde ödeme yapıyor, tüketicilere de aracı komisyonu olmadan ulaşıyoruz.",
+
+  coop_heading: "Kooperatif neden önemli?",
+  coop_1: "Arıcı doğrudan kooperatife teslim eder; aracı komisyonu yok",
+  coop_2: "Kalite kontrolü ve ambalajlama merkezi yapılır",
+  coop_3: "Yıl sonu kârı üyelere paylaştırılır",
+  coop_4: "Tüketici, markayı değil emeği öder",
+
+  values_heading: "Değerlerimiz",
+  value_1_title: "Kooperatif Ruhu",
+  value_1_desc: "Kâr değil, adalet peşindeyiz. Arıcılarımız ne kazanıyorsa kooperatif de o kadar kazanıyor.",
+  value_2_title: "Bilimsel Kalite",
+  value_2_desc: "Her seri üretimde Türk Gıda Kodeksi standartlarına uygun bağımsız laboratuvar analizleri yapılır.",
+  value_3_title: "Doğallık",
+  value_3_desc: "Arılarımız Toros dağlarının endemik bitki örtüsünden nektar toplar. Şeker şurubu veya katkı maddesi asla kullanmayız.",
+  value_4_title: "Şeffaflık",
+  value_4_desc: "Ürünlerimizin her birinde hangi sezondan geldiğini, üretici kooperatifin kim olduğunu açıkça belirtiriz.",
+
+  timeline_heading: "Tarihçemiz",
+  timeline_1_year: "1973", timeline_1_event: "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi kuruldu.",
+  timeline_2_year: "1985", timeline_2_event: "İlk modern ambalajlama tesisi devreye alındı; raf ömrü ve hijyen standartları yükseltildi.",
+  timeline_3_year: "1997", timeline_3_event: "İhracat başladı. Almanya ve Hollanda pazarlarına ilk sevkiyatlar gerçekleşti.",
+  timeline_4_year: "2008", timeline_4_event: "ISO 22000 Gıda Güvenliği sertifikası alındı.",
+  timeline_5_year: "2015", timeline_5_event: "Üye sayısı 1 000'i aştı; Toros dağlarındaki kovanlar 45 000'e ulaştı.",
+  timeline_6_year: "2022", timeline_6_event: "London Honey Gold ödülüne layık görüldük.",
+  timeline_7_year: "2024", timeline_7_event: "E-ticaret platformumuz açıldı; arıcıdan tüketiciye doğrudan satış başladı.",
+
+  cta_heading: "Doğal Balı Keşfedin",
+  cta_text: "Arıcıdan sofranzıa. Kovan kokusunu taşıyan, analiz sertifikalı Binboğa ballarını inceleyin.",
+  cta_btn: "Ürünlerimize Git →",
+} as const;
+
+const PFX = "page_hakkimizda_";
+const ALL_KEYS = (Object.keys(D) as (keyof typeof D)[]).map((k) => `${PFX}${k}`);
+ALL_KEYS.push("banner_hakkimizda");
+
+function t(db: Record<string, string>, key: keyof typeof D): string {
+  return db[`${PFX}${key}`] || D[key];
+}
+
+const VALUE_ICONS = ["🤝", "🔬", "🌿", "📦"];
 
 export default async function AboutPage() {
-  const bannerSetting = await prisma.siteSetting.findUnique({ where: { key: "banner_hakkimizda" } });
-  const bannerImage = bannerSetting?.value ?? null;
+  const rows = await prisma.siteSetting.findMany({ where: { key: { in: ALL_KEYS } } });
+  const db = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  const bannerImage = db.banner_hakkimizda ?? null;
+
+  const stats = [1, 2, 3, 4].map((i) => ({
+    value: t(db, `stat_${i}_value` as keyof typeof D),
+    label: t(db, `stat_${i}_label` as keyof typeof D),
+  }));
+
+  const values = [1, 2, 3, 4].map((i) => ({
+    icon: VALUE_ICONS[i - 1],
+    title: t(db, `value_${i}_title` as keyof typeof D),
+    desc:  t(db, `value_${i}_desc`  as keyof typeof D),
+  }));
+
+  const timeline = [1, 2, 3, 4, 5, 6, 7].map((i) => ({
+    year:  t(db, `timeline_${i}_year`  as keyof typeof D),
+    event: t(db, `timeline_${i}_event` as keyof typeof D),
+  }));
 
   return (
     <>
@@ -59,14 +96,7 @@ export default async function AboutPage() {
       <section className="relative h-80 md:h-[500px] xl:h-[560px] 2xl:h-[620px] 3xl:h-[680px] 4xl:h-[760px] overflow-hidden bg-honey-cream">
         {bannerImage ? (
           <>
-            <Image
-              src={bannerImage}
-              alt="Hakkımızda banner"
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-            />
+            <Image src={bannerImage} alt="Hakkımızda banner" fill sizes="100vw" className="object-cover" priority />
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
           </>
         ) : (
@@ -75,26 +105,16 @@ export default async function AboutPage() {
               <div
                 key={i}
                 className="absolute rounded-full bg-honey-bright"
-                style={{
-                  width: (((i * 37) % 80) + 20),
-                  height: (((i * 53) % 80) + 20),
-                  top: `${(i * 17) % 100}%`,
-                  left: `${(i * 23) % 100}%`,
-                }}
+                style={{ width: (((i * 37) % 80) + 20), height: (((i * 53) % 80) + 20), top: `${(i * 17) % 100}%`, left: `${(i * 23) % 100}%` }}
               />
             ))}
           </div>
         )}
         <div className="relative z-10 h-full flex items-center justify-start">
           <div className="max-w-7xl px-4 sm:px-6 lg:px-8 text-left">
-            <p className="text-honey-bright text-sm font-bold uppercase tracking-widest mb-3">1973&apos;ten Bugüne</p>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
-              Şirket Değil, Kooperatif!
-            </h1>
-            <p className="hidden sm:block text-white/80 text-lg max-w-2xl">
-              Kozan dağlarının arıcıları 50 yılı aşkın süredir tek bir amaç etrafında birleşiyor:
-              doğal balı, adil bir fiyatla, doğrudan sizin sofranıza taşımak.
-            </p>
+            <p className="text-honey-bright text-sm font-bold uppercase tracking-widest mb-3">{t(db, "hero_tag")}</p>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">{t(db, "hero_h1")}</h1>
+            <p className="hidden sm:block text-white/80 text-lg max-w-2xl">{t(db, "hero_subtitle")}</p>
           </div>
         </div>
       </section>
@@ -118,45 +138,23 @@ export default async function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-black text-gray-900 mb-6">Hikayemiz</h2>
+              <h2 className="text-3xl font-black text-gray-900 mb-6">{t(db, "story_heading")}</h2>
               <div className="space-y-4 text-gray-600 text-sm leading-relaxed">
-                <p>
-                  1973 yılında, Adana&apos;nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına
-                  ayakta kalmanın zor olduğunu biliyorlardı. İşte o gün, yükü paylaşmak için bir araya
-                  geldiler. <strong>S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi</strong> böyle doğdu.
-                </p>
-                <p>
-                  Bugün 1800&apos;den fazla arıcı üyesiyle Türkiye&apos;nin en köklü bal kooperatiflerinden biriyiz.
-                  Toroslar&apos;ın endemik çiçeklerinden — kekik, keven, narenciye, çalıkuşu — beslenen arılarımız
-                  yılda iki sezon hasat verir.
-                </p>
-                <p>
-                  Ama en önemli farkımız bu değil. En önemli farkımız şu: <strong>kâr amacımız yok.</strong>{" "}
-                  Kooperatif yapımız sayesinde arıcılarımıza piyasa fiyatının üzerinde ödeme yapıyor,
-                  tüketicilere de aracı komisyonu olmadan ulaşıyoruz.
-                </p>
+                <p>{t(db, "story_p1")}</p>
+                <p>{t(db, "story_p2")}</p>
+                <p>{t(db, "story_p3")}</p>
               </div>
             </div>
             <div className="bg-honey-dark rounded-3xl p-8 text-white">
               <div className="text-6xl mb-4">🍯</div>
-              <h3 className="text-xl font-black mb-4">Kooperatif neden önemli?</h3>
+              <h3 className="text-xl font-black mb-4">{t(db, "coop_heading")}</h3>
               <ul className="space-y-3 text-sm text-white/80">
-                <li className="flex gap-3">
-                  <span className="text-honey-bright font-bold">→</span>
-                  Arıcı doğrudan kooperatife teslim eder; aracı komisyonu yok
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-honey-bright font-bold">→</span>
-                  Kalite kontrolü ve ambalajlama merkezi yapılır
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-honey-bright font-bold">→</span>
-                  Yıl sonu kârı üyelere paylaştırılır
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-honey-bright font-bold">→</span>
-                  Tüketici, markayı değil emeği öder
-                </li>
+                {[1, 2, 3, 4].map((i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="text-honey-bright font-bold">→</span>
+                    {t(db, `coop_${i}` as keyof typeof D)}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -166,7 +164,7 @@ export default async function AboutPage() {
       {/* Değerlerimiz */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black text-gray-900 text-center mb-12">Değerlerimiz</h2>
+          <h2 className="text-3xl font-black text-gray-900 text-center mb-12">{t(db, "values_heading")}</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((v) => (
               <div key={v.title} className="bg-honey-cream rounded-2xl p-6">
@@ -182,7 +180,7 @@ export default async function AboutPage() {
       {/* Tarihçe */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black text-gray-900 text-center mb-12">Tarihçemiz</h2>
+          <h2 className="text-3xl font-black text-gray-900 text-center mb-12">{t(db, "timeline_heading")}</h2>
           <div className="relative">
             <div className="absolute left-20 top-0 bottom-0 w-px bg-honey-light" />
             <div className="space-y-8">
@@ -205,12 +203,10 @@ export default async function AboutPage() {
       {/* CTA */}
       <section className="py-14 bg-honey-dark text-white text-center">
         <div className="max-w-2xl mx-auto px-4">
-          <h2 className="text-3xl font-black mb-4">Doğal Balı Keşfedin</h2>
-          <p className="text-white/80 mb-8 text-sm">
-            Arıcıdan sofranzıa. Kovan kokusunu taşıyan, analiz sertifikalı Binboğa ballarını inceleyin.
-          </p>
+          <h2 className="text-3xl font-black mb-4">{t(db, "cta_heading")}</h2>
+          <p className="text-white/80 mb-8 text-sm">{t(db, "cta_text")}</p>
           <Link href="/urunlerimiz" className="btn-secondary inline-flex items-center gap-2">
-            Ürünlerimize Git →
+            {t(db, "cta_btn")}
           </Link>
         </div>
       </section>

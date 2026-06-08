@@ -1,18 +1,61 @@
 import type { Metadata } from "next";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "İletişim | Binboğa Kooperatif Balı",
   description: "Binboğa Bal ile iletişime geçin. Adres, telefon ve e-posta bilgilerimiz.",
 };
 
-export default function ContactPage() {
+const D = {
+  hero_h1: "İletişim",
+  hero_subtitle: "Her türlü soru ve öneriniz için buradayız.",
+  address: "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi\nAdana, Kozan",
+  phone: "+90 (322) XXX XX XX",
+  email: "info@binbogabal.com.tr",
+  hours: "Pazartesi – Cuma: 09:00 – 18:00\nCumartesi: 09:00 – 13:00",
+} as const;
+
+const PFX = "page_iletisim_";
+const ALL_KEYS = (Object.keys(D) as (keyof typeof D)[]).map((k) => `${PFX}${k}`);
+
+function t(db: Record<string, string>, key: keyof typeof D): string {
+  return db[`${PFX}${key}`] || D[key];
+}
+
+export default async function ContactPage() {
+  const rows = await prisma.siteSetting.findMany({ where: { key: { in: ALL_KEYS } } });
+  const db = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+
+  const contactItems = [
+    {
+      icon: <MapPin size={20} className="text-honey-dark" />,
+      label: "Adres",
+      value: t(db, "address"),
+    },
+    {
+      icon: <Phone size={20} className="text-honey-dark" />,
+      label: "Telefon",
+      value: t(db, "phone"),
+    },
+    {
+      icon: <Mail size={20} className="text-honey-dark" />,
+      label: "E-posta",
+      value: t(db, "email"),
+    },
+    {
+      icon: <Clock size={20} className="text-honey-dark" />,
+      label: "Çalışma Saatleri",
+      value: t(db, "hours"),
+    },
+  ];
+
   return (
     <>
       <section className="bg-honey-dark py-14 text-white text-center">
         <div className="max-w-2xl mx-auto px-4">
-          <h1 className="text-4xl font-black mb-3">İletişim</h1>
-          <p className="text-white/70 text-sm">Her türlü soru ve öneriniz için buradayız.</p>
+          <h1 className="text-4xl font-black mb-3">{t(db, "hero_h1")}</h1>
+          <p className="text-white/70 text-sm">{t(db, "hero_subtitle")}</p>
         </div>
       </section>
 
@@ -23,28 +66,7 @@ export default function ContactPage() {
             <div className="space-y-6">
               <h2 className="text-2xl font-black text-gray-900">Bize Ulaşın</h2>
               <div className="space-y-5">
-                {[
-                  {
-                    icon: <MapPin size={20} className="text-honey-dark" />,
-                    label: "Adres",
-                    value: "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi\nAdana, Kozan",
-                  },
-                  {
-                    icon: <Phone size={20} className="text-honey-dark" />,
-                    label: "Telefon",
-                    value: "+90 (322) XXX XX XX",
-                  },
-                  {
-                    icon: <Mail size={20} className="text-honey-dark" />,
-                    label: "E-posta",
-                    value: "info@binbogabal.com.tr",
-                  },
-                  {
-                    icon: <Clock size={20} className="text-honey-dark" />,
-                    label: "Çalışma Saatleri",
-                    value: "Pazartesi – Cuma: 09:00 – 18:00\nCumartesi: 09:00 – 13:00",
-                  },
-                ].map((item) => (
+                {contactItems.map((item) => (
                   <div key={item.label} className="flex gap-4">
                     <div className="mt-0.5 shrink-0">{item.icon}</div>
                     <div>
@@ -95,10 +117,7 @@ export default function ContactPage() {
                     required
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="btn-primary w-full"
-                >
+                <button type="submit" className="btn-primary w-full">
                   Gönder
                 </button>
               </form>
