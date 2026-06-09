@@ -3,12 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { processFlowTheme } from "@/lib/theme";
+import { buildMetadata } from "@/lib/seo/meta.service";
 
-export const metadata: Metadata = {
-  title: "Kooperatif Hikayemiz | Binboğa Kooperatif Balı",
-  description:
-    "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin 50 yıllık hikayesi. Kooperatifçiliğin gücü, arıcıların dayanışması.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata("page", "kooperatif-hikayemiz", {
+    title: "Kooperatif Hikayemiz | Binboğa Kooperatif Balı",
+    description: "S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin 50 yıllık hikayesi. Kooperatifçiliğin gücü, arıcıların dayanışması.",
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/kooperatif-hikayemiz`,
+  });
+}
 
 // ── Varsayılan içerikler ────────────────────────────────────────────────────
 const D = {

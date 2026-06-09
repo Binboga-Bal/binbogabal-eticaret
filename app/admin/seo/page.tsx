@@ -88,7 +88,8 @@ export default async function SeoDashboardPage() {
           </h2>
           <div className="space-y-2">
             {[
-              { href: "/admin/seo/meta", label: "Meta Listesi & Editör" },
+              { href: "/admin/seo/meta/sayfalar", label: "Statik Sayfa SEO" },
+            { href: "/admin/seo/meta", label: "Tüm Meta Kayıtları" },
               { href: "/admin/seo/templates", label: "SEO Şablonları" },
               { href: "/admin/seo/keywords", label: "Anahtar Kelime Takibi" },
               { href: "/admin/seo/redirects", label: "Yönlendirme Yönetimi" },

@@ -91,7 +91,8 @@ const navItems: NavItem[] = [
     permission: "seo:view",
     children: [
       { href: "/admin/seo", label: "Dashboard" },
-      { href: "/admin/seo/meta", label: "Meta Yönetimi" },
+      { href: "/admin/seo/meta/sayfalar", label: "Statik Sayfa SEO" },
+      { href: "/admin/seo/meta", label: "Tüm Meta Kayıtları" },
       { href: "/admin/seo/generative", label: "Generative SEO" },
       { href: "/admin/seo/generative/llms-txt", label: "llms.txt" },
       { href: "/admin/seo/generative/bot-access", label: "Bot Erişim Logu" },

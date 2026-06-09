@@ -3,11 +3,15 @@ import Image from "next/image";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { ContactForm } from "@/components/shop/contact/ContactForm";
+import { buildMetadata } from "@/lib/seo/meta.service";
 
-export const metadata: Metadata = {
-  title: "İletişim | Binboğa Kooperatif Balı",
-  description: "Binboğa Bal ile iletişime geçin. Adres, telefon ve e-posta bilgilerimiz.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata("page", "iletisim", {
+    title: "İletişim | Binboğa Kooperatif Balı",
+    description: "Binboğa Bal ile iletişime geçin. Adres, telefon ve e-posta bilgilerimiz.",
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/iletisim`,
+  });
+}
 
 const D = {
   hero_h1: "İletişim",

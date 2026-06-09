@@ -697,7 +697,8 @@
 
       <div class="nav-section-label">9 Haziran 2026 — Cookie Consent</div>
       <a href="#step222" class="nav-link"><span class="dot"></span>222 — GDPR Uyumlu Çerez Sistemi</a>
-      <a href="#step223" class="nav-link active"><span class="dot"></span>223 — Hukuki Belgeler Admin Yönetimi</a>
+      <a href="#step223" class="nav-link"><span class="dot"></span>223 — Hukuki Belgeler Admin Yönetimi</a>
+      <a href="#step224" class="nav-link active"><span class="dot"></span>224 — SEO &amp; GEO Sprint: SSS + Sayfa Meta</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -11795,10 +11796,219 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <div class="date-header" style="margin-top:64px">
+      <div class="date-pill">9 Haziran 2026 — SEO &amp; GEO Sprint</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 224</div>
+    </div>
+
+    <section id="step224">
+      <h2>224 — SEO &amp; GEO Sprint: SSS Entegrasyonu + Sayfa Bazlı Meta Yönetimi</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">SEO</span>
+        <span class="tag tag-purple">GEO / LLM</span>
+        <span class="tag tag-blue">Admin</span>
+        <span class="tag tag-teal">13 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Üç görevlik SEO &amp; GEO sprint'i tamamlandı: SSS içeriği <code>llms.txt</code> ve sitemap'e taşındı,
+        public <code>/sss</code> sayfası Schema.org FAQPage markup ile oluşturuldu ve 11 statik sayfanın
+        SEO metadatası artık admin panelden yönetilebilir. Tüm statik sayfalar
+        <code>buildMetadata("page", id, …)</code> çağrısına geçirildi.
+      </p>
+
+      <div class="card">
+        <h3>Görev 1 — Başlangıç Verisi &amp; Test</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Seed API — <code>/api/admin/seo/seed-pages</code></h4>
+              <p>
+                POST isteği ile DB'de <code>SeoMeta</code> kaydı olmayan statik sayfalara otomatik
+                varsayılan title + description + canonicalUrl yazılır. Mevcut kayıtlara dokunmaz.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>SeedPagesButton.tsx</code> — Admin Butonu</h4>
+              <p>
+                "X Eksik Sayfa İçin Meta Oluştur" butonu; POST sonrası oluşturulan kayıt sayısını
+                gösterir ve sayfayı yeniler. Tüm sayfalar doluysa buton gizlenir.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Statik Sayfalara <code>buildMetadata</code> Bağlantısı</h4>
+              <p>
+                <code>hakkimizda</code>, <code>iletisim</code>, <code>bal-rehberi</code>,
+                <code>kooperatif-hikayemiz</code>, <code>urunlerimiz</code> sayfaları
+                <code>export const metadata</code> yerine <code>async generateMetadata()</code>
+                + <code>buildMetadata("page", id, fallback)</code> kullanmaya geçirildi.
+                DB'de kayıt varsa oradan, yoksa fallback'ten okur.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Görev 2 — SSS → llms.txt + Sitemap + Public Sayfa</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>llms-txt-generator.ts</code> — FAQ Bölümü</h4>
+              <p>
+                <code>prisma.fAQ.findMany()</code> eklendi; aktif SSS kayıtları
+                <code>## Sık Sorulan Sorular</code> başlığı altında
+                <code>**S: …** / C: …</code> formatıyla llms.txt'e yazılır.
+                LLM botları artık ürün&amp;fiyat bilgisinin yanı sıra soru-cevap çiftlerini de görür.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>app/sitemap.ts</code> — /sss Eklendi</h4>
+              <p>
+                Statik sayfalar listesine <code>/sss</code> girişi eklendi
+                (<code>priority: 0.6</code>, <code>changeFrequency: "monthly"</code>).
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>app/(shop)/sss/page.tsx</code> — Public SSS Sayfası</h4>
+              <p>
+                DB'deki aktif FAQ kayıtlarını <code>&lt;details&gt;/&lt;summary&gt;</code> accordion
+                ile listeler. Schema.org <code>FAQPage</code> JSON-LD script eklenir.
+                <code>buildMetadata("page", "sss", …)</code> ile SEO meta admin panelden yönetilebilir.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Görev 3 — Sayfa Bazlı SEO Admin Paneli</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>lib/seo/static-pages.ts</code> — Ortak Sayfa Tanımları</h4>
+              <p>
+                11 statik sayfanın <code>id</code>, <code>path</code>, <code>defaultTitle</code>,
+                <code>defaultDescription</code>, <code>changeFreq</code>, <code>priority</code>
+                alanlarını tutan <code>STATIC_PAGES</code> sabiti. Seed API, admin liste sayfası
+                ve editör bu kaynaktan beslenir.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>app/admin/seo/meta/sayfalar/page.tsx</code></h4>
+              <p>
+                Tüm statik sayfaları tablo olarak gösterir: yeşil/sarı ikon (kayıt var/yok),
+                mevcut başlık, SEO skoru, son güncelleme tarihi ve Düzenle/Oluştur linki.
+                Eksik kayıt sayısına göre seed butonu görünür.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>SEO Meta Editör — "page" Tipi Desteği</h4>
+              <p>
+                <code>getEntityInfo</code> fonksiyonu <code>entityType === "page"</code>
+                durumunu artık <code>STATIC_PAGES</code> listesinden çözüyor; editörde sayfa adı
+                ve URL doğru gösteriliyor.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sidebar &amp; Dashboard Güncellemesi</h4>
+              <p>
+                <code>AdminSidebar.tsx</code> ve SEO dashboard'una
+                <strong>Statik Sayfa SEO</strong> hızlı erişim linki eklendi.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/seo/static-pages.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — 11 statik sayfanın ortak tanım sabiti</span><br>
+          <br>
+          <span class="dir">lib/seo/generative/</span><br>
+          &nbsp;&nbsp;<span class="file mod">llms-txt-generator.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — FAQ sorgusu + "## Sık Sorulan Sorular" bölümü</span><br>
+          <br>
+          <span class="file mod">app/sitemap.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — /sss statik girişi eklendi</span><br>
+          <br>
+          <span class="dir">app/(shop)/sss/</span><br>
+          &nbsp;&nbsp;<span class="file new">page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Public SSS accordion sayfası, FAQPage JSON-LD</span><br>
+          <br>
+          <span class="dir">app/(shop)/</span><br>
+          &nbsp;&nbsp;<span class="file mod">hakkimizda/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — buildMetadata("page","hakkimizda",…)</span><br>
+          &nbsp;&nbsp;<span class="file mod">iletisim/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — buildMetadata("page","iletisim",…)</span><br>
+          &nbsp;&nbsp;<span class="file mod">bal-rehberi/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — buildMetadata("page","bal-rehberi",…)</span><br>
+          &nbsp;&nbsp;<span class="file mod">kooperatif-hikayemiz/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — buildMetadata("page","kooperatif-hikayemiz",…)</span><br>
+          &nbsp;&nbsp;<span class="file mod">urunlerimiz/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — buildMetadata("page","urunlerimiz",…)</span><br>
+          <br>
+          <span class="dir">app/admin/seo/meta/sayfalar/</span><br>
+          &nbsp;&nbsp;<span class="file new">page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Statik sayfa SEO listesi + seed butonu</span><br>
+          <br>
+          <span class="dir">app/admin/seo/meta/[entityType]/[entityId]/</span><br>
+          &nbsp;&nbsp;<span class="file mod">page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — "page" tipi için STATIC_PAGES'den getEntityInfo</span><br>
+          <br>
+          <span class="dir">app/api/admin/seo/seed-pages/</span><br>
+          &nbsp;&nbsp;<span class="file new">route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST: eksik SeoMeta kayıtlarını varsayılanlarla oluşturur</span><br>
+          <br>
+          <span class="dir">components/admin/seo/</span><br>
+          &nbsp;&nbsp;<span class="file new">SeedPagesButton.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — "X Eksik Sayfa İçin Meta Oluştur" client butonu</span><br>
+          <br>
+          <span class="file mod">components/admin/AdminSidebar.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — "Statik Sayfa SEO" nav linki eklendi</span><br>
+          <br>
+          <span class="file mod">app/admin/seo/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Dashboard'a Statik Sayfa SEO hızlı erişimi</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sonuç</h3>
+        <ul>
+          <li><code>/sss</code> sayfası yayında: DB'deki aktif SSS kayıtlarını accordion olarak gösterir, Schema.org FAQPage markup içerir</li>
+          <li><code>/llms.txt</code> artık SSS Q&amp;A çiftlerini içeriyor — GPT-Bot, Claude-Bot vb. SSS'yi okuyabilir</li>
+          <li><code>/sitemap.xml</code>'de <code>/sss</code> URL'i mevcut</li>
+          <li>11 statik sayfanın title/description/OG/Twitter/Schema metadatası admin panelinden yönetilebilir</li>
+          <li>Eksik meta kayıtları "Seed" butonu ile tek tıkta varsayılan değerlerle oluşturulur</li>
+          <li>Kaydet → SEO skoru (0-100) + LLM skoru (0-100) otomatik hesaplanır</li>
+          <li>SuperAdmin tüm SEO &amp; GEO işlemlerini yapabilir; AI meta üretimi <code>ANTHROPIC_API_KEY</code> gerektiriyor</li>
+          <li>TypeScript kontrolü (<code>pnpm tsc --noEmit</code>) hatasız geçti</li>
+          <li>Yeni harici bağımlılık eklenmedi</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 223 (Hukuki Belgeler Admin Yönetimi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 224 (SEO &amp; GEO Sprint: SSS + Sayfa Meta) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

@@ -3,11 +3,15 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils/format";
 import { balRehberiTheme } from "@/lib/theme";
+import { buildMetadata } from "@/lib/seo/meta.service";
 
-export const metadata: Metadata = {
-  title: "Bal Rehberi",
-  description: "Bal hakkında her şey. Gerçek bal nasıl anlaşılır, çocuklar için bal, bal saklama.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata("page", "bal-rehberi", {
+    title: "Bal Rehberi | Binboğa Kooperatif Balı",
+    description: "Bal hakkında her şey. Gerçek bal nasıl anlaşılır, çocuklar için bal, bal saklama.",
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/bal-rehberi`,
+  });
+}
 
 export const dynamic = "force-dynamic";
 

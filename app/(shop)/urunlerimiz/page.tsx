@@ -9,11 +9,15 @@ import { ProductFilter } from "@/components/shop/product/ProductFilter";
 import { SortSelect } from "@/components/shop/product/SortSelect";
 import type { PackagingType, Prisma } from "@prisma/client";
 import { Container } from "@/components/layout/Container";
+import { buildMetadata } from "@/lib/seo/meta.service";
 
-export const metadata: Metadata = {
-  title: "Ürünlerimiz",
-  description: "Binboğa Kooperatif Balı ürün kataloğu. Doğal, analizi yapılmış bal çeşitleri.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata("page", "urunlerimiz", {
+    title: "Doğal Bal Ürünleri | Binboğa Kooperatif Balı",
+    description: "Binboğa Kooperatif Balı ürün kataloğu. Doğal, analizi yapılmış bal çeşitleri.",
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/urunlerimiz`,
+  });
+}
 
 export const dynamic = "force-dynamic";
 

@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SeoMetaEditor } from "@/components/admin/seo/SeoMetaEditor";
+import { STATIC_PAGES } from "@/lib/seo/static-pages";
 
 interface PageProps {
   params: Promise<{ entityType: string; entityId: string }>;
@@ -25,6 +26,13 @@ async function getEntityInfo(entityType: string, entityId: string) {
   if (entityType === "category") {
     const cat = await prisma.category.findUnique({ where: { id: entityId }, select: { name: true, slug: true, description: true } });
     return cat ? { name: cat.name, url: `/urunlerimiz?kategori=${cat.slug}`, fallbackTitle: cat.name, fallbackDesc: cat.description } : null;
+  }
+  if (entityType === "page") {
+    const staticPage = STATIC_PAGES.find((p) => p.id === entityId);
+    if (staticPage) {
+      return { name: staticPage.name, url: staticPage.path, fallbackTitle: staticPage.defaultTitle, fallbackDesc: staticPage.defaultDescription };
+    }
+    return { name: entityId, url: "/", fallbackTitle: null, fallbackDesc: null };
   }
   return { name: entityId, url: "/", fallbackTitle: null, fallbackDesc: null };
 }

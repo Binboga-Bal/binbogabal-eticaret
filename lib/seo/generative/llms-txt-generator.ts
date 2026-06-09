@@ -4,7 +4,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.binbogabal.com.
 const SITE_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Binboğa Kooperatif Balı";
 
 export async function generateLlmsTxt(locale = "tr"): Promise<string> {
-  const [products, categories, campaigns] = await Promise.all([
+  const [products, categories, campaigns, faqs] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true },
       include: {
@@ -23,6 +23,12 @@ export async function generateLlmsTxt(locale = "tr"): Promise<string> {
       where: { status: "ACTIVE" },
       select: { name: true, slug: true, description: true },
       take: 10,
+    }),
+    prisma.fAQ.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      select: { question: true, answer: true },
+      take: 20,
     }),
   ]);
 
@@ -79,6 +85,15 @@ export async function generateLlmsTxt(locale = "tr"): Promise<string> {
   lines.push(`- [KVKK Aydınlatma Metni](${BASE_URL}/kvkk)`);
   lines.push(`- [Mesafeli Satış Sözleşmesi](${BASE_URL}/mesafeli-satis)`);
   lines.push("");
+
+  if (faqs.length > 0) {
+    lines.push("## Sık Sorulan Sorular");
+    for (const faq of faqs) {
+      lines.push(`**S: ${faq.question}**`);
+      lines.push(`C: ${faq.answer.replace(/\n/g, " ").slice(0, 300)}`);
+      lines.push("");
+    }
+  }
 
   lines.push("## Makine Okunabilir İçerik");
   lines.push(`- Ürün detayları: ${BASE_URL}/llm-content/product/[id]`);

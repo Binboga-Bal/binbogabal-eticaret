@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { buildMetadata } from "@/lib/seo/meta.service";
 
-export const metadata: Metadata = {
-  title: "Hakkımızda | Binboğa Kooperatif Balı",
-  description:
-    "1973'ten bu yana Kozan'ın dağlarından gelen doğal bal. S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin hikayesi.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata("page", "hakkimizda", {
+    title: "Hakkımızda | Binboğa Kooperatif Balı",
+    description: "1973'ten bu yana Kozan'ın dağlarından gelen doğal bal. S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi'nin hikayesi.",
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/hakkimizda`,
+  });
+}
 
 // ── Varsayılan içerikler (DB boşsa bu değerler kullanılır) ──────────────────
 const D = {
