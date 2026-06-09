@@ -11,14 +11,18 @@ interface ToggleProps {
 export function Toggle({ checked, onChange, disabled = false, size = "md", label }: ToggleProps) {
   const isMd = size === "md";
 
-  // md: 56×28px  |  sm: 40×24px
-  const track = isMd ? "w-14 h-7" : "w-10 h-6";
+  // track: md=56×32px  sm=40×24px
+  const track = isMd ? "w-14 h-8" : "w-10 h-6";
 
-  // thumb neredeyse track yüksekliğini dolduruyor (md: 22/28 ≈ 79%, sm: 18/24 = 75%)
-  const thumbSize = isMd ? "w-[22px] h-[22px] top-[3px]" : "w-[18px] h-[18px] top-[3px]";
-  const thumbPos  = checked
-    ? isMd ? "translate-x-[31px]" : "translate-x-[19px]"
-    : "translate-x-[3px]";
+  // thumb track yüksekliğinden 4px küçük (2px boşluk her taraftan)
+  // md: 28px  sm: 20px
+  const thumbSize = isMd ? "w-7 h-7 top-[2px]" : "w-5 h-5 top-[2px]";
+
+  // OFF: 2px solda  |  ON: track_w - thumb_w - 2px sağ boşluk
+  // md: 56 - 28 - 2 = 26px  |  sm: 40 - 20 - 2 = 18px
+  const thumbPos = checked
+    ? isMd ? "translate-x-[26px]" : "translate-x-[18px]"
+    : "translate-x-[2px]";
 
   return (
     <button
@@ -33,7 +37,7 @@ export function Toggle({ checked, onChange, disabled = false, size = "md", label
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-honey",
         track,
         checked
-          ? "bg-gradient-to-br from-honey to-honey-dark shadow-[0_2px_10px_rgba(197,121,48,0.45)]"
+          ? "bg-gradient-to-r from-honey-bright to-honey-dark"
           : "bg-gray-200",
         disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
       ].join(" ")}
@@ -41,7 +45,7 @@ export function Toggle({ checked, onChange, disabled = false, size = "md", label
       <span
         className={[
           "absolute bg-white rounded-full transition-transform duration-300 ease-in-out",
-          "shadow-[0_1px_4px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.12)]",
+          "shadow-[0_2px_6px_rgba(0,0,0,0.22)]",
           thumbSize,
           thumbPos,
         ].join(" ")}

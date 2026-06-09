@@ -12516,11 +12516,11 @@ if (session?.user?.id) {
 
       <div class="card">
         <h3>Çözüm — <code>components/ui/Toggle.tsx</code> (v2 Yeniden Tasarım)</h3>
-        <p>iOS tarzı geniş pill toggle. Özellikler:</p>
+        <p>iOS toggle ile birebir aynı yapı, sadece honey renkleri. Özellikler:</p>
         <ul style="margin-top:8px">
-          <li><strong>Geniş pill şekli:</strong> <code>md</code> → 56×28 px, <code>sm</code> → 40×24 px (eski: 44×24, 32×18)</li>
-          <li><strong>Büyük thumb:</strong> track yüksekliğinin ~%78'i — md: 22×22 px, sm: 18×18 px</li>
-          <li><strong>Honey gradient:</strong> aktif hâlde <code>bg-gradient-to-br from-honey to-honey-dark</code> + turuncu amber glow gölgesi</li>
+          <li><strong>Pill şekli:</strong> <code>md</code> → 56×32 px, <code>sm</code> → 40×24 px — yükseklik arttırıldı, artık düzgün kapsül görünüyor</li>
+          <li><strong>Büyük thumb:</strong> her kenardan 2 px boşluk — md: 28×28 px, sm: 20×20 px</li>
+          <li><strong>Sol→sağ gradient:</strong> <code>bg-gradient-to-r from-honey-bright to-honey-dark</code> (diyagonal değil, temiz geçiş)</li>
           <li><strong>Smooth animasyon:</strong> <code>ease-in-out duration-300</code></li>
           <li><strong>ARIA uyumlu:</strong> <code>role="switch"</code>, <code>aria-checked</code>, <code>aria-label</code></li>
           <li><strong>Disabled &amp; focus ring</strong> destekli</li>
