@@ -38,6 +38,7 @@ model User {
   customerCoupons        CustomerCoupon[]
   notificationPreference NotificationPreference?
   consentLogs            ConsentLog[]
+  chatSessions           ChatSession[]
 
   @@index([role])
   @@map("users")
@@ -1560,6 +1561,67 @@ model LogSummary {
 
   @@unique([date])
   @@map("log_summaries")
+}
+
+// ─── CANLI DESTEK ─────────────────────────────────────────────────────────────
+
+enum ChatSessionStatus {
+  WAITING
+  ACTIVE
+  CLOSED
+}
+
+enum MessageSender {
+  VISITOR
+  ADMIN
+  BOT
+}
+
+model ChatSession {
+  id           String            @id @default(cuid())
+  visitorId    String
+  userId       String?
+  visitorName  String?
+  visitorEmail String?
+  status       ChatSessionStatus @default(WAITING)
+  adminId      String?
+  adminName    String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  closedAt     DateTime?
+
+  user     User?         @relation(fields: [userId], references: [id])
+  messages ChatMessage[]
+
+  @@index([status, createdAt])
+  @@index([visitorId])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id         String        @id @default(cuid())
+  sessionId  String
+  senderType MessageSender
+  senderId   String?
+  senderName String?
+  content    String        @db.Text
+  isRead     Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@map("chat_messages")
+}
+
+model ChatQuickReply {
+  id       String  @id @default(cuid())
+  question String
+  answer   String  @db.Text
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  @@map("chat_quick_replies")
 }
 
 // ─── LLM İÇERİK DEPOSU (GENERATIVE SEO) ──────────────────────────────────────

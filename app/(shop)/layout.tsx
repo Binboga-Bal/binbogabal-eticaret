@@ -3,8 +3,10 @@ import { Footer } from "@/components/shop/footer/Footer";
 import { SupportFAB } from "@/components/shop/support/SupportFAB";
 import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
   const rows = await prisma.siteSetting.findMany({
     where: {
       key: {
@@ -38,7 +40,11 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
         socialInstagram={s.social_instagram}
         socialWhatsapp={s.social_whatsapp}
       />
-      <SupportFAB whatsappNumber={s.social_whatsapp ?? ""} />
+      <SupportFAB
+        whatsappNumber={s.social_whatsapp ?? ""}
+        userName={session?.user?.name ?? null}
+        userId={session?.user?.id ?? null}
+      />
     </>
   );
 }

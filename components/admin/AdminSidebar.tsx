@@ -23,6 +23,7 @@ import {
   Search,
   Activity,
   Globe,
+  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -57,6 +58,7 @@ const navItems: NavItem[] = [
     ],
   },
   { href: "/admin/yorumlar", label: "Yorumlar", icon: <Star size={18} />, permission: "content:view" },
+  { href: "/admin/canli-destek", label: "Canlı Destek", icon: <Headphones size={18} />, permission: "content:view" },
   {
     href: "/admin/icerik",
     label: "İçerik",
