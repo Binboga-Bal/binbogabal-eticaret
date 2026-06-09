@@ -567,6 +567,20 @@ enum DisplayType {
   CART_MESSAGE
 }
 
+model HeroSlide {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  linkUrl   String?
+  altText   String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+  @@map("hero_slides")
+}
+
 model CampaignABTest {
   id            String   @id @default(cuid())
   campaignId    String

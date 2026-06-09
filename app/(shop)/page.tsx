@@ -62,8 +62,15 @@ async function getFaqs() {
   });
 }
 
+async function getHeroSlides() {
+  return prisma.heroSlide.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true, imageUrl: true, linkUrl: true, altText: true },
+  });
+}
+
 const SETTING_KEYS = [
-  "img_slider_1", "img_slider_2", "img_slider_3",
   "img_home_hikayemiz", "img_home_hakkimizda",
   "img_badge_1", "img_badge_2", "img_badge_3", "img_badge_4",
   "img_process_1", "img_process_2", "img_process_3", "img_process_4",
@@ -83,18 +90,18 @@ const SETTING_KEYS = [
 ];
 
 export default async function HomePage() {
-  const [rawBestsellers, rawFeatured, faqs, settingRows] = await Promise.all([
+  const [rawBestsellers, rawFeatured, faqs, settingRows, heroSlides] = await Promise.all([
     getBestsellers(),
     getFeaturedProducts(),
     getFaqs(),
     prisma.siteSetting.findMany({ where: { key: { in: SETTING_KEYS } } }),
+    getHeroSlides(),
   ]);
 
   const bestsellers = rawBestsellers.map(serializeProduct);
   const featured = rawFeatured.map(serializeProduct);
   const s = Object.fromEntries(settingRows.map((r) => [r.key, r.value]));
 
-  const sliderImages = [s.img_slider_1, s.img_slider_2, s.img_slider_3];
   const badgeImages = [s.img_badge_1, s.img_badge_2, s.img_badge_3, s.img_badge_4];
   const processImages = [s.img_process_1, s.img_process_2, s.img_process_3, s.img_process_4];
   const hikayemizImage = s.img_home_hikayemiz ?? homeBannersTheme.hikayemiz.image;
@@ -127,9 +134,8 @@ export default async function HomePage() {
       <Script id="org-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildOrganizationSchema()) }} />
       <Script id="website-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSiteSchema()) }} />
       <Script id="local-biz-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildLocalBusinessSchema()) }} />
-      {/* İlk slider görseli JS hydration öncesi preload edilir (HeroSlider client component olduğu için) */}
-      {sliderImages[0] && <link rel="preload" as="image" href={sliderImages[0]} />}
-      <HeroSlider images={sliderImages} />
+      {heroSlides[0] && <link rel="preload" as="image" href={heroSlides[0].imageUrl} />}
+      <HeroSlider slides={heroSlides} />
       <TrustBadges images={badgeImages} badgeTexts={badgeTexts} />
 
       <CategoryGrid />

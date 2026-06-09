@@ -666,6 +666,9 @@
       <div class="nav-section-label">9 Haziran 2026 — Bugfix</div>
       <a href="#step206" class="nav-link"><span class="dot"></span>206 — Ürün Güncelleme FK Kısıtı Düzeltmesi</a>
 
+      <div class="nav-section-label">9 Haziran 2026 — Dinamik Slider</div>
+      <a href="#step207" class="nav-link"><span class="dot"></span>207 — Anasayfa Slider Dinamik Hale Getirildi</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -3835,6 +3838,39 @@ paddingTop: announcementHeight + navHeight              <span class="cm">// 122p
             SortSelect client bileşeni — çalışan sıralama ·
             Fiyat sıralaması in-memory sort (variant tabanlı) ·
             12 dosya değişti, 2 yeni dosya · 25 Mayıs 2026
+          </div>
+        </div>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">feat(admin): ürün güncelleme sırasında FK kısıt hatası giderildi</div>
+          <div class="meta">
+            admin ürün güncelleme endpoint'i "tümünü sil + yeniden oluştur" yerine akıllı upsert'e geçirildi ·
+            Siparişi olan variant'lar korunuyor · 9 Haziran 2026
+          </div>
+        </div>
+      </div>
+
+      <div class="commit-card">
+        <div>
+          <div class="hash">—</div>
+        </div>
+        <div>
+          <div class="msg">feat(slider): anasayfa hero slider dinamik hale getirildi</div>
+          <div class="meta">
+            Prisma: <code>HeroSlide</code> modeli eklendi (<code>hero_slides</code> tablosu) ·
+            <code>pnpm db:push</code> ile DB'ye push edildi ·
+            <code>app/api/admin/slider/route.ts</code> — GET / POST / PATCH (toplu sıra) ·
+            <code>app/api/admin/slider/[id]/route.ts</code> — PATCH / DELETE ·
+            <code>components/admin/SliderManager.tsx</code> — yeni admin bileşeni: görsel yükleme, sürükle-bırak sıralama, aktif/pasif toggle, bağlantı URL ve alt metin düzenleme, silme ·
+            <code>components/shop/home/HeroSlider.tsx</code> — <code>sliderTheme.slides</code> bağımlılığı kaldırıldı, <code>HeroSlideData[]</code> props'a taşındı, <code>linkUrl</code> desteği eklendi ·
+            <code>app/(shop)/page.tsx</code> — <code>heroSlide</code> tablosundan aktif slide'lar sırayla çekiliyor ·
+            <code>app/admin/sayfalar/anasayfa/page.tsx</code> — eski sabit 3 görsel alanı kaldırıldı, <code>SliderManager</code> entegre edildi ·
+            9 Haziran 2026
           </div>
         </div>
       </div>
@@ -10148,10 +10184,151 @@ Foreign key constraint violated: `order_items_variantId_fkey (index)`</span></pr
       </div>
     </section>
 
+    <!-- ════════════════════════════ 9 HAZİRAN 2026 — DİNAMİK SLİDER -->
+    <div class="date-header">
+      <div class="date-pill">9 Haziran 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 207 · Anasayfa Slider Dinamik Hale Getirildi</div>
+    </div>
+
+    <section class="section" id="step207">
+      <div class="step-header">
+        <span class="step-badge">Adım 207</span>
+        <span class="step-title">Anasayfa Hero Slider — Dinamik Yönetim</span>
+        <span class="step-meta">2026-06-09</span>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">feat(slider)</span>
+        <span class="tag tag-blue">feat(admin)</span>
+        <span class="tag tag-honey">prisma</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Anasayfadaki hero slider daha önce <code>lib/theme.ts</code>'te sabit 3 slide ile tanımlanmıştı;
+        görsel URL'leri <code>SiteSetting</code> tablosundan geliyordu ancak slide sayısı değiştirilemiyordu.
+        Bu adımda slider tamamen dinamik hale getirildi: admin panelinden istenilen sayıda slide eklenebilir,
+        sıralanabilir, aktif/pasif yapılabilir ve silinebilir.
+      </p>
+
+      <div class="card">
+        <h3>Prisma — Yeni Model</h3>
+        <pre><span class="cm">// prisma/schema.prisma</span>
+<span class="kw">model</span> HeroSlide {
+  id        String   <span class="str">@id @default(cuid())</span>
+  imageUrl  String
+  linkUrl   String?
+  altText   String?
+  sortOrder Int      <span class="str">@default(0)</span>
+  isActive  Boolean  <span class="str">@default(true)</span>
+  createdAt DateTime <span class="str">@default(now())</span>
+  updatedAt DateTime <span class="str">@updatedAt</span>
+
+  <span class="str">@@index([sortOrder])</span>
+  <span class="str">@@map("hero_slides")</span>
+}</pre>
+        <p style="margin-top:8px;font-size:12.5px;color:var(--text-muted)">
+          <code>pnpm db:push</code> ile Supabase PostgreSQL'e push edildi.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Oluşturulan / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/api/admin/slider/</span><br>
+          &nbsp;&nbsp;<span class="file new">├── route.ts</span> <span style="color:var(--green);font-size:11px">YENİ — GET · POST · PATCH (toplu sıra)</span><br>
+          &nbsp;&nbsp;<span class="file new">└── [id]/route.ts</span> <span style="color:var(--green);font-size:11px">YENİ — PATCH (tekil) · DELETE</span><br>
+          <br>
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── SliderManager.tsx</span> <span style="color:var(--green);font-size:11px">YENİ — admin yönetim bileşeni</span><br>
+          <br>
+          <span class="dir">components/shop/home/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── HeroSlider.tsx</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ — dinamik props'a geçildi</span><br>
+          <br>
+          <span class="dir">app/(shop)/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── page.tsx</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ — heroSlide tablosundan çekiyor</span><br>
+          <br>
+          <span class="dir">app/admin/sayfalar/anasayfa/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── page.tsx</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ — SliderManager entegrasyonu</span><br>
+          <br>
+          <span class="dir">prisma/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── schema.prisma</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ — HeroSlide modeli eklendi</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>API Endpoint'leri</h3>
+        <table>
+          <thead><tr><th>Method</th><th>Endpoint</th><th>İşlev</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td><code>/api/admin/slider</code></td><td>Tüm slide'ları sırayla döner</td></tr>
+            <tr><td><code>POST</code></td><td><code>/api/admin/slider</code></td><td>Yeni slide oluşturur (görsel yükleme sonrası)</td></tr>
+            <tr><td><code>PATCH</code></td><td><code>/api/admin/slider</code></td><td>Toplu <code>sortOrder</code> güncelleme (sürükle-bırak)</td></tr>
+            <tr><td><code>PATCH</code></td><td><code>/api/admin/slider/[id]</code></td><td>Tekil slide güncelleme (isActive, linkUrl, altText)</td></tr>
+            <tr><td><code>DELETE</code></td><td><code>/api/admin/slider/[id]</code></td><td>Slide siler</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:12.5px;color:var(--text-muted)">
+          Tüm mutasyon endpoint'leri <code>revalidatePath("/")</code> çağırır — ISR cache anında temizlenir.
+          Yetki kontrolü: <code>media:update</code> permission gereklidir.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>SliderManager — Admin UI Özellikleri</h3>
+        <ul>
+          <li>Görsel yükleme — <code>POST /api/admin/upload</code> ile; birden fazla dosya aynı anda seçilebilir</li>
+          <li>Sürükle-bırak sıralama — HTML5 Drag &amp; Drop API, bırakıldığında <code>PATCH /api/admin/slider</code> ile DB'ye yazılır</li>
+          <li>Aktif / Pasif toggle — göz simgesine tıklandığında anında güncellenir</li>
+          <li>Bağlantı URL'i — slide tıklandığında yönlendirilecek sayfa (opsiyonel)</li>
+          <li>Alt metin — erişilebilirlik için (opsiyonel)</li>
+          <li>Tek tıkla silme — onay dialogu ile</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>HeroSlider — Tip Değişikliği</h3>
+        <pre><span class="cm">// Eski props</span>
+<span class="kw">interface</span> HeroSliderProps { images?: (string | null)[] }
+
+<span class="cm">// Yeni props</span>
+<span class="kw">export interface</span> HeroSlideData {
+  id: string
+  imageUrl: string
+  linkUrl: string | <span class="kw">null</span>
+  altText: string | <span class="kw">null</span>
+}
+<span class="kw">interface</span> HeroSliderProps { slides: HeroSlideData[] }</pre>
+        <ul style="margin-top:8px">
+          <li><code>sliderTheme.slides</code> bağımlılığı tamamen kaldırıldı</li>
+          <li><code>loop</code> prop'u: tek slide varken Swiper loop hatasını önlemek için <code>slides.length &gt; 1</code> ile koşullu</li>
+          <li><code>linkUrl</code> tanımlıysa slide bir <code>&lt;Link&gt;</code> içinde sarmalanır</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Next.js 15 — params Promise Fix</h3>
+        <p style="font-size:13px">
+          Next.js 15'te dinamik route handler'larda <code>params</code> artık <code>Promise</code> dönüyor.
+          <code>{ params }: &#123; params: &#123; id: string &#125; &#125;</code> yerine
+          <code>{ params }: &#123; params: Promise&lt;&#123; id: string &#125;&gt; &#125;</code> tipi kullanıldı
+          ve <code>const &#123; id &#125; = await params;</code> ile çözüldü.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>Admin → Sayfalar → Anasayfa &gt; "Hero Slider" bölümünden sınırsız sayıda slide yönetilebilir</li>
+          <li>Anasayfa (<code>app/(shop)/page.tsx</code>) artık yalnızca <code>isActive: true</code> ve <code>sortOrder asc</code> slide'ları render eder</li>
+          <li>ISR cache değişiklik anında revalidate edilir</li>
+          <li>Build: TypeScript hata yok (slider kaynaklı), önceden var olan ürün FK hatası ayrı bir konudur</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 9 Haziran 2026 - Adim 206 (Ürün Güncelleme FK Kısıt Düzeltmesi) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 9 Haziran 2026 - Adim 207 (Anasayfa Slider Dinamik Hale Getirildi) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>

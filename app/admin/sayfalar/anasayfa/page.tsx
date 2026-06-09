@@ -2,8 +2,8 @@ export const dynamic = "force-dynamic";
 import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { PageContentManager } from "@/components/admin/PageContentManager";
+import { SliderManager } from "@/components/admin/SliderManager";
 import {
-  sliderTheme,
   trustBadgesTheme,
   processFlowTheme,
   homeBannersTheme,
@@ -14,7 +14,6 @@ export const metadata = { title: "Anasayfa İçeriği | Admin" };
 
 const KEYS = [
   "img_logo",
-  "img_slider_1", "img_slider_2", "img_slider_3",
   "img_home_hikayemiz", "img_home_hakkimizda",
   "img_badge_1", "img_badge_2", "img_badge_3", "img_badge_4",
   "img_process_1", "img_process_2", "img_process_3", "img_process_4",
@@ -35,7 +34,10 @@ const KEYS = [
 
 export default async function AnasayfaIcerigi() {
   await requirePermission("media", "view");
-  const rows = await prisma.siteSetting.findMany({ where: { key: { in: KEYS } } });
+  const [rows, heroSlides] = await Promise.all([
+    prisma.siteSetting.findMany({ where: { key: { in: KEYS } } }),
+    prisma.heroSlide.findMany({ orderBy: { sortOrder: "asc" } }),
+  ]);
   const db = Object.fromEntries(rows.map((r) => [r.key, r.value]));
 
   const sections = [
@@ -52,18 +54,6 @@ export default async function AnasayfaIcerigi() {
           recommendedSize: "230 × 150 px",
         },
       ],
-    },
-    {
-      id: "slider",
-      title: "Hero Slider",
-      description: "Anasayfadaki tam ekran slider görselleri.",
-      images: sliderTheme.slides.map((slide, i) => ({
-        key: `img_slider_${i + 1}`,
-        label: `Slider ${i + 1}`,
-        hint: slide.primaryBtn.label,
-        currentUrl: db[`img_slider_${i + 1}`] ?? slide.image ?? null,
-        recommendedSize: "1920 × 700 px",
-      })),
     },
     {
       id: "hikayemiz",
@@ -236,13 +226,25 @@ export default async function AnasayfaIcerigi() {
   ];
 
   return (
-    <div className="space-y-5 max-w-4xl">
+    <div className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-2xl font-black text-gray-900">Anasayfa İçeriği</h1>
         <p className="text-sm text-gray-500 mt-1">
           Anasayfanın tüm statik görsel ve metin içeriklerini buradan yönetin. Değişiklikler kısa sürede yayına girer.
         </p>
       </div>
+
+      {/* Hero Slider */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+        <div>
+          <h2 className="text-base font-bold text-gray-900">Hero Slider</h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Anasayfadaki tam ekran slider görselleri. İstediğiniz kadar slide ekleyip sürükleyerek sıralayabilirsiniz.
+          </p>
+        </div>
+        <SliderManager initialSlides={heroSlides} />
+      </div>
+
       <PageContentManager sections={sections} />
     </div>
   );
