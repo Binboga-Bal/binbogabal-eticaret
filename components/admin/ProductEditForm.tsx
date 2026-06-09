@@ -8,7 +8,7 @@ import { z } from "zod";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Plus, Trash2, Upload, X } from "lucide-react";
+import { GripVertical, Plus, Trash2, Upload, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/utils/serialize";
 
 const USAGE_OPTIONS = [
@@ -51,12 +51,16 @@ interface Props {
   honeyTypes: { id: string; slug: string; label: string }[];
 }
 
+const MAX_IMAGES = 3;
+
 export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [images, setImages] = useState<string[]>(product?.images ?? []);
   const [uploading, setUploading] = useState(false);
+  const [dragSrcIdx, setDragSrcIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
     product?.categories?.map((c) => c.id) ?? []
@@ -107,6 +111,11 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (images.length >= MAX_IMAGES) {
+      setError(`En fazla ${MAX_IMAGES} görsel yükleyebilirsiniz.`);
+      e.target.value = "";
+      return;
+    }
     setUploading(true);
     const fd = new FormData();
     fd.append("file", file);
@@ -121,6 +130,38 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
 
   function removeImage(url: string) {
     setImages((prev) => prev.filter((u) => u !== url));
+  }
+
+  function moveImage(from: number, to: number) {
+    setImages((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  }
+
+  function handleDragStart(i: number) {
+    setDragSrcIdx(i);
+  }
+
+  function handleDragOver(e: React.DragEvent, i: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (i !== dragSrcIdx) setDragOverIdx(i);
+  }
+
+  function handleDrop(e: React.DragEvent, i: number) {
+    e.preventDefault();
+    if (dragSrcIdx === null || dragSrcIdx === i) return;
+    moveImage(dragSrcIdx, i);
+    setDragSrcIdx(null);
+    setDragOverIdx(null);
+  }
+
+  function handleDragEnd() {
+    setDragSrcIdx(null);
+    setDragOverIdx(null);
   }
 
   async function handlePdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -274,7 +315,14 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-gray-800">Ürün Görselleri</h2>
-          <Button type="button" size="sm" variant="outline" onClick={() => fileRef.current?.click()} loading={uploading}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={images.length >= MAX_IMAGES}
+            onClick={() => fileRef.current?.click()}
+            loading={uploading}
+          >
             <Upload size={14} /> Görsel Yükle
           </Button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
@@ -290,7 +338,17 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
         ) : (
           <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
             {images.map((url, i) => (
-              <div key={url} className="relative group">
+              <div
+                key={url}
+                draggable
+                onDragStart={() => handleDragStart(i)}
+                onDragOver={(e) => handleDragOver(e, i)}
+                onDrop={(e) => handleDrop(e, i)}
+                onDragEnd={handleDragEnd}
+                className={`relative group cursor-grab active:cursor-grabbing transition-opacity ${
+                  dragSrcIdx === i ? "opacity-40" : "opacity-100"
+                } ${dragOverIdx === i ? "ring-2 ring-honey ring-offset-1 rounded-xl" : ""}`}
+              >
                 <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`Görsel ${i + 1}`} className="w-full h-full object-cover" />
@@ -298,6 +356,9 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
                 {i === 0 && (
                   <span className="absolute top-1 left-1 bg-honey-dark text-white text-[10px] font-bold px-1 rounded">ANA</span>
                 )}
+                <div className="absolute bottom-1 left-1 opacity-0 group-hover:opacity-70 transition-opacity">
+                  <GripVertical size={14} className="text-white drop-shadow" />
+                </div>
                 <button
                   type="button"
                   onClick={() => removeImage(url)}
@@ -307,15 +368,19 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
                 </button>
               </div>
             ))}
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="aspect-square border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center text-gray-300 cursor-pointer hover:border-honey hover:text-honey transition-colors"
-            >
-              <Plus size={20} />
-            </div>
+            {images.length < MAX_IMAGES && (
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="aspect-square border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center text-gray-300 cursor-pointer hover:border-honey hover:text-honey transition-colors"
+              >
+                <Plus size={20} />
+              </div>
+            )}
           </div>
         )}
-        <p className="text-xs text-gray-400 mt-2">İlk görsel ana görsel olarak kullanılır. JPEG, PNG veya WebP, maks 5MB.</p>
+        <p className="text-xs text-gray-400 mt-2">
+          En fazla {MAX_IMAGES} görsel yüklenebilir. İlk görsel ana görsel olarak kullanılır. Sıralamak için sürükleyin.
+        </p>
       </div>
 
       {/* Analiz Raporu */}

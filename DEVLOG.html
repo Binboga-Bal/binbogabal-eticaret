@@ -669,6 +669,10 @@
       <div class="nav-section-label">9 Haziran 2026 — Dinamik Slider</div>
       <a href="#step207" class="nav-link"><span class="dot"></span>207 — Anasayfa Slider Dinamik Hale Getirildi</a>
 
+      <div class="nav-section-label">9 Haziran 2026 — Ürün Görseli</div>
+      <a href="#step208" class="nav-link"><span class="dot"></span>208 — Maks 3 + Sürükle-Bırak Sıralama</a>
+      <a href="#step209" class="nav-link"><span class="dot"></span>209 — Ortak Görsel CRUD Yönetimi</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -10325,10 +10329,189 @@ Foreign key constraint violated: `order_items_variantId_fkey (index)`</span></pr
       </div>
     </section>
 
+    <!-- ════════════════════════════ 9 HAZİRAN 2026 — ÜRÜN GÖRSELİ -->
+    <div class="date-header">
+      <div class="date-pill">9 Haziran 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 208–209 · Ürün Görseli Yönetimi</div>
+    </div>
+
+    <section class="section" id="step208">
+      <div class="step-header">
+        <span class="step-badge">Adım 208</span>
+        <span class="step-title">Ürün Görseli — Maks 3 + Sürükle-Bırak Sıralama</span>
+        <span class="step-meta">2026-06-09</span>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">feat(admin)</span>
+        <span class="tag tag-blue">UX</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Admin panelindeki ürün formu daha önce sınırsız görsel yüklemeye izin veriyordu ve görsel sırası değiştirilemiyordu.
+        Bu adımda maksimum 3 görsel sınırı eklendi, HTML5 Drag &amp; Drop API ile sürükle-bırak sıralama desteği getirildi.
+      </p>
+
+      <div class="card">
+        <h3>Değiştirilen Dosya</h3>
+        <div class="file-tree">
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── ProductEditForm.tsx</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Maks 3 Görsel Sınırı</h3>
+        <ul>
+          <li><code>MAX_IMAGES = 3</code> sabiti tanımlandı</li>
+          <li><code>handleImageUpload</code>: <code>images.length &gt;= MAX_IMAGES</code> kontrolü — aşılırsa yükleme iptal edilir, hata mesajı gösterilir</li>
+          <li>"Görsel Yükle" butonu 3. görselde <code>disabled</code> olur</li>
+          <li>"+" ekleme slotu <code>images.length &lt; MAX_IMAGES</code> koşuluyla gösterilir</li>
+          <li>Bilgi metni güncellendi: <em>"En fazla 3 görsel yüklenebilir. Sıralamak için sürükleyin."</em></li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sürükle-Bırak Sıralama</h3>
+        <pre><span class="cm">// State</span>
+<span class="kw">const</span> [dragSrcIdx, setDragSrcIdx] = useState&lt;number | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+<span class="kw">const</span> [dragOverIdx, setDragOverIdx] = useState&lt;number | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+
+<span class="cm">// Reorder helper</span>
+<span class="kw">function</span> <span class="fn">moveImage</span>(from: number, to: number) {
+  setImages(prev =&gt; {
+    <span class="kw">const</span> next = [...prev];
+    <span class="kw">const</span> [item] = next.splice(from, <span class="nm">1</span>);
+    next.splice(to, <span class="nm">0</span>, item);
+    <span class="kw">return</span> next;
+  });
+}</pre>
+        <ul style="margin-top:8px">
+          <li>Her görsel kartı <code>draggable</code> attribute ile işaretlendi</li>
+          <li>Sürüklenen öğe <code>opacity-40</code> ile soluklaşır</li>
+          <li>Hedef öğe <code>ring-2 ring-honey</code> çerçevesi alır</li>
+          <li>Hover'da <code>GripVertical</code> ikonu görünür (sürüklenebileceğini işaret eder)</li>
+          <li>İlk görsel üzerindeki <strong>ANA</strong> rozeti sıralama sonrası güncellenir</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <p>Her ürün artık en fazla 3 görsele sahip olabilir. Admin, görselleri sürükleyerek yeniden sıralayabilir; ilk sıradaki görsel otomatik olarak ana görsel kabul edilir.</p>
+      </div>
+    </section>
+
+    <section class="section" id="step209">
+      <div class="step-header">
+        <span class="step-badge">Adım 209</span>
+        <span class="step-title">Ortak Görsel — CRUD Yönetimi + Konum Düzeltmesi</span>
+        <span class="step-meta">2026-06-09</span>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">feat(admin)</span>
+        <span class="tag tag-red">fix(admin)</span>
+        <span class="tag tag-blue">API</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Admin paneline <em>Ortak Görsel</em> özelliği eklendi: tek bir görseli tüm ürünlere aynı anda belirli bir sıraya eklemek,
+        daha sonra bu görseli tüm ürünlerde değiştirmek veya kaldırmak için tam CRUD arayüzü.
+        Ayrıca konum hesaplama algoritmasındaki bir hata (seyrek dizilerde <code>Array.splice</code>'ın hedef indeksin
+        ötesinde sona eklemesi) düzeltildi.
+      </p>
+
+      <div class="card">
+        <h3>Oluşturulan / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/api/admin/products/bulk-image/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── route.ts</span> <span style="color:var(--green);font-size:11px">YENİ — GET · POST · PUT · DELETE</span><br>
+          <br>
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── BulkImageModal.tsx</span> <span style="color:var(--green);font-size:11px">YENİ — Ekle + Yönet tab'lı modal</span><br>
+          <br>
+          <span class="dir">app/admin/urunler/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── page.tsx</span> <span style="color:var(--honey);font-size:11px">DEĞİŞTİ — "Ortak Görsel" butonu eklendi</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>API Endpoint'leri — <code>/api/admin/products/bulk-image</code></h3>
+        <table>
+          <thead><tr><th>Method</th><th>İşlev</th><th>Body</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td>2+ üründe geçen görselleri listeler (URL + kullanım sayısı)</td><td>—</td></tr>
+            <tr><td><code>POST</code></td><td>Görseli tüm ürünlere belirli konuma ekler</td><td><code>{ imageUrl, position }</code></td></tr>
+            <tr><td><code>PUT</code></td><td>Eski URL'yi yeni URL ile tüm ürünlerde değiştirir</td><td><code>{ oldUrl, newUrl }</code></td></tr>
+            <tr><td><code>DELETE</code></td><td>URL'yi tüm ürünlerden kaldırır</td><td><code>{ imageUrl }</code></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:12.5px;color:var(--text-muted)">
+          Tüm mutasyonlar <code>products:update</code> yetkisi gerektirir ve
+          <code>revalidatePath("/")</code>, <code>/urunlerimiz</code>, <code>/urunlerimiz/[slug]</code> çağırır.
+          Toplu güncelleme <code>prisma.$transaction([...updates])</code> ile atomik olarak yapılır.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Konum Düzeltmesi — <code>Array.splice</code> Seyrek Dizi Hatası</h3>
+        <div class="alert alert-warn" style="margin-bottom:12px">
+          <span class="alert-label">HATA:</span>
+          "3. sıra" seçilmesine rağmen görsel 2. sırada görünüyordu.
+        </div>
+        <p style="font-size:13px;margin-bottom:10px">
+          JavaScript'te <code>arr.splice(index, 0, x)</code>, <code>index &gt;= arr.length</code> ise elemanı sona ekler.
+          1 görseli olan bir üründe <code>splice(2, 0, x)</code> çalıştırınca görsel index&nbsp;1'e (2. sıra) düşüyordu.
+        </p>
+        <pre><span class="cm">// Düzeltilmiş mantık</span>
+<span class="kw">const</span> base = parseImages(raw).filter(u =&gt; u !== imageUrl); <span class="cm">// tekrar eklemeyi önle</span>
+<span class="kw">const</span> next = [...base];
+
+<span class="kw">if</span> (base.length &gt;= pos - <span class="nm">1</span>) {
+  next.splice(pos - <span class="nm">1</span>, <span class="nm">0</span>, imageUrl); <span class="cm">// tam konum garantili</span>
+  exact++;
+} <span class="kw">else</span> {
+  next.push(imageUrl); <span class="cm">// görsel sayısı yetersiz → sona ekle</span>
+  adjusted++;
+}</pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          API artık <code>{ updated, exact, adjusted }</code> döner; modal, tam konuma vs. sona eklenen ürün sayısını ayrı ayrı gösterir.
+          Aynı görsel varsa önce diziden temizlenir (çift ekleme engellenir).
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>BulkImageModal — İki Tab'lı Arayüz</h3>
+        <table>
+          <thead><tr><th>Tab</th><th>İşlevler</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Ekle</strong></td>
+              <td>Görsel yükle → 1/2/3. sıra seç → "Tüm Ürünlere Uygula" → exact/adjusted geri bildirimi</td>
+            </tr>
+            <tr>
+              <td><strong>Yönet</strong></td>
+              <td>
+                Tab'a geçişte ortak görseller yüklenir (GET).<br>
+                Her satırda: thumbnail · "X üründe kullanılıyor" · ✏️ Değiştir · 🗑 Kaldır.<br>
+                Değiştir: yeni görsel yükle → "Güncelle" (PUT). Kaldır: onay → DELETE. Liste otomatik yenilenir.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>Admin → Ürünler sayfasına "Ortak Görsel" butonu eklendi</li>
+          <li>Konum seçimi artık doğru çalışıyor; yeterli görseli olmayan ürünler için durum açıkça raporlanıyor</li>
+          <li>Mevcut ortak görseller <em>Yönet</em> tab'ından tek noktadan güncellenebilir veya silinebilir</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 9 Haziran 2026 - Adim 207 (Anasayfa Slider Dinamik Hale Getirildi) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 9 Haziran 2026 - Adim 209 (Ortak Görsel CRUD Yönetimi) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>

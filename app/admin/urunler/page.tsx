@@ -4,8 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, formatWeight } from "@/lib/utils/format";
-import { Plus, Edit, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Eye } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { BulkImageModal } from "@/components/admin/BulkImageModal";
 
 export const metadata = { title: "Ürün Yönetimi | Admin" };
 
@@ -23,11 +24,14 @@ export default async function AdminProductsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-black text-gray-900">Ürünler</h1>
-        <Link href="/admin/urunler/yeni">
-          <Button size="sm" className="gap-2">
-            <Plus size={16} /> Yeni Ürün
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <BulkImageModal />
+          <Link href="/admin/urunler/yeni">
+            <Button size="sm" className="gap-2">
+              <Plus size={16} /> Yeni Ürün
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
