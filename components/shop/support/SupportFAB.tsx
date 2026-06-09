@@ -35,6 +35,50 @@ function getOrCreateVisitorId(): string {
   return id;
 }
 
+// ── İki tonlu bildirim sesi (Web Audio API — dosya gerektirmez) ───────────────
+function playNotificationSound() {
+  try {
+    type WinWithWebkit = typeof window & { webkitAudioContext?: typeof AudioContext };
+    const Ctx = window.AudioContext ?? (window as WinWithWebkit).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+
+    const playTone = (freq: number, startAt: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + startAt);
+      gain.gain.setValueAtTime(0, ctx.currentTime + startAt);
+      gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + startAt + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startAt + duration);
+      osc.start(ctx.currentTime + startAt);
+      osc.stop(ctx.currentTime + startAt + duration);
+    };
+
+    playTone(880,  0,    0.25); // La5
+    playTone(1108, 0.13, 0.35); // Do#6
+    setTimeout(() => ctx.close(), 1200);
+  } catch {
+    // Ses çalmak mümkün değilse sessizce devam et
+  }
+}
+
+// ── Browser bildirimi ─────────────────────────────────────────────────────────
+function showBrowserNotification(body: string) {
+  try {
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    new Notification("Binboğa Destek 🍯", {
+      body: body.slice(0, 120),
+      icon: "/favicon.ico",
+      tag: "chat-message",   // aynı tag'li bildirim stacking yapmaz
+    });
+  } catch {
+    // Safari bazı durumlarda fırlatabilir
+  }
+}
+
 const WELCOME: ChatMessage = {
   id: "welcome",
   senderType: "BOT",
@@ -53,6 +97,7 @@ export function SupportFAB({
   userId?: string | null;
 }) {
   const number = whatsappNumber.replace(/\D/g, "");
+
   const [isOpen, setIsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -62,16 +107,37 @@ export function SupportFAB({
   const [sessionClosed, setSessionClosed] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const pollRef = useRef<NodeJS.Timeout | null>(null);
-  const lastMsgTimeRef = useRef<string | null>(null);
-  const initializedRef = useRef(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
+  const messagesEndRef    = useRef<HTMLDivElement>(null);
+  const pollRef           = useRef<NodeJS.Timeout | null>(null);
+  const lastMsgTimeRef    = useRef<string | null>(null);
+  const initializedRef    = useRef(false); // mesaj geçmişi yüklendi mi
+  const hasInitializedPollRef = useRef(false); // ilk poll tamamlandı mı
+  const chatOpenRef       = useRef(false);     // callback'lerde chatOpen'ı okumak için
+  const originalTitleRef  = useRef("");
+
+  // ── Ref'leri senkronize tut ─────────────────────────────────────────────────
+  useEffect(() => { chatOpenRef.current = chatOpen; }, [chatOpen]);
+
+  useEffect(() => {
+    originalTitleRef.current = document.title;
+  }, []);
+
+  // ── Chat açılınca okunmamışları sıfırla ────────────────────────────────────
+  useEffect(() => {
+    if (chatOpen) {
+      setUnreadCount(0);
+      document.title = originalTitleRef.current;
+    }
+  }, [chatOpen]);
+
+  // ── Scroll to bottom ───────────────────────────────────────────────────────
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Load quick replies once
+  // ── Hızlı yanıtları yükle ─────────────────────────────────────────────────
   useEffect(() => {
     fetch("/api/chat/quick-replies")
       .then((r) => r.json())
@@ -79,49 +145,63 @@ export function SupportFAB({
       .catch(() => {});
   }, []);
 
-  // On chat open: restore existing session
+  // ── Mount'ta oturumu geri yükle (chat açık olmasa bile polling başlasın) ────
   useEffect(() => {
-    if (!chatOpen || initializedRef.current) return;
-    initializedRef.current = true;
-
-    const savedSessionId = localStorage.getItem("chat_session_id");
-    if (!savedSessionId) return;
-
+    const savedId = localStorage.getItem("chat_session_id");
+    if (!savedId) return;
     const visitorId = getOrCreateVisitorId();
-
     fetch("/api/chat/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-          visitorId,
-          visitorName: userName ?? undefined,
-          userId: userId ?? undefined,
-        }),
+      body: JSON.stringify({ visitorId, visitorName: userName ?? undefined, userId: userId ?? undefined }),
     })
       .then((r) => r.json())
       .then((data) => {
-        if (!data?.id) return;
-        if (data.status === "CLOSED") {
+        if (!data?.id || data.status === "CLOSED") {
           localStorage.removeItem("chat_session_id");
           return;
         }
         setSessionId(data.id);
-        localStorage.setItem("chat_session_id", data.id);
-        if (data.messages?.length > 0) {
-          setMessages([WELCOME, ...data.messages]);
-          lastMsgTimeRef.current = data.messages[data.messages.length - 1]?.createdAt ?? null;
-        }
       })
       .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Chat ilk açıldığında mesaj geçmişini yükle ─────────────────────────────
+  useEffect(() => {
+    if (!chatOpen || initializedRef.current) return;
+    initializedRef.current = true;
+
+    const savedId = localStorage.getItem("chat_session_id");
+    if (!savedId) return;
+
+    fetch(`/api/chat/${savedId}/messages`)
+      .then((r) => r.json())
+      .then((data: { messages: ChatMessage[]; sessionStatus: string }) => {
+        if (data.sessionStatus === "CLOSED") {
+          localStorage.removeItem("chat_session_id");
+          return;
+        }
+        if (data.messages?.length > 0) {
+          setMessages([WELCOME, ...data.messages]);
+          lastMsgTimeRef.current = data.messages[data.messages.length - 1].createdAt;
+        }
+      })
+      .catch(() => {});
   }, [chatOpen]);
 
-  // Polling for new messages + session status
+  // ── Polling: sessionId varsa her zaman çalışır (chat kapalıyken de) ─────────
   const pollMessages = useCallback(async (sid: string) => {
     const after = lastMsgTimeRef.current;
     const url = `/api/chat/${sid}/messages${after ? `?after=${encodeURIComponent(after)}` : ""}`;
-    const res = await fetch(url);
-    const data: { messages: ChatMessage[]; sessionStatus: string } = await res.json();
+
+    let data: { messages: ChatMessage[]; sessionStatus: string };
+    try {
+      const res = await fetch(url);
+      data = await res.json();
+    } catch {
+      return;
+    }
 
     if (data.sessionStatus === "CLOSED") {
       setSessionClosed(true);
@@ -130,39 +210,60 @@ export function SupportFAB({
     }
 
     if (data.messages.length > 0) {
+      // İlk poll geçmiş mesajlar — bildirim verme
+      const isInitialPoll = !hasInitializedPollRef.current;
+      hasInitializedPollRef.current = true;
+
       setMessages((prev) => {
         const existingIds = new Set(prev.map((m) => m.id));
-        const newMsgs = data.messages.filter((m) => !existingIds.has(m.id));
-        if (newMsgs.length === 0) return prev;
-        lastMsgTimeRef.current = newMsgs[newMsgs.length - 1].createdAt;
-        return [...prev, ...newMsgs];
+        const fresh = data.messages.filter((m) => !existingIds.has(m.id));
+        if (fresh.length === 0) return prev;
+        lastMsgTimeRef.current = fresh[fresh.length - 1].createdAt;
+        return [...prev, ...fresh];
       });
+
+      if (!isInitialPoll) {
+        const adminMsgs = data.messages.filter((m) => m.senderType === "ADMIN");
+        // Chat kapalıysa VEYA sekme arka plandaysa bildirim ver
+        if (adminMsgs.length > 0 && (!chatOpenRef.current || document.hidden)) {
+          playNotificationSound();
+
+          setUnreadCount((prev) => {
+            const next = prev + adminMsgs.length;
+            document.title = `(${next}) Yeni mesajınız var 💬`;
+            return next;
+          });
+
+          showBrowserNotification(adminMsgs[adminMsgs.length - 1].content);
+        }
+      }
+    } else {
+      // Mesaj yoksa bile ilk poll'u işaretleyelim
+      hasInitializedPollRef.current = true;
     }
   }, []);
 
   useEffect(() => {
-    if (!chatOpen || !sessionId) {
+    if (!sessionId) {
       if (pollRef.current) clearInterval(pollRef.current);
       return;
     }
+    // Yeni session başlangıcında ilk poll bayrağını sıfırla
+    hasInitializedPollRef.current = false;
     pollRef.current = setInterval(() => pollMessages(sessionId), 3_000);
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [chatOpen, sessionId, pollMessages]);
+  }, [sessionId, pollMessages]);
 
+  // ── Session oluştur / getir ────────────────────────────────────────────────
   async function ensureSession(): Promise<string> {
     if (sessionId) return sessionId;
-
     const visitorId = getOrCreateVisitorId();
     const res = await fetch("/api/chat/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        visitorId,
-        visitorName: userName ?? undefined,
-        userId: userId ?? undefined,
-      }),
+      body: JSON.stringify({ visitorId, visitorName: userName ?? undefined, userId: userId ?? undefined }),
     });
     const data = await res.json();
     setSessionId(data.id);
@@ -170,6 +271,7 @@ export function SupportFAB({
     return data.id;
   }
 
+  // ── Mesaj gönder ──────────────────────────────────────────────────────────
   async function sendMessage(text: string = input, botResponse?: string) {
     const trimmed = text.trim();
     if (!trimmed || sending) return;
@@ -177,7 +279,6 @@ export function SupportFAB({
     setSending(true);
     setInput("");
 
-    // Optimistic UI: kullanıcı mesajını hemen göster
     const optimisticMsg: ChatMessage = {
       id: `opt-${Date.now()}`,
       senderType: "VISITOR",
@@ -186,47 +287,45 @@ export function SupportFAB({
       createdAt: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimisticMsg]);
-
-    if (botResponse) {
-      setIsTyping(true);
-    }
+    if (botResponse) setIsTyping(true);
 
     try {
       const sid = await ensureSession();
       const visitorId = getOrCreateVisitorId();
-
       const res = await fetch(`/api/chat/${sid}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: trimmed, visitorId, botResponse }),
       });
       const created: ChatMessage[] = await res.json();
-
-      // Replace optimistic message with real ones
       setMessages((prev) => {
         const filtered = prev.filter((m) => m.id !== optimisticMsg.id);
         return [...filtered, ...created];
       });
-
       if (created.length > 0) {
         lastMsgTimeRef.current = created[created.length - 1].createdAt;
       }
     } catch {
-      // Keep optimistic message on error
+      /* optimistic mesajı koru */
     } finally {
       setIsTyping(false);
       setSending(false);
     }
   }
 
+  // ── Chat aç (bildirim izni iste) ──────────────────────────────────────────
   function openChat() {
     setChatOpen(true);
     setIsOpen(false);
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* ── Chat Paneli ─────────────────────────────────────────── */}
+      {/* ── Chat Paneli ───────────────────────────────────────────── */}
       {chatOpen && (
         <div
           className="fixed bottom-24 right-4 z-50 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slide-up"
@@ -261,33 +360,20 @@ export function SupportFAB({
             {messages.map((msg) => {
               const isUser = msg.senderType === "VISITOR";
               return (
-                <div
-                  key={msg.id}
-                  className={`flex ${isUser ? "justify-end" : "justify-start"}`}
-                >
+                <div key={msg.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-sm ${
                       isUser
                         ? "rounded-br-none text-white"
                         : "rounded-bl-none bg-gray-100 text-gray-800"
                     }`}
-                    style={
-                      isUser
-                        ? { background: "linear-gradient(135deg, #C57930, #F9B10B)" }
-                        : undefined
-                    }
+                    style={isUser ? { background: "linear-gradient(135deg, #C57930, #F9B10B)" } : undefined}
                   >
                     {!isUser && msg.senderName && (
-                      <p className="text-xs font-semibold text-amber-600 mb-0.5">
-                        {msg.senderName}
-                      </p>
+                      <p className="text-xs font-semibold text-amber-600 mb-0.5">{msg.senderName}</p>
                     )}
                     <p className="whitespace-pre-line leading-relaxed">{msg.content}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        isUser ? "text-white/60 text-right" : "text-gray-400"
-                      }`}
-                    >
+                    <p className={`text-xs mt-1 ${isUser ? "text-white/60 text-right" : "text-gray-400"}`}>
                       {getTime(msg.createdAt)}
                     </p>
                   </div>
@@ -295,7 +381,6 @@ export function SupportFAB({
               );
             })}
 
-            {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="bg-gray-100 rounded-2xl rounded-bl-none px-4 py-3 flex gap-1 items-center">
@@ -312,7 +397,7 @@ export function SupportFAB({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Sohbet kapatıldı bildirimi */}
+          {/* Sohbet kapatıldı */}
           {sessionClosed && (
             <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-100 flex-shrink-0">
               <p className="text-xs text-amber-700 text-center">
@@ -321,7 +406,7 @@ export function SupportFAB({
             </div>
           )}
 
-          {/* Quick Replies */}
+          {/* Hızlı Yanıtlar */}
           {!sessionClosed && quickReplies.length > 0 && (
             <div className="px-3 py-2.5 bg-white border-t border-gray-100 flex gap-2 overflow-x-auto flex-shrink-0">
               {quickReplies.map((qr) => (
@@ -354,26 +439,19 @@ export function SupportFAB({
               disabled={sending}
             />
             <button
-              onClick={() => {
-                if (sessionClosed) setSessionClosed(false);
-                sendMessage();
-              }}
+              onClick={() => { if (sessionClosed) setSessionClosed(false); sendMessage(); }}
               disabled={!input.trim() || sending}
               className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity disabled:opacity-40 flex-shrink-0"
               style={{ background: "linear-gradient(135deg, #C57930, #F9B10B)" }}
               aria-label="Gönder"
             >
-              {sending ? (
-                <Loader2 className="w-4 h-4 text-white animate-spin" />
-              ) : (
-                <Send className="w-4 h-4 text-white" />
-              )}
+              {sending ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Send className="w-4 h-4 text-white" />}
             </button>
           </div>
         </div>
       )}
 
-      {/* ── FAB Grubu ─────────────────────────────────────────── */}
+      {/* ── FAB Grubu ──────────────────────────────────────────────── */}
       <div className="fixed bottom-6 right-4 z-50 flex flex-col items-end gap-3">
         {isOpen && (
           <>
@@ -413,9 +491,15 @@ export function SupportFAB({
           </>
         )}
 
-        {/* Ana FAB */}
+        {/* Ana FAB — okunmamış mesaj varsa direkt chat'i açar */}
         <button
-          onClick={() => setIsOpen((p) => !p)}
+          onClick={() => {
+            if (unreadCount > 0) {
+              openChat();
+            } else {
+              setIsOpen((p) => !p);
+            }
+          }}
           className="w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 relative"
           style={{
             background: isOpen
@@ -429,10 +513,17 @@ export function SupportFAB({
           ) : (
             <>
               <MessageCircle className="w-7 h-7 text-white" />
-              <span
-                className="absolute inset-0 rounded-full animate-ping opacity-25 pointer-events-none"
-                style={{ backgroundColor: "#F9B10B" }}
-              />
+              {/* Okunmamış mesaj badge */}
+              {unreadCount > 0 ? (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 shadow-lg ring-2 ring-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              ) : (
+                <span
+                  className="absolute inset-0 rounded-full animate-ping opacity-25 pointer-events-none"
+                  style={{ backgroundColor: "#F9B10B" }}
+                />
+              )}
             </>
           )}
         </button>
