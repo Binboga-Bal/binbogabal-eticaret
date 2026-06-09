@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
+import { logAction } from "@/lib/audit/logger";
 
 export async function POST(req: Request) {
   const session = await getAdminSession();
@@ -20,6 +21,8 @@ export async function POST(req: Request) {
   const assignment = await prisma.customerCoupon.create({
     data: { userId, couponId },
   });
+
+  await logAction({ adminId: session.adminId, action: "assign", module: "coupons", targetId: couponId, targetLabel: `coupon:${couponId} → user:${userId}`, req });
 
   return NextResponse.json(assignment, { status: 201 });
 }

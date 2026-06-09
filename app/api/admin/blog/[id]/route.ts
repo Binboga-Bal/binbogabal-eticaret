@@ -4,6 +4,7 @@ import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { createSlug } from "@/lib/utils/slug";
+import { logAction } from "@/lib/audit/logger";
 
 const schema = z.object({
   title: z.string().min(3),
@@ -52,6 +53,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     },
   });
 
+  await logAction({ adminId: session.adminId, action: "update", module: "blog", targetId: updated.id, targetLabel: updated.title, req });
+
   return NextResponse.json(updated);
 }
 
@@ -61,6 +64,8 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!await can(session.adminId, "content", "delete")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
+  const post = await prisma.blogPost.findUnique({ where: { id }, select: { title: true } });
   await prisma.blogPost.delete({ where: { id } });
+  await logAction({ adminId: session.adminId, action: "delete", module: "blog", targetId: id, targetLabel: post?.title ?? id, req: _req });
   return NextResponse.json({ success: true });
 }

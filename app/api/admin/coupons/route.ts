@@ -3,6 +3,7 @@ import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import type { DiscountType } from "@prisma/client";
+import { logAction } from "@/lib/audit/logger";
 
 export async function POST(req: Request) {
   const session = await getAdminSession();
@@ -25,6 +26,8 @@ export async function POST(req: Request) {
       isActive: body.isActive ?? true,
     },
   });
+
+  await logAction({ adminId: session.adminId, action: "create", module: "coupons", targetId: coupon.id, targetLabel: coupon.code, newData: { code: coupon.code, discountType: coupon.discountType, discountValue: coupon.discountValue }, req });
 
   return NextResponse.json(coupon);
 }

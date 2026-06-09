@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { generateBulkCoupons } from "@/lib/campaign/coupon-generator";
+import { logAction } from "@/lib/audit/logger";
 
 export async function POST(req: Request) {
   const session = await getAdminSession();
@@ -26,6 +27,8 @@ export async function POST(req: Request) {
     perCustomerLimit,
     expiresAt: expiresAt ? new Date(expiresAt) : undefined,
   });
+
+  await logAction({ adminId: session.adminId, action: "bulk_generate", module: "coupons", targetId: campaignId ?? undefined, targetLabel: `${count} kupon (prefix: ${prefix ?? "-"})`, newData: { count, prefix, discountType, discountValue }, req });
 
   return NextResponse.json(result, { status: 201 });
 }

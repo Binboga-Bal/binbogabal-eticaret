@@ -4,6 +4,7 @@ import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { createSlug } from "@/lib/utils/slug";
+import { logAction } from "@/lib/audit/logger";
 
 const schema = z.object({
   title: z.string().min(3),
@@ -47,6 +48,8 @@ export async function POST(req: Request) {
       metaDescription: metaDescription ?? null,
     },
   });
+
+  await logAction({ adminId: session.adminId, action: "create", module: "blog", targetId: post.id, targetLabel: post.title, newData: { id: post.id, title, slug, isPublished }, req });
 
   return NextResponse.json(post);
 }

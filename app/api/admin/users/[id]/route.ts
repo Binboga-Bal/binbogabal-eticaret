@@ -81,8 +81,21 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!admin) return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
   if (admin.isSuperAdmin) return NextResponse.json({ error: "Süper Admin silinemez" }, { status: 403 });
 
-  // Soft delete: set INACTIVE
-  await prisma.adminUser.update({ where: { id }, data: { status: "INACTIVE", email: `${admin.email}__deleted_${Date.now()}` } });
+  // KVKK/GDPR: kişisel verileri anonimleştir, ardından soft-delete uygula
+  await prisma.$transaction([
+    prisma.activityLog.updateMany({
+      where: { actorId: id },
+      data: { actorEmail: null, userAgent: null },
+    }),
+    prisma.auditLog.updateMany({
+      where: { adminId: id },
+      data: { adminName: "[Silindi]" },
+    }),
+    prisma.adminUser.update({
+      where: { id },
+      data: { status: "INACTIVE", email: `${admin.email}__deleted_${Date.now()}` },
+    }),
+  ]);
 
   invalidatePermissionCache(id);
 

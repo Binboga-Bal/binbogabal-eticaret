@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
+import { logAction } from "@/lib/audit/logger";
 
 export async function GET(req: Request) {
   const session = await getAdminSession();
@@ -31,6 +32,8 @@ export async function POST(req: Request) {
   const category = await prisma.category.create({
     data: { name, slug, description: description || null, isActive, image: image || null },
   });
+
+  await logAction({ adminId: session.adminId, action: "create", module: "categories", targetId: category.id, targetLabel: category.name, newData: { id: category.id, name, slug }, req });
 
   return NextResponse.json(category);
 }

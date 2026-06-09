@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/utils/slug";
+import { logAction } from "@/lib/audit/logger";
 
 export async function GET(req: Request) {
   const session = await getAdminSession();
@@ -75,6 +76,8 @@ export async function POST(req: Request) {
     revalidatePath("/");
     revalidatePath("/urunlerimiz");
     revalidatePath("/urunlerimiz/[slug]", "page");
+
+    await logAction({ adminId: session.adminId, action: "create", module: "products", targetId: product.id, targetLabel: product.name, newData: { id: product.id, name: product.name, slug: product.slug }, req });
 
     return NextResponse.json(product, { status: 201 });
   } catch (err) {

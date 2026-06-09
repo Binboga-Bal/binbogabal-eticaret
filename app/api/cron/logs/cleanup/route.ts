@@ -10,6 +10,9 @@ const CLEANUP_RULES = [
   // ERROR and CRITICAL are never auto-deleted
 ];
 
+// KVKK Md.7 / GDPR Art.5(1)(e): Audit logları 2 yıl saklanır, yüksek riskli (≥50) asla otomatik silinmez
+const AUDIT_LOG_RETENTION_DAYS = parseInt(process.env.AUDIT_LOG_CLEANUP_DAYS ?? "730");
+
 export async function GET(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret") ?? req.nextUrl.searchParams.get("secret");
   if (secret !== process.env.CRON_SECRET) {
@@ -34,6 +37,14 @@ export async function GET(req: NextRequest) {
     results[rule.level] = result.count;
     totalDeleted += result.count;
   }
+
+  // AuditLog retention: riskScore < 50 ve 2 yıldan eski kayıtları sil
+  const auditCutoff = new Date(Date.now() - AUDIT_LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  const auditResult = await prisma.auditLog.deleteMany({
+    where: { riskScore: { lt: 50 }, createdAt: { lt: auditCutoff } },
+  });
+  results["AUDIT"] = auditResult.count;
+  totalDeleted += auditResult.count;
 
   const reportMsg = Object.entries(results)
     .map(([level, count]) => `${level}: ${count}`)

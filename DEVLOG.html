@@ -12005,10 +12005,221 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <section id="step225">
+      <h2>225 — Aktivite &amp; Audit Log Sistemi: Kapsam Genişletme + KVKK/GDPR Uyumu</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-blue">Admin</span>
+        <span class="tag tag-purple">Güvenlik</span>
+        <span class="tag tag-honey">KVKK / GDPR</span>
+        <span class="tag tag-teal">15 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Aktivite ve Audit Log sisteminin kapsam analizi yapıldı. Auth/kullanıcı yönetimi dışındaki
+        tüm kritik admin CRUD rotaları (ürünler, ayarlar, kategoriler, blog, kuponlar, toplu indirimler,
+        yorumlar) loglanmıyordu. 13 rotaya <code>logAction</code> eklendi. Ardından KVKK/GDPR uyum
+        denetimi yapıldı: 3 somut güvenlik/gizlilik açığı kapatıldı.
+      </p>
+
+      <div class="card">
+        <h3>Görev 1 — Log Kapsam Analizi &amp; Eksiklerin Tespiti</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Mevcut Durum</h4>
+              <p>
+                Sistem oldukça olgundu: <code>ActivityLog</code>, <code>AuditLog</code>,
+                <code>CampaignAuditLog</code>, <code>ConsentLog</code>, <code>ErpSyncLog</code>,
+                <code>LogSummary</code> modelleri; <code>createLog</code> / <code>logAction</code>
+                kütüphaneleri; Telegram uyarı altyapısı; admin UI bileşenleri ve CSV/JSON export
+                hazırdı. Auth &amp; kullanıcı yönetimi rotaları tam kapsanmıştı.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Tespit Edilen Boşluklar</h4>
+              <p>
+                Katalog ve finansal etkisi olan 13 admin rotasında hiç <code>logAction</code> çağrısı
+                yoktu: ürün oluşturma/güncelleme/silme, site ayarları değişikliği, kategori CRUD,
+                blog CRUD, kupon oluşturma/atama/toplu üretim, hacim indirimi CRUD,
+                yorum onaylama/reddetme/silme.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Görev 2 — <code>logAction</code> Kapsam Genişletmesi</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Ürünler — <code>products/route.ts</code> &amp; <code>products/[id]/route.ts</code></h4>
+              <p>
+                POST (create), PUT (update), DELETE (soft-delete → isActive:false) aksiyonları loglandı.
+                <code>module: "products"</code>, <code>targetLabel: product.name</code>.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Site Ayarları — <code>settings/route.ts</code></h4>
+              <p>
+                PUT aksiyonu loglandı. Hangi ayar anahtarlarının değiştiği
+                <code>targetLabel</code>'a yazılıyor; değerler KVKK gereği kaydedilmiyor.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Kategoriler, Blog, Yorumlar</h4>
+              <p>
+                <code>categories</code>, <code>blog</code>, <code>reviews</code> modülleri için
+                create/update/delete; reviews için ayrıca <code>approve</code>, <code>reject</code>,
+                <code>reply</code> aksiyonları loglandı.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Kuponlar &amp; Hacim İndirimleri</h4>
+              <p>
+                <code>coupons</code> (create, assign, bulk_generate) ve <code>volume_discounts</code>
+                (create, update, delete) tüm aksiyonları loglandı. Finansal etki nedeniyle öncelikli
+                tutuldu.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Risk Skoru Güncellemesi — <code>lib/audit/logger.ts</code></h4>
+              <p>
+                <code>coupons</code> / <code>volume_discounts</code> modülleri: +15 puan;
+                <code>bulk_generate</code> / bulk aksiyonlar: +20 puan eklendi.
+                Gece saati (+20) + silme (+30) + ayarlar (+25) kuralları korundu.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Görev 3 — KVKK / GDPR Uyum Denetimi &amp; Düzeltmeler</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sorun 1 — <code>logAction</code> sanitizasyon eksikliği</h4>
+              <p>
+                <code>createLog</code>'da mevcut olan <code>sanitizeDetail()</code> çağrısı
+                <code>logAction</code>'a hiç taşınmamıştı. <code>previousData</code> /
+                <code>newData</code> alanlarına giren objelerdeki
+                <code>password</code>, <code>apiKey</code>, <code>secret</code> vb. anahtarlar
+                AuditLog'a ham yazılabiliyordu.
+                <strong>Düzeltme:</strong> <code>logAction</code>'a <code>sanitizeDetail</code>
+                import edildi ve her iki JSON alan sanitize edilerek kaydediliyor.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sorun 2 — Site Ayarları <code>newData</code> sızıntısı</h4>
+              <p>
+                <code>settings/route.ts</code>'de <code>newData: settings</code> loglanıyordu.
+                Site ayarları arasında API anahtarı veya ERP parolası saklanabilir.
+                <strong>Düzeltme:</strong> <code>newData</code> kaldırıldı; yalnızca değişen
+                anahtar adları <code>targetLabel</code>'a yazılıyor.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sorun 3 — AuditLog saklama politikası yoktu (KVKK Md.7 / GDPR Art.5/1-e)</h4>
+              <p>
+                Cleanup cron yalnızca <code>ActivityLog</code> (DEBUG/INFO) siliyordu;
+                <code>AuditLog</code> sonsuza kadar tutuluyordu.
+                <strong>Düzeltme:</strong> <code>app/api/cron/logs/cleanup/route.ts</code>'a
+                AuditLog retention adımı eklendi: <code>riskScore &lt; 50</code> ve 2 yıldan
+                eski kayıtlar otomatik siliniyor. Yüksek riskli kayıtlar (≥50) ve
+                <code>ActivityLog</code> ERROR/CRITICAL hiç otomatik silinmiyor.
+                Süre <code>AUDIT_LOG_CLEANUP_DAYS</code> env değişkeni ile yapılandırılabilir
+                (varsayılan: 730 gün).
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Admin Silme → Log Anonimleştirme — <code>users/[id]/route.ts</code></h4>
+              <p>
+                Admin kullanıcı soft-delete edildiğinde artık tek bir Prisma transaction içinde
+                şu adımlar atomik olarak çalışıyor: (1) <code>ActivityLog</code>'da
+                <code>actorEmail → null</code>, <code>userAgent → null</code>;
+                (2) <code>AuditLog</code>'da <code>adminName → "[Silindi]"</code>;
+                (3) <code>AdminUser.status → INACTIVE</code>, e-posta obfuscation.
+                KVKK Md.11 / GDPR Art.17 silme talebi akışı tamamlandı.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/api/admin/products/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (create)</span><br>
+          <span class="file mod">app/api/admin/products/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — PUT logAction (update), DELETE logAction (delete)</span><br>
+          <span class="file mod">app/api/admin/settings/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — PUT logAction (update) — newData kaldırıldı</span><br>
+          <span class="file mod">app/api/admin/categories/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (create)</span><br>
+          <span class="file mod">app/api/admin/categories/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — PATCH logAction (update), DELETE logAction (delete)</span><br>
+          <span class="file mod">app/api/admin/blog/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (create)</span><br>
+          <span class="file mod">app/api/admin/blog/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — PUT logAction (update), DELETE logAction (delete)</span><br>
+          <span class="file mod">app/api/admin/coupons/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (create)</span><br>
+          <span class="file mod">app/api/admin/coupons/assign/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (assign)</span><br>
+          <span class="file mod">app/api/admin/coupons/bulk-generate/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (bulk_generate)</span><br>
+          <span class="file mod">app/api/admin/volume-discounts/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — POST logAction (create)</span><br>
+          <span class="file mod">app/api/admin/volume-discounts/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — PUT logAction (update), DELETE logAction (delete)</span><br>
+          <span class="file mod">app/api/admin/reviews/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — PATCH logAction (approve/reject/reply), DELETE logAction (delete)</span><br>
+          <span class="file mod">lib/audit/logger.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — sanitizeDetail eklendi; risk skoru: coupons/volume_discounts +15, bulk +20</span><br>
+          <span class="file mod">app/api/cron/logs/cleanup/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — AuditLog retention: riskScore &lt; 50 ve 730+ gün eskiler otomatik siliniyor</span><br>
+          <span class="file mod">app/api/admin/users/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — DELETE: Prisma transaction ile log anonimleştirme + soft-delete (KVKK Md.11)</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sonuç</h3>
+        <ul>
+          <li>Admin panelde yapılan her kritik operasyon artık AuditLog'a yazılıyor: ürün/kategori/blog CRUD, site ayarı, kupon/indirim işlemleri, yorum moderasyonu</li>
+          <li><code>logAction</code> artık <code>previousData</code> / <code>newData</code> içindeki gizli alanları <code>[REDACTED]</code> ile maskeliyor</li>
+          <li>Site ayarı değerleri (API key riski) loglara asla yazılmıyor</li>
+          <li>AuditLog saklama politikası devreye girdi: düşük riskli kayıtlar 2 yıldan sonra otomatik siliniyor (KVKK Md.7)</li>
+          <li>Yüksek riskli audit kayıtları (riskScore ≥ 50) ve ERROR/CRITICAL activity loglar hiç silinmiyor</li>
+          <li>Admin silindiğinde <code>ActivityLog</code> / <code>AuditLog</code> kişisel verileri atomik transaction ile anonimleştiriliyor (KVKK Md.11 / GDPR Art.17)</li>
+          <li>TypeScript kontrolü (<code>pnpm tsc --noEmit</code>) hatasız geçti</li>
+          <li>Yeni harici bağımlılık eklenmedi</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 224 (SEO &amp; GEO Sprint: SSS + Sayfa Meta) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 225 (Aktivite &amp; Audit Log: Kapsam Genişletme + KVKK/GDPR) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

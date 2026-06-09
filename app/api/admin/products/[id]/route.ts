@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
 import { PackagingType } from "@prisma/client";
+import { logAction } from "@/lib/audit/logger";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -94,6 +95,8 @@ export async function PUT(req: Request, { params }: Params) {
     revalidatePath("/urunlerimiz");
     revalidatePath("/urunlerimiz/[slug]", "page");
 
+    await logAction({ adminId: session.adminId, action: "update", module: "products", targetId: product.id, targetLabel: product.name, req });
+
     return NextResponse.json(product);
   } catch (err) {
     return NextResponse.json(
@@ -109,11 +112,13 @@ export async function DELETE(req: Request, { params }: Params) {
   if (!await can(session.adminId, "products", "delete")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
-  await prisma.product.update({ where: { id }, data: { isActive: false } });
+  const product = await prisma.product.update({ where: { id }, data: { isActive: false } });
 
   revalidatePath("/");
   revalidatePath("/urunlerimiz");
   revalidatePath("/urunlerimiz/[slug]", "page");
+
+  await logAction({ adminId: session.adminId, action: "delete", module: "products", targetId: product.id, targetLabel: product.name, req });
 
   return NextResponse.json({ success: true });
 }

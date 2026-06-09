@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendAuditTelegramAlert } from "@/lib/logger/telegram";
+import { sanitizeDetail } from "@/lib/logger/sanitize";
 
 interface LogActionParams {
   adminId?: string;
@@ -20,6 +21,8 @@ function calculateRiskScore(params: LogActionParams): number {
   if (hour >= 0 && hour < 6) score += 20;
   if (params.action === "delete" || params.action.includes("delete")) score += 30;
   if (params.module === "admin_users" || params.module === "roles" || params.module === "settings") score += 25;
+  if (params.module === "coupons" || params.module === "volume_discounts") score += 15;
+  if (params.action === "bulk_generate" || params.action.includes("bulk")) score += 20;
   if (params.action === "account_locked" || params.action === "login_failed") score += 15;
 
   return Math.min(score, 100);
@@ -46,8 +49,8 @@ export async function logAction(params: LogActionParams): Promise<void> {
         module: params.module,
         targetId: params.targetId ?? null,
         targetLabel: params.targetLabel ?? null,
-        previousData: params.previousData ? (params.previousData as object) : undefined,
-        newData: params.newData ? (params.newData as object) : undefined,
+        previousData: params.previousData ? (sanitizeDetail(params.previousData) as object) : undefined,
+        newData: params.newData ? (sanitizeDetail(params.newData) as object) : undefined,
         ipAddress: ip,
         userAgent: ua,
         riskScore,

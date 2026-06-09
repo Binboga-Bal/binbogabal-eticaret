@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
+import { logAction } from "@/lib/audit/logger";
 
 export async function PUT(req: Request) {
   const session = await getAdminSession();
@@ -20,6 +21,8 @@ export async function PUT(req: Request) {
       })
     )
   );
+
+  await logAction({ adminId: session.adminId, action: "update", module: "settings", targetLabel: Object.keys(settings).join(", "), req });
 
   // Sayfa içerik ayarları değiştiğinde ISR cache'i anında temizle
   revalidatePath("/");

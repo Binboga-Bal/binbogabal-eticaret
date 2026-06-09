@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
+import { logAction } from "@/lib/audit/logger";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
@@ -23,6 +24,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     },
   });
 
+  await logAction({ adminId: session.adminId, action: "update", module: "categories", targetId: category.id, targetLabel: category.name, req });
+
   return NextResponse.json(category);
 }
 
@@ -32,6 +35,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (!await can(session.adminId, "categories", "delete")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
+  const category = await prisma.category.findUnique({ where: { id }, select: { name: true } });
   await prisma.category.delete({ where: { id } });
+  await logAction({ adminId: session.adminId, action: "delete", module: "categories", targetId: id, targetLabel: category?.name ?? id, req });
   return NextResponse.json({ ok: true });
 }

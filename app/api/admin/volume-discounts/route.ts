@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
+import { logAction } from "@/lib/audit/logger";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -44,6 +45,8 @@ export async function POST(req: Request) {
     },
     include: { products: { include: { product: { select: { id: true, name: true, images: true } } } } },
   });
+
+  await logAction({ adminId: session.adminId, action: "create", module: "volume_discounts", targetId: rule.id, targetLabel: rule.name, newData: { name, tiers }, req });
 
   return NextResponse.json(rule);
 }

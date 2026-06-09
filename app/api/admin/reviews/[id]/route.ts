@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { z } from "zod";
 import { sendReviewReplyEmail } from "@/lib/mail/mail.service";
+import { logAction } from "@/lib/audit/logger";
 
 const patchSchema = z.object({
   isApproved: z.boolean().optional(),
@@ -38,6 +39,9 @@ export async function PATCH(
     data: parsed.data,
   });
 
+  const action = parsed.data.isApproved !== undefined ? (parsed.data.isApproved ? "approve" : "reject") : "reply";
+  await logAction({ adminId: session.adminId, action, module: "reviews", targetId: review.id, targetLabel: existing?.product?.name ?? id, req });
+
   const newReply = parsed.data.adminReply;
   if (
     existing &&
@@ -69,7 +73,9 @@ export async function DELETE(
   if (!await can(session.adminId, "content", "delete")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { id } = await params;
+  const review = await prisma.review.findUnique({ where: { id }, select: { product: { select: { name: true } } } });
   await prisma.review.delete({ where: { id } });
+  await logAction({ adminId: session.adminId, action: "delete", module: "reviews", targetId: id, targetLabel: review?.product?.name ?? id, req: _req });
 
   return NextResponse.json({ message: "Yorum silindi" });
 }
