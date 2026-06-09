@@ -28,6 +28,7 @@ import { ProductTabs } from "@/components/shop/product/ProductTabs";
 import { ProductImageGallery } from "@/components/shop/product/ProductImageGallery";
 import { FavoriteButton } from "@/components/shop/product/FavoriteButton";
 import { ProductTasteProfile } from "@/components/shop/product/ProductTasteProfile";
+import { ProductCarousel } from "@/components/shop/home/ProductCarousel";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -38,6 +39,7 @@ async function getProduct(slug: string) {
     where: { slug, isActive: true },
     include: {
       categories: { select: { id: true, name: true, slug: true } },
+      honeyTypes: { select: { id: true, slug: true, label: true } },
       variants: {
         where: { isActive: true },
         orderBy: { size: "asc" },
@@ -50,6 +52,46 @@ async function getProduct(slug: string) {
       },
     },
   });
+}
+
+async function getRelatedProducts(
+  currentProductId: string,
+  honeyTypeIds: string[],
+  categoryIds: string[]
+) {
+  const byType = honeyTypeIds.length > 0
+    ? { honeyTypes: { some: { id: { in: honeyTypeIds } } } }
+    : categoryIds.length > 0
+    ? { categories: { some: { id: { in: categoryIds } } } }
+    : { OR: [{ isFeatured: true }, { isBestseller: true }] };
+
+  let products = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      id: { not: currentProductId },
+      ...byType,
+      variants: { some: { isActive: true, stock: { gt: 0 } } },
+    },
+    include: { variants: { where: { isActive: true }, orderBy: { size: "asc" } } },
+    take: 8,
+  });
+
+  if (products.length < 4) {
+    const seen = products.map((p) => p.id);
+    const fillers = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        id: { notIn: [currentProductId, ...seen] },
+        OR: [{ isFeatured: true }, { isBestseller: true }],
+        variants: { some: { isActive: true, stock: { gt: 0 } } },
+      },
+      include: { variants: { where: { isActive: true }, orderBy: { size: "asc" } } },
+      take: 8 - products.length,
+    });
+    products = [...products, ...fillers];
+  }
+
+  return products;
 }
 
 // Tüm aktif ürünleri build'de prerender et → Full Route Cache + ISR.
@@ -84,6 +126,25 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const product = serializeProduct(rawProduct);
   const reviews = rawProduct.reviews;
 
+  const manualRelatedIds = Array.isArray(rawProduct.relatedProductIds)
+    ? (rawProduct.relatedProductIds as string[])
+    : [];
+
+  let rawRelated;
+  if (manualRelatedIds.length > 0) {
+    rawRelated = await prisma.product.findMany({
+      where: { id: { in: manualRelatedIds }, isActive: true },
+      include: { variants: { where: { isActive: true }, orderBy: { size: "asc" } } },
+    });
+    // Preserve manual order
+    rawRelated.sort((a, b) => manualRelatedIds.indexOf(a.id) - manualRelatedIds.indexOf(b.id));
+  } else {
+    const honeyTypeIds = rawProduct.honeyTypes?.map((h) => h.id) ?? [];
+    const categoryIds = rawProduct.categories?.map((c) => c.id) ?? [];
+    rawRelated = await getRelatedProducts(rawProduct.id, honeyTypeIds, categoryIds);
+  }
+  const relatedProducts = rawRelated.map(serializeProduct);
+
   const avgRating =
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
@@ -107,6 +168,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   ]);
 
   return (
+    <>
     <Container className="pt-24 pb-8 max-w-5xl">
       <Script id="product-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <Script id="breadcrumb-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
@@ -557,5 +619,22 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
       </div>
     </Container>
+
+    {relatedProducts.length > 0 && (
+      <section className="py-10 md:py-14 lg:py-20 bg-white">
+        <Container size="content">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <span className="bg-honey-medium text-white text-fluid-lg font-bold px-4 py-2 pr-8 rounded">
+              YANINDA İYİ GİDER
+            </span>
+            <Link href="/urunlerimiz" className="text-sm text-honey-dark font-semibold hover:underline">
+              Tümünü Gör →
+            </Link>
+          </div>
+          <ProductCarousel products={relatedProducts} />
+        </Container>
+      </section>
+    )}
+    </>
   );
 }

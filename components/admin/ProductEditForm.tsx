@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
+import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { GripVertical, Plus, Trash2, Upload, X } from "lucide-react";
+import { GripVertical, Plus, Trash2, Upload, X, Search } from "lucide-react";
 import type { SerializedProduct } from "@/lib/utils/serialize";
 
 const USAGE_OPTIONS = [
@@ -45,15 +46,22 @@ interface VariantRow {
   maxOrderQuantity: number | null;
 }
 
+interface RelatedItem {
+  id: string;
+  name: string;
+  images: string[];
+}
+
 interface Props {
   product: SerializedProduct | null;
   categories: { id: string; name: string }[];
   honeyTypes: { id: string; slug: string; label: string }[];
+  initialRelatedProducts?: RelatedItem[];
 }
 
 const MAX_IMAGES = 3;
 
-export function ProductEditForm({ product, categories, honeyTypes }: Props) {
+export function ProductEditForm({ product, categories, honeyTypes, initialRelatedProducts = [] }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -79,6 +87,11 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   );
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const pdfRef = useRef<HTMLInputElement>(null);
+  const [relatedProducts, setRelatedProducts] = useState<RelatedItem[]>(initialRelatedProducts);
+  const [relatedQuery, setRelatedQuery] = useState("");
+  const [relatedResults, setRelatedResults] = useState<RelatedItem[]>([]);
+  const [relatedSearchOpen, setRelatedSearchOpen] = useState(false);
+  const [relatedSearching, setRelatedSearching] = useState(false);
 
   const [variants, setVariants] = useState<VariantRow[]>(
     product?.variants.map((v) => ({
@@ -198,7 +211,7 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
     const res = await fetch(product ? `/api/admin/products/${product.id}` : "/api/admin/products", {
       method: product ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, variants, images, categoryIds: selectedCategoryIds, honeyTypeIds: selectedHoneyTypeIds, tasteNotes, usageSuggestions: selectedUsage, analysisReportUrl: analysisReportUrl || null }),
+      body: JSON.stringify({ ...data, variants, images, categoryIds: selectedCategoryIds, honeyTypeIds: selectedHoneyTypeIds, tasteNotes, usageSuggestions: selectedUsage, analysisReportUrl: analysisReportUrl || null, relatedProductIds: relatedProducts.map((p) => p.id) }),
     });
 
     const result = await res.json();
@@ -212,6 +225,34 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
   }
 
   const nameValue = watch("name");
+
+  const searchRelated = useCallback(async (q: string) => {
+    setRelatedQuery(q);
+    if (!q.trim()) { setRelatedResults([]); return; }
+    setRelatedSearching(true);
+    try {
+      const res = await fetch(`/api/admin/products?q=${encodeURIComponent(q)}`);
+      const data: RelatedItem[] = await res.json();
+      setRelatedResults(
+        data
+          .filter((p) => p.id !== product?.id && !relatedProducts.some((r) => r.id === p.id))
+          .map((p) => ({ ...p, images: Array.isArray(p.images) ? (p.images as string[]) : [] }))
+      );
+    } finally {
+      setRelatedSearching(false);
+    }
+  }, [product?.id, relatedProducts]);
+
+  function addRelated(item: RelatedItem) {
+    setRelatedProducts((prev) => [...prev, item]);
+    setRelatedQuery("");
+    setRelatedResults([]);
+    setRelatedSearchOpen(false);
+  }
+
+  function removeRelated(id: string) {
+    setRelatedProducts((prev) => prev.filter((p) => p.id !== id));
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -567,6 +608,92 @@ export function ProductEditForm({ product, categories, honeyTypes }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Yanında İyi Gider */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-gray-800">Yanında İyi Gider</h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Ürün detay sayfasında vitrin olarak gösterilecek ilgili ürünler.
+              Boş bırakılırsa aynı bal türünden ürünler otomatik seçilir.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => { setRelatedSearchOpen((v) => !v); setRelatedQuery(""); setRelatedResults([]); }}
+          >
+            <Plus size={14} className="mr-1" /> Ürün Ekle
+          </Button>
+        </div>
+
+        {relatedSearchOpen && (
+          <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+            <div className="flex items-center bg-white border border-gray-200 rounded-lg px-3">
+              <Search size={14} className="text-gray-400 mr-2 flex-shrink-0" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Ürün adı ile ara..."
+                value={relatedQuery}
+                onChange={(e) => searchRelated(e.target.value)}
+                className="flex-1 py-2 text-sm outline-none bg-transparent"
+              />
+              {relatedSearching && <span className="text-xs text-gray-400 ml-2">Aranıyor...</span>}
+            </div>
+            {relatedResults.length > 0 && (
+              <div className="max-h-48 overflow-y-auto space-y-1">
+                {relatedResults.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => addRelated(p)}
+                    className="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded hover:bg-white hover:shadow-sm transition-all"
+                  >
+                    <div className="w-8 h-8 rounded overflow-hidden bg-white border border-gray-100 flex-shrink-0">
+                      {p.images[0] ? (
+                        <Image src={p.images[0]} alt={p.name} width={32} height={32} className="object-contain w-full h-full" />
+                      ) : (
+                        <span className="flex items-center justify-center h-full text-sm">🍯</span>
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-700 truncate">{p.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {relatedQuery && relatedResults.length === 0 && !relatedSearching && (
+              <p className="text-sm text-gray-400 py-2 text-center">Sonuç bulunamadı</p>
+            )}
+          </div>
+        )}
+
+        {relatedProducts.length === 0 ? (
+          <div className="border-2 border-dashed border-gray-200 rounded-lg py-6 text-center text-sm text-gray-400">
+            Manuel seçim yok — otomatik öneri aktif
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {relatedProducts.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                <div className="w-9 h-9 rounded overflow-hidden bg-white border border-gray-100 flex-shrink-0">
+                  {p.images[0] ? (
+                    <Image src={p.images[0]} alt={p.name} width={36} height={36} className="object-contain w-full h-full p-0.5" />
+                  ) : (
+                    <span className="flex items-center justify-center h-full text-base">🍯</span>
+                  )}
+                </div>
+                <span className="flex-1 text-sm font-medium text-gray-800 truncate">{p.name}</span>
+                <button type="button" onClick={() => removeRelated(p.id)} className="text-gray-300 hover:text-red-500 transition-colors">
+                  <X size={15} />
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

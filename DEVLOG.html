@@ -673,6 +673,10 @@
       <a href="#step208" class="nav-link"><span class="dot"></span>208 — Maks 3 + Sürükle-Bırak Sıralama</a>
       <a href="#step209" class="nav-link"><span class="dot"></span>209 — Ortak Görsel CRUD Yönetimi</a>
 
+      <div class="nav-section-label">9 Haziran 2026 — Vitrin Sistemi</div>
+      <a href="#step210" class="nav-link"><span class="dot"></span>210 — Yanında İyi Gider Vitrini</a>
+      <a href="#step211" class="nav-link"><span class="dot"></span>211 — Admin: Vitrin Yönetim Sistemi</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -10508,10 +10512,195 @@ Foreign key constraint violated: `order_items_variantId_fkey (index)`</span></pr
       </div>
     </section>
 
+    <!-- ═══════════════════════════════ STEP 210 -->
+    <div class="date-header">
+      <div class="date-pill">9 Haziran 2026 — Vitrin Sistemi</div>
+      <div class="date-line"></div>
+    </div>
+
+    <section class="section" id="step210">
+      <div class="section-title">
+        <div class="step-num">210</div>
+        <h2>"Yanında İyi Gider" Vitrini — Ürün Detay Sayfası</h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">feat(shop)</span>
+        <span class="tag tag-blue">UX</span>
+        <span class="tag tag-honey">ISR</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Her ürün detay sayfasının en altına, footer'dan önce <em>"Yanında İyi Gider"</em> vitrini eklendi.
+        Vitrin; anasayfadaki <code>ProductCarousel</code> bileşenini ve aynı başlık stilini kullanır.
+        Öncelik sırası: <strong>manuel liste → aynı bal türü → aynı kategori → öne çıkan/çok satan</strong>.
+      </p>
+
+      <div class="card">
+        <h3>Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/(shop)/urunlerimiz/[slug]/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — getRelatedProducts() + vitrin section</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Öneri Mantığı — <code>getRelatedProducts()</code></h3>
+        <table>
+          <thead><tr><th>Öncelik</th><th>Koşul</th><th>Sonuç</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>relatedProductIds</code> dolu (manuel)</td><td>Doğrudan bu ürünleri kullan, sırayı koru</td></tr>
+            <tr><td>2</td><td>Ürünün <code>HoneyType</code>'ı var</td><td>Aynı bal türünden, stoklu, aktif ürünler</td></tr>
+            <tr><td>3</td><td><code>HoneyType</code> yok, <code>Category</code> var</td><td>Aynı kategoriden ürünler</td></tr>
+            <tr><td>4</td><td>4'ten az sonuç</td><td><code>isFeatured</code> veya <code>isBestseller</code> ile tamamla</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:12.5px;color:var(--text-muted)">
+          Mevcut ürün her zaman filtre dışı bırakılır. Maks 8 ürün gösterilir.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Vitrin Bölümü — UI</h3>
+        <ul>
+          <li>Ana <code>&lt;Container&gt;</code> dışında, <code>&lt;section&gt;</code> ile tam genişlikte render edilir</li>
+          <li>Anasayfa vitrin başlık stili (<code>bg-honey-medium text-white … rounded</code>) aynen kullanıldı</li>
+          <li>Swiper <code>Autoplay · Pagination · Navigation</code> modülleri ile carousel</li>
+          <li>Vitrin boşsa (<code>relatedProducts.length === 0</code>) bölüm hiç gösterilmez</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ STEP 211 -->
+    <section class="section" id="step211">
+      <div class="section-title">
+        <div class="step-num">211</div>
+        <h2>Admin: Vitrin Yönetim Sistemi</h2>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-green">feat(admin)</span>
+        <span class="tag tag-purple">Schema</span>
+        <span class="tag tag-blue">DnD</span>
+        <span class="tag tag-honey">API</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Admin panelinden tüm vitrin yapıları yönetilebilir hale getirildi.
+        Anasayfa vitrinleri (<em>Çok Satanlar</em>, <em>Avantajlı Ürünler</em>) için sürükle-bırak sıralama + ürün ekle/çıkar,
+        her ürünün kendi <em>"Yanında İyi Gider"</em> listesi için ürün düzenleme formuna picker eklendi.
+      </p>
+
+      <div class="card">
+        <h3>Schema Değişiklikleri — <code>prisma/schema.prisma</code></h3>
+        <pre><span class="cm">// Product modeline 3 yeni alan</span>
+<span class="kw">model</span> <span class="tp">Product</span> {
+  <span class="cm">// ...mevcut alanlar...</span>
+  relatedProductIds <span class="tp">Json</span>  <span class="str">@default("[]")</span>   <span class="cm">// Yanında İyi Gider — manuel ID listesi</span>
+  bestsellOrder     <span class="tp">Int</span>   <span class="str">@default(0)</span>     <span class="cm">// Çok Satanlar vitrini sıra</span>
+  featuredOrder     <span class="tp">Int</span>   <span class="str">@default(0)</span>     <span class="cm">// Avantajlı Ürünler vitrini sıra</span>
+}</pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          <code>pnpm db:push</code> ile Supabase'e uygulandı. Tip dosyaları (<code>.prisma/client/index.d.ts</code>)
+          otomatik güncellendi; native DLL kilidi nedeniyle <code>pnpm db:generate</code> dev server yeniden başlatıldıktan sonra çalıştırılmalı.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni ve Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/api/admin/vitrins/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── route.ts</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — GET (liste) · PATCH (sıra + flag güncelle)</span><br>
+          <br>
+          <span class="dir">app/admin/vitrins/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── page.tsx</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — Vitrin Yönetimi admin sayfası</span><br>
+          <br>
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── VitrinManager.tsx</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — @dnd-kit drag-drop + ürün arama</span><br>
+          <br>
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── ProductEditForm.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — "Yanında İyi Gider" picker bölümü</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── AdminSidebar.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — Sayfalar altına "Vitrin Yönetimi" linki</span><br>
+          <br>
+          <span class="dir">app/admin/urunler/[id]/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — relatedProducts ön yükleme + prop geçişi</span><br>
+          <br>
+          <span class="dir">app/api/admin/products/</span><br>
+          &nbsp;&nbsp;<span class="file mod">├── route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — POST: relatedProductIds</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── [id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — PUT: relatedProductIds</span><br>
+          <br>
+          <span class="dir">app/(shop)/</span><br>
+          &nbsp;&nbsp;<span class="file mod">├── page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — orderBy bestsellOrder / featuredOrder</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── urunlerimiz/[slug]/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — manuel liste önceliği</span><br>
+          <br>
+          <span class="dir">prisma/</span><br>
+          &nbsp;&nbsp;<span class="file mod">└── schema.prisma</span>
+          <span style="color:var(--honey);font-size:11px"> DEĞİŞTİ — 3 yeni alan</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>API — <code>GET /api/admin/vitrins</code></h3>
+        <p style="font-size:13px;color:var(--text-muted)">
+          Üç liste döner: <code>bestsellers</code> (bestsellOrder'a göre), <code>featured</code> (featuredOrder'a göre),
+          <code>allProducts</code> (isim alfabetik — ürün ekleme picker'ı için).
+        </p>
+        <h3 style="margin-top:14px">API — <code>PATCH /api/admin/vitrins</code></h3>
+        <pre><span class="cm">// Body</span>
+{ <span class="str">type</span>: <span class="str">"bestsellers"</span> | <span class="str">"featured"</span>, <span class="str">items</span>: <span class="tp">string</span>[] }
+<span class="cm">// items = vitrindeki ürün ID'leri, sırayla</span></pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          Vitrine yeni eklenen ürünlerde flag (<code>isBestseller</code> / <code>isFeatured</code>) otomatik <code>true</code> yapılır;
+          listeden çıkarılan ürünlerde <code>false</code>'a döner ve sıra sıfırlanır.
+          İşlemler <code>prisma.$transaction</code> ile atomik.
+          Başarıda <code>revalidatePath("/")</code> ve <code>/urunlerimiz</code> tetiklenir.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>VitrinManager Bileşeni — <code>@dnd-kit</code></h3>
+        <ul>
+          <li><code>DndContext + SortableContext (verticalListSortingStrategy)</code> ile sürükle-bırak sıralama</li>
+          <li>Her vitrin için bağımsız <code>VitrinPanel</code> alt bileşeni; kendi kaydet butonu</li>
+          <li>Satır içi ürün arama: arama metni yazınca filtreleme, tıkla-ekle</li>
+          <li>Vitrine zaten ekli ürünler arama sonuçlarından otomatik hariç tutulur</li>
+          <li>Kaydet anında sunucuya <code>PATCH</code> gönderir, "Kaydedildi ✓" 2 sn gösterilir</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>ProductEditForm — "Yanında İyi Gider" Picker</h3>
+        <ul>
+          <li>"Ürün Ekle" butonu inline arama kutusunu açar; <code>/api/admin/products?q=…</code> ile canlı arama</li>
+          <li>Seçilen ürünler resim + isimle listelenir, X ile kaldırılır</li>
+          <li>Liste boşsa "Manuel seçim yok — otomatik öneri aktif" mesajı gösterilir</li>
+          <li>Form gönderiminde <code>relatedProductIds</code> (ID dizisi) API'ye eklenir</li>
+          <li>Başlangıç listesi, sayfa sunucu bileşeninden ön yüklenerek gelir (N+1 yok)</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>Admin → Sayfalar → <strong>Vitrin Yönetimi</strong>: Çok Satanlar ve Avantajlı Ürünler vitrinleri sürükle-bırak ile yönetilir</li>
+          <li>Admin → Ürün Düzenle → <strong>"Yanında İyi Gider"</strong> bölümü: ürün bazlı ilgili ürün listesi</li>
+          <li>Anasayfa vitrinleri <code>bestsellOrder</code> / <code>featuredOrder</code>'a göre sıralı gelir</li>
+          <li>Ürün detay sayfası: manuel liste varsa onu, yoksa otomatik öneri mantığını kullanır</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 9 Haziran 2026 - Adim 209 (Ortak Görsel CRUD Yönetimi) - Claude tarafindan yazildi</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 211 (Vitrin Yönetim Sistemi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

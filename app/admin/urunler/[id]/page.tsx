@@ -34,7 +34,11 @@ export default async function ProductEditPage({ params }: PageProps) {
 
   const product = rawProduct ? serializeProduct(rawProduct) : null;
 
-  const [categories, honeyTypes] = await Promise.all([
+  const relatedIds = Array.isArray(rawProduct?.relatedProductIds)
+    ? (rawProduct.relatedProductIds as string[])
+    : [];
+
+  const [categories, honeyTypes, relatedProducts] = await Promise.all([
     prisma.category.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
@@ -45,6 +49,12 @@ export default async function ProductEditPage({ params }: PageProps) {
       orderBy: { order: "asc" },
       select: { id: true, slug: true, label: true },
     }),
+    relatedIds.length > 0
+      ? prisma.product.findMany({
+          where: { id: { in: relatedIds } },
+          select: { id: true, name: true, images: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   return (
@@ -58,7 +68,16 @@ export default async function ProductEditPage({ params }: PageProps) {
         </h1>
       </div>
 
-      <ProductEditForm product={product} categories={categories} honeyTypes={honeyTypes} />
+      <ProductEditForm
+        product={product}
+        categories={categories}
+        honeyTypes={honeyTypes}
+        initialRelatedProducts={relatedProducts.map((p) => ({
+          id: p.id,
+          name: p.name,
+          images: Array.isArray(p.images) ? (p.images as string[]) : [],
+        }))}
+      />
     </div>
   );
 }

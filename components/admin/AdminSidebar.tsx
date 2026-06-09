@@ -74,6 +74,7 @@ const navItems: NavItem[] = [
     permission: "media:view",
     children: [
       { href: "/admin/sayfalar/anasayfa", label: "Anasayfa" },
+      { href: "/admin/vitrins", label: "Vitrin Yönetimi" },
       { href: "/admin/sayfalar/urunlerimiz", label: "Ürünlerimiz" },
       { href: "/admin/sayfalar/hakkimizda", label: "Hakkımızda" },
       { href: "/admin/sayfalar/kooperatif-hikayemiz", label: "Kooperatif Hikayemiz" },

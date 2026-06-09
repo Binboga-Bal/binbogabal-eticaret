@@ -37,6 +37,7 @@ async function getBestsellers() {
         orderBy: { size: "asc" },
       },
     },
+    orderBy: { bestsellOrder: "asc" },
     take: 12,
   });
 }
@@ -50,6 +51,7 @@ async function getFeaturedProducts() {
         orderBy: { size: "asc" },
       },
     },
+    orderBy: { featuredOrder: "asc" },
     take: 12,
   });
 }

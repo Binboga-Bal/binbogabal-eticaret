@@ -47,6 +47,7 @@ export async function POST(req: Request) {
         isNew: productData.isNew ?? false,
         tasteNotes: Array.isArray(productData.tasteNotes) ? productData.tasteNotes.filter(Boolean) : [],
         usageSuggestions: Array.isArray(productData.usageSuggestions) ? productData.usageSuggestions : [],
+        relatedProductIds: Array.isArray(productData.relatedProductIds) ? productData.relatedProductIds : [],
         analysisReportUrl: productData.analysisReportUrl ?? null,
         categories: productData.categoryIds?.length
           ? { connect: productData.categoryIds.map((id: string) => ({ id })) }
