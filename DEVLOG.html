@@ -12515,15 +12515,15 @@ if (session?.user?.id) {
       </div>
 
       <div class="card">
-        <h3>Çözüm — <code>components/ui/Toggle.tsx</code></h3>
-        <p>Tek paylaşımlı bileşen oluşturuldu. Özellikler:</p>
+        <h3>Çözüm — <code>components/ui/Toggle.tsx</code> (v2 Yeniden Tasarım)</h3>
+        <p>iOS tarzı geniş pill toggle. Özellikler:</p>
         <ul style="margin-top:8px">
+          <li><strong>Geniş pill şekli:</strong> <code>md</code> → 56×28 px, <code>sm</code> → 40×24 px (eski: 44×24, 32×18)</li>
+          <li><strong>Büyük thumb:</strong> track yüksekliğinin ~%78'i — md: 22×22 px, sm: 18×18 px</li>
+          <li><strong>Honey gradient:</strong> aktif hâlde <code>bg-gradient-to-br from-honey to-honey-dark</code> + turuncu amber glow gölgesi</li>
+          <li><strong>Smooth animasyon:</strong> <code>ease-in-out duration-300</code></li>
           <li><strong>ARIA uyumlu:</strong> <code>role="switch"</code>, <code>aria-checked</code>, <code>aria-label</code></li>
-          <li><strong>İki boyut:</strong> <code>size="md"</code> (w-11 h-6, varsayılan) ve <code>size="sm"</code> (w-8 h-[18px])</li>
-          <li><strong>Marka rengi:</strong> aktif hâlde <code>bg-honey-dark</code>, pasif hâlde <code>bg-gray-200</code></li>
-          <li><strong>Derin gölge:</strong> thumb üzerinde <code>shadow-[0_1px_3px_rgba(0,0,0,0.25)]</code>, track üzerinde iç gölge</li>
-          <li><strong>Disabled desteği:</strong> <code>opacity-40 cursor-not-allowed</code></li>
-          <li><strong>Focus ring:</strong> <code>focus-visible:ring-honey</code></li>
+          <li><strong>Disabled &amp; focus ring</strong> destekli</li>
         </ul>
         <pre><span class="cm">// components/ui/Toggle.tsx — kullanım</span>
 <span class="str">&lt;Toggle</span> <span class="nm">checked</span>=&#123;isActive&#125; <span class="nm">onChange</span>=&#123;(v) =&gt; setActive(v)&#125; <span class="str">/&gt;</span>
@@ -12551,7 +12551,7 @@ if (session?.user?.id) {
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 228 (Paylaşımlı Toggle Bileşeni) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 228 (Toggle v2: Geniş Pill + Honey Gradient) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

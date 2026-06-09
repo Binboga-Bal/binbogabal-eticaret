@@ -9,14 +9,16 @@ interface ToggleProps {
 }
 
 export function Toggle({ checked, onChange, disabled = false, size = "md", label }: ToggleProps) {
-  const track =
-    size === "sm"
-      ? "w-8 h-[18px]"
-      : "w-11 h-6";
-  const thumb =
-    size === "sm"
-      ? `w-3 h-3 top-[3px] ${checked ? "translate-x-[18px]" : "translate-x-[3px]"}`
-      : `w-4 h-4 top-1 ${checked ? "translate-x-6" : "translate-x-1"}`;
+  const isMd = size === "md";
+
+  // md: 56×28px  |  sm: 40×24px
+  const track = isMd ? "w-14 h-7" : "w-10 h-6";
+
+  // thumb neredeyse track yüksekliğini dolduruyor (md: 22/28 ≈ 79%, sm: 18/24 = 75%)
+  const thumbSize = isMd ? "w-[22px] h-[22px] top-[3px]" : "w-[18px] h-[18px] top-[3px]";
+  const thumbPos  = checked
+    ? isMd ? "translate-x-[31px]" : "translate-x-[19px]"
+    : "translate-x-[3px]";
 
   return (
     <button
@@ -27,18 +29,21 @@ export function Toggle({ checked, onChange, disabled = false, size = "md", label
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
       className={[
-        "relative shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-honey",
+        "relative shrink-0 rounded-full transition-all duration-300 ease-in-out",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-honey",
         track,
         checked
-          ? "bg-honey-dark shadow-[inset_0_1px_3px_rgba(0,0,0,0.15)]"
-          : "bg-gray-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)]",
+          ? "bg-gradient-to-br from-honey to-honey-dark shadow-[0_2px_10px_rgba(197,121,48,0.45)]"
+          : "bg-gray-200",
         disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
       ].join(" ")}
     >
       <span
         className={[
-          "absolute bg-white rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.25)] transition-transform duration-200",
-          thumb,
+          "absolute bg-white rounded-full transition-transform duration-300 ease-in-out",
+          "shadow-[0_1px_4px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.12)]",
+          thumbSize,
+          thumbPos,
         ].join(" ")}
       />
     </button>
