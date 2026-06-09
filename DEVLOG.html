@@ -11276,10 +11276,106 @@ h-64 lg:h-auto flex-1</pre>
       </div>
     </section>
 
+    <!-- ═══════════════════════════════ STEP 220 -->
+    <div class="date-header" style="margin-top:64px">
+      <div class="date-pill">9 Haziran 2026 — Canlı Destek Bildirimleri</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 220</div>
+    </div>
+
+    <section id="step220">
+      <h2>220 — Canlı Destek Mesaj Bildirimleri (Ses + Badge + Başlık + Push)</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">Chat</span>
+        <span class="tag tag-blue">UX</span>
+        <span class="tag tag-teal">1 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Kullanıcı sayfada gezinirken ya da sekme arka plandayken admin'den mesaj geldiğinde
+        4 katmanlı bildirim sistemi devreye girer. Her katman birbirinden bağımsız çalışır;
+        herhangi birinin devre dışı olması diğerlerini etkilemez.
+      </p>
+
+      <div class="card">
+        <h3>4 Katmanlı Bildirim — <code>components/shop/support/SupportFAB.tsx</code></h3>
+        <table>
+          <thead><tr><th>Katman</th><th>Teknoloji</th><th>İzin Gerekir mi?</th><th>Ne Zaman Tetiklenir?</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>🔴 FAB Unread Badge</td>
+              <td>React state (<code>unreadCount</code>)</td>
+              <td>Hayır</td>
+              <td>Chat kapalıyken ya da sekme arka plandayken admin mesajı gelince</td>
+            </tr>
+            <tr>
+              <td>🎵 Bildirim Sesi</td>
+              <td>Web Audio API (La5 + Do#6)</td>
+              <td>Hayır</td>
+              <td>Aynı koşullarda; dosya gerektirmez, tarayıcıda üretilir</td>
+            </tr>
+            <tr>
+              <td>📄 Sayfa Başlığı</td>
+              <td><code>document.title</code></td>
+              <td>Hayır</td>
+              <td>Sekme adı <code>(N) Yeni mesajınız var 💬</code> olur</td>
+            </tr>
+            <tr>
+              <td>🔔 Browser Push</td>
+              <td>Notification API</td>
+              <td>Evet</td>
+              <td>Yalnızca sekme arka plandayken (<code>document.hidden</code>); izin verilmezse sessizce atlanır</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Polling Mimarisi Değişikliği</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">
+          Önceki davranış: polling yalnızca chat paneli <strong>açıkken</strong> çalışıyordu.
+          Yeni davranış: <code>sessionId</code> varsa chat <strong>kapalı olsa bile</strong> 3 saniyede bir polling devam eder.
+        </p>
+        <ul>
+          <li>Mount'ta <code>localStorage</code>'dan <code>sessionId</code> geri yüklenerek polling hemen başlatılır</li>
+          <li>İlk poll (geçmiş mesajlar) bildirim tetiklemez — <code>hasInitializedPollRef</code> ile ayrıştırıldı</li>
+          <li>Session kapanınca (<code>CLOSED</code>) polling durur, <code>sessionId</code> ve localStorage temizlenir</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Badge UX İyileştirmesi</h3>
+        <ul>
+          <li>Okunmamış mesaj varken FAB'e tıklamak doğrudan chat'i açar (alt menü atlanır)</li>
+          <li>Badge 9'u geçince <code>9+</code> gösterir, <code>ring-2 ring-white</code> ile FAB'dan ayrışır</li>
+          <li>Chat açılınca <code>unreadCount</code> sıfırlanır, sayfa başlığı orijinal değere döner</li>
+          <li>Mesaj yokken eski sarı <code>animate-ping</code> halkası görünmeye devam eder</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>İzin Yönetimi</h3>
+        <ul>
+          <li>Chat paneli ilk açılışında <code>Notification.requestPermission()</code> tetiklenir (kullanıcı etkileşimi gerektirir)</li>
+          <li>İzin verilmezse (<code>denied</code> / <code>default</code>) yalnızca browser push atlanır; ses, başlık ve badge çalışır</li>
+          <li><code>typeof Notification === "undefined"</code> kontrolüyle iOS Safari uyumluluğu sağlandı</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>Kullanıcı farklı sayfada gezinirken ya da sekme arka plandayken yeni mesajı kaçırmaz</li>
+          <li>İzin reddedilse bile 3 görsel/işitsel katman çalışmaya devam eder</li>
+          <li>Ekstra bağımlılık, dosya ya da servis eklenmedi</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 219 (Gerçek Zamanlı Canlı Destek Sistemi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 220 (Canlı Destek Mesaj Bildirimleri) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
