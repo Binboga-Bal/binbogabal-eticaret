@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth/session";
 import { can } from "@/lib/rbac/permission-checker";
 import { prisma } from "@/lib/prisma";
+import { PackagingType } from "@prisma/client";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -16,7 +17,7 @@ export async function PUT(req: Request, { params }: Params) {
   const { variants, ...productData } = body;
 
   try {
-    type VariantInput = { id?: string; erpVariantCode?: string | null; size: number; packagingType: string; price: number; discountedPrice: number | null; stock: number; sku: string; maxOrderQuantity?: number | null };
+    type VariantInput = { id?: string; erpVariantCode?: string | null; size: number; packagingType: PackagingType; price: number; discountedPrice: number | null; stock: number; sku: string; maxOrderQuantity?: number | null };
     const existingVariants = variants.filter((v: VariantInput) => v.id);
     const newVariants = variants.filter((v: VariantInput) => !v.id);
     const keptIds = existingVariants.map((v: VariantInput) => v.id as string);
