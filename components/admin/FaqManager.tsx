@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, Plus, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Toggle } from "@/components/ui/Toggle";
 
 interface FAQ {
   id: string;
@@ -64,16 +65,11 @@ export function FaqManager({ initialFaqs }: { initialFaqs: FAQ[] }) {
                 <p className="text-xs text-gray-500 mt-1 line-clamp-2">{faq.answer}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={faq.isActive}
-                    onChange={(e) => toggleActive(faq.id, e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-honey-dark transition-colors" />
-                  <div className="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4" />
-                </label>
+                <Toggle
+                  checked={faq.isActive}
+                  onChange={(v) => toggleActive(faq.id, v)}
+                  size="sm"
+                />
                 <button onClick={() => deleteFaq(faq.id)} className="text-gray-400 hover:text-red-500">
                   <Trash2 size={14} />
                 </button>

@@ -3,37 +3,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useCookieConsent } from "@/store/cookieConsent";
-
-function Toggle({
-  checked,
-  onChange,
-  disabled,
-}: {
-  checked: boolean;
-  onChange?: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={disabled ? undefined : onChange}
-      className={[
-        "relative shrink-0 mt-0.5 w-11 h-6 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey",
-        checked ? "bg-honey-dark" : "bg-gray-200",
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-      ].join(" ")}
-    >
-      <span
-        className={[
-          "absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200",
-          checked ? "translate-x-6" : "translate-x-1",
-        ].join(" ")}
-      />
-    </button>
-  );
-}
+import { Toggle } from "@/components/ui/Toggle";
 
 export function CookieConsentBanner() {
   const {
@@ -157,7 +127,7 @@ export function CookieConsentBanner() {
                     Giriş, sepet ve güvenlik. Sitenin çalışması için şarttır.
                   </p>
                 </div>
-                <Toggle checked disabled />
+                <Toggle checked onChange={() => {}} disabled />
               </div>
 
               {/* Analitik */}
@@ -173,7 +143,7 @@ export function CookieConsentBanner() {
                 </div>
                 <Toggle
                   checked={localAnalytics}
-                  onChange={() => setLocalAnalytics((v) => !v)}
+                  onChange={(v) => setLocalAnalytics(v)}
                 />
               </div>
 
@@ -190,7 +160,7 @@ export function CookieConsentBanner() {
                 </div>
                 <Toggle
                   checked={localMarketing}
-                  onChange={() => setLocalMarketing((v) => !v)}
+                  onChange={(v) => setLocalMarketing(v)}
                 />
               </div>
             </div>

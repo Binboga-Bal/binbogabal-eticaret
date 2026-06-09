@@ -705,7 +705,10 @@
       <a href="#step226" class="nav-link"><span class="dot"></span>226 — Site Bakım Modu</a>
 
       <div class="nav-section-label">9 Haziran 2026 — Bugfix</div>
-      <a href="#step227" class="nav-link active"><span class="dot"></span>227 — Bakım Modu Kapatma Gecikmesi</a>
+      <a href="#step227" class="nav-link"><span class="dot"></span>227 — Bakım Modu Kapatma Gecikmesi</a>
+
+      <div class="nav-section-label">9 Haziran 2026 — UI Bileşeni</div>
+      <a href="#step228" class="nav-link active"><span class="dot"></span>228 — Paylaşımlı Toggle Bileşeni</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -12479,10 +12482,76 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ═══════════════════════════ STEP 228 — Paylaşımlı Toggle Bileşeni -->
+    <div class="date-header">
+      <div class="date-pill">9 Haziran 2026 — UI Bileşeni</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 228</div>
+    </div>
+
+    <section class="section" id="step228">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(167,139,250,.15)">🔘</div>
+        <h2>Adım 228 — Paylaşımlı Toggle Bileşeni</h2>
+      </div>
+
+      <div class="card">
+        <h3>Sorun</h3>
+        <p>
+          Projede 5 farklı yerde 5 farklı toggle implementasyonu bulunuyordu:
+        </p>
+        <ul style="margin-top:8px">
+          <li><code>SettingsForm.tsx</code> — <code>relative inline-flex h-6 w-11</code> inline buton</li>
+          <li><code>FaqManager.tsx</code> — <code>w-8 h-4</code> CSS <code>peer</code> yaklaşımı (daha küçük, farklı boyut)</li>
+          <li><code>RedirectsManager.tsx</code> — <code>w-8 h-4 rounded-full</code> buton, <strong>thumb (yuvarlak gösterge) yok</strong></li>
+          <li><code>CookieConsentBanner.tsx</code> — dosyaya özel yerel <code>Toggle</code> fonksiyonu</li>
+          <li><code>VolumeDiscountManager.tsx</code> — <code>w-5 h-5 rounded-full border-2</code> daire+tik butonu</li>
+        </ul>
+        <div class="alert alert-warn" style="margin-top:12px">
+          <span class="alert-label">SORUN:</span>
+          Tutarsız boyutlar, farklı renk sınıfları, bir implementasyonda thumb göstergesi hiç yoktu.
+          Her düzeltme ayrı dosyada yapılmak zorunda kalıyordu.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm — <code>components/ui/Toggle.tsx</code></h3>
+        <p>Tek paylaşımlı bileşen oluşturuldu. Özellikler:</p>
+        <ul style="margin-top:8px">
+          <li><strong>ARIA uyumlu:</strong> <code>role="switch"</code>, <code>aria-checked</code>, <code>aria-label</code></li>
+          <li><strong>İki boyut:</strong> <code>size="md"</code> (w-11 h-6, varsayılan) ve <code>size="sm"</code> (w-8 h-[18px])</li>
+          <li><strong>Marka rengi:</strong> aktif hâlde <code>bg-honey-dark</code>, pasif hâlde <code>bg-gray-200</code></li>
+          <li><strong>Derin gölge:</strong> thumb üzerinde <code>shadow-[0_1px_3px_rgba(0,0,0,0.25)]</code>, track üzerinde iç gölge</li>
+          <li><strong>Disabled desteği:</strong> <code>opacity-40 cursor-not-allowed</code></li>
+          <li><strong>Focus ring:</strong> <code>focus-visible:ring-honey</code></li>
+        </ul>
+        <pre><span class="cm">// components/ui/Toggle.tsx — kullanım</span>
+<span class="str">&lt;Toggle</span> <span class="nm">checked</span>=&#123;isActive&#125; <span class="nm">onChange</span>=&#123;(v) =&gt; setActive(v)&#125; <span class="str">/&gt;</span>
+<span class="str">&lt;Toggle</span> <span class="nm">checked</span>=&#123;isActive&#125; <span class="nm">onChange</span>=&#123;(v) =&gt; setActive(v)&#125; <span class="nm">size</span>=<span class="str">"sm"</span> <span class="str">/&gt;</span>
+<span class="str">&lt;Toggle</span> <span class="nm">checked</span> <span class="nm">onChange</span>=&#123;() =&gt; &#123;&#125;&#125; <span class="nm">disabled</span> <span class="str">/&gt;</span></pre>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen / Oluşturulan Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/ui/Toggle.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — YENİ: paylaşımlı Toggle bileşeni (md/sm, disabled, ARIA)</span><br>
+          <span class="file mod">components/admin/SettingsForm.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — inline buton → &lt;Toggle /&gt;</span><br>
+          <span class="file mod">components/admin/FaqManager.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — peer checkbox label → &lt;Toggle size="sm" /&gt;</span><br>
+          <span class="file mod">components/admin/seo/RedirectsManager.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — thumbsuz buton → &lt;Toggle size="sm" /&gt;</span><br>
+          <span class="file mod">components/shop/cookie/CookieConsentBanner.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — yerel Toggle fonksiyonu kaldırıldı, ui/Toggle import edildi</span>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 227 (Bakım Modu Kapatma Gecikmesi Düzeltmesi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 228 (Paylaşımlı Toggle Bileşeni) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

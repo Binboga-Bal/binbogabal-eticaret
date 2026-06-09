@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Toggle } from "@/components/ui/Toggle";
 
 interface Setting { key: string; label: string; value: string; type?: string; description?: string; options?: { label: string; value: string }[] }
 
@@ -36,19 +37,11 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
                   {s.description ?? (values[s.key] === "true" ? "Aktif" : "Pasif")}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setValues({ ...values, [s.key]: values[s.key] === "true" ? "false" : "true" })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  values[s.key] === "true" ? "bg-honey-dark" : "bg-gray-200"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    values[s.key] === "true" ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </button>
+              <Toggle
+                checked={values[s.key] === "true"}
+                onChange={(v) => setValues({ ...values, [s.key]: v ? "true" : "false" })}
+                label={s.label}
+              />
             </div>
           ) : s.type === "select" && s.options ? (
             <>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2, Edit3, Check, X } from "lucide-react";
 import Link from "next/link";
+import { Toggle } from "@/components/ui/Toggle";
 
 interface RedirectItem {
   id: string;
@@ -134,7 +135,7 @@ export function RedirectsManager({ initialItems, total, page, q }: Props) {
                 </td>
                 <td className="px-4 py-3 text-right text-xs text-gray-500">{item.hitCount}</td>
                 <td className="px-4 py-3 text-center">
-                  <button onClick={() => toggle(item.id, !item.isActive)} className={`w-8 h-4 rounded-full transition-colors ${item.isActive ? "bg-green-400" : "bg-gray-200"}`} />
+                  <Toggle checked={item.isActive} onChange={(v) => toggle(item.id, v)} size="sm" />
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button onClick={() => remove(item.id)} className="text-red-400 hover:text-red-600 p-1">
