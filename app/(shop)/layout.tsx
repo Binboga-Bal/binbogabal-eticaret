@@ -26,6 +26,15 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   const s = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   const logoSrc = s.img_logo ?? footerTheme.logo.src;
 
+  // Müşteri tipi: oturum yoksa veya sipariş yoksa YENI_MUSTERI
+  let customerType: "YENI_MUSTERI" | "MEVCUT_MUSTERI" = "YENI_MUSTERI";
+  if (session?.user?.id) {
+    const orderCount = await prisma.order
+      .count({ where: { userId: session.user.id } })
+      .catch(() => 0);
+    customerType = orderCount > 0 ? "MEVCUT_MUSTERI" : "YENI_MUSTERI";
+  }
+
   return (
     <>
       <Header logoSrc={logoSrc} />
@@ -44,6 +53,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
         whatsappNumber={s.social_whatsapp ?? ""}
         userName={session?.user?.name ?? null}
         userId={session?.user?.id ?? null}
+        customerType={customerType}
       />
     </>
   );

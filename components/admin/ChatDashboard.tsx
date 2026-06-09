@@ -47,13 +47,22 @@ interface ChatSession {
   _count: { messages: number };
 }
 
+type QuickReplyCategory = "GENEL" | "YENI_MUSTERI" | "MEVCUT_MUSTERI";
+
 interface QuickReply {
   id: string;
   question: string;
   answer: string;
+  category: QuickReplyCategory;
   order: number;
   isActive: boolean;
 }
+
+const CATEGORY_META: Record<QuickReplyCategory, { label: string; color: string }> = {
+  GENEL:          { label: "Genel",          color: "bg-gray-100 text-gray-600" },
+  YENI_MUSTERI:   { label: "Yeni Müşteri",   color: "bg-blue-100 text-blue-700" },
+  MEVCUT_MUSTERI: { label: "Mevcut Müşteri", color: "bg-green-100 text-green-700" },
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -183,10 +192,13 @@ function QuickRepliesTab() {
   const [loading, setLoading] = useState(true);
   const [newQ, setNewQ] = useState("");
   const [newA, setNewA] = useState("");
+  const [newCat, setNewCat] = useState<QuickReplyCategory>("GENEL");
   const [saving, setSaving] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editQ, setEditQ] = useState("");
   const [editA, setEditA] = useState("");
+  const [editCat, setEditCat] = useState<QuickReplyCategory>("GENEL");
+  const [filterCat, setFilterCat] = useState<QuickReplyCategory | "TUMU">("TUMU");
 
   useEffect(() => {
     fetch("/api/admin/chat/quick-replies")
@@ -200,12 +212,13 @@ function QuickRepliesTab() {
     const res = await fetch("/api/admin/chat/quick-replies", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: newQ, answer: newA, order: replies.length }),
+      body: JSON.stringify({ question: newQ, answer: newA, category: newCat, order: replies.length }),
     });
     const reply = await res.json();
     setReplies((prev) => [...prev, reply]);
     setNewQ("");
     setNewA("");
+    setNewCat("GENEL");
     setSaving(false);
   }
 
@@ -227,24 +240,43 @@ function QuickRepliesTab() {
     await fetch(`/api/admin/chat/quick-replies/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: editQ, answer: editA }),
+      body: JSON.stringify({ question: editQ, answer: editA, category: editCat }),
     });
     setReplies((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, question: editQ, answer: editA } : r))
+      prev.map((r) => (r.id === id ? { ...r, question: editQ, answer: editA, category: editCat } : r))
     );
     setEditId(null);
   }
+
+  const visibleReplies = filterCat === "TUMU" ? replies : replies.filter((r) => r.category === filterCat);
 
   if (loading) return <div className="p-8 text-center text-gray-400">Yükleniyor…</div>;
 
   return (
     <div className="p-6 space-y-6">
+      {/* ── Yeni Ekle ── */}
       <div>
         <h3 className="font-semibold text-gray-800 mb-1">Hızlı Yanıt Ekle</h3>
         <p className="text-sm text-gray-500 mb-4">
-          Chat penceresinde görünen hazır soru/cevap kartları. Kullanıcı tıkladığında bot otomatik yanıt verir.
+          Chat penceresinde görünen hazır soru/cevap kartları. Kategori seçerek hangi müşteri grubuna gösterileceğini belirleyin.
         </p>
         <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+          {/* Kategori seçimi */}
+          <div className="flex gap-2 flex-wrap">
+            {(Object.keys(CATEGORY_META) as QuickReplyCategory[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setNewCat(cat)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border-2 transition-all ${
+                  newCat === cat
+                    ? "border-amber-400 " + CATEGORY_META[cat].color
+                    : "border-transparent " + CATEGORY_META[cat].color + " opacity-50"
+                }`}
+              >
+                {CATEGORY_META[cat].label}
+              </button>
+            ))}
+          </div>
           <Input
             value={newQ}
             onChange={(e) => setNewQ(e.target.value)}
@@ -268,21 +300,63 @@ function QuickRepliesTab() {
         </div>
       </div>
 
+      {/* ── Liste ── */}
       <div>
-        <h3 className="font-semibold text-gray-800 mb-3">Mevcut Hızlı Yanıtlar ({replies.length})</h3>
-        {replies.length === 0 && (
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h3 className="font-semibold text-gray-800">Mevcut Hızlı Yanıtlar ({replies.length})</h3>
+          {/* Kategori filtresi */}
+          <div className="flex gap-1.5 flex-wrap">
+            <button
+              onClick={() => setFilterCat("TUMU")}
+              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${filterCat === "TUMU" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            >
+              Tümü
+            </button>
+            {(Object.keys(CATEGORY_META) as QuickReplyCategory[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilterCat(cat)}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                  filterCat === cat
+                    ? "ring-2 ring-offset-1 ring-amber-400 " + CATEGORY_META[cat].color
+                    : CATEGORY_META[cat].color + " opacity-70 hover:opacity-100"
+                }`}
+              >
+                {CATEGORY_META[cat].label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {visibleReplies.length === 0 && (
           <p className="text-sm text-gray-400 text-center py-8 border-2 border-dashed rounded-xl">
-            Henüz hızlı yanıt eklenmedi.
+            {filterCat === "TUMU" ? "Henüz hızlı yanıt eklenmedi." : "Bu kategoride yanıt yok."}
           </p>
         )}
         <div className="space-y-3">
-          {replies.map((r) => (
+          {visibleReplies.map((r) => (
             <div
               key={r.id}
               className={`border rounded-xl p-4 transition-opacity ${r.isActive ? "border-gray-200 bg-white" : "border-gray-100 bg-gray-50 opacity-60"}`}
             >
               {editId === r.id ? (
                 <div className="space-y-2">
+                  {/* Düzenleme: kategori seçimi */}
+                  <div className="flex gap-2 flex-wrap">
+                    {(Object.keys(CATEGORY_META) as QuickReplyCategory[]).map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setEditCat(cat)}
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium border-2 transition-all ${
+                          editCat === cat
+                            ? "border-amber-400 " + CATEGORY_META[cat].color
+                            : "border-transparent " + CATEGORY_META[cat].color + " opacity-50"
+                        }`}
+                      >
+                        {CATEGORY_META[cat].label}
+                      </button>
+                    ))}
+                  </div>
                   <Input value={editQ} onChange={(e) => setEditQ(e.target.value)} />
                   <textarea
                     value={editA}
@@ -300,12 +374,16 @@ function QuickRepliesTab() {
               ) : (
                 <div className="flex gap-3">
                   <div className="flex-1 min-w-0">
+                    {/* Kategori badge */}
+                    <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-1.5 ${CATEGORY_META[r.category]?.color ?? "bg-gray-100 text-gray-600"}`}>
+                      {CATEGORY_META[r.category]?.label ?? r.category}
+                    </span>
                     <p className="font-medium text-sm text-gray-900">{r.question}</p>
                     <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.answer}</p>
                   </div>
                   <div className="flex items-start gap-1 flex-shrink-0">
                     <button
-                      onClick={() => { setEditId(r.id); setEditQ(r.question); setEditA(r.answer); }}
+                      onClick={() => { setEditId(r.id); setEditQ(r.question); setEditA(r.answer); setEditCat(r.category); }}
                       className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
                       title="Düzenle"
                     >

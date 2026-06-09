@@ -17,10 +17,11 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const body = await req.json();
-  const { question, answer, order } = body as {
+  const { question, answer, order, category } = body as {
     question: string;
     answer: string;
     order?: number;
+    category?: string;
   };
 
   if (!question?.trim() || !answer?.trim()) {
@@ -28,7 +29,12 @@ export async function POST(req: Request) {
   }
 
   const reply = await prisma.chatQuickReply.create({
-    data: { question: question.trim(), answer: answer.trim(), order: order ?? 0 },
+    data: {
+      question: question.trim(),
+      answer: answer.trim(),
+      order: order ?? 0,
+      category: (category as "GENEL" | "YENI_MUSTERI" | "MEVCUT_MUSTERI") ?? "GENEL",
+    },
   });
 
   return NextResponse.json(reply);

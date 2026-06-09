@@ -91,10 +91,12 @@ export function SupportFAB({
   whatsappNumber = "",
   userName = null,
   userId = null,
+  customerType = "YENI_MUSTERI",
 }: {
   whatsappNumber?: string;
   userName?: string | null;
   userId?: string | null;
+  customerType?: "YENI_MUSTERI" | "MEVCUT_MUSTERI";
 }) {
   const number = whatsappNumber.replace(/\D/g, "");
 
@@ -137,13 +139,13 @@ export function SupportFAB({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // ── Hızlı yanıtları yükle ─────────────────────────────────────────────────
+  // ── Hızlı yanıtları yükle (müşteri tipine göre filtrelenir) ───────────────
   useEffect(() => {
-    fetch("/api/chat/quick-replies")
+    fetch(`/api/chat/quick-replies?type=${customerType}`)
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setQuickReplies(data); })
       .catch(() => {});
-  }, []);
+  }, [customerType]);
 
   // ── Mount'ta oturumu geri yükle (chat açık olmasa bile polling başlasın) ────
   useEffect(() => {

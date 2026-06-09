@@ -1614,12 +1614,19 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
+enum ChatQuickReplyCategory {
+  GENEL
+  YENI_MUSTERI
+  MEVCUT_MUSTERI
+}
+
 model ChatQuickReply {
-  id       String  @id @default(cuid())
+  id       String                 @id @default(cuid())
   question String
-  answer   String  @db.Text
-  order    Int     @default(0)
-  isActive Boolean @default(true)
+  answer   String                 @db.Text
+  category ChatQuickReplyCategory @default(GENEL)
+  order    Int                    @default(0)
+  isActive Boolean                @default(true)
 
   @@map("chat_quick_replies")
 }

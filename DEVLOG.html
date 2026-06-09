@@ -11372,10 +11372,122 @@ h-64 lg:h-auto flex-1</pre>
       </div>
     </section>
 
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- ADIM 221 — Hızlı Yanıt Kategori Sistemi                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section class="step" id="adim-221">
+      <div class="step-header">
+        <div class="step-meta">
+          <span class="step-number">221</span>
+          <div>
+            <div class="step-title">Hızlı Yanıt Kategori Sistemi</div>
+            <div class="step-subtitle">Yeni / Mevcut Müşteri Bazlı Hızlı Yanıtlar</div>
+          </div>
+        </div>
+        <div class="step-badges">
+          <span class="badge badge-feature">Özellik</span>
+          <span class="badge badge-ux">UX</span>
+        </div>
+      </div>
+
+      <div class="date-row">
+        <div class="date-pill">9 Haziran 2026 — Hızlı Yanıt Kategorileri</div>
+        <div class="date-line"></div>
+        <div class="date-count">Adım 221</div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">🎯 Gereksinim</h3>
+        <p class="section-text">
+          Canlı destek chat'indeki hızlı yanıt kartlarının müşteri segmentine göre farklılaştırılması istendi:
+          Hiç alışveriş yapmamış (yeni) müşterilere farklı, daha önce sipariş vermiş (mevcut) müşterilere
+          ise o müşteriye özel sorular gösterilecek. Admin panelden her gruba ait yanıtlar ayrı ayrı yönetilebilecek.
+        </p>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">🗄️ Veritabanı — <code>ChatQuickReplyCategory</code> Enum</h3>
+        <p class="section-text">Prisma şemasına yeni enum eklenmişti (Adım 219). Bu adımda tam olarak devreye alındı:</p>
+        <div class="code-block"><pre>enum ChatQuickReplyCategory {
+  GENEL           // Her müşteriye gösterilir
+  YENI_MUSTERI    // Hiç sipariş vermemiş müşteriler
+  MEVCUT_MUSTERI  // En az 1 sipariş vermiş müşteriler
+}</pre></div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">🔌 API — <code>GET /api/chat/quick-replies?type=…</code></h3>
+        <p class="section-text">
+          SupportFAB, müşteri tipini (YENI_MUSTERI / MEVCUT_MUSTERI) query param olarak iletir.
+          Endpoint her zaman <code>GENEL</code> + gelen kategoriyi birlikte döndürür:
+        </p>
+        <div class="code-block"><pre>const categories = type && validTypes.includes(type)
+  ? ["GENEL", type]
+  : ["GENEL"];
+// → isActive: true olan yanıtları filtrele</pre></div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">🛒 Müşteri Tipi Belirleme — <code>app/(shop)/layout.tsx</code></h3>
+        <p class="section-text">
+          Shop layout'u sunucu bileşeni olduğu için sipariş sayısı doğrudan Prisma'dan okunur.
+          Oturum açmamış veya siparişi olmayan kullanıcılar <code>YENI_MUSTERI</code> olarak işaretlenir:
+        </p>
+        <div class="code-block"><pre>let customerType: "YENI_MUSTERI" | "MEVCUT_MUSTERI" = "YENI_MUSTERI";
+if (session?.user?.id) {
+  const orderCount = await prisma.order
+    .count({ where: { userId: session.user.id } })
+    .catch(() => 0);
+  customerType = orderCount > 0 ? "MEVCUT_MUSTERI" : "YENI_MUSTERI";
+}
+// → SupportFAB'a prop olarak geçilir</pre></div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">⚙️ Admin Paneli — <code>components/admin/ChatDashboard.tsx</code></h3>
+        <p class="section-text">QuickRepliesTab bileşenine kapsamlı kategori desteği eklendi:</p>
+        <ul class="feature-list">
+          <li><strong>CATEGORY_META</strong> sabiti — <code>GENEL</code>, <code>YENI_MUSTERI</code>, <code>MEVCUT_MUSTERI</code> için
+            etiket ve renk tanımları (<code>bg-gray-100</code>, <code>bg-blue-100</code>, <code>bg-green-100</code>)</li>
+          <li><strong>Yeni yanıt ekle formu</strong> — Pill-shaped kategori seçici butonlar;
+            seçilen kategori amber kenarlıkla vurgulanır</li>
+          <li><strong>Düzenleme formu</strong> — Mevcut yanıtı düzenlerken kategori de değiştirilebilir;
+            <code>editCat</code> state'i, <code>saveEdit()</code>'te PATCH body'ye eklenir</li>
+          <li><strong>Filtre chip'leri</strong> — Liste başında "Tümü / Genel / Yeni Müşteri / Mevcut Müşteri"
+            butonları; <code>filterCat</code> state'ine göre <code>visibleReplies</code> hesaplanır</li>
+          <li><strong>Kategori badge</strong> — Her yanıt kartında renk kodlu küçük etiket</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">📄 Değişen Dosyalar</h3>
+        <ul class="file-list">
+          <li><code>components/admin/ChatDashboard.tsx</code> — QuickRepliesTab tam kategori desteği</li>
+          <li><code>app/(shop)/layout.tsx</code> — <code>customerType</code> hesaplaması + SupportFAB prop</li>
+          <li><code>components/shop/support/SupportFAB.tsx</code> — <code>?type=</code> query param ile yanıt çekme</li>
+          <li><code>app/api/chat/quick-replies/route.ts</code> — Çoklu kategori filtreleme</li>
+          <li><code>app/api/admin/chat/quick-replies/route.ts</code> — POST body'de <code>category</code> alanı</li>
+          <li><code>app/api/admin/chat/quick-replies/[id]/route.ts</code> — PATCH passthrough (zaten <code>data: body</code>)</li>
+          <li><code>prisma/schema.prisma</code> — <code>ChatQuickReplyCategory</code> enum + <code>ChatQuickReply.category</code> alanı</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">✅ Sonuç</h3>
+        <ul class="feature-list">
+          <li>Yeni müşteriler → "Kargo süresi?", "Nasıl sipariş veririm?" tarzı sorular</li>
+          <li>Mevcut müşteriler → "Siparişim nerede?", "İade nasıl yapılır?" tarzı sorular</li>
+          <li>GENEL kategorisi her iki gruba da görünür (ör. WhatsApp ile iletişim)</li>
+          <li>TypeScript kontrolü (<code>pnpm tsc --noEmit</code>) hatasız geçti</li>
+          <li>Yeni bağımlılık eklenmedi</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 220 (Canlı Destek Mesaj Bildirimleri) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 221 (Hızlı Yanıt Kategori Sistemi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
