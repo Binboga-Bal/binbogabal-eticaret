@@ -16,7 +16,7 @@ export function FaqSection({ faqs }: FaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-16 bg-white">
+    <section id="sss" className="py-16 bg-white scroll-mt-36">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-center section-title mb-10">SIKÇA SORULAN SORULAR</h2>
 

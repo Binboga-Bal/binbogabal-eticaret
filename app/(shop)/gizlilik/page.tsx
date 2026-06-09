@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Gizlilik Politikası | Binboğa Bal",
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email" } });
+  const contactEmail = setting?.value ?? "info@binbogabal.com.tr";
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
       <h1 className="text-3xl font-black text-gray-900 mb-2">Gizlilik Politikası</h1>
       <p className="text-sm text-gray-400 mb-10">Son güncelleme: Ocak 2025</p>
 
@@ -55,8 +59,8 @@ export default function PrivacyPage() {
           <p>
             KVKK kapsamında verilerinize erişim, düzeltme, silme ve işlemeyi durdurma haklarına
             sahipsiniz. Bu haklarınızı kullanmak için{" "}
-            <a href="mailto:info@binbogabal.com.tr" className="text-honey-dark hover:underline">
-              info@binbogabal.com.tr
+            <a href={`mailto:${contactEmail}`} className="text-honey-dark hover:underline">
+              {contactEmail}
             </a>{" "}
             adresine başvurabilirsiniz.
           </p>
@@ -70,8 +74,8 @@ export default function PrivacyPage() {
             S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi
             <br />
             E-posta:{" "}
-            <a href="mailto:info@binbogabal.com.tr" className="text-honey-dark hover:underline">
-              info@binbogabal.com.tr
+            <a href={`mailto:${contactEmail}`} className="text-honey-dark hover:underline">
+              {contactEmail}
             </a>
           </p>
         </section>

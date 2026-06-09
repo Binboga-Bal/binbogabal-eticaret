@@ -1,35 +1,39 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RefreshCw, Package, Mail, Clock } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "İade & Değişim | Binboğa Bal",
 };
 
-const steps = [
-  {
-    icon: <Mail size={24} />,
-    title: "Bize Bildirin",
-    desc: "iade@binbogabal.com.tr adresine sipariş numaranız ve iade nedeninizle e-posta gönderin.",
-  },
-  {
-    icon: <Package size={24} />,
-    title: "Ürünü Paketleyin",
-    desc: "Ürünü orijinal ambalajında, hasar vermeden paketleyin.",
-  },
-  {
-    icon: <RefreshCw size={24} />,
-    title: "Kargoya Verin",
-    desc: "İade kargosunu anlaşmalı kargo firmasıyla gönderin. Kargo ücreti size aittir.",
-  },
-  {
-    icon: <Clock size={24} />,
-    title: "İadenizi Alın",
-    desc: "Ürün incelendikten sonra 14 iş günü içinde ödemeniz iade edilir.",
-  },
-];
+export default async function ReturnPage() {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email_iade" } });
+  const iadeEmail = setting?.value ?? "iade@binbogabal.com.tr";
 
-export default function ReturnPage() {
+  const steps = [
+    {
+      icon: <Mail size={24} />,
+      title: "Bize Bildirin",
+      desc: `${iadeEmail} adresine sipariş numaranız ve iade nedeninizle e-posta gönderin.`,
+    },
+    {
+      icon: <Package size={24} />,
+      title: "Ürünü Paketleyin",
+      desc: "Ürünü orijinal ambalajında, hasar vermeden paketleyin.",
+    },
+    {
+      icon: <RefreshCw size={24} />,
+      title: "Kargoya Verin",
+      desc: "İade kargosunu anlaşmalı kargo firmasıyla gönderin. Kargo ücreti size aittir.",
+    },
+    {
+      icon: <Clock size={24} />,
+      title: "İadenizi Alın",
+      desc: "Ürün incelendikten sonra 14 iş günü içinde ödemeniz iade edilir.",
+    },
+  ];
+
   return (
     <>
       <section className="bg-honey-dark py-14 text-white text-center">
@@ -41,7 +45,7 @@ export default function ReturnPage() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="pt-28 pb-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {steps.map((step, i) => (
@@ -84,7 +88,7 @@ export default function ReturnPage() {
               Sipariş numaranız ve iade nedeninizle bize ulaşın, size yardımcı olalım.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="mailto:iade@binbogabal.com.tr" className="btn-primary">
+              <a href={`mailto:${iadeEmail}`} className="btn-primary">
                 E-posta Gönder
               </a>
               <Link href="/iletisim" className="btn-secondary">

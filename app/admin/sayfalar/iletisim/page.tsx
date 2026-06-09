@@ -15,7 +15,11 @@ const D = {
 } as const;
 
 const PFX = "page_iletisim_";
-const ALL_KEYS = (Object.keys(D) as (keyof typeof D)[]).map((k) => `${PFX}${k}`);
+const ALL_KEYS = [
+  ...(Object.keys(D) as (keyof typeof D)[]).map((k) => `${PFX}${k}`),
+  "banner_iletisim",
+  "map_embed_url",
+];
 
 export default async function IletisimIcerigi() {
   await requirePermission("media", "view");
@@ -35,9 +39,23 @@ export default async function IletisimIcerigi() {
 
   const sections = [
     {
+      id: "banner",
+      title: "Sayfa Banneri",
+      description: "İletişim sayfasının üst banner görseli.",
+      images: [
+        {
+          key: "banner_iletisim",
+          label: "İletişim Banneri",
+          hint: "/iletisim",
+          currentUrl: db.banner_iletisim ?? null,
+          recommendedSize: "1920 × 600 px",
+        },
+      ],
+    },
+    {
       id: "hero",
       title: "Hero Bölümü",
-      description: "Sayfanın üst koyu kahve bölümündeki başlık ve alt metin.",
+      description: "Banner üzerindeki başlık ve alt metin.",
       texts: [
         tf("hero_h1",       "Sayfa Başlığı (H1)"),
         tf("hero_subtitle", "Alt Metin"),
@@ -48,10 +66,27 @@ export default async function IletisimIcerigi() {
       title: "İletişim Bilgileri",
       description: "Sayfadaki adres, telefon, e-posta ve çalışma saatleri bilgileri.",
       texts: [
-        tf("address", "Adres",             "textarea", 2),
+        tf("address", "Adres",            "textarea", 2),
         tf("phone",   "Telefon"),
         tf("email",   "E-posta"),
-        tf("hours",   "Çalışma Saatleri",  "textarea", 2),
+        tf("hours",   "Çalışma Saatleri", "textarea", 2),
+      ],
+    },
+    {
+      id: "map",
+      title: "Harita",
+      description:
+        'Haritanın iframe embed URL\'si. Google Maps → "Haritayı paylaş" → "Haritayı yerleştir" → src değerini yapıştırın. OpenStreetMap da kullanılabilir.',
+      texts: [
+        {
+          key: "map_embed_url",
+          label: "Harita Embed URL (iframe src)",
+          type: "textarea" as const,
+          defaultValue: "",
+          currentValue: db.map_embed_url ?? null,
+          placeholder: "https://www.google.com/maps/embed?pb=...",
+          rows: 3,
+        },
       ],
     },
   ];

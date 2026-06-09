@@ -5,19 +5,40 @@ import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const [logoSetting, whatsappSetting] = await Promise.all([
-    prisma.siteSetting.findUnique({ where: { key: "img_logo" } }).catch(() => null),
-    prisma.siteSetting.findUnique({ where: { key: "social_whatsapp" } }).catch(() => null),
-  ]);
-  const logoSrc = logoSetting?.value ?? footerTheme.logo.src;
+  const rows = await prisma.siteSetting.findMany({
+    where: {
+      key: {
+        in: [
+          "img_logo",
+          "social_whatsapp",
+          "social_instagram",
+          "social_facebook",
+          "contact_email",
+          "contact_phone",
+          "contact_address",
+        ],
+      },
+    },
+  }).catch(() => [] as { key: string; value: string }[]);
+
+  const s = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  const logoSrc = s.img_logo ?? footerTheme.logo.src;
 
   return (
     <>
       <Header logoSrc={logoSrc} />
       {/* paddingTop = duyuru bandı + nav — wave (waveDepth) içeriğin üstüne biner */}
       <main style={{ paddingTop: headerTheme.announcementHeight + headerTheme.navHeight }}>{children}</main>
-      <Footer logoSrc={logoSrc} />
-      <SupportFAB whatsappNumber={whatsappSetting?.value ?? ""} />
+      <Footer
+        logoSrc={logoSrc}
+        contactEmail={s.contact_email}
+        contactPhone={s.contact_phone}
+        contactAddress={s.contact_address}
+        socialFacebook={s.social_facebook}
+        socialInstagram={s.social_instagram}
+        socialWhatsapp={s.social_whatsapp}
+      />
+      <SupportFAB whatsappNumber={s.social_whatsapp ?? ""} />
     </>
   );
 }

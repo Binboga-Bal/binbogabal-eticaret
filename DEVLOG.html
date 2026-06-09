@@ -677,6 +677,16 @@
       <a href="#step210" class="nav-link"><span class="dot"></span>210 — Yanında İyi Gider Vitrini</a>
       <a href="#step211" class="nav-link"><span class="dot"></span>211 — Admin: Vitrin Yönetim Sistemi</a>
 
+      <div class="nav-section-label">9 Haziran 2026 — Footer &amp; Yasal</div>
+      <a href="#step212" class="nav-link"><span class="dot"></span>212 — Footer Bağlantı İyileştirmeleri</a>
+      <a href="#step213" class="nav-link"><span class="dot"></span>213 — Yasal Sayfa Wave Düzeltmesi</a>
+      <a href="#step214" class="nav-link"><span class="dot"></span>214 — Çerez Politikası Sayfası</a>
+
+      <div class="nav-section-label">9 Haziran 2026 — İletişim Sayfası</div>
+      <a href="#step215" class="nav-link"><span class="dot"></span>215 — İletişim: Hero Banner &amp; Harita</a>
+      <a href="#step216" class="nav-link"><span class="dot"></span>216 — ContactForm Bileşeni</a>
+      <a href="#step217" class="nav-link"><span class="dot"></span>217 — E-posta Entegrasyonu (Resend)</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -10697,10 +10707,322 @@ Foreign key constraint violated: `order_items_variantId_fkey (index)`</span></pr
       </div>
     </section>
 
+    <!-- ═══════════════════════════════ STEP 212 -->
+    <div class="date-header" id="step212">
+      <div class="date-pill">9 HAZİRAN 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 212 — Footer &amp; Yasal</div>
+    </div>
+
+    <section>
+      <h2>212 — Footer Bağlantı İyileştirmeleri</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-honey">UX</span>
+        <span class="tag tag-blue">Footer</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Footer'da üç iyileştirme yapıldı: SSS bağlantısı eklendi, yanlış "KVK Sözleşmesi" etiketi düzeltildi,
+        Çerez Politikası sayfasına bağlantı eklendi.
+      </p>
+
+      <div class="card">
+        <h3>Değişiklikler — <code>components/shop/footer/Footer.tsx</code></h3>
+        <ul>
+          <li><strong>SSS linki:</strong> Yardım linklerine <code>{ href: "/#sss", label: "Sıkça Sorulan Sorular" }</code> eklendi; anasayfadaki <code>#sss</code> anchor'ına kaydırır</li>
+          <li><strong>Etiket düzeltmesi:</strong> "KVK Sözleşmesi" → <strong>"KVKK Sözleşmesi"</strong> olarak güncellendi</li>
+          <li><strong>Çerez Politikası:</strong> <code>{ href: "/cerez-politikasi", label: "Çerez Politikası" }</code> linki eklendi</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>SSS Anchor Düzenlemesi — <code>components/shop/home/FaqSection.tsx</code></h3>
+        <pre><span class="cm">// section'a id + scroll-mt-36 eklendi</span>
+&lt;<span class="kw">section</span> <span class="str">id</span>=<span class="str">"sss"</span> <span class="str">className</span>=<span class="str">"py-16 bg-white scroll-mt-36"</span>&gt;</pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          <code>scroll-mt-36</code> (144 px) sabit header'ın (90 px wave + 54 px nav) altında konumlanmayı sağlar.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════ STEP 213 -->
+    <section id="step213">
+      <h2>213 — Yasal Sayfa Wave Düzeltmesi</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-honey">Layout</span>
+        <span class="tag tag-blue">Bugfix</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Tüm statik belge sayfaları (<code>kvkk</code>, <code>mesafeli-satis</code>, <code>gizlilik</code>,
+        <code>iade-degisim</code>, <code>cerez-politikasi</code>) <code>py-16</code> (64 px) üst dolgu kullanıyordu;
+        ancak wave derinliği 90 px olduğundan içerik header'ın arkasına düşüyordu.
+      </p>
+
+      <div class="card">
+        <h3>Düzeltme</h3>
+        <pre><span class="cm">// Öncesi</span>
+&lt;<span class="kw">div</span> <span class="str">className</span>=<span class="str">"max-w-3xl mx-auto px-4 py-16"</span>&gt;
+
+<span class="cm">// Sonrası — pt-28 (112 px) wave'i 22 px boşlukla geçer</span>
+&lt;<span class="kw">div</span> <span class="str">className</span>=<span class="str">"max-w-3xl mx-auto px-4 pt-28 pb-16"</span>&gt;</pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          Sabit header yüksekliği: announcementHeight 40 px + navHeight 82 px = <strong>solidHeight 122 px</strong>,
+          waveDepth = <strong>90 px</strong>. <code>pt-28</code> = 112 px; wave bitişinin 22 px altından başlar.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Etkilenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/kvkk/page.tsx</span><br>
+          <span class="file mod">app/(shop)/mesafeli-satis/page.tsx</span><br>
+          <span class="file mod">app/(shop)/gizlilik/page.tsx</span><br>
+          <span class="file mod">app/(shop)/iade-degisim/page.tsx</span><br>
+          <span class="file new">app/(shop)/cerez-politikasi/page.tsx</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════ STEP 214 -->
+    <section id="step214">
+      <h2>214 — Çerez Politikası Sayfası</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-blue">Yasal</span>
+        <span class="tag tag-purple">KVKK</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        <code>/cerez-politikasi</code> rotasında yeni statik belge sayfası oluşturuldu.
+        KVKK ve Gizlilik sayfalarıyla aynı şablonu kullanır; <code>pt-28 pb-16</code> wave düzeltmesi dahil.
+      </p>
+
+      <div class="card">
+        <h3>Sayfa İçeriği — 7 Bölüm</h3>
+        <ul>
+          <li><strong>1. Çerez Nedir?</strong> — Tanım ve genel kullanım amacı</li>
+          <li><strong>2. Kullandığımız Çerez Türleri</strong> — Zorunlu, Tercih, Analitik, Pazarlama</li>
+          <li><strong>3. Çerezlerin Kullanım Amaçları</strong> — Madde listesi</li>
+          <li><strong>4. Üçüncü Taraf Çerezler</strong> — Ödeme altyapısı ve analitik</li>
+          <li><strong>5. Çerezleri Kontrol Etme</strong> — Chrome/Firefox/Safari/Edge adımları</li>
+          <li><strong>6. Yasal Dayanak</strong> — KVKK 6698, 7253 sayılı kanun; KVKK aydınlatma metni linki</li>
+          <li><strong>7. İletişim</strong> — <code>contact_email</code> SiteSetting'den dinamik e-posta</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni Dosya</h3>
+        <div class="file-tree">
+          <span class="dir">app/(shop)/cerez-politikasi/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── page.tsx</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — Çerez Politikası statik belgesi</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════ STEP 215 -->
+    <div class="date-header" id="step215">
+      <div class="date-pill">9 HAZİRAN 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 215 — İletişim Sayfası</div>
+    </div>
+
+    <section>
+      <h2>215 — İletişim: Hero Banner &amp; Harita</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">Banner</span>
+        <span class="tag tag-blue">Admin</span>
+        <span class="tag tag-purple">Google Maps</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        İletişim sayfasındaki düz renkli hero bölümü, diğer sayfalardaki gibi tam genişlik banner görseline
+        dönüştürüldü. Google Maps embed URL'si admin panelden yönetilebilir hale getirildi.
+      </p>
+
+      <div class="card">
+        <h3>Hero Banner — <code>app/(shop)/iletisim/page.tsx</code></h3>
+        <pre><span class="cm">// Responsive yükseklikler</span>
+h-80            <span class="cm">// mobile: 320px</span>
+md:h-[500px]    <span class="cm">// tablet</span>
+xl:h-[560px]    <span class="cm">// desktop</span>
+2xl:h-[620px] 3xl:h-[680px] 4xl:h-[760px]</pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          Banner overlay: <code>bg-black/40</code>. Yazı container padding: <code>px-8 sm:px-14 lg:px-24 xl:px-36</code>.
+          Görsel <code>banner_iletisim</code> SiteSetting anahtarından okunur (1920×600 px önerilen).
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Admin Panel — <code>app/admin/sayfalar/iletisim/page.tsx</code></h3>
+        <ul>
+          <li><strong>Sayfa Banneri</strong> bölümü: <code>banner_iletisim</code> — görsel yükleme (1920×600 px)</li>
+          <li><strong>Harita</strong> bölümü: <code>map_embed_url</code> — Google Maps embed src URL'si</li>
+          <li>Admin talimatı: Google Maps → "Haritayı paylaş" → "Haritayı yerleştir" → <code>src</code> değerini yapıştır</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>SiteSetting Anahtarları</h3>
+        <table>
+          <tr><th>Anahtar</th><th>Açıklama</th><th>Varsayılan</th></tr>
+          <tr><td><code>banner_iletisim</code></td><td>İletişim sayfası hero banner görseli URL'si</td><td>—</td></tr>
+          <tr><td><code>map_embed_url</code></td><td>Google Maps &lt;iframe&gt; src değeri</td><td>—</td></tr>
+          <tr><td><code>contact_email</code></td><td>Form gönderimlerinin iletileceği e-posta</td><td>info@binbogabal.com.tr</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════ STEP 216 -->
+    <section id="step216">
+      <h2>216 — ContactForm Bileşeni</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-blue">UI</span>
+        <span class="tag tag-purple">Responsive</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Yeni <code>ContactForm</code> client bileşeni oluşturuldu. İki sütunlu kart düzeni:
+        sol taraf iletişim bilgileri (honey-dark arka plan), sağ taraf form alanları + Google Maps embed.
+      </p>
+
+      <div class="card">
+        <h3>Düzen Mimarisi</h3>
+        <pre><span class="cm">// Dış kaplama — yatay padding</span>
+w-full px-4 sm:px-10 lg:px-20 xl:px-32
+
+<span class="cm">// Kart</span>
+rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg
+
+<span class="cm">// 7 sütunluk grid</span>
+lg:grid-cols-7
+  sol  → lg:col-span-2  <span class="cm">// İletişim bilgileri (honey-dark)</span>
+  sağ  → lg:col-span-5  <span class="cm">// Form + Harita</span>
+
+<span class="cm">// Sağ panel içi</span>
+flex flex-col lg:flex-row
+  form → lg:w-[520px] shrink-0
+  harita → flex-1 (kalan tüm alan)</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Form Alanları</h3>
+        <ul>
+          <li>Ad Soyad + E-posta: <code>sm:grid-cols-2</code> yan yana</li>
+          <li>Konu alanı (text input)</li>
+          <li>Mesajınız (textarea, rows=4)</li>
+          <li>Gönder butonu: <code>bg-honey-dark</code>, Send ikonu, yükleme/başarı/hata durumları</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Google Maps Embed</h3>
+        <pre><span class="cm">// Harita iframe</span>
+border-t lg:border-t-0 lg:border-l border-gray-100
+h-64 lg:h-auto flex-1</pre>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:8px">
+          Mobilde formun altında tam genişlik görünür; masaüstünde formun sağında kalan tüm alanı kaplar.
+          <code>mapEmbedUrl</code> prop'u boşsa harita bölümü render edilmez.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">components/shop/contact/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── ContactForm.tsx</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — İletişim formu client bileşeni (form + harita)</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════ STEP 217 -->
+    <section id="step217">
+      <h2>217 — E-posta Entegrasyonu (Resend)</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">E-posta</span>
+        <span class="tag tag-blue">API</span>
+        <span class="tag tag-teal">Resend</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        İletişim formu gönderimlerini <code>info@binbogabal.com.tr</code>'ye ileten Resend entegrasyonu eklendi.
+        Outlook uyumlu tablo tabanlı HTML e-posta şablonu yazıldı.
+      </p>
+
+      <div class="card">
+        <h3>API Route — <code>app/api/contact/route.ts</code></h3>
+        <ul>
+          <li>POST handler: <code>name</code>, <code>email</code>, <code>subject</code>, <code>message</code> alanları doğrulanır</li>
+          <li>E-posta formatı regex ile kontrol edilir; mesaj minimum 10 karakter şartı</li>
+          <li>Başarıda <code>{ ok: true }</code>, hata durumunda <code>{ error: string }</code> + 400/500 döner</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Mail Servisi — <code>lib/mail/mail.service.ts</code></h3>
+        <pre><span class="kw">async function</span> <span class="fn">sendContactFormEmail</span>(name, email, subject, message) {
+  <span class="cm">// Alıcı adres: contact_email SiteSetting > env > varsayılan</span>
+  <span class="kw">const</span> CONTACT_TO = setting?.value
+    || process.env.CONTACT_EMAIL
+    || <span class="str">"info@binbogabal.com.tr"</span>;
+  <span class="cm">// replyTo: gönderenin e-posta adresi → doğrudan yanıtlanabilir</span>
+  <span class="kw">await</span> resend.emails.send({ from, to: CONTACT_TO, replyTo: email, ... });
+}</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>E-posta Şablonu — <code>lib/mail/templates/contact-form.tsx</code></h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+          Outlook Word rendering engine CSS gradyan, flexbox ve border-radius desteklemediğinden
+          tamamen <code>&lt;table&gt;</code> tabanlı HTML yazıldı.
+        </p>
+        <ul>
+          <li><strong>Header:</strong> honey arka plan (<code>#C57930</code>), marka adı + tarih</li>
+          <li><strong>Body:</strong> Gönderen kutusu, Konu kutusu, Mesaj kutusu (sol kenarlık), Yanıtla butonu</li>
+          <li><strong>Footer:</strong> Binboğa Bal imzası</li>
+          <li>Tüm renkler <code>bgcolor</code> attribute ile tanımlandı (CSS değil)</li>
+          <li>Buton padding: <code>18px 72px</code>; metin: "Yanıtla" (emoji yok — Outlook uyumluluğu)</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">app/api/contact/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── route.ts</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — POST /api/contact — form doğrulama + mail gönderimi</span><br>
+          <br>
+          <span class="dir">lib/mail/templates/</span><br>
+          &nbsp;&nbsp;<span class="file new">└── contact-form.tsx</span>
+          <span style="color:var(--green);font-size:11px"> YENİ — Outlook-uyumlu tablo tabanlı HTML şablon</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>İletişim sayfası diğer sayfa bannerleriyle tutarlı hero görsel alır; admin panelden yönetilir</li>
+          <li>Google Maps embed admin'den ayarlanır; formun sağında veya altında (mobil) gösterilir</li>
+          <li>Form gönderiminde <code>info@binbogabal.com.tr</code>'ye Outlook-uyumlu güzel HTML e-posta gider</li>
+          <li>Gönderen'in e-postası <code>replyTo</code> olarak ayarlı — doğrudan yanıtlanabilir</li>
+          <li>Footer'da SSS/KVKK/Çerez Politikası bağlantıları düzeltildi/eklendi</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 211 (Vitrin Yönetim Sistemi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 217 (İletişim E-posta Entegrasyonu) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

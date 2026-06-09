@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "KVK Aydınlatma Metni | Binboğa Bal",
 };
 
-export default function KvkkPage() {
+export default async function KvkkPage() {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email_kvkk" } });
+  const kvkkEmail = setting?.value ?? "kvkk@binbogabal.com.tr";
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
       <h1 className="text-3xl font-black text-gray-900 mb-2">
         Kişisel Verilerin Korunması Kanunu (KVKK) Aydınlatma Metni
       </h1>
@@ -70,8 +74,8 @@ export default function KvkkPage() {
           <h2 className="text-base font-bold text-gray-800 mb-3">6. Başvuru</h2>
           <p>
             Haklarınızı kullanmak için{" "}
-            <a href="mailto:kvkk@binbogabal.com.tr" className="text-honey-dark hover:underline">
-              kvkk@binbogabal.com.tr
+            <a href={`mailto:${kvkkEmail}`} className="text-honey-dark hover:underline">
+              {kvkkEmail}
             </a>{" "}
             adresine e-posta gönderebilir veya yazılı başvurunuzu kooperatif adresimize
             iletebilirsiniz. Başvurularınız en geç 30 gün içinde sonuçlandırılacaktır.

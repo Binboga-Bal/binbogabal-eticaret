@@ -28,6 +28,11 @@ export async function PUT(req: Request) {
   revalidatePath("/kooperatif-hikayemiz");
   revalidatePath("/bal-rehberi");
   revalidatePath("/iletisim");
+  revalidatePath("/kvkk");
+  revalidatePath("/gizlilik");
+  revalidatePath("/iade-degisim");
+  revalidatePath("/mesafeli-satis");
+  revalidatePath("/cerez-politikasi");
 
   return NextResponse.json({ success: true });
 }

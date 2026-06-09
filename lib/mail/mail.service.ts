@@ -1,6 +1,7 @@
 import { resend, MAIL_FROM } from "./resend";
 import { prisma } from "@/lib/prisma";
 import { render } from "@react-email/render";
+import { ContactFormTemplate } from "./templates/contact-form";
 import { VerifyEmailTemplate } from "./templates/verify-email";
 import { WelcomeTemplate } from "./templates/welcome";
 import { PasswordResetTemplate } from "./templates/password-reset";
@@ -28,6 +29,26 @@ async function getPreference(userId: string, key: keyof {
   const pref = await prisma.notificationPreference.findUnique({ where: { userId } });
   if (!pref) return true;
   return pref[key];
+}
+
+export async function sendContactFormEmail(
+  name: string,
+  email: string,
+  subject: string,
+  message: string,
+) {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email" } });
+  const CONTACT_TO = setting?.value || process.env.CONTACT_EMAIL || "info@binbogabal.com.tr";
+  const html = await render(
+    React.createElement(ContactFormTemplate, { name, email, subject, message }),
+  );
+  await resend.emails.send({
+    from: MAIL_FROM,
+    to: CONTACT_TO,
+    replyTo: email,
+    subject: `${subject || name} - Binboğa Kooperatif Balı`,
+    html,
+  });
 }
 
 export async function sendVerifyEmail(to: string, name: string, token: string) {

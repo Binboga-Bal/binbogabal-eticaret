@@ -13,27 +13,55 @@ const footerLinks = {
     { href: "/urunlerimiz",        label: "Ürünlerimiz" },
   ],
   yardim: [
-    { href: "/hesabim",         label: "Sipariş Takibi" },
-    { href: "/iade-degisim",    label: "İade & Değişim" },
-    { href: "/kvkk",            label: "KVK Sözleşmesi" },
-    { href: "/mesafeli-satis",  label: "Mesafeli Satış Sözleşmesi" },
-    { href: "/gizlilik",        label: "Gizlilik ve Güvenlik" },
-  ],
-  iletisim: [
-    { href: "/iletisim",                         label: "Kozan / Adana" },
-    { href: "tel:+903225158910",                  label: "0 (322) 515 89 10 - 11" },
-    { href: "mailto:info@binbogabal.com.tr",      label: "info@binbogabal.com.tr" },
+    { href: "/hesabim",          label: "Sipariş Takibi" },
+    { href: "/iade-degisim",     label: "İade & Değişim" },
+    { href: "/#sss",             label: "Sıkça Sorulan Sorular" },
+    { href: "/kvkk",             label: "KVKK Sözleşmesi" },
+    { href: "/mesafeli-satis",   label: "Mesafeli Satış Sözleşmesi" },
+    { href: "/gizlilik",         label: "Gizlilik ve Güvenlik" },
+    { href: "/cerez-politikasi", label: "Çerez Politikası" },
   ],
 };
 
-const socialLinks = [
-  { href: "https://facebook.com/binbogabal",          icon: Facebook,  label: "Facebook"  },
-  { href: "https://linkedin.com/company/binbogabal",  icon: Linkedin,  label: "LinkedIn"  },
-  { href: "https://instagram.com/binbogabal",         icon: Instagram, label: "Instagram" },
-  { href: "https://twitter.com/binbogabal",           icon: Twitter,   label: "Twitter"   },
-];
+type FooterProps = {
+  logoSrc?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  contactAddress?: string;
+  socialFacebook?: string;
+  socialInstagram?: string;
+  socialWhatsapp?: string;
+};
 
-export function Footer({ logoSrc = footerTheme.logo.src }: { logoSrc?: string }) {
+export function Footer({
+  logoSrc = footerTheme.logo.src,
+  contactEmail,
+  contactPhone,
+  contactAddress,
+  socialFacebook,
+  socialInstagram,
+  socialWhatsapp,
+}: FooterProps) {
+  const email   = contactEmail   ?? "info@binbogabal.com.tr";
+  const phone   = contactPhone   ?? "0 (322) 515 89 10";
+  const address = contactAddress ?? "Kozan / Adana";
+
+  const phoneTel = phone.replace(/[\s()\-]/g, "").replace(/^0/, "+90");
+
+  const iletisimLinks = [
+    { href: "/iletisim",          label: address },
+    { href: `tel:${phoneTel}`,    label: phone   },
+    { href: `mailto:${email}`,    label: email   },
+  ];
+
+  const socialLinks = [
+    { href: socialFacebook  || "https://facebook.com/binbogabal",         icon: Facebook,  label: "Facebook"  },
+    { href: "https://linkedin.com/company/binbogabal",                    icon: Linkedin,  label: "LinkedIn"  },
+    { href: socialInstagram || "https://instagram.com/binbogabal",        icon: Instagram, label: "Instagram" },
+    { href: "https://twitter.com/binbogabal",                             icon: Twitter,   label: "Twitter"   },
+  ];
+
+  const waNumber = (socialWhatsapp || "903225158910").replace(/^0/, "90").replace(/\D/g, "");
   return (
     <footer className="bg-honey-light">
       <Container size="wide" className="pt-14 pb-8">
@@ -78,7 +106,7 @@ export function Footer({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
               ))}
               {/* WhatsApp */}
               <a
-                href="https://wa.me/903225158910"
+                href={`https://wa.me/${waNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -129,7 +157,7 @@ export function Footer({ logoSrc = footerTheme.logo.src }: { logoSrc?: string })
           <div>
             <h4 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">İletişim</h4>
             <ul className="space-y-2">
-              {footerLinks.iletisim.map((item, i) => (
+              {iletisimLinks.map((item, i) => (
                 <li key={i} className="text-sm text-gray-600">
                   <a href={item.href} className="hover:text-honey-dark transition-colors">
                     {item.label}

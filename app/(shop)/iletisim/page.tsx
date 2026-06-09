@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { ContactForm } from "@/components/shop/contact/ContactForm";
 
 export const metadata: Metadata = {
   title: "İletişim | Binboğa Kooperatif Balı",
@@ -17,7 +19,11 @@ const D = {
 } as const;
 
 const PFX = "page_iletisim_";
-const ALL_KEYS = (Object.keys(D) as (keyof typeof D)[]).map((k) => `${PFX}${k}`);
+const ALL_KEYS = [
+  ...(Object.keys(D) as (keyof typeof D)[]).map((k) => `${PFX}${k}`),
+  "banner_iletisim",
+  "map_embed_url",
+];
 
 function t(db: Record<string, string>, key: keyof typeof D): string {
   return db[`${PFX}${key}`] || D[key];
@@ -27,24 +33,29 @@ export default async function ContactPage() {
   const rows = await prisma.siteSetting.findMany({ where: { key: { in: ALL_KEYS } } });
   const db = Object.fromEntries(rows.map((r) => [r.key, r.value]));
 
+  const bannerImage = db.banner_iletisim ?? null;
+  const mapEmbedUrl = db.map_embed_url ?? null;
+
   const contactItems = [
     {
-      icon: <MapPin size={20} className="text-honey-dark" />,
+      icon: <MapPin size={18} className="text-white/80" />,
       label: "Adres",
       value: t(db, "address"),
     },
     {
-      icon: <Phone size={20} className="text-honey-dark" />,
+      icon: <Phone size={18} className="text-white/80" />,
       label: "Telefon",
       value: t(db, "phone"),
+      href: `tel:${t(db, "phone").replace(/\s/g, "")}`,
     },
     {
-      icon: <Mail size={20} className="text-honey-dark" />,
+      icon: <Mail size={18} className="text-white/80" />,
       label: "E-posta",
       value: t(db, "email"),
+      href: `mailto:${t(db, "email")}`,
     },
     {
-      icon: <Clock size={20} className="text-honey-dark" />,
+      icon: <Clock size={18} className="text-white/80" />,
       label: "Çalışma Saatleri",
       value: t(db, "hours"),
     },
@@ -52,79 +63,49 @@ export default async function ContactPage() {
 
   return (
     <>
-      <section className="bg-honey-dark py-14 text-white text-center">
-        <div className="max-w-2xl mx-auto px-4">
-          <h1 className="text-4xl font-black mb-3">{t(db, "hero_h1")}</h1>
-          <p className="text-white/70 text-sm">{t(db, "hero_subtitle")}</p>
-        </div>
-      </section>
-
-      <section className="py-16 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Bilgiler */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-black text-gray-900">Bize Ulaşın</h2>
-              <div className="space-y-5">
-                {contactItems.map((item) => (
-                  <div key={item.label} className="flex gap-4">
-                    <div className="mt-0.5 shrink-0">{item.icon}</div>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">{item.label}</p>
-                      <p className="text-sm text-gray-700 whitespace-pre-line">{item.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Form */}
-            <div className="bg-honey-cream rounded-2xl p-8">
-              <h2 className="text-xl font-black text-gray-900 mb-6">Mesaj Gönderin</h2>
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Ad Soyad</label>
-                  <input
-                    type="text"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-honey bg-white"
-                    placeholder="Adınız ve soyadınız"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">E-posta</label>
-                  <input
-                    type="email"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-honey bg-white"
-                    placeholder="ornek@email.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Konu</label>
-                  <input
-                    type="text"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-honey bg-white"
-                    placeholder="Mesajınızın konusu"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Mesajınız</label>
-                  <textarea
-                    rows={5}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-honey resize-none bg-white"
-                    placeholder="Mesajınızı buraya yazın..."
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn-primary w-full">
-                  Gönder
-                </button>
-              </form>
-            </div>
+      {/* Hero Banner */}
+      <section className="relative h-80 md:h-[500px] xl:h-[560px] 2xl:h-[620px] 3xl:h-[680px] 4xl:h-[760px] overflow-hidden bg-honey-dark">
+        {bannerImage ? (
+          <>
+            <Image
+              src={bannerImage}
+              alt="İletişim banner"
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
+          </>
+        ) : (
+          <div className="absolute inset-0 opacity-10">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-honey-bright"
+                style={{
+                  width: ((i * 37) % 80) + 20,
+                  height: ((i * 53) % 80) + 20,
+                  top: `${(i * 17) % 100}%`,
+                  left: `${(i * 23) % 100}%`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+        <div className="relative z-10 h-full flex items-center justify-start">
+          <div className="max-w-7xl w-full px-8 sm:px-14 lg:px-24 xl:px-36 text-left">
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
+              {t(db, "hero_h1")}
+            </h1>
+            <p className="hidden sm:block text-white/80 text-lg max-w-2xl">
+              {t(db, "hero_subtitle")}
+            </p>
           </div>
         </div>
       </section>
+
+      <ContactForm contactItems={contactItems} mapEmbedUrl={mapEmbedUrl} />
     </>
   );
 }
