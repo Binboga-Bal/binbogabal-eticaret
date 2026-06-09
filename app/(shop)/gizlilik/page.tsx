@@ -6,8 +6,18 @@ export const metadata: Metadata = {
 };
 
 export default async function PrivacyPage() {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email" } });
-  const contactEmail = setting?.value ?? "info@binbogabal.com.tr";
+  const content = await prisma.siteSetting.findUnique({ where: { key: "legal_gizlilik" } });
+
+  if (content?.value) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <div className="legal-content" dangerouslySetInnerHTML={{ __html: content.value }} />
+      </div>
+    );
+  }
+
+  const emailSetting = await prisma.siteSetting.findUnique({ where: { key: "contact_email" } });
+  const contactEmail = emailSetting?.value ?? "info@binbogabal.com.tr";
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">

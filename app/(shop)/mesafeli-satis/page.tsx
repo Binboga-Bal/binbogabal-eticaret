@@ -6,8 +6,19 @@ export const metadata: Metadata = {
 };
 
 export default async function MesafeliSatisPage() {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email_iade" } });
-  const iadeEmail = setting?.value ?? "iade@binbogabal.com.tr";
+  const content = await prisma.siteSetting.findUnique({ where: { key: "legal_mesafeli_satis" } });
+
+  if (content?.value) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <div className="legal-content" dangerouslySetInnerHTML={{ __html: content.value }} />
+      </div>
+    );
+  }
+
+  const emailSetting = await prisma.siteSetting.findUnique({ where: { key: "contact_email_iade" } });
+  const iadeEmail = emailSetting?.value ?? "iade@binbogabal.com.tr";
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
       <h1 className="text-3xl font-black text-gray-900 mb-2">Mesafeli Satış Sözleşmesi</h1>
@@ -18,14 +29,8 @@ export default async function MesafeliSatisPage() {
       <div className="space-y-8 text-sm text-gray-600 leading-relaxed">
         <section>
           <h2 className="text-base font-bold text-gray-800 mb-3">Madde 1 — Taraflar</h2>
-          <p>
-            <strong>SATICI:</strong> S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi, Kozan /
-            Adana | info@binbogabal.com.tr
-          </p>
-          <p className="mt-2">
-            <strong>ALICI:</strong> Ödeme formunda belirtilen ad, soyad ve iletişim bilgilerine
-            sahip kişi.
-          </p>
+          <p><strong>SATICI:</strong> S.S. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi, Kozan / Adana | info@binbogabal.com.tr</p>
+          <p className="mt-2"><strong>ALICI:</strong> Ödeme formunda belirtilen ad, soyad ve iletişim bilgilerine sahip kişi.</p>
         </section>
 
         <section>

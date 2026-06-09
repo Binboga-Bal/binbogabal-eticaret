@@ -696,7 +696,8 @@
       <a href="#adim-221" class="nav-link"><span class="dot"></span>221 — Hızlı Yanıt Kategori Sistemi</a>
 
       <div class="nav-section-label">9 Haziran 2026 — Cookie Consent</div>
-      <a href="#step222" class="nav-link active"><span class="dot"></span>222 — GDPR Uyumlu Çerez Sistemi</a>
+      <a href="#step222" class="nav-link"><span class="dot"></span>222 — GDPR Uyumlu Çerez Sistemi</a>
+      <a href="#step223" class="nav-link active"><span class="dot"></span>223 — Hukuki Belgeler Admin Yönetimi</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -11658,10 +11659,146 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <div class="date-header" style="margin-top:64px">
+      <div class="date-pill">9 Haziran 2026 — Hukuki Belgeler</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 223</div>
+    </div>
+
+    <section id="step223">
+      <h2>223 — Hukuki Belgeler Admin Yönetimi</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">Admin</span>
+        <span class="tag tag-blue">KVKK / Yasal</span>
+        <span class="tag tag-teal">6 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        KVKK Aydınlatma Metni, Mesafeli Satış Sözleşmesi, Gizlilik &amp; Güvenlik Politikası ve Çerez Politikası
+        metinleri artık admin panelden düzenlenebilir. Değişiklikler kaydedildiğinde ilgili sayfalar anında revalidate
+        edilir. DB'de kayıt yoksa mevcut hardcoded JSX fallback olarak devreye girer — sıfır kesinti.
+      </p>
+
+      <div class="card">
+        <h3>Gereksinim</h3>
+        <p>
+          Hukuki metinlerin kod değişikliği gerektirmeden güncellenebilmesi istendi. Shopify / WooCommerce gibi
+          platformların aksine kendi CMS'lerini inşa etmedikleri, bunun yerine dış araçlarla (GA4 vb.) çalıştıkları
+          gözlemlendi. Bu projede de aynı mantık izlendi: sözleşme metinleri <code>SiteSetting</code> tablosunda
+          HTML olarak saklanır, admin textarea ile düzenlenir.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Mimari — Nasıl Çalışır?</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>DB Anahtarları (SiteSetting)</h4>
+              <p>
+                <code>legal_kvkk</code>, <code>legal_mesafeli_satis</code>,
+                <code>legal_gizlilik</code>, <code>legal_cerez_politikasi</code> —
+                her belge kendi key'ine sahip; HTML string olarak saklanır.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Admin Editör — <code>LegalDocEditor.tsx</code></h4>
+              <p>
+                4 sekme (KVKK / Mesafeli Satış / Gizlilik / Çerez), büyük <code>textarea</code> ve
+                "Önizle / Düzenle" toggle'ı. Kaydet butonu mevcut
+                <code>PUT /api/admin/settings</code> endpoint'ini kullanır — ek API yazılmadı.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Shop Sayfaları — Fallback Mantığı</h4>
+              <p>
+                DB'de <code>legal_*</code> key'i varsa <code>dangerouslySetInnerHTML</code> ile render eder.
+                Yoksa mevcut hardcoded JSX devreye girer. İlk kayıt admin sayfasındaki default içerikle
+                yapılır — mevcut metinler değişmez.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Anlık Güncelleme</h4>
+              <p>
+                <code>/api/admin/settings</code> PUT handler'ı zaten tüm yasal sayfaları
+                <code>revalidatePath</code> ile temizliyordu (<code>/kvkk</code>, <code>/gizlilik</code>,
+                <code>/mesafeli-satis</code>, <code>/cerez-politikasi</code>).
+                Ekstra cache invalidation gerekmedi.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>CSS — <code>.legal-content</code> Sınıfı</h3>
+        <p style="margin-bottom:10px">
+          <code>dangerouslySetInnerHTML</code> ile render edilen ham HTML'e stil vermek için
+          <code>styles/globals.css</code>'e <code>@layer components</code> kapsamında eklendi.
+          <code>@tailwindcss/typography</code> kurulu olmadığından özel selector'larla çözüldü:
+        </p>
+        <pre><span class="kw">.legal-content</span> <span class="fn">h1</span> { @apply text-3xl font-black text-gray-900 mb-2; }
+<span class="kw">.legal-content</span> <span class="fn">h2</span> { @apply text-base font-bold text-gray-800 mb-3; }
+<span class="kw">.legal-content</span> <span class="fn">p</span>  { @apply text-sm text-gray-600 leading-relaxed; }
+<span class="kw">.legal-content</span> <span class="fn">ul</span> { @apply list-disc pl-5 space-y-1; }
+<span class="kw">.legal-content</span> <span class="fn">a</span>  { color: var(--honey-dark); }
+<span class="kw">.legal-content</span> <span class="fn">.date</span> { @apply text-sm text-gray-400 mb-10 block; }</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">components/admin/</span><br>
+          &nbsp;&nbsp;<span class="file new">LegalDocEditor.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Sekmeli editör: textarea + önizleme toggle + kaydet</span><br>
+          <br>
+          <span class="dir">app/admin/ayarlar/hukuki-belgeler/</span><br>
+          &nbsp;&nbsp;<span class="file new">page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Admin sayfası; DB'den 4 belgeyi yükler, default içerikler tanımlı</span><br>
+          <br>
+          <span class="dir">app/admin/ayarlar/</span><br>
+          &nbsp;&nbsp;<span class="file mod">page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — "Hukuki Belgeler" link kartı eklendi</span><br>
+          <br>
+          <span class="dir">styles/</span><br>
+          &nbsp;&nbsp;<span class="file mod">globals.css</span>
+          <span style="color:var(--honey);font-size:11px"> — .legal-content sınıfı (h1/h2/p/ul/li/a/section/strong/.date)</span><br>
+          <br>
+          <span class="dir">app/(shop)/</span><br>
+          &nbsp;&nbsp;<span class="file mod">kvkk/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — DB içerik varsa dangerouslySetInnerHTML, yoksa fallback JSX</span><br>
+          &nbsp;&nbsp;<span class="file mod">gizlilik/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Aynı pattern</span><br>
+          &nbsp;&nbsp;<span class="file mod">cerez-politikasi/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Aynı pattern</span><br>
+          &nbsp;&nbsp;<span class="file mod">mesafeli-satis/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Aynı pattern</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sonuç</h3>
+        <ul>
+          <li>Admin → Ayarlar → <strong>Hukuki Belgeler</strong> kartından 4 belge düzenlenebilir</li>
+          <li>İlk açılışta textarea'lar mevcut metinlerle dolu gelir — direkt kaydet yeterli</li>
+          <li>DB boşsa site eskisi gibi çalışır (sıfır kesinti)</li>
+          <li>Kayıt anında tüm yasal sayfalar revalidate edilir</li>
+          <li>Yeni harici bağımlılık eklenmedi</li>
+          <li>TypeScript kontrolü hatasız geçti</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 222 (GDPR Uyumlu Çerez Sistemi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 223 (Hukuki Belgeler Admin Yönetimi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

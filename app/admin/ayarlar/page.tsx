@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import Link from "next/link";
 
 export const metadata = { title: "Site Ayarları | Admin" };
 
@@ -68,6 +69,20 @@ export default async function AdminSettingsPage() {
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <SettingsForm settings={settings} />
       </div>
+
+      <Link
+        href="/admin/ayarlar/hukuki-belgeler"
+        className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-6 hover:border-gray-300 transition-colors group"
+        style={{ minHeight: "unset" }}
+      >
+        <div>
+          <h2 className="text-base font-bold text-gray-800">Hukuki Belgeler</h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            KVKK, Mesafeli Satış, Gizlilik &amp; Güvenlik, Çerez Politikası metinlerini düzenleyin
+          </p>
+        </div>
+        <span className="text-gray-400 group-hover:text-gray-600 text-lg">›</span>
+      </Link>
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <h2 className="text-base font-bold text-gray-800 mb-5">Sepet Kampanya Bandı</h2>
