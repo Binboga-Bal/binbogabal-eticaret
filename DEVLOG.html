@@ -12548,10 +12548,100 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ═══════════════════════════ STEP 229 — Toggle v4: 3D Modern Tasarım -->
+    <div class="date-header">
+      <div class="date-pill">9 Haziran 2026 — UI Bileşeni</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 229</div>
+    </div>
+
+    <section class="section" id="step229">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🎛️</div>
+        <h2>Adım 229 — Toggle v4: 3D Modern Tasarım</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Sitedeki toggle bileşeninin iOS tarzı görsele benzer biçimde güncellenmesi istendi:
+          sitenin honey renk paleti korunacak, toggle daha modern ve üç boyutlu görünecek.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Yapılan Değişiklikler — <code>components/ui/Toggle.tsx</code></h3>
+        <p style="margin-bottom:12px">Tek dosya değişti; tüm kullanım yerlerine (5 bileşen) otomatik yansıdı.</p>
+
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Katman</th>
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Önce</th>
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Sonra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--honey)">Track ON</td>
+              <td style="padding:8px 10px"><code>bg-gradient-to-r from-honey-bright to-honey-dark</code></td>
+              <td style="padding:8px 10px"><code>bg-gradient-to-b from-honey-bright to-honey-dark</code> + <code>ring-2 ring-inset ring-honey-dark/30</code> + iç gölge</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--text-muted)">Track OFF</td>
+              <td style="padding:8px 10px"><code>bg-gray-200</code> (düz)</td>
+              <td style="padding:8px 10px"><code>bg-gradient-to-b from-gray-200 to-gray-300</code> + <code>ring-2 ring-inset ring-gray-400/40</code> + iç gölge</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--blue)">Thumb</td>
+              <td style="padding:8px 10px"><code>bg-white shadow-[0_2px_6px_rgba(0,0,0,0.22)]</code></td>
+              <td style="padding:8px 10px"><code>bg-gradient-to-b from-white to-gray-50</code> + 3 katmanlı gölge</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;color:var(--green)">Etkileşim</td>
+              <td style="padding:8px 10px">—</td>
+              <td style="padding:8px 10px"><code>active:scale-[0.97]</code> tıklama geri bildirimi</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:20px">3D Efekt Tekniği</h3>
+        <ul style="margin-top:8px">
+          <li><strong>Track — yukarıdan aşağıya gradyan:</strong> üst daha parlak (ışık kaynağı), alt daha koyu → yüzey derinliği</li>
+          <li><strong>Track — <code>ring-2 ring-inset</code>:</strong> iç çerçeve → track'in oyukta (concave) durduğu hissi</li>
+          <li><strong>Track — <code>inset_0_2px_5px</code> iç gölge:</strong> üstten düşen gölge → çukur derinliği</li>
+          <li><strong>Thumb — <code>from-white to-gray-50</code>:</strong> üst parlak, alt mat → thumb'ın kabarık (convex) göründüğü hissi</li>
+          <li><strong>Thumb — 3 katmanlı dış gölge:</strong> <code>0_1px_2px</code> (yakın) + <code>0_4px_10px</code> (uzak) + <code>0_0_0_0.5px</code> (ince kenar) → thumb'ın track üzerinde yüzdüğü hissi</li>
+        </ul>
+
+        <pre style="margin-top:16px"><span class="cm">// ON state — honey amber gradyan + iç ring + derinlik gölgesi</span>
+<span class="str">"bg-gradient-to-b from-honey-bright to-honey-dark"</span>
+<span class="str">"ring-2 ring-inset ring-honey-dark/30"</span>
+<span class="str">"shadow-[inset_0_2px_5px_rgba(0,0,0,0.22)]"</span>
+
+<span class="cm">// Thumb — yüzen top efekti</span>
+<span class="str">"bg-gradient-to-b from-white to-gray-50"</span>
+<span class="str">"shadow-[0_1px_2px_rgba(0,0,0,0.12),0_4px_10px_rgba(0,0,0,0.2),0_0_0_0.5px_rgba(0,0,0,0.08)]"</span></pre>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen Dosya</h3>
+        <div class="file-tree">
+          <span class="file mod">components/ui/Toggle.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Track gradyan yönü, ring-inset border, iç gölge, thumb gradyan + 3 katmanlı shadow, active:scale press efekti</span>
+        </div>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">NOT:</span>
+          Bileşeni kullanan 5 dosya (<code>SettingsForm</code>, <code>FaqManager</code>, <code>RedirectsManager</code>,
+          <code>CookieConsentBanner</code>, <code>TelegramConfigForm</code>) değiştirilmedi — paylaşımlı bileşen sayesinde güncelleme otomatik yayıldı.
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 228 (Toggle v2: Geniş Pill + Honey Gradient) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 229 (Toggle v4: 3D Modern Tasarım) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
