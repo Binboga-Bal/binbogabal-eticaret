@@ -22,6 +22,21 @@ const DEFAULT_SETTINGS = [
   { key: "social_whatsapp", label: "WhatsApp Numarası", value: "" },
 ];
 
+const MAINTENANCE_SETTINGS = [
+  {
+    key: "maintenance_mode",
+    label: "Bakım Modu",
+    value: "false",
+    type: "toggle",
+    description: "Aktifken ziyaretçiler bakım sayfasına yönlendirilir. Admin paneli erişilebilir kalmaya devam eder.",
+  },
+  {
+    key: "maintenance_message",
+    label: "Bakım Mesajı",
+    value: "Sitemiz şu anda bakım çalışması yapılmaktadır. Kısa süre içinde geri döneceğiz.",
+  },
+];
+
 const BANNER_SETTINGS = [
   {
     key: "cart_banner_enabled",
@@ -60,11 +75,21 @@ export default async function AdminSettingsPage() {
   const settingsMap = Object.fromEntries(dbSettings.map((s) => [s.key, s.value]));
 
   const settings = DEFAULT_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value }));
+  const maintenanceSettings = MAINTENANCE_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value }));
   const bannerSettings = BANNER_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value, options: (s as any).options }));
 
   return (
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-black text-gray-900">Site Ayarları</h1>
+
+      <div className="bg-white rounded-2xl border border-red-100 p-6">
+        <h2 className="text-base font-bold text-gray-800 mb-1">Bakım Modu</h2>
+        <p className="text-sm text-gray-500 mb-5">
+          Bakım modu açıldığında ziyaretçiler bir bakım sayfasına yönlendirilir.
+          Admin paneli çalışmaya devam eder.
+        </p>
+        <SettingsForm settings={maintenanceSettings} />
+      </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <SettingsForm settings={settings} />

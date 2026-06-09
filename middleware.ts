@@ -8,6 +8,18 @@ import { detectLlmBot } from "@/lib/seo/generative/bot-detector";
 
 export const runtime = "nodejs";
 
+// ─── Bakım modu önbelleği (60 sn TTL) ────────────────────────────────────────
+let _maintenanceCache = { on: false, ts: 0 };
+
+async function isMaintenanceMode(): Promise<boolean> {
+  if (Date.now() - _maintenanceCache.ts < 60_000) return _maintenanceCache.on;
+  const row = await prisma.siteSetting
+    .findUnique({ where: { key: "maintenance_mode" }, select: { value: true } })
+    .catch(() => null);
+  _maintenanceCache = { on: row?.value === "true", ts: Date.now() };
+  return _maintenanceCache.on;
+}
+
 const PUBLIC_ADMIN_PATHS = [
   "/admin/auth/login",
   "/admin/auth/forgot-password",
@@ -95,6 +107,19 @@ export async function middleware(req: NextRequest) {
     const res = NextResponse.next();
     res.headers.set("x-admin-pathname", pathname);
     return res;
+  }
+
+  // ─── Bakım modu ────────────────────────────────────────────────────
+  if (
+    pathname !== "/bakim" &&
+    !pathname.startsWith("/api/") &&
+    !pathname.startsWith("/_next/") &&
+    !pathname.match(/\.(ico|png|jpg|jpeg|gif|svg|webp|css|js|woff2?)$/)
+  ) {
+    const maintenance = await isMaintenanceMode();
+    if (maintenance) {
+      return NextResponse.redirect(new URL("/bakim", req.url));
+    }
   }
 
   // ─── Customer routes ───────────────────────────────────────────────

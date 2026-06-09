@@ -698,7 +698,11 @@
       <div class="nav-section-label">9 Haziran 2026 — Cookie Consent</div>
       <a href="#step222" class="nav-link"><span class="dot"></span>222 — GDPR Uyumlu Çerez Sistemi</a>
       <a href="#step223" class="nav-link"><span class="dot"></span>223 — Hukuki Belgeler Admin Yönetimi</a>
-      <a href="#step224" class="nav-link active"><span class="dot"></span>224 — SEO &amp; GEO Sprint: SSS + Sayfa Meta</a>
+      <a href="#step224" class="nav-link"><span class="dot"></span>224 — SEO &amp; GEO Sprint: SSS + Sayfa Meta</a>
+
+      <div class="nav-section-label">9 Haziran 2026 — Admin Dashboard Sprint</div>
+      <a href="#step225" class="nav-link"><span class="dot"></span>225 — Dashboard Tarih Bazlı Filtreleme</a>
+      <a href="#step226" class="nav-link active"><span class="dot"></span>226 — Site Bakım Modu</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -12216,10 +12220,200 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ═══════════════════════════ STEP 225 — Dashboard Tarih Bazlı Filtreleme -->
+    <div class="date-header">
+      <div class="date-pill">9 Haziran 2026 — Admin Dashboard Sprint</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 225–226</div>
+    </div>
+
+    <section class="section" id="step225">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.15)">📊</div>
+        <h2>Adım 225 — Dashboard Tarih Bazlı Filtreleme</h2>
+      </div>
+
+      <div class="card">
+        <h3>Genel Bakış</h3>
+        <p>
+          Admin dashboard'undaki istatistik kartları (Sipariş, Gelir, Müşteri) artık seçilen dönem bazında
+          hesaplanıyor. URL'de <code>?preset=</code> query parametresiyle aktif dönem tutulur; sayfa tam
+          Server Component kaldığı için her geçişte fresh veri geliyor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Preset Seçenekleri</h3>
+        <table>
+          <thead>
+            <tr><th>Preset</th><th>Değer</th><th>Tarih Aralığı</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Bugün</td><td><code>today</code></td><td>Gece 00:00 → şimdi</td></tr>
+            <tr><td>Son 7 Gün</td><td><code>7d</code></td><td>–7 gün → şimdi</td></tr>
+            <tr><td>Son 30 Gün</td><td><code>30d</code></td><td>–30 gün → şimdi</td></tr>
+            <tr><td>Bu Ay</td><td><code>month</code></td><td>Ayın 1'i 00:00 → şimdi</td></tr>
+            <tr><td>Tüm Zamanlar</td><td><code>all</code></td><td>Filtre yok (varsayılan)</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">NOT:</span>
+          "Aktif Ürün" kartı tarih filtresinden etkilenmez; her zaman toplam yayındaki ürün sayısını gösterir.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Uygulama Detayları</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>DashboardDateFilter.tsx</code> — Yeni Client Component</h4>
+              <p>
+                <code>useRouter</code> + <code>usePathname</code> kullanan buton grubu.
+                Aktif preset <code>?preset=value</code> URL parametresiyle senkronize;
+                <code>all</code> seçildiğinde parametre tamamen kaldırılır (temiz URL).
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4><code>app/admin/page.tsx</code> — Server-Side Filtreleme</h4>
+              <p>
+                <code>searchParams: Promise&lt;&#123; preset?: string &#125;&gt;</code> alıyor (Next.js 15 async pattern).
+                <code>getDateRange(preset)</code> fonksiyonu <code>&#123; gte, lte &#125;</code> döndürüyor;
+                tüm Prisma sorgularına <code>createdAt: range</code> filtresi ekleniyor.
+                Kart başlığı aktif period'u yansıtıyor: <em>"Bugün Sipariş"</em>, <em>"Son 30 Gün Gelir"</em> vb.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>"Son Siparişler" Tablosu</h4>
+              <p>
+                Tablo da aktif date filter'a göre sorgulanıyor.
+                Başlığın yanında dönem etiketi badge olarak gösteriliyor.
+                Filtrede sipariş yoksa "Bu dönemde sipariş yok" mesajı çıkıyor.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen / Oluşturulan Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">components/admin/DashboardDateFilter.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — YENİ: preset butonları client component</span><br>
+          <span class="file mod">app/admin/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — searchParams + getDateRange + DashboardDateFilter entegrasyonu</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ STEP 226 — Site Bakım Modu -->
+    <section class="section" id="step226">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(248,113,113,.15)">🔧</div>
+        <h2>Adım 226 — Site Bakım Modu</h2>
+      </div>
+
+      <div class="card">
+        <h3>Genel Bakış</h3>
+        <p>
+          Admin panelindeki "Ayarlar" sayfasından tek toggle ile site bakıma alınabiliyor.
+          Bakım modu aktifken ziyaretçiler <code>/bakim</code> sayfasına yönlendiriliyor;
+          admin paneli (<code>/admin/*</code>) ve API rotaları (<code>/api/*</code>)
+          her koşulda erişilebilir kalıyor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Middleware Akışı</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>60 Saniye TTL Önbellek</h4>
+              <p>
+                Middleware her istekte DB'ye gitmez. Modül seviyesinde
+                <code>&#123; on: boolean, ts: number &#125;</code> cache tutulur.
+                60 sn dolmadan aynı değer döner; dolunca tek bir
+                <code>SiteSetting.findUnique</code> çağrısıyla yenilenir.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Yönlendirme Mantığı</h4>
+              <p>
+                Admin rotaları (<code>/admin</code>) middleware'de ayrı blokta işlendiğinden
+                bakım kontrolü admin için hiç çalışmaz.
+                <code>/bakim</code> kendisi de hariç tutulur (sonsuz döngü koruması).
+                <code>/api/*</code> ve <code>/_next/*</code> de atlanır.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>SiteSetting Anahtarları</h4>
+              <p>
+                <code>maintenance_mode</code> → <code>"true"/"false"</code> (toggle)<br>
+                <code>maintenance_message</code> → özelleştirilebilir bakım metni
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Bakım Sayfası Tasarımı — <code>/bakim</code></h3>
+        <p>
+          Root layout üzerinde çalışır (header/footer yok). Sitenin renk diliyle uyumlu tasarım:
+        </p>
+        <ul style="margin-top:8px">
+          <li><code>#FFF8E7 → #FEF3C7 → #FDE68A</code> diagonal gradient arka plan</li>
+          <li>Üst ve alt honeyDark (<code>#C57930</code>) çizgi şerit</li>
+          <li>Site logosu (<code>/images/logo.png</code>) ortalanmış</li>
+          <li>Inline SVG petek ikonu (hexagon + bal damlası)</li>
+          <li>Poppins font-black başlık + amber ton mesaj metni</li>
+          <li>Telefon (dolu buton) ve e-posta (outline buton) linkleri — değerler DB'den okunur</li>
+          <li>Footer: yıl + "Kozan / Adana"</li>
+          <li>Başlık <code>&#123; absolute: "..." &#125;</code> ile root layout template çakışması giderildi</li>
+          <li>SEO: <code>robots: &#123; index: false, follow: false &#125;</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Admin Ayarlar Sayfası</h3>
+        <p>
+          <code>app/admin/ayarlar/page.tsx</code> sayfasının en üstüne kırmızı kenarlıklı
+          (<code>border-red-100</code>) "Bakım Modu" kartı eklendi.
+          Toggle açıkken middleware anında (max 60 sn gecikme) devreye giriyor.
+        </p>
+        <div class="alert alert-warn">
+          <span class="alert-label">DİKKAT:</span>
+          Toggle'ı açmadan önce admin paneli sekmesini açık tutun —
+          aksi hâlde bakım modundayken admin paneline erişmek için doğrudan
+          <code>/admin/auth/login</code>'e gitmeniz gerekir.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen / Oluşturulan Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">app/bakim/page.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — YENİ: marka uyumlu bakım sayfası</span><br>
+          <span class="file mod">middleware.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — isMaintenanceMode() + 60s cache + /bakim redirect</span><br>
+          <span class="file mod">app/admin/ayarlar/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — MAINTENANCE_SETTINGS bölümü eklendi</span>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 225 (Aktivite &amp; Audit Log: Kapsam Genişletme + KVKK/GDPR) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 226 (Admin Dashboard Sprint: Tarih Filtresi + Bakım Modu) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

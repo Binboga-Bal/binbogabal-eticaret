@@ -3,10 +3,50 @@ import { requirePermission } from "@/lib/rbac/guards";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils/format";
 import { ShoppingBag, Users, Package, TrendingUp } from "lucide-react";
+import { DashboardDateFilter } from "@/components/admin/DashboardDateFilter";
 
 export const metadata = { title: "Admin Dashboard" };
 
-async function getDashboardStats() {
+type Preset = "today" | "7d" | "30d" | "month" | "all";
+
+const VALID_PRESETS: Preset[] = ["today", "7d", "30d", "month"];
+
+const PRESET_LABELS: Record<Preset, string> = {
+  today: "Bugün",
+  "7d": "Son 7 Gün",
+  "30d": "Son 30 Gün",
+  month: "Bu Ay",
+  all: "Tüm Zamanlar",
+};
+
+function getDateRange(preset: Preset): { gte?: Date; lte?: Date } {
+  const now = new Date();
+  if (preset === "today") {
+    const start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    return { gte: start, lte: now };
+  }
+  if (preset === "7d") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 7);
+    return { gte: start, lte: now };
+  }
+  if (preset === "30d") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 30);
+    return { gte: start, lte: now };
+  }
+  if (preset === "month") {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { gte: start, lte: now };
+  }
+  return {};
+}
+
+async function getDashboardStats(preset: Preset) {
+  const range = getDateRange(preset);
+  const dateFilter = range.gte ? { createdAt: range } : undefined;
+
   const [
     totalOrders,
     totalRevenue,
@@ -15,45 +55,57 @@ async function getDashboardStats() {
     recentOrders,
     pendingOrders,
   ] = await Promise.all([
-    prisma.order.count(),
+    prisma.order.count({ where: dateFilter }),
     prisma.order.aggregate({
-      where: { paymentStatus: "PAID" },
+      where: { paymentStatus: "PAID", ...(dateFilter ?? {}) },
       _sum: { total: true },
     }),
-    prisma.user.count({ where: { role: "CUSTOMER" } }),
+    prisma.user.count({ where: { role: "CUSTOMER", ...(dateFilter ?? {}) } }),
     prisma.product.count({ where: { isActive: true } }),
     prisma.order.findMany({
+      where: dateFilter,
       orderBy: { createdAt: "desc" },
       take: 10,
       include: { items: true },
     }),
-    prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.order.count({ where: { status: "PENDING", ...(dateFilter ?? {}) } }),
   ]);
 
   return { totalOrders, totalRevenue, totalCustomers, totalProducts, recentOrders, pendingOrders };
 }
 
-export default async function AdminDashboard() {
+interface PageProps {
+  searchParams: Promise<{ preset?: string }>;
+}
+
+export default async function AdminDashboard({ searchParams }: PageProps) {
   await requirePermission("dashboard", "view");
-  const stats = await getDashboardStats();
+
+  const sp = await searchParams;
+  const preset: Preset = VALID_PRESETS.includes(sp.preset as Preset)
+    ? (sp.preset as Preset)
+    : "all";
+
+  const stats = await getDashboardStats(preset);
+  const periodLabel = PRESET_LABELS[preset];
 
   const cards = [
     {
-      title: "Toplam Sipariş",
+      title: "Sipariş",
       value: stats.totalOrders.toString(),
       icon: <ShoppingBag size={24} />,
       bg: "bg-blue-50 text-blue-600",
       note: `${stats.pendingOrders} bekleyen`,
     },
     {
-      title: "Toplam Gelir",
+      title: "Gelir",
       value: formatPrice(Number(stats.totalRevenue._sum.total ?? 0)),
       icon: <TrendingUp size={24} />,
       bg: "bg-green-50 text-green-600",
       note: "Ödenen siparişler",
     },
     {
-      title: "Müşteriler",
+      title: preset === "all" ? "Toplam Müşteri" : "Yeni Kayıt",
       value: stats.totalCustomers.toString(),
       icon: <Users size={24} />,
       bg: "bg-purple-50 text-purple-600",
@@ -64,20 +116,25 @@ export default async function AdminDashboard() {
       value: stats.totalProducts.toString(),
       icon: <Package size={24} />,
       bg: "bg-orange-50 text-orange-600",
-      note: "Yayında",
+      note: "Toplam yayında",
     },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black text-gray-900">Dashboard</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-2xl font-black text-gray-900">Dashboard</h1>
+        <DashboardDateFilter active={preset} />
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {cards.map((card) => (
           <div key={card.title} className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm text-gray-500 font-medium">{card.title}</p>
+              <p className="text-sm text-gray-500 font-medium">
+                {card.title === "Aktif Ürün" ? card.title : `${periodLabel} ${card.title}`}
+              </p>
               <div className={`p-2 rounded-xl ${card.bg}`}>{card.icon}</div>
             </div>
             <p className="text-2xl font-black text-gray-900">{card.value}</p>
@@ -88,8 +145,13 @@ export default async function AdminDashboard() {
 
       {/* Son siparişler */}
       <div className="bg-white rounded-2xl border border-gray-100">
-        <div className="px-6 py-4 border-b">
+        <div className="px-6 py-4 border-b flex items-center gap-2">
           <h2 className="font-bold text-gray-800">Son Siparişler</h2>
+          {preset !== "all" && (
+            <span className="text-xs text-gray-400 font-normal bg-gray-100 px-2 py-0.5 rounded-full">
+              {periodLabel}
+            </span>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -119,7 +181,7 @@ export default async function AdminDashboard() {
               {stats.recentOrders.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">
-                    Henüz sipariş yok
+                    Bu dönemde sipariş yok
                   </td>
                 </tr>
               )}
