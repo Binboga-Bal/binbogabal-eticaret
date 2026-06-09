@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Facebook, Linkedin, Instagram, Twitter } from "lucide-react";
 import { footerTheme } from "@/lib/theme";
 import { Container } from "@/components/layout/Container";
+import { CookieSettingsButton } from "@/components/shop/cookie/CookieSettingsButton";
 
 const footerLinks = {
   kurumsal: [
@@ -150,6 +151,9 @@ export function Footer({
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookieSettingsButton />
+              </li>
             </ul>
           </div>
 

@@ -688,7 +688,15 @@
       <a href="#step217" class="nav-link"><span class="dot"></span>217 — E-posta Entegrasyonu (Resend)</a>
 
       <div class="nav-section-label">9 Haziran 2026 — E-posta Ayarları</div>
-      <a href="#step218" class="nav-link active"><span class="dot"></span>218 — Tüm E-postalar Admin'den Yönetimi</a>
+      <a href="#step218" class="nav-link"><span class="dot"></span>218 — Tüm E-postalar Admin'den Yönetimi</a>
+
+      <div class="nav-section-label">9 Haziran 2026 — Canlı Destek</div>
+      <a href="#step219" class="nav-link"><span class="dot"></span>219 — Gerçek Zamanlı Canlı Destek</a>
+      <a href="#step220" class="nav-link"><span class="dot"></span>220 — Mesaj Bildirimleri</a>
+      <a href="#adim-221" class="nav-link"><span class="dot"></span>221 — Hızlı Yanıt Kategori Sistemi</a>
+
+      <div class="nav-section-label">9 Haziran 2026 — Cookie Consent</div>
+      <a href="#step222" class="nav-link active"><span class="dot"></span>222 — GDPR Uyumlu Çerez Sistemi</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -11484,10 +11492,176 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <div class="date-header" style="margin-top:64px">
+      <div class="date-pill">9 Haziran 2026 — Cookie Consent</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 222</div>
+    </div>
+
+    <section id="step222">
+      <h2>222 — GDPR Uyumlu Çerez Onay Sistemi</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">GDPR / KVKK</span>
+        <span class="tag tag-blue">Analytics</span>
+        <span class="tag tag-purple">Marketing</span>
+        <span class="tag tag-teal">7 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        GA4, Microsoft Clarity, Meta Pixel, Google Ads ve TikTok Pixel'i kapsayan, kullanıcı izni
+        olmadan hiçbir script'in yüklenmediği tam GDPR/KVKK uyumlu çerez onay altyapısı kuruldu.
+        Zorunlu çerezler her zaman aktif; analitik ve pazarlama çerezleri yalnızca açık onay
+        sonrasında devreye girer. Tercihler <code>localStorage</code>'da kalıcı tutulur.
+      </p>
+
+      <div class="card">
+        <h3>Çerez Envanteri — 3 Kategori</h3>
+        <table>
+          <thead><tr><th>Kategori</th><th>Araçlar / Cookie'ler</th><th>Kontrol</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Zorunlu</td>
+              <td><code>admin_access_token</code>, <code>admin_refresh_token</code>, <code>binbogabal-cart</code>, <code>chat_visitor_id</code>, <code>chat_session_id</code></td>
+              <td>Her zaman aktif — devre dışı bırakılamaz</td>
+            </tr>
+            <tr>
+              <td>Analitik</td>
+              <td>Google Analytics 4 (<code>_ga</code>, <code>_gid</code>), Microsoft Clarity (<code>_clsk</code>, <code>_clck</code>)</td>
+              <td>Kullanıcı onayına bağlı — <code>NEXT_PUBLIC_GA_ID</code>, <code>NEXT_PUBLIC_CLARITY_ID</code></td>
+            </tr>
+            <tr>
+              <td>Pazarlama</td>
+              <td>Meta Pixel (<code>_fbp</code>), Google Ads, TikTok Pixel</td>
+              <td>Kullanıcı onayına bağlı — <code>NEXT_PUBLIC_FB_PIXEL_ID</code>, <code>NEXT_PUBLIC_GOOGLE_ADS_ID</code>, <code>NEXT_PUBLIC_TIKTOK_PIXEL_ID</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Mimari — Nasıl Çalışır?</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>İlk Ziyaret</h4>
+              <p>Zustand store'u <code>hasResponded: false</code>, <code>analytics: false</code>, <code>marketing: false</code> ile başlar.
+              Hiçbir script DOM'a eklenmez. Banner sayfanın altından slide-up animasyonuyla açılır.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Kullanıcı Seçim Yapar</h4>
+              <p>"Tümünü Kabul Et" → tüm script'ler anında <code>next/script afterInteractive</code> ile yüklenir.
+              "Yalnızca Zorunlu" → hiçbir analitik/pazarlama script'i yüklenmez.
+              "Tercihleri Özelleştir" → modal açılır; toggle'larla kategori bazlı seçim yapılır.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sonraki Ziyaretler</h4>
+              <p>Tercih <code>binbogabal-cookie-consent</code> key'iyle <code>localStorage</code>'a yazılır (Zustand <code>partialize</code>).
+              Sayfa yüklenince store hydrate olur; izin verilmiş kategorilerin script'leri otomatik yüklenir.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>İzin İptali</h4>
+              <p>Footer'daki "Çerez Tercihleri" butonu modalı açar. İzin kısıtlandığında
+              <code>window.location.reload()</code> tetiklenir; yeniden yüklemede script'ler DOM'a eklenmez,
+              dolayısıyla yeni cookie set edilmez.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Script Yükleme Mantığı — <code>CookieScripts.tsx</code></h3>
+        <pre><span class="kw">const</span> needsGtag = (analytics &amp;&amp; !!GA_ID) || (marketing &amp;&amp; !!GOOGLE_ADS_ID);
+
+<span class="cm">// GA4 + Google Ads tek gtag.js loader'ı paylaşır</span>
+{needsGtag &amp;&amp; (
+  &lt;Script src={<span class="str">`…/gtag/js?id=${gtagSrcId}`</span>} strategy=<span class="str">"afterInteractive"</span> /&gt;
+  &lt;Script id=<span class="str">"gtag-init"</span>&gt;
+    {analytics &amp;&amp; GA_ID  ? <span class="str">`gtag('config','${GA_ID}');`</span>  : <span class="str">""</span>}
+    {marketing &amp;&amp; ADS_ID ? <span class="str">`gtag('config','${ADS_ID}');`</span> : <span class="str">""</span>}
+  &lt;/Script&gt;
+)}
+
+<span class="cm">// Clarity, Meta Pixel, TikTok — ayrı ID değişkenleri boşsa hiç yüklenmez</span>
+{analytics &amp;&amp; CLARITY_ID &amp;&amp; &lt;Script id=<span class="str">"clarity-init"</span> … /&gt;}
+{marketing &amp;&amp; FB_PIXEL_ID &amp;&amp; &lt;Script id=<span class="str">"meta-pixel"</span> … /&gt;}
+{marketing &amp;&amp; TIKTOK_PIXEL_ID &amp;&amp; &lt;Script id=<span class="str">"tiktok-pixel"</span> … /&gt;}</pre>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:8px">
+          Env değişkeni tanımsızsa (<code>""</code>) ilgili script bloğu hiç render edilmez.
+          ID'ler birer birer eklenebilir — diğer araçlar etkilenmez.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Yeni / Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="dir">store/</span><br>
+          &nbsp;&nbsp;<span class="file new">cookieConsent.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — Zustand persist store (necessary/analytics/marketing/hasResponded/settingsOpen)</span><br>
+          <br>
+          <span class="dir">components/shop/cookie/</span><br>
+          &nbsp;&nbsp;<span class="file new">CookieConsentBanner.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Banner (ilk ziyaret) + Tercih Modalı (toggle'lı)</span><br>
+          &nbsp;&nbsp;<span class="file new">CookieScripts.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — İzin bazlı script yükleyici (GA4, Clarity, Meta, Ads, TikTok)</span><br>
+          &nbsp;&nbsp;<span class="file new">CookieSettingsButton.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Footer'daki "Çerez Tercihleri" client butonu</span><br>
+          <br>
+          <span class="dir">app/(shop)/</span><br>
+          &nbsp;&nbsp;<span class="file mod">layout.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — CookieConsentBanner + CookieScripts eklendi</span><br>
+          <br>
+          <span class="dir">components/shop/footer/</span><br>
+          &nbsp;&nbsp;<span class="file mod">Footer.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — Yardım listesine CookieSettingsButton eklendi</span><br>
+          <br>
+          <span class="file mod">.env.example</span>
+          <span style="color:var(--honey);font-size:11px"> — 5 yeni NEXT_PUBLIC_* değişkeni (GA_ID, CLARITY_ID, FB_PIXEL_ID, GOOGLE_ADS_ID, TIKTOK_PIXEL_ID)</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Env Değişkenleri</h3>
+        <table>
+          <thead><tr><th>Değişken</th><th>Araç</th><th>Örnek Değer</th></tr></thead>
+          <tbody>
+            <tr><td><code>NEXT_PUBLIC_GA_ID</code></td><td>Google Analytics 4</td><td><code>G-XXXXXXXXXX</code></td></tr>
+            <tr><td><code>NEXT_PUBLIC_CLARITY_ID</code></td><td>Microsoft Clarity</td><td><code>abcde12345</code></td></tr>
+            <tr><td><code>NEXT_PUBLIC_FB_PIXEL_ID</code></td><td>Meta (Facebook) Pixel</td><td><code>1234567890</code></td></tr>
+            <tr><td><code>NEXT_PUBLIC_GOOGLE_ADS_ID</code></td><td>Google Ads</td><td><code>AW-XXXXXXXXX</code></td></tr>
+            <tr><td><code>NEXT_PUBLIC_TIKTOK_PIXEL_ID</code></td><td>TikTok Pixel</td><td><code>CXXXXXXXXXXXXXXXX</code></td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">NOT:</span>
+          Tanımsız (boş) env değişkeni → ilgili script bloğu render edilmez. ID'ler birer birer eklenebilir.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sonuç</h3>
+        <ul>
+          <li>İlk ziyarette hiçbir analitik/pazarlama script'i yüklenmez — GDPR/KVKK uyumlu</li>
+          <li>Zorunlu çerezler kullanıcı tercihinden bağımsız her zaman aktif</li>
+          <li>Banner ilk ziyarette görünür, tercih sonrası kaybolur</li>
+          <li>Footer "Çerez Tercihleri" butonu ile sonraki ziyaretlerde tercih değiştirilebilir</li>
+          <li>GA4 + Google Ads tek <code>gtag.js</code> yükleyicisini paylaşır</li>
+          <li>Boş env değişkeni → ilgili script hiç yüklenmez (sıfır hata riski)</li>
+          <li>TypeScript kontrolü (<code>pnpm tsc --noEmit</code>) hatasız geçti</li>
+          <li>Yeni harici bağımlılık eklenmedi</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 221 (Hızlı Yanıt Kategori Sistemi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 222 (GDPR Uyumlu Çerez Sistemi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

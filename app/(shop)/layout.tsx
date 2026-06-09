@@ -1,6 +1,8 @@
 import { Header } from "@/components/shop/header/Header";
 import { Footer } from "@/components/shop/footer/Footer";
 import { SupportFAB } from "@/components/shop/support/SupportFAB";
+import { CookieConsentBanner } from "@/components/shop/cookie/CookieConsentBanner";
+import { CookieScripts } from "@/components/shop/cookie/CookieScripts";
 import { headerTheme, footerTheme } from "@/lib/theme";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -55,6 +57,8 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
         userId={session?.user?.id ?? null}
         customerType={customerType}
       />
+      <CookieConsentBanner />
+      <CookieScripts />
     </>
   );
 }
