@@ -8,16 +8,11 @@ import { detectLlmBot } from "@/lib/seo/generative/bot-detector";
 
 export const runtime = "nodejs";
 
-// ─── Bakım modu önbelleği (60 sn TTL) ────────────────────────────────────────
-let _maintenanceCache = { on: false, ts: 0 };
-
 async function isMaintenanceMode(): Promise<boolean> {
-  if (Date.now() - _maintenanceCache.ts < 60_000) return _maintenanceCache.on;
   const row = await prisma.siteSetting
     .findUnique({ where: { key: "maintenance_mode" }, select: { value: true } })
     .catch(() => null);
-  _maintenanceCache = { on: row?.value === "true", ts: Date.now() };
-  return _maintenanceCache.on;
+  return row?.value === "true";
 }
 
 const PUBLIC_ADMIN_PATHS = [
