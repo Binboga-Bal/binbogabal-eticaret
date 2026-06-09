@@ -687,6 +687,9 @@
       <a href="#step216" class="nav-link"><span class="dot"></span>216 — ContactForm Bileşeni</a>
       <a href="#step217" class="nav-link"><span class="dot"></span>217 — E-posta Entegrasyonu (Resend)</a>
 
+      <div class="nav-section-label">9 Haziran 2026 — E-posta Ayarları</div>
+      <a href="#step218" class="nav-link active"><span class="dot"></span>218 — Tüm E-postalar Admin'den Yönetimi</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -11019,10 +11022,134 @@ h-64 lg:h-auto flex-1</pre>
       </div>
     </section>
 
+    <!-- ═══════════════════════════════ STEP 218 -->
+    <div class="date-header" style="margin-top:64px">
+      <div class="date-pill">9 Haziran 2026 — E-posta Ayarları</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 218</div>
+    </div>
+
+    <section id="step218">
+      <h2>218 — Tüm E-postalar Admin'den Yönetimi</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">E-posta</span>
+        <span class="tag tag-blue">Admin</span>
+        <span class="tag tag-purple">SiteSetting</span>
+        <span class="tag tag-teal">10 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Sitedeki tüm sabit e-posta adresleri ve e-posta gönderim servisindeki alıcı adresleri
+        <code>SiteSetting</code> tablosuna taşındı. Admin paneli → Site Ayarları üzerinden
+        kod değişikliği olmadan güncellenebilir hale getirildi.
+      </p>
+
+      <div class="card">
+        <h3>3 Yeni Ayar Anahtarı</h3>
+        <table>
+          <thead><tr><th>Anahtar</th><th>Varsayılan</th><th>Kullanım Yeri</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>contact_email</code></td>
+              <td><code>info@binbogabal.com.tr</code></td>
+              <td>Footer, Gizlilik, Çerez Politikası, Mail Servisi alıcısı</td>
+            </tr>
+            <tr>
+              <td><code>contact_email_iade</code></td>
+              <td><code>iade@binbogabal.com.tr</code></td>
+              <td>İade &amp; Değişim (adım metni + buton), Mesafeli Satış</td>
+            </tr>
+            <tr>
+              <td><code>contact_email_kvkk</code></td>
+              <td><code>kvkk@binbogabal.com.tr</code></td>
+              <td>KVKK Aydınlatma Metni başvuru bağlantısı</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:10px">
+          <code>contact_email</code> zaten <em>Site Ayarları</em>'nda bulunuyordu; diğer iki anahtar eklendi.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Mail Servisi — <code>lib/mail/mail.service.ts</code></h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+          <code>sendContactFormEmail</code> artık iletişim formunun gideceği adresi önce DB'den okuyor.
+        </p>
+        <pre><span class="cm">// Önce DB → sonra env → sonra sabit</span>
+<span class="kw">const</span> setting = <span class="kw">await</span> prisma.siteSetting.findUnique(
+  { where: { key: <span class="str">"contact_email"</span> } }
+);
+<span class="kw">const</span> CONTACT_TO = setting?.value
+  || process.env.CONTACT_EMAIL
+  || <span class="str">"info@binbogabal.com.tr"</span>;</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Footer — <code>components/shop/footer/Footer.tsx</code></h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+          Footer artık <code>contactEmail</code>, <code>contactPhone</code>, <code>contactAddress</code>,
+          <code>socialFacebook</code>, <code>socialInstagram</code>, <code>socialWhatsapp</code>
+          prop'larını kabul ediyor. Layout tek bir toplu DB sorgusuyla bu değerleri çekip geçiriyor.
+        </p>
+        <ul>
+          <li>Hardcoded <code>mailto:info@binbogabal.com.tr</code> → <code>mailto:{email}</code></li>
+          <li>Hardcoded <code>https://wa.me/903225158910</code> → <code>https://wa.me/{waNumber}</code></li>
+          <li>Telefon numarası <code>tel:</code> formatına otomatik dönüştürülüyor (<code>0&nbsp;(322)&nbsp;515&nbsp;89&nbsp;10</code> → <code>+903225158910</code>)</li>
+          <li>Herhangi bir prop gelmezse eski sabit değerler fallback olarak kullanılıyor</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Layout — <code>app/(shop)/layout.tsx</code></h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+          Önceki iki ayrı <code>findUnique</code> çağrısı tek bir <code>findMany</code>'ye birleştirildi.
+        </p>
+        <pre><span class="kw">const</span> rows = <span class="kw">await</span> prisma.siteSetting.findMany({
+  where: { key: { in: [
+    <span class="str">"img_logo"</span>, <span class="str">"social_whatsapp"</span>, <span class="str">"social_instagram"</span>,
+    <span class="str">"social_facebook"</span>, <span class="str">"contact_email"</span>,
+    <span class="str">"contact_phone"</span>, <span class="str">"contact_address"</span>,
+  ]}},
+});</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Statik Sayfalar — 5 Dosya</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+          Her sayfa <code>async</code> yapıldı, ilgili ayar anahtarı DB'den okundu.
+          Admin ayarlar API'si (<code>/api/admin/settings</code>) değiştiğinde bu sayfaların
+          ISR cache'ini de temizleyen <code>revalidatePath</code> çağrıları eklendi.
+        </p>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/gizlilik/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> MOD — contact_email (2 bağlantı)</span><br>
+          <span class="file mod">app/(shop)/cerez-politikasi/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> MOD — contact_email</span><br>
+          <span class="file mod">app/(shop)/kvkk/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> MOD — contact_email_kvkk</span><br>
+          <span class="file mod">app/(shop)/iade-degisim/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> MOD — contact_email_iade (adım metni + buton)</span><br>
+          <span class="file mod">app/(shop)/mesafeli-satis/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> MOD — contact_email_iade</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>Sitedeki tüm <code>mailto:</code> bağlantıları artık <em>Site Ayarları</em> → İletişim grubundan yönetiliyor</li>
+          <li>İletişim formu gönderimlerinin gideceği adres de aynı ayar anahtarından okunuyor</li>
+          <li>Herhangi bir ayar DB'de tanımlı değilse eski sabit değerler devreye giriyor — geriye dönük uyumlu</li>
+          <li>Ayar değiştirildiğinde tüm etkilenen sayfaların ISR cache'i anında temizleniyor</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 217 (İletişim E-posta Entegrasyonu) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 218 (Tüm E-postalar Admin'den Yönetimi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
