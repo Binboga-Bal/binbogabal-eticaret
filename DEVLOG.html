@@ -11146,10 +11146,140 @@ h-64 lg:h-auto flex-1</pre>
       </div>
     </section>
 
+    <!-- ═══════════════════════════════ STEP 219 -->
+    <div class="date-header" style="margin-top:64px">
+      <div class="date-pill">9 Haziran 2026 — Canlı Destek</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 219</div>
+    </div>
+
+    <section id="step219">
+      <h2>219 — Gerçek Zamanlı Canlı Destek Sistemi</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag tag-green">feat</span>
+        <span class="tag tag-honey">Chat</span>
+        <span class="tag tag-blue">Admin Panel</span>
+        <span class="tag tag-purple">Prisma</span>
+        <span class="tag tag-teal">14 dosya</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Mevcut statik chatbot widget'ı, veritabanı destekli ve admin panelden yönetilebilen
+        gerçek zamanlı bir canlı destek sistemine dönüştürüldü. Vercel serverless ortamıyla
+        tam uyumlu 3 saniyelik polling mimarisi kullanıldı — ekstra servis (Pusher, Socket.io vb.) gerekmez.
+      </p>
+
+      <div class="card">
+        <h3>Yeni DB Modelleri — <code>prisma/schema.prisma</code></h3>
+        <table>
+          <thead><tr><th>Model</th><th>Alan Sayısı</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>ChatSession</code></td>
+              <td>10 alan</td>
+              <td>Ziyaretçi/kullanıcı sohbet oturumu. Status: <code>WAITING → ACTIVE → CLOSED</code></td>
+            </tr>
+            <tr>
+              <td><code>ChatMessage</code></td>
+              <td>8 alan</td>
+              <td>Tek bir mesaj. SenderType: <code>VISITOR | ADMIN | BOT</code></td>
+            </tr>
+            <tr>
+              <td><code>ChatQuickReply</code></td>
+              <td>5 alan</td>
+              <td>Admin panelden yönetilen hızlı yanıt kartları (soru + otomatik cevap)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:8px">
+          <code>pnpm db:push</code> ile Supabase'e yayınlandı. <code>User</code> modeline <code>chatSessions</code> ilişkisi eklendi.
+          4 varsayılan hızlı yanıt seed edildi.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Ziyaretçi API — <code>app/api/chat/</code></h3>
+        <div class="file-tree">
+          <span class="file new">app/api/chat/session/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> POST — visitorId ile session oluştur ya da mevcut açık oturumu getir</span><br>
+          <span class="file new">app/api/chat/[sessionId]/messages/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> GET (polling, ?after=ISO) + POST (mesaj gönder; botResponse ile otomatik bot yanıtı)</span><br>
+          <span class="file new">app/api/chat/quick-replies/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> GET — aktif hızlı yanıtları döndürür</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:8px">
+          GET <code>/messages</code> artık <code>{ messages, sessionStatus }</code> döndürüyor.
+          Client <code>sessionStatus === "CLOSED"</code> algıladığında localStorage temizlenir,
+          sarı bildirim banner'ı gösterilir, yeni mesaj yazılınca taze session açılır.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Admin API — <code>app/api/admin/chat/</code></h3>
+        <div class="file-tree">
+          <span class="file new">app/api/admin/chat/sessions/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> GET — tüm session'ları unread sayısıyla listeler (WAITING önce)</span><br>
+          <span class="file new">app/api/admin/chat/[sessionId]/messages/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> GET (tüm mesajlar + okundu işareti) + POST (admin mesaj gönder)</span><br>
+          <span class="file new">app/api/admin/chat/[sessionId]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> PATCH — session status güncelle (CLOSED vb.)</span><br>
+          <span class="file new">app/api/admin/chat/quick-replies/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> GET + POST — hızlı yanıt listele / ekle</span><br>
+          <span class="file new">app/api/admin/chat/quick-replies/[id]/route.ts</span>
+          <span style="color:var(--honey);font-size:11px"> PATCH + DELETE — hızlı yanıt düzenle / sil</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Admin Paneli — <code>app/admin/canli-destek/</code> + <code>components/admin/ChatDashboard.tsx</code></h3>
+        <ul>
+          <li>Sol panel (272px): session listesi — unread badge, status rengi (sarı/yeşil/gri), son mesaj önizlemesi</li>
+          <li>Sağ panel: seçili sohbetin mesaj geçmişi + textarea + Gönder butonu (Enter: gönder, Shift+Enter: yeni satır)</li>
+          <li>Session header'da ziyaretçi adı/e-postası, status etiketi, "Sohbeti Kapat" butonu</li>
+          <li>Admin yanıt gönderince session otomatik <code>ACTIVE</code>'e geçer, adminName kaydedilir</li>
+          <li><strong>Hızlı Yanıtlar sekmesi:</strong> yeni soru + cevap ekle, inline düzenle, aktif/pasif toggle, sil</li>
+          <li>Session listesi 10 saniyede, seçili mesajlar 3 saniyede bir otomatik yenilenir</li>
+          <li>Bekleyen (WAITING) sohbet varsa tab'da turuncu animasyonlu sayaç gösterilir</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>SupportFAB Yeniden Yazıldı — <code>components/shop/support/SupportFAB.tsx</code></h3>
+        <ul>
+          <li>Boyut artırıldı: <code>w-80 / max-h-500</code> → <strong>400px genişlik / 580px yükseklik</strong></li>
+          <li>Hızlı yanıtlar artık DB'den geliyor (<code>/api/chat/quick-replies</code>), hardcoded yok</li>
+          <li>Hızlı yanıt tıklanınca soru VISITOR baloncuğu olarak görünür, cevap BOT baloncuğu olarak döner</li>
+          <li>İlk mesajda session oluşturulur; <code>visitorId</code> ve <code>sessionId</code> localStorage'da saklanır</li>
+          <li>Sayfa yenilenince mevcut açık session geri yüklenir, mesaj geçmişi korunur</li>
+          <li>Admin sohbeti kapattığında ≤3 saniye içinde <em>"Sohbet sonlandırıldı"</em> banner'ı gösterilir, yeni mesajla taze session açılır</li>
+          <li>Giriş yapmış kullanıcıda <code>userName</code> + <code>userId</code> session'a kaydedilir → admin panelde adı soyadı görünür</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Diğer Değişiklikler</h3>
+        <div class="file-tree">
+          <span class="file mod">components/admin/AdminSidebar.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> Yorumlar altına "Canlı Destek" menü öğesi eklendi (Headphones ikonu)</span><br>
+          <span class="file mod">app/(shop)/layout.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> NextAuth <code>auth()</code> ile oturum alınıp <code>userName</code> + <code>userId</code> SupportFAB'a geçildi</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <ul>
+          <li>Müşteri ↔ Admin arasında gerçek zamanlı mesajlaşma (3s polling; ekstra altyapı gerektirmez)</li>
+          <li>Hızlı yanıt kartları admin panelden eklenip düzenlenebilir, hardcoded kod değişikliği gerekmez</li>
+          <li>Giriş yapmış müşteriler admin panelde adı soyadıyla görünür</li>
+          <li>Admin sohbeti kapattığında müşteri tarafı ≤3 saniye içinde güncellenir</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 218 (Tüm E-postalar Admin'den Yönetimi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 9 Haziran 2026 — Adım 219 (Gerçek Zamanlı Canlı Destek Sistemi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
