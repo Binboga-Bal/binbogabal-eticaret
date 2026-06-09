@@ -658,6 +658,14 @@
       <a href="#step201" class="nav-link"><span class="dot"></span>201 — Banner Görselleri Anında Yüklenir Hale Getirildi</a>
       <a href="#step202" class="nav-link"><span class="dot"></span>202 — WhatsApp Destek FAB &amp; Chatbot</a>
 
+      <div class="nav-section-label">8 Haziran 2026 — Admin &amp; ERP</div>
+      <a href="#step203" class="nav-link"><span class="dot"></span>203 — Admin: Sayfalar Yönetimi</a>
+      <a href="#step204" class="nav-link"><span class="dot"></span>204 — Tüm Sayfalarda Statik Metin Yönetimi</a>
+      <a href="#step205" class="nav-link"><span class="dot"></span>205 — Dia ERP Sipariş &amp; Cari Entegrasyonu</a>
+
+      <div class="nav-section-label">9 Haziran 2026 — Bugfix</div>
+      <a href="#step206" class="nav-link"><span class="dot"></span>206 — Ürün Güncelleme FK Kısıtı Düzeltmesi</a>
+
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
       <a href="#bugs"        class="nav-link"><span class="dot"></span>Çözülen Hatalar</a>
@@ -10072,10 +10080,78 @@ ERP_KARGO_KDV_RATE=20</pre>
       </div>
     </section>
 
+    <!-- ═══ STEP 206 ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="step206">
+      <div class="step-header">
+        <span class="step-badge">Adım 206</span>
+        <span class="step-title">Ürün Güncelleme — FK Kısıt Hatası Düzeltmesi</span>
+        <span class="step-meta">2026-06-09</span>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-red">fix(admin)</span>
+        <span class="tag tag-yellow">fix(db)</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:20px">
+        Admin panelinden ürün güncellenirken <code>prisma.productVariant.deleteMany()</code>
+        çağrısı, sipariş geçmişinde (<code>OrderItem.variantId</code>) referans edilen
+        variant'ları silmeye çalışıyor ve PostgreSQL'in FK kısıtını tetikliyordu.
+      </p>
+
+      <div class="card">
+        <h3>Hata</h3>
+        <pre><span class="cm">Invalid `prisma.productVariant.deleteMany()` invocation:
+Foreign key constraint violated: `order_items_variantId_fkey (index)`</span></pre>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Kök Neden</h3>
+        <p style="font-size:13px;line-height:1.8">
+          <code>PUT /api/admin/products/[id]</code> endpoint'i "tümünü sil, yeniden oluştur"
+          (delete-all &amp; recreate) desenini kullanıyordu. Sipariş geçmişinde referansı olan
+          variant'lar <code>onDelete</code> kuralı olmadığı için PostgreSQL tarafından
+          <code>RESTRICT</code> ile korunuyordu.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Çözüm — Akıllı Upsert</h3>
+        <table>
+          <thead><tr><th>Durum</th><th>Yapılan İşlem</th></tr></thead>
+          <tbody>
+            <tr><td>Formdan gelen, <code>id</code> olan variant</td><td><code>update</code> — yerinde güncellenir, ID değişmez</td></tr>
+            <tr><td>Formdan gelen, <code>id</code> olmayan variant</td><td><code>create</code> — yeni kayıt oluşturulur</td></tr>
+            <tr><td>Formdan çıkarılan, siparişi olmayan variant</td><td><code>deleteMany</code> — güvenle silinir</td></tr>
+            <tr><td>Formdan çıkarılan, siparişi olan variant</td><td>Korunur — FK ihlali olmaz</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Değiştirilen Dosya</h3>
+        <p style="font-size:13px"><code>app/api/admin/products/[id]/route.ts</code> — PUT handler yeniden yazıldı</p>
+        <pre style="margin-top:10px"><span class="cm">// Sipariş içeren variant'ları tespit et</span>
+<span class="kw">const</span> currentVariants = <span class="kw">await</span> prisma.productVariant.findMany({
+  where: { productId: id },
+  select: { id: <span class="kw">true</span>, _count: { select: { orderItems: <span class="kw">true</span> } } },
+});
+<span class="kw">const</span> deletableIds = currentVariants
+  .filter(v =&gt; !keptIds.includes(v.id) &amp;&amp; v._count.orderItems === <span class="num">0</span>)
+  .map(v =&gt; v.id);
+<span class="cm">// Yalnızca sipariş bağlantısı olmayanları sil</span>
+<span class="kw">if</span> (deletableIds.length &gt; <span class="num">0</span>)
+  <span class="kw">await</span> prisma.productVariant.deleteMany({ where: { id: { in: deletableIds } } });</pre>
+      </div>
+
+      <div class="card" style="margin-top:12px;border-color:var(--green)">
+        <h3>✅ Sonuç</h3>
+        <p>Schema değişikliği gerekmedi. Sipariş geçmişindeki variant referansları bozulmadan korunuyor; admin'den ürün güncellemesi artık hatasız çalışıyor.</p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son guncelleme: 8 Haziran 2026 - Adim 205 (Dia ERP Sipariş/Cari Entegrasyonu) - Claude tarafindan yazildi</span>
+      <span>Son guncelleme: 9 Haziran 2026 - Adim 206 (Ürün Güncelleme FK Kısıt Düzeltmesi) - Claude tarafindan yazildi</span>
     </div>
   </main>
 </div>
