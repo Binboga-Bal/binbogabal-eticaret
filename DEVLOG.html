@@ -719,7 +719,11 @@
       <a href="#step232" class="nav-link"><span class="dot"></span>232 — Sipariş Export &amp; Tarih Filtresi</a>
 
       <div class="nav-section-label">10 Haziran 2026 — Canlı Destek</div>
-      <a href="#step233" class="nav-link active"><span class="dot"></span>233 — Ghost Session &amp; Idle Timeout</a>
+      <a href="#step233" class="nav-link"><span class="dot"></span>233 — Ghost Session &amp; Idle Timeout</a>
+
+      <div class="nav-section-label">10 Haziran 2026 — E-posta Sistemi</div>
+      <a href="#step234" class="nav-link active"><span class="dot"></span>234 — Email Tasarım Yenileme (PDF)</a>
+      <a href="#step235" class="nav-link"><span class="dot"></span>235 — Admin E-posta Şablon Yönetimi</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -13051,10 +13055,165 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ─── ADIM 234 ─── -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 234–235 · E-posta Sistemi Yenileme</div>
+    </div>
+
+    <section class="section" id="step234">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.12)">✉️</div>
+        <h2>Adım 234 — E-posta Tasarım Yenileme (PDF Referansı)</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          <code>web_mail.pdf</code> adlı 10 sayfalık tasarım dökümanı referans alınarak tüm e-posta
+          şablonlarının yeni marka tasarımına uygun hale getirilmesi istendi. İkonlar, görseller ve
+          genel içerik yapısı güncellendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Tasarım Özellikleri (PDF'den)</h3>
+        <ul>
+          <li><strong>Header:</strong> Bal sarısı <code>#F9B10B</code> tam genişlik alan, ortada "1973 · KOZAN" rozeti, büyük bold "KOOPERATİF BALI", italic "Binboğa®" yazısı</li>
+          <li><strong>Wave geçişi:</strong> Header altında SVG dalgalı beyaz geçiş — merkez aşağı sarkan "dil" formu (<code>path d="M0,0 L600,0 L600,18 Q450,12 300,48 Q150,12 0,18 Z"</code>)</li>
+          <li><strong>İkon:</strong> Her şablona özgü 80×80 çizgi-art SVG illüstrasyon (siyah stroke, fill yok)</li>
+          <li><strong>CTA Buton:</strong> Bal sarısı, tam yuvarlak köşe (<code>border-radius:100</code>), 14px 36px padding</li>
+          <li><strong>Alt Not:</strong> Saat ikonu + açıklama satırı (süre kısıtı olan şablonlarda)</li>
+          <li><strong>Footer:</strong> Sol "Bu e-posta otomatik gönderilmiştir…", sağ FB/LinkedIn/IG/X/WA SVG ikonları + <code>/binbogabal</code> handle</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan / Güncellenen Dosyalar</h3>
+        <div class="file-tree">
+          <div><span class="file new">lib/mail/templates/email-layout.tsx</span> <span class="tag tag-green">YENİ</span> — Paylaşılan layout + EmailIcon/Title/Body/Button/Note bileşenleri</div>
+          <div><span class="file mod">lib/mail/templates/verify-email.tsx</span> — Arıcı + zarf SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/welcome.tsx</span> — Bal peteği + arı SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/password-reset.tsx</span> — Kilit + bal damlası SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/password-changed.tsx</span> — Kalkan + tik SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/order-confirmed.tsx</span> — Alışveriş çantası + tik SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/order-status-changed.tsx</span> — Kamyon SVG ikonu, durum rozeti</div>
+          <div><span class="file mod">lib/mail/templates/favorite-discount.tsx</span> — Kalp + yüzde SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/coupon-expiry.tsx</span> — Bilet + saat SVG ikonu, özel kupon kutusu</div>
+          <div><span class="file mod">lib/mail/templates/review-request.tsx</span> — Yıldız + kalem SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/review-reply.tsx</span> — Konuşma balonları SVG ikonu</div>
+          <div><span class="file mod">lib/mail/templates/contact-form.tsx</span> — Yeni layout ile yeniden yazıldı</div>
+          <div><span class="file mod">lib/mail/templates/admin-invite.tsx</span> — Kullanıcı + taç SVG ikonu</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Paylaşılan Layout Bileşenleri</h3>
+        <table>
+          <thead><tr><th>Bileşen</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>EmailLayout</code></td><td>Tüm şablonların wrapper'ı. Header + wave SVG + body + footer içerir</td></tr>
+            <tr><td><code>EmailIcon</code></td><td>İkon alanı — ortalanmış 80px SVG slot</td></tr>
+            <tr><td><code>EmailTitle</code></td><td>22px bold başlık, ortalanmış</td></tr>
+            <tr><td><code>EmailBody</code></td><td>15px gri metin bloğu, ortalanmış, satır aralıklı</td></tr>
+            <tr><td><code>EmailButton</code></td><td>Bal sarısı pill buton, tam genişlik ortalanmış</td></tr>
+            <tr><td><code>EmailNote</code></td><td>Saat ikonu + küçük açıklama satırı</td></tr>
+            <tr><td><code>EmailDivider</code></td><td>İnce yatay çizgi</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── ADIM 235 ─── -->
+    <section class="section" id="step235">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.12)">⚙️</div>
+        <h2>Adım 235 — Admin Panelinden E-posta Şablon Yönetimi</h2>
+      </div>
+
+      <div class="card">
+        <h3>Mimari</h3>
+        <p>
+          E-posta şablonlarının <strong>metin içeriği</strong> (konu, başlık, gövde, buton, not) artık admin
+          panelinden düzenlenebilir. Tasarım (ikonlar, renkler, layout) kod tarafında sabit kalır;
+          yalnızca metinler veritabanında saklanır.
+        </p>
+        <div class="alert alert-info" style="margin-top:10px">
+          <span class="alert-label">VERİTABANI:</span>
+          Mevcut <code>SiteSetting</code> tablosu kullanıldı. Her şablon
+          <code>email_template_{key}</code> anahtarıyla JSON olarak saklanır.
+          DB'de kayıt yoksa kod içindeki default değere düşülür — şema değişikliği gerekmez.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan Dosyalar</h3>
+        <div class="file-tree">
+          <div><span class="file new">lib/mail/template-content.ts</span> <span class="tag tag-green">YENİ</span></div>
+          <div style="padding-left:20px;color:var(--text-muted);font-size:12px">
+            • <code>EMAIL_TEMPLATE_DEFINITIONS</code> — 12 şablon tanımı (key, name, description, hasButton, hasNote, defaults)<br>
+            • <code>getTemplateContent(key)</code> — SiteSetting'den yükle, yoksa default dön<br>
+            • <code>saveTemplateContent(key, content)</code> — SiteSetting upsert<br>
+            • <code>getAllTemplateContents()</code> — Tek sorguda tüm içerikleri getir
+          </div>
+          <div style="margin-top:8px"><span class="file new">app/api/admin/email-templates/route.ts</span> <span class="tag tag-green">YENİ</span> — GET tüm şablonlar</div>
+          <div><span class="file new">app/api/admin/email-templates/[key]/route.ts</span> <span class="tag tag-green">YENİ</span> — PUT güncelle · DELETE varsayılana sıfırla</div>
+          <div><span class="file new">app/admin/email-sablonlari/page.tsx</span> <span class="tag tag-green">YENİ</span> — SSR admin sayfası</div>
+          <div><span class="file new">components/admin/EmailTemplateEditor.tsx</span> <span class="tag tag-green">YENİ</span> — Client editör bileşeni</div>
+          <div style="margin-top:8px"><span class="file mod">lib/mail/mail.service.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — Her send fonksiyonu <code>getTemplateContent()</code> çağırıyor</div>
+          <div><span class="file mod">lib/mail/admin-mail.service.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — admin-invite içeriği DB'den geliyor</div>
+          <div><span class="file mod">components/admin/AdminSidebar.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — "E-posta Şablonları" nav öğesi eklendi (Mail ikonu)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>12 Yönetilebilir Şablon</h3>
+        <table>
+          <thead><tr><th>Şablon</th><th>Buton</th><th>Not</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td>verify-email</td><td>✅</td><td>✅</td><td>E-posta doğrulama (24 saat)</td></tr>
+            <tr><td>welcome</td><td>✅</td><td>—</td><td>Kayıt sonrası karşılama</td></tr>
+            <tr><td>password-reset</td><td>✅</td><td>✅</td><td>Şifre sıfırlama (1 saat)</td></tr>
+            <tr><td>password-changed</td><td>—</td><td>—</td><td>Şifre değişikliği bildirimi</td></tr>
+            <tr><td>order-confirmed</td><td>✅</td><td>—</td><td>Sipariş onayı + ürün tablosu</td></tr>
+            <tr><td>order-status-changed</td><td>✅</td><td>—</td><td>Kargo/durum güncelleme</td></tr>
+            <tr><td>favorite-discount</td><td>—</td><td>—</td><td>Favori ürün indirimi</td></tr>
+            <tr><td>coupon-expiry</td><td>✅</td><td>—</td><td>Kupon son kullanım hatırlatma</td></tr>
+            <tr><td>review-request</td><td>—</td><td>—</td><td>Teslimat sonrası yorum daveti</td></tr>
+            <tr><td>review-reply</td><td>✅</td><td>—</td><td>Yorum yanıtı bildirimi</td></tr>
+            <tr><td>contact-form</td><td>—</td><td>—</td><td>İletişim formu (admin'e gider)</td></tr>
+            <tr><td>admin-invite</td><td>✅</td><td>✅</td><td>Admin panel daveti (48 saat)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Admin Editör Özellikleri</h3>
+        <ul>
+          <li>Sol panel: 12 şablon listesi — tıklayınca sağda editör açılır</li>
+          <li>Düzenlenebilir alanlar: Konu · Başlık · İçerik (her satır yeni paragraf) · Buton metni · Alt not</li>
+          <li>Canlı mini önizleme: Header rengi + başlık + içerik + buton + not anında görülür</li>
+          <li>"Varsayılana Sıfırla" → <code>DELETE /api/admin/email-templates/[key]</code> SiteSetting kaydını siler</li>
+          <li>İzin: <code>settings:view</code> — tüm admin kullanıcıları erişebilir</li>
+          <li>URL: <code>/admin/email-sablonlari</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Subject Mantığı</h3>
+        <p>
+          Mail gönderme fonksiyonları artık DB'deki <code>subject</code> alanını kullanıyor.
+          Sipariş maillerinde <code>content.subject + ": " + orderNumber</code> formatı uygulanır.
+          DB'de subject yoksa eski sabit string'e fallback yapılır — geriye dönük uyumlu.
+        </p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 10 Haziran 2026 — Adım 233 (Canlı Destek Ghost Session &amp; Idle Timeout) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 10 Haziran 2026 — Adım 235 (E-posta Şablon Yenileme &amp; Admin Yönetimi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>

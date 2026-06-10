@@ -24,6 +24,7 @@ import {
   Activity,
   Globe,
   Headphones,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -69,6 +70,7 @@ const navItems: NavItem[] = [
       { href: "/admin/icerik/faq", label: "SSS" },
     ],
   },
+  { href: "/admin/email-sablonlari", label: "E-posta Şablonları", icon: <Mail size={18} />, permission: "settings:view" },
   {
     href: "/admin/sayfalar",
     label: "Sayfalar",

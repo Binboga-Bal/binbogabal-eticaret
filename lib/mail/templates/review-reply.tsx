@@ -1,4 +1,6 @@
 import * as React from "react";
+import { EmailLayout, EmailIcon, EmailTitle, EmailBody, EmailButton, HONEY, HONEY_DARK } from "./email-layout";
+import type { EmailTemplateContent } from "../template-content";
 
 interface Props {
   name: string;
@@ -6,42 +8,67 @@ interface Props {
   reviewComment: string;
   adminReply: string;
   reviewUrl: string;
+  content: EmailTemplateContent;
+  appUrl: string;
 }
 
-export function ReviewReplyTemplate({ name, productName, reviewComment, adminReply, reviewUrl }: Props) {
+export function ReviewReplyTemplate({ name, productName, reviewComment, adminReply, reviewUrl, content, appUrl }: Props) {
   return (
-    <div style={{ fontFamily: "sans-serif", maxWidth: 600, margin: "0 auto" }}>
-      <div style={{ background: "#F9B10B", padding: "24px 32px" }}>
-        <h1 style={{ margin: 0, color: "#fff", fontSize: 24 }}>Binboğa Kooperatif Balı</h1>
-      </div>
-      <div style={{ padding: "32px", background: "#fff" }}>
-        <h2 style={{ color: "#1a1a1a", marginTop: 0 }}>Yorumunuza Yanıt Geldi!</h2>
-        <p style={{ color: "#555" }}>
-          Merhaba {name}, <strong>{productName}</strong> ürününe yazdığınız yoruma yanıt verildi.
+    <EmailLayout appUrl={appUrl}>
+      <EmailIcon>
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+          {/* First bubble */}
+          <rect x="10" y="12" width="42" height="26" rx="8" />
+          <path d="M14 38 L10 46 L22 40" />
+          {/* Reply bubble */}
+          <rect x="28" y="44" width="42" height="26" rx="8" />
+          <path d="M66 70 L70 58 L58 64" />
+          {/* Reply arrow */}
+          <polyline points="34,57 38,52 34,47" strokeWidth="2" />
+        </svg>
+      </EmailIcon>
+      <EmailTitle>{content.title}</EmailTitle>
+      <EmailBody>
+        <strong>Merhaba {name},</strong>
+        <br />
+        <strong>{productName}</strong> ürününe yazdığınız yoruma yanıt verildi.
+        <br />
+        {content.body}
+      </EmailBody>
+
+      {/* Original review */}
+      <div
+        style={{
+          background: "#f9f9f9",
+          borderLeft: "4px solid #ddd",
+          borderRadius: "0 8px 8px 0",
+          padding: "12px 16px",
+          margin: "4px 0 12px",
+        }}
+      >
+        <p style={{ margin: "0 0 4px", fontSize: 11, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>
+          Yorumunuz
         </p>
-
-        <div style={{ background: "#f9f9f9", borderLeft: "4px solid #ddd", borderRadius: 4, padding: "12px 16px", margin: "16px 0" }}>
-          <p style={{ margin: 0, fontSize: 13, color: "#888", marginBottom: 6 }}>Yorumunuz:</p>
-          <p style={{ margin: 0, color: "#555", fontStyle: "italic" }}>{reviewComment}</p>
-        </div>
-
-        <div style={{ background: "#FFF8E7", borderLeft: "4px solid #F9B10B", borderRadius: 4, padding: "12px 16px", margin: "16px 0" }}>
-          <p style={{ margin: 0, fontSize: 13, color: "#C57930", fontWeight: "bold", marginBottom: 6 }}>Satıcı Yanıtı:</p>
-          <p style={{ margin: 0, color: "#333" }}>{adminReply}</p>
-        </div>
-
-        <div style={{ marginTop: 24 }}>
-          <a
-            href={reviewUrl}
-            style={{ background: "#F9B10B", color: "#fff", padding: "12px 24px", borderRadius: 8, textDecoration: "none", fontWeight: "bold", fontSize: 14 }}
-          >
-            Ürünü Görüntüle
-          </a>
-        </div>
+        <p style={{ margin: 0, color: "#666", fontStyle: "italic", fontSize: 14, lineHeight: "1.6" }}>{reviewComment}</p>
       </div>
-      <div style={{ background: "#f5f5f5", padding: "16px 32px", textAlign: "center" }}>
-        <p style={{ margin: 0, fontSize: 12, color: "#999" }}>Binboğa Kooperatif Balı — Doğal ve Saf Bal</p>
+
+      {/* Admin reply */}
+      <div
+        style={{
+          background: "#FFF8E7",
+          borderLeft: `4px solid ${HONEY}`,
+          borderRadius: "0 8px 8px 0",
+          padding: "12px 16px",
+          margin: "0 0 20px",
+        }}
+      >
+        <p style={{ margin: "0 0 4px", fontSize: 11, color: HONEY_DARK, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>
+          Satıcı Yanıtı
+        </p>
+        <p style={{ margin: 0, color: "#333", fontSize: 14, lineHeight: "1.6" }}>{adminReply}</p>
       </div>
-    </div>
+
+      <EmailButton href={reviewUrl}>{content.buttonText ?? "Ürünü Görüntüle"}</EmailButton>
+    </EmailLayout>
   );
 }

@@ -1,4 +1,6 @@
 import * as React from "react";
+import { EmailLayout, EmailIcon, EmailTitle, EmailBody, EmailButton } from "./email-layout";
+import type { EmailTemplateContent } from "../template-content";
 
 const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: "Onaylandı",
@@ -27,37 +29,73 @@ interface Props {
   cargoTrackingNo?: string;
   cargoCompany?: string;
   orderUrl: string;
+  content: EmailTemplateContent;
+  appUrl: string;
 }
 
-export function OrderStatusChangedTemplate({ name, orderNumber, status, cargoTrackingNo, cargoCompany, orderUrl }: Props) {
+export function OrderStatusChangedTemplate({ name, orderNumber, status, cargoTrackingNo, cargoCompany, orderUrl, content, appUrl }: Props) {
   const label = STATUS_LABELS[status] ?? status;
   const color = STATUS_COLORS[status] ?? "#555";
 
   return (
-    <div style={{ fontFamily: "sans-serif", maxWidth: 600, margin: "0 auto" }}>
-      <div style={{ background: "#F9B10B", padding: "24px 32px" }}>
-        <h1 style={{ margin: 0, color: "#fff", fontSize: 24 }}>Binboğa Kooperatif Balı</h1>
+    <EmailLayout appUrl={appUrl}>
+      <EmailIcon>
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+          {/* Truck */}
+          <rect x="8" y="32" width="44" height="28" rx="3" />
+          <path d="M52 42 L52 32 L64 32 L72 44 L72 60 L52 60" />
+          {/* Wheels */}
+          <circle cx="20" cy="60" r="7" />
+          <circle cx="62" cy="60" r="7" />
+          {/* Window */}
+          <rect x="54" y="36" width="14" height="10" rx="2" />
+        </svg>
+      </EmailIcon>
+      <EmailTitle>{content.title}</EmailTitle>
+      <EmailBody>
+        <strong>Merhaba {name},</strong>
+        <br />
+        <strong>{orderNumber}</strong> numaralı {content.body}
+      </EmailBody>
+
+      {/* Status badge */}
+      <div style={{ textAlign: "center", margin: "0 0 20px" }}>
+        <span
+          style={{
+            display: "inline-block",
+            background: `${color}18`,
+            color,
+            border: `1.5px solid ${color}40`,
+            borderRadius: 100,
+            padding: "8px 24px",
+            fontWeight: 700,
+            fontSize: 16,
+          }}
+        >
+          {label}
+        </span>
       </div>
-      <div style={{ padding: "32px", background: "#fff" }}>
-        <h2 style={{ color: "#1a1a1a" }}>Sipariş Durumu Güncellendi</h2>
-        <p style={{ color: "#555" }}>Merhaba {name}, <strong>{orderNumber}</strong> numaralı siparişinizin durumu güncellendi.</p>
-        <div style={{ background: "#f8f8f8", borderRadius: 8, padding: "16px 24px", margin: "24px 0", textAlign: "center" }}>
-          <span style={{ color, fontWeight: "bold", fontSize: 18 }}>{label}</span>
+
+      {/* Cargo info */}
+      {status === "SHIPPED" && cargoTrackingNo && (
+        <div
+          style={{
+            background: "#f8f4ff",
+            border: "1px solid #d6bcfa",
+            borderRadius: 8,
+            padding: "14px 20px",
+            margin: "0 0 20px",
+            fontSize: 14,
+            color: "#555",
+          }}
+        >
+          <strong>Kargo Firması:</strong> {cargoCompany ?? "-"}
+          <br />
+          <strong>Takip Numarası:</strong> {cargoTrackingNo}
         </div>
-        {status === "SHIPPED" && cargoTrackingNo && (
-          <div style={{ background: "#f0f4ff", borderRadius: 8, padding: "16px 24px", margin: "16px 0" }}>
-            <p style={{ margin: 0, color: "#555", fontSize: 14 }}>
-              <strong>Kargo Firması:</strong> {cargoCompany ?? "-"}<br />
-              <strong>Takip Numarası:</strong> {cargoTrackingNo}
-            </p>
-          </div>
-        )}
-        <div style={{ textAlign: "center", marginTop: 24 }}>
-          <a href={orderUrl} style={{ background: "#F9B10B", color: "#fff", padding: "12px 28px", borderRadius: 8, textDecoration: "none", fontWeight: "bold" }}>
-            Siparişimi Görüntüle
-          </a>
-        </div>
-      </div>
-    </div>
+      )}
+
+      <EmailButton href={orderUrl}>{content.buttonText ?? "Siparişimi Görüntüle"}</EmailButton>
+    </EmailLayout>
   );
 }

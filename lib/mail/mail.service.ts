@@ -12,6 +12,7 @@ import { FavoriteDiscountTemplate } from "./templates/favorite-discount";
 import { CouponExpiryTemplate } from "./templates/coupon-expiry";
 import { ReviewRequestTemplate } from "./templates/review-request";
 import { ReviewReplyTemplate } from "./templates/review-reply";
+import { getTemplateContent } from "./template-content";
 import * as React from "react";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -25,7 +26,7 @@ async function getPreference(userId: string, key: keyof {
   newsletter: boolean;
   smsNotifications: boolean;
 }): Promise<boolean> {
-  if (!userId) return true; // misafir kullanıcı — her zaman gönder
+  if (!userId) return true;
   const pref = await prisma.notificationPreference.findUnique({ where: { userId } });
   if (!pref) return true;
   return pref[key];
@@ -37,58 +38,65 @@ export async function sendContactFormEmail(
   subject: string,
   message: string,
 ) {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: "contact_email" } });
+  const [setting, content] = await Promise.all([
+    prisma.siteSetting.findUnique({ where: { key: "contact_email" } }),
+    getTemplateContent("contact-form"),
+  ]);
   const CONTACT_TO = setting?.value || process.env.CONTACT_EMAIL || "info@binbogabal.com.tr";
   const html = await render(
-    React.createElement(ContactFormTemplate, { name, email, subject, message }),
+    React.createElement(ContactFormTemplate, { name, email, subject, message, content, appUrl: APP_URL }),
   );
   await resend.emails.send({
     from: MAIL_FROM,
     to: CONTACT_TO,
     replyTo: email,
-    subject: `${subject || name} - Binboğa Kooperatif Balı`,
+    subject: content.subject || `${subject || name} - ${APP_NAME}`,
     html,
   });
 }
 
 export async function sendVerifyEmail(to: string, name: string, token: string) {
   const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
-  const html = await render(React.createElement(VerifyEmailTemplate, { name, verifyUrl }));
+  const content = await getTemplateContent("verify-email");
+  const html = await render(React.createElement(VerifyEmailTemplate, { name, verifyUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — E-postanızı Doğrulayın`,
+    subject: content.subject || `${APP_NAME} — E-postanızı Doğrulayın`,
     html,
   });
 }
 
 export async function sendWelcomeEmail(to: string, name: string) {
-  const html = await render(React.createElement(WelcomeTemplate, { name, shopUrl: `${APP_URL}/urunlerimiz` }));
+  const content = await getTemplateContent("welcome");
+  const html = await render(React.createElement(WelcomeTemplate, { name, shopUrl: `${APP_URL}/urunlerimiz`, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME}'ne Hoş Geldiniz!`,
+    subject: content.subject || `${APP_NAME}'ne Hoş Geldiniz!`,
     html,
   });
 }
 
 export async function sendPasswordResetEmail(to: string, name: string, token: string) {
   const resetUrl = `${APP_URL}/hesabim/sifre-sifirla?token=${token}`;
-  const html = await render(React.createElement(PasswordResetTemplate, { name, resetUrl }));
+  const content = await getTemplateContent("password-reset");
+  const html = await render(React.createElement(PasswordResetTemplate, { name, resetUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Şifre Sıfırlama`,
+    subject: content.subject || `${APP_NAME} — Şifre Sıfırlama`,
     html,
   });
 }
 
 export async function sendPasswordChangedEmail(to: string, name: string) {
-  const html = await render(React.createElement(PasswordChangedTemplate, { name }));
+  const content = await getTemplateContent("password-changed");
+  const html = await render(React.createElement(PasswordChangedTemplate, { name, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Şifreniz Değiştirildi`,
+    subject: content.subject || `${APP_NAME} — Şifreniz Değiştirildi`,
     html,
   });
 }
@@ -105,11 +113,12 @@ export async function sendOrderConfirmedEmail(
   const allowed = await getPreference(userId, "orderUpdates");
   if (!allowed) return;
   const orderUrl = `${APP_URL}/hesabim/siparislerim/${orderId}`;
-  const html = await render(React.createElement(OrderConfirmedTemplate, { name, orderNumber, items, total, orderUrl }));
+  const content = await getTemplateContent("order-confirmed");
+  const html = await render(React.createElement(OrderConfirmedTemplate, { name, orderNumber, items, total, orderUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Siparişiniz Alındı: ${orderNumber}`,
+    subject: content.subject ? `${content.subject}: ${orderNumber}` : `${APP_NAME} — Siparişiniz Alındı: ${orderNumber}`,
     html,
   });
 }
@@ -127,11 +136,12 @@ export async function sendOrderStatusChangedEmail(
   const allowed = await getPreference(userId, "orderUpdates");
   if (!allowed) return;
   const orderUrl = `${APP_URL}/hesabim/siparislerim/${orderId}`;
-  const html = await render(React.createElement(OrderStatusChangedTemplate, { name, orderNumber, status, cargoTrackingNo, cargoCompany, orderUrl }));
+  const content = await getTemplateContent("order-status-changed");
+  const html = await render(React.createElement(OrderStatusChangedTemplate, { name, orderNumber, status, cargoTrackingNo, cargoCompany, orderUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Sipariş Durumu Güncellendi: ${orderNumber}`,
+    subject: content.subject ? `${content.subject}: ${orderNumber}` : `${APP_NAME} — Sipariş Durumu Güncellendi: ${orderNumber}`,
     html,
   });
 }
@@ -144,11 +154,12 @@ export async function sendFavoriteDiscountEmail(
 ) {
   const allowed = await getPreference(userId, "favoriteDiscounts");
   if (!allowed) return;
-  const html = await render(React.createElement(FavoriteDiscountTemplate, { name, products }));
+  const content = await getTemplateContent("favorite-discount");
+  const html = await render(React.createElement(FavoriteDiscountTemplate, { name, products, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Favori Ürününüzde İndirim!`,
+    subject: content.subject || `${APP_NAME} — Favori Ürününüzde İndirim!`,
     html,
   });
 }
@@ -164,11 +175,12 @@ export async function sendCouponExpiryEmail(
 ) {
   const allowed = await getPreference(userId, "couponReminders");
   if (!allowed) return;
-  const html = await render(React.createElement(CouponExpiryTemplate, { name, couponCode, discountLabel, expiresAt, daysLeft, shopUrl: `${APP_URL}/urunlerimiz` }));
+  const content = await getTemplateContent("coupon-expiry");
+  const html = await render(React.createElement(CouponExpiryTemplate, { name, couponCode, discountLabel, expiresAt, daysLeft, shopUrl: `${APP_URL}/urunlerimiz`, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Kuponunuzun Süresi Dolmak Üzere`,
+    subject: content.subject || `${APP_NAME} — Kuponunuzun Süresi Dolmak Üzere`,
     html,
   });
 }
@@ -185,11 +197,12 @@ export async function sendReviewReplyEmail(
   const allowed = await getPreference(userId, "reviewRequests");
   if (!allowed) return;
   const reviewUrl = `${APP_URL}/urunlerimiz/${productSlug}`;
-  const html = await render(React.createElement(ReviewReplyTemplate, { name, productName, reviewComment, adminReply, reviewUrl }));
+  const content = await getTemplateContent("review-reply");
+  const html = await render(React.createElement(ReviewReplyTemplate, { name, productName, reviewComment, adminReply, reviewUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Yorumunuza Yanıt Geldi`,
+    subject: content.subject || `${APP_NAME} — Yorumunuza Yanıt Geldi`,
     html,
   });
 }
@@ -203,11 +216,12 @@ export async function sendReviewRequestEmail(
 ) {
   const allowed = await getPreference(userId, "reviewRequests");
   if (!allowed) return;
-  const html = await render(React.createElement(ReviewRequestTemplate, { name, orderNumber, items }));
+  const content = await getTemplateContent("review-request");
+  const html = await render(React.createElement(ReviewRequestTemplate, { name, orderNumber, items, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
-    subject: `${APP_NAME} — Ürünlerimizi Değerlendirin`,
+    subject: content.subject || `${APP_NAME} — Ürünlerimizi Değerlendirin`,
     html,
   });
 }
