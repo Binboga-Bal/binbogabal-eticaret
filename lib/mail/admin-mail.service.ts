@@ -1,5 +1,5 @@
 import { resend, MAIL_FROM } from "./resend";
-import { render } from "@react-email/render";
+import { renderEmail } from "./render-email";
 import { AdminInviteTemplate } from "./templates/admin-invite";
 import { getTemplateContent } from "./template-content";
 import * as React from "react";
@@ -164,7 +164,7 @@ export async function sendAdminMail(
       const acceptUrl = `${APP_URL}/admin/auth/accept-invite?token=${token}`;
       const adminPanelUrl = `${APP_URL}/admin`;
       const content = await getTemplateContent("admin-invite");
-      html = await render(
+      html = await renderEmail(
         React.createElement(AdminInviteTemplate, {
           name,
           acceptUrl,

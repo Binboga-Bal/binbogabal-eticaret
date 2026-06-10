@@ -1,6 +1,6 @@
 import { resend, MAIL_FROM } from "./resend";
 import { prisma } from "@/lib/prisma";
-import { render } from "@react-email/render";
+import { renderEmail } from "./render-email";
 import { ContactFormTemplate } from "./templates/contact-form";
 import { VerifyEmailTemplate } from "./templates/verify-email";
 import { WelcomeTemplate } from "./templates/welcome";
@@ -43,7 +43,7 @@ export async function sendContactFormEmail(
     getTemplateContent("contact-form"),
   ]);
   const CONTACT_TO = setting?.value || process.env.CONTACT_EMAIL || "info@binbogabal.com.tr";
-  const html = await render(
+  const html = await renderEmail(
     React.createElement(ContactFormTemplate, { name, email, subject, message, content, appUrl: APP_URL }),
   );
   await resend.emails.send({
@@ -58,7 +58,7 @@ export async function sendContactFormEmail(
 export async function sendVerifyEmail(to: string, name: string, token: string) {
   const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
   const content = await getTemplateContent("verify-email");
-  const html = await render(React.createElement(VerifyEmailTemplate, { name, verifyUrl, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(VerifyEmailTemplate, { name, verifyUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -69,7 +69,7 @@ export async function sendVerifyEmail(to: string, name: string, token: string) {
 
 export async function sendWelcomeEmail(to: string, name: string) {
   const content = await getTemplateContent("welcome");
-  const html = await render(React.createElement(WelcomeTemplate, { name, shopUrl: `${APP_URL}/urunlerimiz`, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(WelcomeTemplate, { name, shopUrl: `${APP_URL}/urunlerimiz`, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -81,7 +81,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
 export async function sendPasswordResetEmail(to: string, name: string, token: string) {
   const resetUrl = `${APP_URL}/hesabim/sifre-sifirla?token=${token}`;
   const content = await getTemplateContent("password-reset");
-  const html = await render(React.createElement(PasswordResetTemplate, { name, resetUrl, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(PasswordResetTemplate, { name, resetUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -92,7 +92,7 @@ export async function sendPasswordResetEmail(to: string, name: string, token: st
 
 export async function sendPasswordChangedEmail(to: string, name: string) {
   const content = await getTemplateContent("password-changed");
-  const html = await render(React.createElement(PasswordChangedTemplate, { name, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(PasswordChangedTemplate, { name, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -114,7 +114,7 @@ export async function sendOrderConfirmedEmail(
   if (!allowed) return;
   const orderUrl = `${APP_URL}/hesabim/siparislerim/${orderId}`;
   const content = await getTemplateContent("order-confirmed");
-  const html = await render(React.createElement(OrderConfirmedTemplate, { name, orderNumber, items, total, orderUrl, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(OrderConfirmedTemplate, { name, orderNumber, items, total, orderUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -137,7 +137,7 @@ export async function sendOrderStatusChangedEmail(
   if (!allowed) return;
   const orderUrl = `${APP_URL}/hesabim/siparislerim/${orderId}`;
   const content = await getTemplateContent("order-status-changed");
-  const html = await render(React.createElement(OrderStatusChangedTemplate, { name, orderNumber, status, cargoTrackingNo, cargoCompany, orderUrl, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(OrderStatusChangedTemplate, { name, orderNumber, status, cargoTrackingNo, cargoCompany, orderUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -155,7 +155,7 @@ export async function sendFavoriteDiscountEmail(
   const allowed = await getPreference(userId, "favoriteDiscounts");
   if (!allowed) return;
   const content = await getTemplateContent("favorite-discount");
-  const html = await render(React.createElement(FavoriteDiscountTemplate, { name, products, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(FavoriteDiscountTemplate, { name, products, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -176,7 +176,7 @@ export async function sendCouponExpiryEmail(
   const allowed = await getPreference(userId, "couponReminders");
   if (!allowed) return;
   const content = await getTemplateContent("coupon-expiry");
-  const html = await render(React.createElement(CouponExpiryTemplate, { name, couponCode, discountLabel, expiresAt, daysLeft, shopUrl: `${APP_URL}/urunlerimiz`, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(CouponExpiryTemplate, { name, couponCode, discountLabel, expiresAt, daysLeft, shopUrl: `${APP_URL}/urunlerimiz`, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -198,7 +198,7 @@ export async function sendReviewReplyEmail(
   if (!allowed) return;
   const reviewUrl = `${APP_URL}/urunlerimiz/${productSlug}`;
   const content = await getTemplateContent("review-reply");
-  const html = await render(React.createElement(ReviewReplyTemplate, { name, productName, reviewComment, adminReply, reviewUrl, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(ReviewReplyTemplate, { name, productName, reviewComment, adminReply, reviewUrl, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
@@ -217,7 +217,7 @@ export async function sendReviewRequestEmail(
   const allowed = await getPreference(userId, "reviewRequests");
   if (!allowed) return;
   const content = await getTemplateContent("review-request");
-  const html = await render(React.createElement(ReviewRequestTemplate, { name, orderNumber, items, content, appUrl: APP_URL }));
+  const html = await renderEmail(React.createElement(ReviewRequestTemplate, { name, orderNumber, items, content, appUrl: APP_URL }));
   await resend.emails.send({
     from: MAIL_FROM,
     to,
