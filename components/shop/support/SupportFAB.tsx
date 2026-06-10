@@ -113,6 +113,7 @@ export function SupportFAB({
 
   const messagesEndRef    = useRef<HTMLDivElement>(null);
   const pollRef           = useRef<NodeJS.Timeout | null>(null);
+  const idleTimerRef      = useRef<NodeJS.Timeout | null>(null);
   const lastMsgTimeRef    = useRef<string | null>(null);
   const initializedRef    = useRef(false); // mesaj geçmişi yüklendi mi
   const hasInitializedPollRef = useRef(false); // ilk poll tamamlandı mı
@@ -147,26 +148,22 @@ export function SupportFAB({
       .catch(() => {});
   }, [customerType]);
 
-  // ── Mount'ta oturumu geri yükle (chat açık olmasa bile polling başlasın) ────
+  // ── Mount'ta oturumu geri yükle — sadece oku, yeni session OLUŞTURMA ────────
+  // POST /api/chat/session kullanmak: kapalı eski session varsa YENİ bir WAITING
+  // session yaratırdı; müşteri chat açmadan admin "Bekliyor" görürdü.
   useEffect(() => {
     const savedId = localStorage.getItem("chat_session_id");
     if (!savedId) return;
-    const visitorId = getOrCreateVisitorId();
-    fetch("/api/chat/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitorId, visitorName: userName ?? undefined, userId: userId ?? undefined }),
-    })
+    fetch(`/api/chat/${savedId}/messages`)
       .then((r) => r.json())
-      .then((data) => {
-        if (!data?.id || data.status === "CLOSED") {
+      .then((data: { messages: ChatMessage[]; sessionStatus: string }) => {
+        if (data.sessionStatus === "CLOSED" || !data.sessionStatus) {
           localStorage.removeItem("chat_session_id");
           return;
         }
-        setSessionId(data.id);
+        setSessionId(savedId);
       })
       .catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Chat ilk açıldığında mesaj geçmişini yükle ─────────────────────────────
@@ -245,6 +242,14 @@ export function SupportFAB({
     }
   }, []);
 
+  // ── Hareketsizlik zamanlayıcısını temizle (session kapanınca) ───────────────
+  useEffect(() => {
+    if (!sessionId && idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
+  }, [sessionId]);
+
   useEffect(() => {
     if (!sessionId) {
       if (pollRef.current) clearInterval(pollRef.current);
@@ -257,6 +262,24 @@ export function SupportFAB({
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [sessionId, pollMessages]);
+
+  // ── Hareketsizlik zamanlayıcısı (10 dk mesaj gelmezse session kapanır) ──────
+  function startIdleTimer(sid: string) {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(async () => {
+      const vid = localStorage.getItem("chat_visitor_id");
+      if (vid) {
+        fetch(`/api/chat/${sid}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "CLOSED", visitorId: vid }),
+        }).catch(() => {});
+      }
+      setSessionClosed(true);
+      setSessionId(null);
+      localStorage.removeItem("chat_session_id");
+    }, 10 * 60 * 1000); // 10 dakika
+  }
 
   // ── Session oluştur / getir ────────────────────────────────────────────────
   async function ensureSession(): Promise<string> {
@@ -306,6 +329,7 @@ export function SupportFAB({
       });
       if (created.length > 0) {
         lastMsgTimeRef.current = created[created.length - 1].createdAt;
+        startIdleTimer(sid); // her mesajda hareketsizlik sayacını sıfırla
       }
     } catch {
       /* optimistic mesajı koru */

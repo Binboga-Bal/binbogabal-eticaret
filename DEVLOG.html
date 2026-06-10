@@ -716,7 +716,10 @@
       <a href="#step231" class="nav-link"><span class="dot"></span>231 — Kooperatif Grid Yönetimi</a>
 
       <div class="nav-section-label">10 Haziran 2026 — Admin Panel</div>
-      <a href="#step232" class="nav-link active"><span class="dot"></span>232 — Sipariş Export &amp; Tarih Filtresi</a>
+      <a href="#step232" class="nav-link"><span class="dot"></span>232 — Sipariş Export &amp; Tarih Filtresi</a>
+
+      <div class="nav-section-label">10 Haziran 2026 — Canlı Destek</div>
+      <a href="#step233" class="nav-link active"><span class="dot"></span>233 — Ghost Session &amp; Idle Timeout</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -12925,10 +12928,133 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ═══════════════════════════ STEP 233 — Canlı Destek Ghost Session & Idle Timeout -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — Canlı Destek</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 233</div>
+    </div>
+
+    <section class="section" id="step233">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.12)">💬</div>
+        <h2>Adım 233 — Canlı Destek: Ghost Session Hatası &amp; Idle Timeout</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          İki ayrı sorun bildirildi:
+        </p>
+        <ul style="margin-top:8px;padding-left:18px;line-height:2">
+          <li>Chatbot aktif değilken (müşteri chat'i açmadan) admin panelinde <em>"Bekliyor"</em> statüsünde sahte session'lar gözüküyordu.</li>
+          <li>Kullanıcı mesaj göndermeyip konuşmayı yarıda bırakırsa session sonlanmıyordu; admin listesi birikirdi.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Kök Neden — Ghost Session</h3>
+        <p>
+          <code>SupportFAB</code> mount'ta <code>POST /api/chat/session</code> çağırıyordu.
+          Bu endpoint <em>"bul, yoksa oluştur"</em> mantığıyla çalıştığından, eski session
+          <code>CLOSED</code> olmuşsa API yeni bir <code>WAITING</code> session yaratıyordu.
+          Müşteri chat penceresini açmadan, sadece sayfayı ziyaret etmesi yeterliydi.
+        </p>
+        <div class="alert alert-info" style="margin-top:10px">
+          <span class="alert-label">SENARYO:</span>
+          Müşteri daha önce mesaj gönderdi → admin kapattı → müşteri tarayıcıyı kapattı
+          (client CLOSED sinyalini alamadı) → ertesi gün sayfayı açtı →
+          localStorage'daki eski <code>chat_session_id</code> hâlâ duruyor →
+          mount effect <code>POST /session</code> çağırdı → yeni WAITING session doğdu.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm 1 — Ghost Session Düzeltmesi</h3>
+        <p>
+          Mount effect'teki <code>POST /api/chat/session</code> çağrısı kaldırıldı.
+          Yerine <strong>sadece okuma yapan</strong>
+          <code>GET /api/chat/{savedId}/messages</code> kullanılıyor.
+          Session <code>CLOSED</code> veya bulunamadıysa localStorage temizleniyor;
+          yeni session asla mount'ta oluşturulmuyor.
+          Session yaratma yalnızca kullanıcı ilk mesajını gönderdiğinde
+          (<code>ensureSession()</code> akışı) gerçekleşiyor.
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Eski</th>
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Yeni</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px 10px;color:var(--red)"><code>POST /api/chat/session</code> (mount'ta)</td>
+              <td style="padding:8px 10px;color:var(--green)"><code>GET /api/chat/{savedId}/messages</code> (mount'ta)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;color:var(--red)">Kapalı session varsa yeni WAITING yaratır</td>
+              <td style="padding:8px 10px;color:var(--green)">Sadece mevcut session'ı doğrular, yeni oluşturmaz</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Çözüm 2 — Idle Timeout (10 dk)</h3>
+        <p>
+          Kullanıcı her mesaj gönderdiğinde <code>startIdleTimer(sid)</code> çağrılır;
+          10 dakikalık sayaç sıfırlanır. Süre dolunca:
+        </p>
+        <div class="step-list" style="margin-top:10px">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Sunucu kapatma</h4>
+              <p>
+                Yeni <code>PATCH /api/chat/{sessionId}</code> endpoint'i çağrılır.
+                <code>visitorId</code> ile sahiplik doğrulanır; session <code>CLOSED</code> yapılır,
+                <code>closedAt</code> kaydedilir. Müşteriler yalnızca kendi session'larını kapatabilir.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>UI güncellemesi</h4>
+              <p>
+                <code>sessionClosed = true</code>, <code>sessionId = null</code>, localStorage temizlenir.
+                Chat panelinde mevcut <em>"Sohbet sonlandırıldı"</em> banner'ı gösterilir.
+                Kullanıcı tekrar yazarsa <code>ensureSession()</code> yeni bir session başlatır.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Timer temizliği</h4>
+              <p>
+                <code>sessionId</code> → <code>null</code> geçişini izleyen useEffect,
+                <code>idleTimerRef</code>'i temizler. Admin kapattığında veya bileşen
+                unmount edildiğinde bellek sızıntısı olmaz.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen / Eklenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">components/shop/support/SupportFAB.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — mount effect düzeltildi; <code>idleTimerRef</code> + <code>startIdleTimer()</code> eklendi; <code>sendMessage</code> sonrası timer sıfırlanıyor</span><br>
+          <span class="file new">app/api/chat/[sessionId]/route.ts</span>
+          <span style="color:var(--green);font-size:11px"> — <code>PATCH</code>: <code>visitorId</code> doğrulamalı müşteri taraflı session kapatma endpoint'i</span>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 10 Haziran 2026 — Adım 232 (Sipariş Export &amp; Tarih Filtresi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 10 Haziran 2026 — Adım 233 (Canlı Destek Ghost Session &amp; Idle Timeout) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
