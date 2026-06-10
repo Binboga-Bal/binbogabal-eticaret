@@ -708,7 +708,12 @@
       <a href="#step227" class="nav-link"><span class="dot"></span>227 — Bakım Modu Kapatma Gecikmesi</a>
 
       <div class="nav-section-label">9 Haziran 2026 — UI Bileşeni</div>
-      <a href="#step228" class="nav-link active"><span class="dot"></span>228 — Paylaşımlı Toggle Bileşeni</a>
+      <a href="#step228" class="nav-link"><span class="dot"></span>228 — Paylaşımlı Toggle Bileşeni</a>
+      <a href="#step229" class="nav-link"><span class="dot"></span>229 — Toggle v4: 3D Modern Tasarım</a>
+
+      <div class="nav-section-label">10 Haziran 2026 — İçerik Yönetimi</div>
+      <a href="#step230" class="nav-link"><span class="dot"></span>230 — Kategoriler Başlık / Alt Metin</a>
+      <a href="#step231" class="nav-link active"><span class="dot"></span>231 — Kooperatif Grid Yönetimi</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -12638,10 +12643,166 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ═══════════════════════════ STEP 230 — Kategoriler Başlık / Alt Metin -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — İçerik Yönetimi</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 230</div>
+    </div>
+
+    <section class="section" id="step230">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.15)">🏷️</div>
+        <h2>Adım 230 — Kategoriler Bölümüne Yönetilebilir Başlık ve Alt Metin</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Anasayfadaki "Ürün Kategorileri" başlığının altına açıklayıcı bir alt metin eklenmesi ve hem başlık hem alt metnin
+          admin panelde <em>Sayfalar → Anasayfa</em> altından yönetilebilir hale getirilmesi istendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Teknik Yaklaşım</h3>
+        <p style="margin-bottom:12px">
+          Mevcut <code>SiteSetting</code> key–value altyapısı kullanıldı; iki yeni key eklendi:
+          <code>text_home_categories_heading</code> ve <code>text_home_categories_subheading</code>.
+          Varsayılan değerler <code>lib/theme.ts</code>'deki yeni <code>categoryGridTheme</code> sabitinden geliyor,
+          böylece DB'de kayıt yoksa sayfa boş kalmıyor.
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Dosya</th>
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Değişiklik</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--honey)"><code>lib/theme.ts</code></td>
+              <td style="padding:8px 10px"><code>categoryGridTheme</code> sabit eklendi (heading + subheading varsayılanları)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--blue)"><code>components/shop/home/CategoryGrid.tsx</code></td>
+              <td style="padding:8px 10px"><code>heading?</code> ve <code>subheading?</code> propları; başlığın altında <code>&lt;p&gt;</code> ile alt metin; "Tüm Ürünler →" linki <code>items-start</code> + <code>shrink-0</code> ile hizalandı</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--blue)"><code>app/(shop)/page.tsx</code></td>
+              <td style="padding:8px 10px"><code>SETTING_KEYS</code>'e iki yeni key eklendi; <code>&lt;CategoryGrid&gt;</code>'e prop olarak aktarıldı</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;color:var(--green)"><code>app/admin/sayfalar/anasayfa/page.tsx</code></td>
+              <td style="padding:8px 10px">"Kategoriler Bölümü" section'ı eklendi — başlık (text) ve alt metin (text) alanları</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Varsayılan Değerler (<code>categoryGridTheme</code>)</h3>
+        <pre><span class="kw">export const</span> <span class="nm">categoryGridTheme</span> = &#123;
+  heading:    <span class="str">"Ürün Kategorileri"</span>,
+  subheading: <span class="str">"Arıcı ailelerimizin özenle ürettiği, analizi yapılmış doğal ballarımızı keşfedin."</span>,
+&#125; <span class="kw">as const</span>;</pre>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">NOT:</span>
+          DB'de kayıt yoksa <code>categoryGridTheme</code>'den fallback yapılır.
+          Admin panelde boş bırakmak varsayılanı geri yükler.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">lib/theme.ts</span>
+          <span style="color:var(--honey);font-size:11px"> — <code>categoryGridTheme</code> sabit eklendi</span><br>
+          <span class="file mod">components/shop/home/CategoryGrid.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — heading/subheading props, alt metin render, hizalama düzeltmesi</span><br>
+          <span class="file mod">app/(shop)/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — 2 yeni SETTING_KEY, CategoryGrid'e prop aktarımı</span><br>
+          <span class="file mod">app/admin/sayfalar/anasayfa/page.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — "Kategoriler Bölümü" section eklendi</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ STEP 231 — Kooperatif Hikayemiz Grid Yönetimi -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — İçerik Yönetimi</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 231</div>
+    </div>
+
+    <section class="section" id="step231">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.12)">🐝</div>
+        <h2>Adım 231 — Kooperatif Hikayemiz Grid Kartları Admin Panele Taşındı</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          <em>Kooperatif Hikayemiz</em> sayfasında "Şirket değil, kooperatifiz" bölümünün sağındaki 4 kartlık ızgara
+          (<em>Üretici için Adil Model, Kalite için Kontrol, Tüketici için Güven, Gelecek için Sürdürülebilirlik</em>)
+          doğrudan <code>processFlowTheme.steps</code>'ten okunuyordu ve admin panelinden yönetilemiyordu.
+          Bu kartların görsel, başlık ve açıklama alanlarının admin panelden yönetilebilir hale getirilmesi istendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Kök Neden &amp; Çözüm</h3>
+        <p style="margin-bottom:10px">
+          Grid, anasayfanın ProcessFlow bileşeniyle paylaşılan temayı (<code>processFlowTheme</code>) olduğu gibi kullanıyordu.
+          Sayfaya özel <code>page_koophistory_</code> prefix'li DB key'leri oluşturularak
+          içerik tema dosyasından koparıldı; fallback zinciri <code>DB → D sabiti</code> şeklinde korundu.
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Key Şablonu</th>
+              <th style="text-align:left;padding:6px 10px;color:var(--text-muted)">Alan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--honey)"><code>page_koophistory_coop_grid_N_img</code></td>
+              <td style="padding:8px 10px">Kart N — görsel URL (400×400 px)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;color:var(--blue)"><code>page_koophistory_coop_grid_N_title</code></td>
+              <td style="padding:8px 10px">Kart N — başlık</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;color:var(--blue)"><code>page_koophistory_coop_grid_N_desc</code></td>
+              <td style="padding:8px 10px">Kart N — açıklama metni (textarea, 2 satır)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px;font-size:13px;color:var(--text-muted)">N = 1…4 (4 kart × 3 alan = 12 yeni DB key)</p>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file mod">app/(shop)/kooperatif-hikayemiz/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — <code>processFlowTheme</code> import kaldırıldı; <code>D</code> nesnesine 12 yeni key; <code>coopGrid</code> dizisi DB'den üretiliyor; JSX grid <code>coopGrid.map()</code>'e dönüştürüldü</span><br>
+          <span class="file mod">app/admin/sayfalar/kooperatif-hikayemiz/page.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — "Kooperatifçilik Grid Kartları (4 Kart)" section eklendi — her kart için görsel yükleme + başlık + açıklama alanları</span>
+        </div>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-label">NOT:</span>
+          Görsel yüklenmezse <code>D</code> sabitindeki orijinal <code>/images/home-screen/second-infographics/…</code>
+          yolları fallback olarak devreye girer — mevcut görünüm bozulmaz.
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 9 Haziran 2026 — Adım 229 (Toggle v4: 3D Modern Tasarım) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 10 Haziran 2026 — Adım 231 (Kooperatif Grid Yönetimi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
