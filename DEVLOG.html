@@ -713,7 +713,10 @@
 
       <div class="nav-section-label">10 Haziran 2026 — İçerik Yönetimi</div>
       <a href="#step230" class="nav-link"><span class="dot"></span>230 — Kategoriler Başlık / Alt Metin</a>
-      <a href="#step231" class="nav-link active"><span class="dot"></span>231 — Kooperatif Grid Yönetimi</a>
+      <a href="#step231" class="nav-link"><span class="dot"></span>231 — Kooperatif Grid Yönetimi</a>
+
+      <div class="nav-section-label">10 Haziran 2026 — Admin Panel</div>
+      <a href="#step232" class="nav-link active"><span class="dot"></span>232 — Sipariş Export &amp; Tarih Filtresi</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -12799,10 +12802,133 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ═══════════════════════════ STEP 232 — Sipariş Tarih Filtresi & Excel/PDF Export -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — Admin Panel</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 232</div>
+    </div>
+
+    <section class="section" id="step232">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.12)">📊</div>
+        <h2>Adım 232 — Sipariş Listesine Tarih Filtresi ve Excel/PDF Export Eklendi</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Admin paneldeki <code>/admin/siparisler</code> sayfasına, dashboard'da mevcut olan tarih bazlı
+          filtreleme preset'leri ile Excel (<code>.xlsx</code>) ve PDF export butonlarının eklenmesi istendi.
+          Durum filtresi ve sayfalama, yeni filtrelerle birlikte uyumlu çalışmalıydı.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Uygulanan Özellikler</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Tarih Preset Filtresi</h4>
+              <p>
+                Dashboard ile tutarlı 5 preset: <em>Bugün, Son 7 Gün, Son 30 Gün, Bu Ay, Tüm Zamanlar</em>.
+                <code>?preset=today|7d|30d|month</code> URL parametresi; sunucu tarafında
+                <code>getOrderDateRange()</code> yardımcısı Prisma <code>createdAt</code> aralığına çevirir.
+                Preset değiştirildiğinde aktif durum filtresi (<code>?durum=</code>) korunur; sayfa 1'e sıfırlanır.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Durum Filtresi &amp; Sayfalama — Parametre Senkronizasyonu</h4>
+              <p>
+                Durum ve sayfalama linkleri <code>preset</code> parametresini URL'de taşır; filtreler birbirini silmez.
+                <code>statusHref()</code> ve <code>pageHref()</code> yardımcı fonksiyonları ile URL'ler temiz şekilde üretilir.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>Excel İndir — Gerçek <code>.xlsx</code></h4>
+              <p>
+                <code>GET /api/admin/orders/export?format=xlsx&amp;…</code> endpoint'i SheetJS (xlsx 0.18.5) ile
+                tam Unicode destekli XLSX üretir. Başlık satırı, sütun genişlikleri (<code>ws["!cols"]</code>),
+                Türkçe durum etiketleri ve 10 000 satır limiti uygulanır.
+                Endpoint <code>requirePermission("orders", "view")</code> ile korunur.
+              </p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-body">
+              <h4>PDF İndir — Tarayıcı Print Yaklaşımı</h4>
+              <p>
+                <code>format=json</code> ile order verisi çekilir; client tarafında UTF-8 HTML raporu
+                <code>window.open()</code> ile yeni sekmede açılır. <em>Yazdır / PDF Olarak Kaydet</em> butonu
+                <code>window.print()</code> tetikler; <code>@media print</code> kuralı butonu gizler.
+              </p>
+              <div class="alert alert-info" style="margin-top:8px">
+                <span class="alert-label">NEDEN:</span>
+                Projede mevcut <code>pdfkit</code> yalnızca devDep ve standart PDF fontları Türkçeye özgü
+                karakterleri (ş, ğ, ı, İ) desteklemez. Tarayıcı print yaklaşımı sıfır ek bağımlılıkla
+                tam Türkçe desteği sağlar — Shopify fatura yazdırma gibi sistemlerin de tercih ettiği yöntem.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Bağımlılık</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Paket</th><th>Versiyon</th><th>Amaç</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>xlsx</code> (SheetJS CE)</td>
+              <td>0.18.5</td>
+              <td>Sunucu tarafı XLSX üretimi — saf JS, ek native bağımlılık yok</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Değiştirilen / Eklenen Dosyalar</h3>
+        <div class="file-tree">
+          <span class="file new">lib/utils/order-date-range.ts</span>
+          <span style="color:var(--green);font-size:11px"> — preset → Prisma <code>createdAt</code> aralığı dönüştürücü (sayfa + export API paylaşır)</span><br>
+          <span class="file new">components/admin/orders/OrderDateFilter.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — 5 preset buton, <code>durum</code> parametresini korur, <code>sayfa</code>'yı sıfırlar</span><br>
+          <span class="file new">components/admin/orders/OrderExportButton.tsx</span>
+          <span style="color:var(--green);font-size:11px"> — Excel blob indirme + PDF print penceresi; loading durumları ayrı</span><br>
+          <span class="file new">app/api/admin/orders/export/route.ts</span>
+          <span style="color:var(--green);font-size:11px"> — <code>format=xlsx|json</code>, <code>durum</code>+<code>preset</code> filtreli, 10k satır, RBAC korumalı</span><br>
+          <span class="file mod">app/admin/siparisler/page.tsx</span>
+          <span style="color:var(--honey);font-size:11px"> — <code>preset</code> searchParam, <code>where</code> nesnesine dateRange, iki yeni bileşen entegrasyonu, <code>statusHref</code>/<code>pageHref</code> URL üreticileri</span><br>
+          <span class="file mod">package.json / pnpm-lock.yaml</span>
+          <span style="color:var(--honey);font-size:11px"> — xlsx 0.18.5 eklendi</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Commit</h3>
+        <div class="commit-card">
+          <span class="hash">04b8c82</span>
+          <div>
+            <div class="msg">feat(admin): sipariş listesine tarih filtresi ve Excel/PDF export ekle</div>
+            <div class="meta">10 Haziran 2026 · main · 7 dosya, +409 / -8</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 10 Haziran 2026 — Adım 231 (Kooperatif Grid Yönetimi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 10 Haziran 2026 — Adım 232 (Sipariş Export &amp; Tarih Filtresi) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
