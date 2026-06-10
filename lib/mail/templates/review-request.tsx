@@ -6,6 +6,7 @@ interface OrderItem {
   productName: string;
   variantInfo: string;
   reviewUrl: string;
+  imageUrl?: string;
 }
 
 interface Props {
@@ -38,42 +39,56 @@ export function ReviewRequestTemplate({ name, orderNumber, items, content, appUr
       </EmailBody>
 
       {items.map((item, i) => (
-        <div
-          key={i}
-          style={{
-            border: "1.5px solid #f0f0f0",
-            borderRadius: 10,
-            padding: "14px 18px",
-            margin: "10px 0",
-            background: "#fafafa",
-            display: "flex" as const,
-            justifyContent: "space-between" as const,
-            alignItems: "center" as const,
-          }}
-        >
-          <div style={{ flex: 1, paddingRight: 12 }}>
-            <p style={{ margin: "0 0 3px", fontWeight: 700, color: "#1a1a1a", fontSize: 14 }}>{item.productName}</p>
-            {item.variantInfo && (
-              <p style={{ margin: 0, fontSize: 12, color: "#aaa" }}>{item.variantInfo}</p>
-            )}
-          </div>
-          <a
-            href={item.reviewUrl}
-            style={{
-              display: "inline-block",
-              background: HONEY,
-              color: "#fff",
-              padding: "8px 18px",
-              borderRadius: 100,
-              textDecoration: "none",
-              fontWeight: 700,
-              fontSize: 12,
-              whiteSpace: "nowrap" as const,
-            }}
-          >
-            Yorum Yaz
-          </a>
-        </div>
+        <table key={i} width="100%" cellPadding={0} cellSpacing={0} border={0} role="presentation"
+          style={{ borderCollapse: "collapse", border: "1.5px solid #f0f0f0", borderRadius: "10px", margin: "10px 0", backgroundColor: "#fafafa" }}>
+          <tbody>
+            <tr>
+              {/* Küçük ürün fotoğrafı */}
+              <td style={{ padding: "12px 8px 12px 14px", width: "60px", verticalAlign: "middle" }}>
+                {item.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.imageUrl}
+                    alt={item.productName}
+                    width={48}
+                    height={48}
+                    style={{ display: "block", width: "48px", height: "48px", border: "1px solid #eeeeee", borderRadius: "6px", backgroundColor: "#ffffff" }}
+                  />
+                ) : (
+                  <table cellPadding={0} cellSpacing={0} border={0} role="presentation" style={{ width: "48px", height: "48px" }}>
+                    <tbody><tr><td style={{ backgroundColor: "#f0f0f0", borderRadius: "6px" }} /></tr></tbody>
+                  </table>
+                )}
+              </td>
+              {/* Ürün adı */}
+              <td style={{ padding: "12px 8px 12px 6px", verticalAlign: "middle" }}>
+                <p style={{ margin: "0 0 2px", fontWeight: 700, color: "#1a1a1a", fontSize: "14px", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>{item.productName}</p>
+                {item.variantInfo && (
+                  <p style={{ margin: 0, fontSize: "12px", color: "#aaa", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>{item.variantInfo}</p>
+                )}
+              </td>
+              {/* Yorum butonu */}
+              <td style={{ padding: "12px 14px 12px 8px", verticalAlign: "middle", whiteSpace: "nowrap" as const }}>
+                <a
+                  href={item.reviewUrl}
+                  style={{
+                    display: "inline-block",
+                    backgroundColor: HONEY,
+                    color: "#ffffff",
+                    padding: "8px 18px",
+                    borderRadius: "100px",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+                  }}
+                >
+                  Yorum Yaz
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       ))}
     </EmailLayout>
   );

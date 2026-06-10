@@ -7,6 +7,7 @@ interface DiscountedProduct {
   oldPrice: number;
   newPrice: number;
   productUrl: string;
+  imageUrl?: string;
 }
 
 interface Props {
@@ -37,39 +38,56 @@ export function FavoriteDiscountTemplate({ name, products, content, appUrl }: Pr
       </EmailBody>
 
       {products.map((p, i) => (
-        <div
-          key={i}
-          style={{
-            border: "1.5px solid #f0f0f0",
-            borderRadius: 10,
-            padding: "16px 20px",
-            margin: "10px 0",
-            background: "#fafafa",
-          }}
-        >
-          <p style={{ margin: "0 0 8px", fontWeight: 700, color: "#1a1a1a", fontSize: 15 }}>{p.name}</p>
-          <p style={{ margin: "0 0 10px", fontSize: 14 }}>
-            <span style={{ textDecoration: "line-through", color: "#bbb", marginRight: 8 }}>
-              {p.oldPrice.toFixed(2)} ₺
-            </span>
-            <span style={{ color: "#38a169", fontWeight: 800, fontSize: 17 }}>{p.newPrice.toFixed(2)} ₺</span>
-          </p>
-          <a
-            href={p.productUrl}
-            style={{
-              display: "inline-block",
-              background: HONEY,
-              color: "#fff",
-              padding: "8px 20px",
-              borderRadius: 100,
-              textDecoration: "none",
-              fontWeight: 700,
-              fontSize: 13,
-            }}
-          >
-            Ürünü İncele
-          </a>
-        </div>
+        <table key={i} width="100%" cellPadding={0} cellSpacing={0} border={0} role="presentation"
+          style={{ borderCollapse: "collapse", border: "1.5px solid #f0f0f0", borderRadius: "10px", margin: "10px 0", backgroundColor: "#fafafa" }}>
+          <tbody>
+            <tr>
+              {/* Ürün fotoğrafı */}
+              <td style={{ padding: "16px 12px 16px 16px", width: "84px", verticalAlign: "middle" }}>
+                {p.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={p.imageUrl}
+                    alt={p.name}
+                    width={72}
+                    height={72}
+                    style={{ display: "block", width: "72px", height: "72px", border: "1px solid #eeeeee", borderRadius: "8px", backgroundColor: "#ffffff" }}
+                  />
+                ) : (
+                  <table cellPadding={0} cellSpacing={0} border={0} role="presentation" style={{ width: "72px", height: "72px" }}>
+                    <tbody><tr><td style={{ backgroundColor: "#f0f0f0", borderRadius: "8px", border: "1px solid #e8e8e8" }} /></tr></tbody>
+                  </table>
+                )}
+              </td>
+              {/* Ürün bilgisi */}
+              <td style={{ padding: "16px 16px 16px 4px", verticalAlign: "middle" }}>
+                <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#1a1a1a", fontSize: "15px", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>{p.name}</p>
+                <p style={{ margin: "0 0 10px", fontSize: "14px", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+                  <span style={{ textDecoration: "line-through", color: "#bbb", marginRight: "8px" }}>
+                    {p.oldPrice.toFixed(2)} ₺
+                  </span>
+                  <span style={{ color: "#38a169", fontWeight: 800, fontSize: "17px" }}>{p.newPrice.toFixed(2)} ₺</span>
+                </p>
+                <a
+                  href={p.productUrl}
+                  style={{
+                    display: "inline-block",
+                    backgroundColor: HONEY,
+                    color: "#ffffff",
+                    padding: "8px 20px",
+                    borderRadius: "100px",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+                  }}
+                >
+                  Ürünü İncele
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       ))}
     </EmailLayout>
   );

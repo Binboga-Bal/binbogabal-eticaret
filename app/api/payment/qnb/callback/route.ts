@@ -40,6 +40,7 @@ async function createOrderFromSession(sessionId: string, transactionId?: string,
     price: number;
     productName: string;
     variantInfo: string;
+    imageUrl?: string;
   }>;
 
   const shippingAddress = session.shippingAddress as Record<string, string>;
@@ -68,6 +69,7 @@ async function createOrderFromSession(sessionId: string, transactionId?: string,
             price: item.price,
             productName: item.productName,
             variantInfo: item.variantInfo,
+            image: item.imageUrl,
           })),
         },
       },
@@ -252,6 +254,7 @@ async function handleCallback(params: Record<string, string>, req: Request) {
         variantInfo: i.variantInfo,
         quantity: i.quantity,
         price: Number(i.price),
+        imageUrl: i.image ?? undefined,
       })),
       Number(fullOrder.total),
     ).catch((err) => console.error("[qnb-callback] mail hata:", err));

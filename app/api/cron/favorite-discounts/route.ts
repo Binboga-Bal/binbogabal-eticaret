@@ -14,13 +14,18 @@ export async function GET(req: Request) {
     include: {
       user: { select: { id: true, email: true, name: true } },
       product: {
-        include: { variants: { where: { isActive: true, discountedPrice: { not: null } }, orderBy: { discountedPrice: "asc" }, take: 1 } },
+        select: {
+          name: true,
+          slug: true,
+          images: true,
+          variants: { where: { isActive: true, discountedPrice: { not: null } }, orderBy: { discountedPrice: "asc" }, take: 1 },
+        },
       },
     },
   });
 
   // Kullanıcı bazında grupla
-  const userMap = new Map<string, { user: { id: string; email: string; name: string | null }; products: { name: string; oldPrice: number; newPrice: number; productUrl: string }[] }>();
+  const userMap = new Map<string, { user: { id: string; email: string; name: string | null }; products: { name: string; oldPrice: number; newPrice: number; productUrl: string; imageUrl?: string }[] }>();
 
   for (const fav of favorites) {
     const variant = fav.product.variants[0];
@@ -36,6 +41,7 @@ export async function GET(req: Request) {
       oldPrice: Number(variant.price),
       newPrice: Number(variant.discountedPrice),
       productUrl: `${process.env.NEXT_PUBLIC_APP_URL}/urunlerimiz/${fav.product.slug}`,
+      imageUrl: (fav.product.images as string[])[0] ?? undefined,
     });
   }
 

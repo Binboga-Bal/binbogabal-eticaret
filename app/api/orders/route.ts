@@ -26,6 +26,7 @@ const orderSchema = z.object({
       price: z.number().positive(),
       productName: z.string(),
       variantInfo: z.string(),
+      imageUrl: z.string().optional(),
     }),
   ),
   subtotal: z.number().positive(),
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
             price: item.price,
             productName: item.productName,
             variantInfo: item.variantInfo,
+            image: item.imageUrl,
           })),
         },
       },
@@ -134,7 +136,7 @@ export async function POST(req: Request) {
       toName,
       order.orderNumber,
       order.id,
-      data.items.map((i) => ({ productName: i.productName, variantInfo: i.variantInfo, quantity: i.quantity, price: i.price })),
+      data.items.map((i) => ({ productName: i.productName, variantInfo: i.variantInfo, quantity: i.quantity, price: i.price, imageUrl: i.imageUrl })),
       data.total,
     ).catch((err) => console.error("[orders] kapida mail hata:", err));
 

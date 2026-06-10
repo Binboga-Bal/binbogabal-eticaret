@@ -107,7 +107,7 @@ export async function sendOrderConfirmedEmail(
   name: string,
   orderNumber: string,
   orderId: string,
-  items: { productName: string; variantInfo: string; quantity: number; price: number }[],
+  items: { productName: string; variantInfo: string; quantity: number; price: number; imageUrl?: string }[],
   total: number,
 ) {
   const allowed = await getPreference(userId, "orderUpdates");
@@ -150,7 +150,7 @@ export async function sendFavoriteDiscountEmail(
   userId: string,
   to: string,
   name: string,
-  products: { name: string; oldPrice: number; newPrice: number; productUrl: string }[],
+  products: { name: string; oldPrice: number; newPrice: number; productUrl: string; imageUrl?: string }[],
 ) {
   const allowed = await getPreference(userId, "favoriteDiscounts");
   if (!allowed) return;
@@ -212,7 +212,7 @@ export async function sendReviewRequestEmail(
   to: string,
   name: string,
   orderNumber: string,
-  items: { productName: string; variantInfo: string; reviewUrl: string }[],
+  items: { productName: string; variantInfo: string; reviewUrl: string; imageUrl?: string }[],
 ) {
   const allowed = await getPreference(userId, "reviewRequests");
   if (!allowed) return;

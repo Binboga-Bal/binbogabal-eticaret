@@ -7,6 +7,7 @@ interface OrderItem {
   variantInfo: string;
   quantity: number;
   price: number;
+  imageUrl?: string;
 }
 
 interface Props {
@@ -40,29 +41,46 @@ export function OrderConfirmedTemplate({ name, orderNumber, items, total, orderU
 
       <EmailDivider />
 
-      {/* Order items table */}
-      <table width="100%" cellPadding="0" cellSpacing="0" style={{ borderCollapse: "collapse", marginBottom: 16 }}>
+      {/* Sipariş kalemleri */}
+      <table width="100%" cellPadding={0} cellSpacing={0} border={0} role="presentation" style={{ borderCollapse: "collapse", marginBottom: "16px" }}>
         <thead>
-          <tr style={{ background: "#FFF8E7" }}>
-            <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 12, color: "#888", fontWeight: 600 }}>Ürün</th>
-            <th style={{ padding: "8px 12px", textAlign: "right", fontSize: 12, color: "#888", fontWeight: 600 }}>Adet</th>
-            <th style={{ padding: "8px 12px", textAlign: "right", fontSize: 12, color: "#888", fontWeight: 600 }}>Tutar</th>
+          <tr style={{ backgroundColor: "#FFF8E7" }}>
+            <th colSpan={2} style={{ padding: "8px 12px", textAlign: "left" as const, fontSize: "12px", color: "#888", fontWeight: 600 }}>Ürün</th>
+            <th style={{ padding: "8px 12px", textAlign: "right" as const, fontSize: "12px", color: "#888", fontWeight: 600 }}>Adet</th>
+            <th style={{ padding: "8px 12px", textAlign: "right" as const, fontSize: "12px", color: "#888", fontWeight: 600 }}>Tutar</th>
           </tr>
         </thead>
         <tbody>
           {items.map((item, i) => (
             <tr key={i} style={{ borderBottom: "1px solid #f5f5f5" }}>
-              <td style={{ padding: "10px 12px", fontSize: 14, color: "#333" }}>
-                {item.productName}
-                {item.variantInfo && (
-                  <>
-                    <br />
-                    <span style={{ color: "#aaa", fontSize: 12 }}>{item.variantInfo}</span>
-                  </>
+              {/* Küçük ürün fotoğrafı */}
+              <td style={{ padding: "10px 6px 10px 12px", width: "68px", verticalAlign: "middle" }}>
+                {item.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.imageUrl}
+                    alt={item.productName}
+                    width={56}
+                    height={56}
+                    style={{ display: "block", width: "56px", height: "56px", border: "1px solid #eeeeee", borderRadius: "6px", backgroundColor: "#f9f9f9" }}
+                  />
+                ) : (
+                  <table cellPadding={0} cellSpacing={0} border={0} role="presentation" style={{ width: "56px", height: "56px" }}>
+                    <tbody><tr><td style={{ backgroundColor: "#f5f5f5", border: "1px solid #eeeeee", borderRadius: "6px" }} /></tr></tbody>
+                  </table>
                 )}
               </td>
-              <td style={{ padding: "10px 12px", textAlign: "right", fontSize: 14, color: "#555" }}>{item.quantity}</td>
-              <td style={{ padding: "10px 12px", textAlign: "right", fontSize: 14, fontWeight: 700, color: "#333" }}>
+              {/* Ürün adı */}
+              <td style={{ padding: "10px 12px 10px 6px", fontSize: "14px", color: "#333", verticalAlign: "middle" }}>
+                <strong style={{ display: "block", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>{item.productName}</strong>
+                {item.variantInfo && (
+                  <span style={{ color: "#aaa", fontSize: "12px", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>{item.variantInfo}</span>
+                )}
+              </td>
+              <td style={{ padding: "10px 12px", textAlign: "right" as const, fontSize: "14px", color: "#555", verticalAlign: "middle", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+                {item.quantity}
+              </td>
+              <td style={{ padding: "10px 12px", textAlign: "right" as const, fontSize: "14px", fontWeight: 700, color: "#333", verticalAlign: "middle", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
                 {(item.price * item.quantity).toFixed(2)} ₺
               </td>
             </tr>
@@ -70,10 +88,10 @@ export function OrderConfirmedTemplate({ name, orderNumber, items, total, orderU
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={2} style={{ padding: "12px", textAlign: "right", fontWeight: 700, fontSize: 14, color: "#555" }}>
+            <td colSpan={3} style={{ padding: "12px", textAlign: "right" as const, fontWeight: 700, fontSize: "14px", color: "#555", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
               Toplam:
             </td>
-            <td style={{ padding: "12px", textAlign: "right", fontWeight: 800, fontSize: 18, color: HONEY }}>
+            <td style={{ padding: "12px", textAlign: "right" as const, fontWeight: 800, fontSize: "18px", color: HONEY, fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
               {total.toFixed(2)} ₺
             </td>
           </tr>

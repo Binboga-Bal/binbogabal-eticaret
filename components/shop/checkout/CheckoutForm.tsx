@@ -240,6 +240,7 @@ export function CheckoutForm({
             price: i.discountedPrice ?? i.price,
             productName: i.productName,
             variantInfo: `${formatWeight(i.size)} - ${i.packagingType}`,
+            imageUrl: i.productImage,
           })),
           subtotal: subtotal(),
           shippingFee: SHIPPING_FEE,

@@ -25,6 +25,7 @@ export async function GET(req: Request) {
       productName: item.productName,
       variantInfo: item.variantInfo,
       reviewUrl: `${process.env.NEXT_PUBLIC_APP_URL}/hesabim/yorumlarim/bekleyenler`,
+      imageUrl: item.image ?? undefined,
     }));
 
     await sendReviewRequestEmail(
