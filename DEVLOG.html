@@ -724,7 +724,9 @@
       <div class="nav-section-label">10 Haziran 2026 — E-posta Sistemi</div>
       <a href="#step234" class="nav-link"><span class="dot"></span>234 — Email Tasarım Yenileme (PDF)</a>
       <a href="#step235" class="nav-link"><span class="dot"></span>235 — Admin E-posta Şablon Yönetimi</a>
-      <a href="#step236" class="nav-link active"><span class="dot"></span>236 — Header Logo + Damlacık + İnfografik</a>
+      <a href="#step236" class="nav-link"><span class="dot"></span>236 — Header Logo + Damlacık + İnfografik</a>
+      <a href="#step237" class="nav-link"><span class="dot"></span>237 — E-posta Cross-Client Uyumu</a>
+      <a href="#step238" class="nav-link active"><span class="dot"></span>238 — E-postalara Ürün Fotoğrafı</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -13337,10 +13339,187 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ─── ADIM 237 ─── -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — E-posta Cross-Client Uyumu</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 237</div>
+    </div>
+
+    <section class="section" id="step237">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(96,165,250,.12)">📧</div>
+        <h2>Adım 237 — E-posta Cross-Client Uyumu (Apple Mail · Gmail · Outlook)</h2>
+      </div>
+
+      <div class="card">
+        <h3>Problem</h3>
+        <p>
+          Aynı e-posta şablonu Apple Mail'de doğru, Gmail'de bozuk, Outlook'ta ise tamamen farklı görünüyordu.
+          Temel nedenler: <code>display: flex</code> / <code>gap</code> Outlook ve eski Gmail'de desteklenmez;
+          <code>max-width + margin: auto</code> Outlook'ta ortalama yapmaz;
+          <code>@react-email/render</code> v2 çıktısına DOCTYPE + html/head/body eklemiyor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>1 — renderEmail() Yardımcısı</h3>
+        <p>Yeni <code>lib/mail/render-email.ts</code> — React Email render çıktısını tam e-posta HTML belgesine dönüştürür:</p>
+        <ul style="margin-top:8px">
+          <li>XHTML Transitional DOCTYPE</li>
+          <li><code>&lt;html xmlns:v xmlns:o&gt;</code> — Outlook VML namespace'leri</li>
+          <li><code>&lt;head&gt;</code>: Content-Type, viewport, X-UA-Compatible, MSO OfficeDocumentSettings (HiDPI)</li>
+          <li>Global CSS reset: <code>mso-table-lspace/rspace: 0pt</code>, <code>-webkit-text-size-adjust: 100%</code></li>
+          <li>MSO koşullu tablo sarmalayıcı (<code>&lt;!--[if mso]&gt;</code>) — Outlook'ta yatay ortalama</li>
+          <li>React Suspense marker'larını (<code>&lt;!--$--&gt;</code> / <code>&lt;!--/$--&gt;</code>) temizler</li>
+        </ul>
+        <div class="alert alert-info" style="margin-top:10px">
+          <span class="alert-label">DEĞİŞİKLİK:</span>
+          <code>mail.service.ts</code> ve <code>admin-mail.service.ts</code> dosyalarında
+          <code>render()</code> → <code>renderEmail()</code> çağrısı güncellendi.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>2 — Table-Based Layout</h3>
+        <p><code>email-layout.tsx</code> tamamen tablo tabanlı yapıya geçirildi:</p>
+        <ul style="margin-top:8px">
+          <li>Dış kapsayıcı: <code>&lt;table width="100%"&gt;</code> + <code>&lt;td align="center"&gt;</code> — tüm istemcilerde ortalama</li>
+          <li>İç wrapper: <code>&lt;table width="600"&gt;</code> — sabit genişlik, mobilde <code>100%</code></li>
+          <li>Header, body, infografik, footer — her biri ayrı <code>&lt;tr&gt;&lt;td&gt;</code> satırı</li>
+          <li>Tüm tablolar: <code>role="presentation"</code>, <code>border=0</code>, <code>cellPadding=0</code>, <code>cellSpacing=0</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>3 — flex/gap Kaldırıldı</h3>
+        <p>
+          <code>EmailNote</code> bileşeninde <code>display: flex</code> / <code>gap</code> kaldırıldı.
+          Yerine: SVG <code>display: inline-block; verticalAlign: middle; marginRight: 4px</code>
+          + metin <code>&lt;span style="verticalAlign: middle"&gt;</code>.
+        </p>
+        <p style="margin-top:8px">
+          <code>review-request.tsx</code>'teki ürün satırları da <code>flex</code> div'den
+          3 sütunlu tabloya dönüştürüldü (ürün fotoğrafı · ad/varyant · yorum butonu).
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan / Güncellenen Dosyalar</h3>
+        <div class="file-tree">
+          <div><span class="file new">lib/mail/render-email.ts</span> <span class="tag tag-green">YENİ</span>
+            — XHTML DOCTYPE, VML namespace'leri, MSO reset, Suspense marker temizliği
+          </div>
+          <div><span class="file mod">lib/mail/templates/email-layout.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — Damlacık kaldırıldı, logo küçültüldü (130×92px), tablo tabanlı tam yeniden yazım
+          </div>
+          <div><span class="file mod">lib/mail/mail.service.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — <code>render()</code> → <code>renderEmail()</code>
+          </div>
+          <div><span class="file mod">lib/mail/admin-mail.service.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — <code>render()</code> → <code>renderEmail()</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Commit</h3>
+        <div class="meta">10 Haziran 2026 · 77e65ca (Adım 236 ile birlikte) · main</div>
+        <p style="margin-top:6px;font-size:13px;color:var(--text-muted)">
+          fix(email): cross-client uyumu — tablo layout, MSO reset, renderEmail yardımcısı
+        </p>
+      </div>
+    </section>
+
+    <!-- ─── ADIM 238 ─── -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — E-postalara Ürün Fotoğrafı</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 238</div>
+    </div>
+
+    <section class="section" id="step238">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.12)">🖼️</div>
+        <h2>Adım 238 — Ürün E-postalarına Ürün Fotoğrafı Desteği</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Sipariş onayı, favori indirimi ve yorum isteği e-postalarında ürün fotoğrafının
+          da görünmesi istendi. Tüm veri zinciri (checkout → API → DB → e-posta servisi → template) güncellendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Değişen Şablonlar</h3>
+        <table style="margin-top:8px">
+          <thead><tr><th>Şablon</th><th>Değişiklik</th><th>Boyut</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>order-confirmed.tsx</code></td>
+              <td>Sipariş tablosuna ilk sütun olarak ürün görseli eklendi; "Ürün" başlığı <code>colSpan=2</code>, "Toplam" satırı <code>colSpan=3</code></td>
+              <td>56×56 px</td>
+            </tr>
+            <tr>
+              <td><code>favorite-discount.tsx</code></td>
+              <td>Ürün kartı <code>div</code>'den 2 sütunlu tabloya dönüştürüldü: sol fotoğraf, sağ ad+fiyat+buton</td>
+              <td>72×72 px</td>
+            </tr>
+            <tr>
+              <td><code>review-request.tsx</code></td>
+              <td>Yorum satırları 3 sütunlu tabloya: fotoğraf · ürün adı · "Yorum Yaz" butonu</td>
+              <td>48×48 px</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px;font-size:13px;color:var(--text-muted)">
+          Fotoğraf yoksa placeholder tablo hücresi gösterilir — cross-client uyumlu boşluk.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Veri Zinciri</h3>
+        <ul>
+          <li><strong>CheckoutForm.tsx</strong> — <code>items.map</code>'e <code>imageUrl: i.productImage</code> eklendi (Zustand CartItem)</li>
+          <li><strong>api/orders schema</strong> — <code>imageUrl: z.string().optional()</code> eklendi</li>
+          <li><strong>api/orders (kapıda ödeme)</strong> — <code>image: item.imageUrl</code> OrderItem create'e geçirildi; email çağrısına da eklendi</li>
+          <li><strong>api/payment/qnb/callback</strong> — CheckoutSession items type cast'e <code>imageUrl?: string</code>, OrderItem create'e <code>image: item.imageUrl</code>, email çağrısına <code>imageUrl: i.image ?? undefined</code></li>
+          <li><strong>cron/favorite-discounts</strong> — Product query'sine <code>images: true</code> eklendi; <code>(images as string[])[0]</code> imageUrl olarak geçirildi</li>
+          <li><strong>cron/review-requests</strong> — <code>imageUrl: item.image ?? undefined</code> eklendi</li>
+          <li><strong>mail.service.ts</strong> — üç fonksiyonun item/product tipine <code>imageUrl?: string</code> eklendi</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan / Güncellenen Dosyalar</h3>
+        <div class="file-tree">
+          <div><span class="file mod">lib/mail/templates/order-confirmed.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">lib/mail/templates/favorite-discount.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">lib/mail/templates/review-request.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">lib/mail/mail.service.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — sendOrderConfirmedEmail · sendFavoriteDiscountEmail · sendReviewRequestEmail tip genişletildi</div>
+          <div><span class="file mod">app/api/orders/route.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">app/api/payment/qnb/callback/route.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">app/api/cron/favorite-discounts/route.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">app/api/cron/review-requests/route.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+          <div><span class="file mod">components/shop/checkout/CheckoutForm.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Commit</h3>
+        <div class="meta">10 Haziran 2026 · 44fbadf · main · 9 dosya, +155 / -91</div>
+        <p style="margin-top:6px;font-size:13px;color:var(--text-muted)">
+          feat(mail): e-posta şablonlarına ürün fotoğrafı desteği ekle
+        </p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 10 Haziran 2026 — Adım 236 (E-posta Header Logo + Damlacık + İnfografik) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 10 Haziran 2026 — Adım 238 (E-postalara Ürün Fotoğrafı) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
