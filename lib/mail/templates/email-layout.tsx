@@ -1,4 +1,6 @@
 import * as React from "react";
+import type { EmailInfographic, InfographicIconKey } from "../infographic-types";
+import { DEFAULT_INFOGRAPHIC } from "../infographic-types";
 
 const HONEY = "#F9B10B";
 const HONEY_DARK = "#C57930";
@@ -6,6 +8,7 @@ const HONEY_DARK = "#C57930";
 interface EmailLayoutProps {
   children: React.ReactNode;
   appUrl: string;
+  infographic?: EmailInfographic;
 }
 
 function SocialIcon({ href, title, children }: { href: string; title: string; children: React.ReactNode }) {
@@ -20,7 +23,92 @@ function SocialIcon({ href, title, children }: { href: string; title: string; ch
   );
 }
 
-export function EmailLayout({ children, appUrl }: EmailLayoutProps) {
+function InfographicSvg({ icon }: { icon: InfographicIconKey }) {
+  const props = {
+    width: 30,
+    height: 30,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: HONEY_DARK,
+    strokeWidth: "1.8",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    xmlns: "http://www.w3.org/2000/svg",
+  };
+  switch (icon) {
+    case "honey":
+      return (
+        <svg {...props}>
+          <path d="M8 3h8l1 3H7z" />
+          <rect x="6" y="6" width="12" height="14" rx="3" />
+          <path d="M12 10v4M10 12h4" />
+        </svg>
+      );
+    case "leaf":
+      return (
+        <svg {...props}>
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" />
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+        </svg>
+      );
+    case "shield":
+      return (
+        <svg {...props}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <polyline points="9 12 11 14 15 10" />
+        </svg>
+      );
+    case "truck":
+      return (
+        <svg {...props}>
+          <rect x="1" y="3" width="15" height="13" />
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+          <circle cx="5.5" cy="18.5" r="2.5" />
+          <circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+      );
+    case "star":
+      return (
+        <svg {...props}>
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      );
+    case "heart":
+      return (
+        <svg {...props}>
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...props}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <polyline points="9 12 11 14 15 10" />
+        </svg>
+      );
+    case "gift":
+      return (
+        <svg {...props}>
+          <polyline points="20 12 20 22 4 22 4 12" />
+          <rect x="2" y="7" width="20" height="5" />
+          <line x1="12" y1="22" x2="12" y2="7" />
+          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      );
+  }
+}
+
+export function EmailLayout({ children, appUrl, infographic }: EmailLayoutProps) {
+  const infog = infographic ?? DEFAULT_INFOGRAPHIC;
+
   return (
     <div
       style={{
@@ -30,69 +118,43 @@ export function EmailLayout({ children, appUrl }: EmailLayoutProps) {
         background: "#f4f4f4",
       }}
     >
-      {/* ── HEADER ── */}
-      <div style={{ background: HONEY, textAlign: "center", padding: "28px 32px 0" }}>
-        {/* Logo text — white on honey */}
-        <div style={{ marginBottom: 0 }}>
-          <div
-            style={{
-              display: "inline-block",
-              border: "2px solid rgba(255,255,255,0.6)",
-              borderRadius: 100,
-              padding: "2px 12px",
-              fontSize: 10,
-              letterSpacing: 3,
-              color: "rgba(255,255,255,0.9)",
-              textTransform: "uppercase" as const,
-              marginBottom: 6,
-            }}
-          >
-            1973 · KOZAN
-          </div>
-        </div>
-        <div
+      {/* ── HEADER: bal sarısı arka plan + logo ── */}
+      <div
+        style={{
+          background: HONEY,
+          textAlign: "center",
+          padding: "28px 32px 0",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${appUrl}/images/logo.png`}
+          alt="Binboğa Kooperatif Balı"
+          width={210}
+          height={149}
           style={{
-            fontSize: 32,
-            fontWeight: 900,
-            color: "#fff",
-            letterSpacing: 1,
-            lineHeight: "1.05",
-            fontFamily: "'Arial Black', 'Arial Bold', Arial, sans-serif",
-            textTransform: "uppercase" as const,
+            display: "block",
+            margin: "0 auto",
+            maxWidth: 210,
+            height: "auto",
           }}
-        >
-          KOOPERATİF
-          <br />
-          BALI
-        </div>
-        <div
-          style={{
-            fontSize: 17,
-            fontWeight: 700,
-            color: "#fff",
-            marginTop: 4,
-            marginBottom: 0,
-            fontFamily: "Georgia, serif",
-            fontStyle: "italic" as const,
-          }}
-        >
-          Binboğa
-          <span style={{ fontSize: 10, verticalAlign: "super" }}>®</span>
-        </div>
+        />
       </div>
 
-      {/* ── WAVE TRANSITION ── */}
+      {/* ── DAMLACIK GEÇİŞİ ── */}
       <div style={{ background: HONEY, lineHeight: 0, fontSize: 0 }}>
         <svg
-          viewBox="0 0 600 50"
+          viewBox="0 0 600 66"
           width="600"
-          height="50"
+          height="66"
           xmlns="http://www.w3.org/2000/svg"
           style={{ display: "block", width: "100%" }}
         >
-          <rect fill="#ffffff" width="600" height="50" />
+          {/* Beyaz zemin */}
+          <rect fill="#ffffff" width="600" height="66" />
+          {/* Bal sarısı damlacık */}
           <path
-            d="M0,0 L600,0 L600,18 Q450,12 300,48 Q150,12 0,18 Z"
+            d="M 0,0 L 600,0 L 600,18 C 545,18 440,15 375,38 C 352,50 333,62 300,65 C 267,62 248,50 225,38 C 160,15 55,18 0,18 Z"
             fill={HONEY}
           />
         </svg>
@@ -101,16 +163,74 @@ export function EmailLayout({ children, appUrl }: EmailLayoutProps) {
       {/* ── BODY ── */}
       <div style={{ background: "#ffffff", padding: "0 40px 36px" }}>{children}</div>
 
+      {/* ── İNFOGRAFİK ── */}
+      {infog.show && infog.items.length > 0 && (
+        <div
+          style={{
+            background: "#ffffff",
+            borderTop: "1px solid #f5f5f5",
+            padding: "16px 24px 20px",
+          }}
+        >
+          <table
+            width="100%"
+            cellPadding={0}
+            cellSpacing={0}
+            style={{ borderCollapse: "collapse" }}
+          >
+            <tbody>
+              <tr>
+                {infog.items.map((item, i) => (
+                  <td
+                    key={i}
+                    align="center"
+                    style={{
+                      padding: "8px 6px",
+                      width: `${Math.floor(100 / infog.items.length)}%`,
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "inline-block",
+                        textAlign: "center",
+                        padding: "10px 12px",
+                        background: "#fffbf0",
+                        borderRadius: 12,
+                        border: `1px solid ${HONEY}33`,
+                      }}
+                    >
+                      <InfographicSvg icon={item.icon} />
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#444",
+                          marginTop: 6,
+                          fontWeight: 700,
+                          letterSpacing: 0.2,
+                          lineHeight: "1.3",
+                        }}
+                      >
+                        {item.text}
+                      </div>
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* ── FOOTER ── */}
       <div
         style={{
           background: "#ffffff",
           borderTop: "1px solid #f0f0f0",
           padding: "16px 40px 24px",
-          display: "flex" as const,
         }}
       >
-        <table width="100%" cellPadding="0" cellSpacing="0" style={{ borderCollapse: "collapse" }}>
+        <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: "collapse" }}>
           <tbody>
             <tr>
               <td
@@ -126,7 +246,13 @@ export function EmailLayout({ children, appUrl }: EmailLayoutProps) {
                 <br />
                 lütfen yanıtlamayın.
               </td>
-              <td style={{ textAlign: "right" as const, verticalAlign: "middle", whiteSpace: "nowrap" as const }}>
+              <td
+                style={{
+                  textAlign: "right",
+                  verticalAlign: "middle",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 <SocialIcon href={`${appUrl}/redirect/facebook`} title="Facebook">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="#555" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -240,9 +366,9 @@ export function EmailNote({ children }: { children: React.ReactNode }) {
         color: "#aaa",
         textAlign: "center",
         margin: "0 0 8px",
-        display: "flex" as const,
-        justifyContent: "center" as const,
-        alignItems: "center" as const,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         gap: 4,
       }}
     >

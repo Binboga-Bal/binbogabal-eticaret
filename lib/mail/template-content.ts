@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import type { EmailInfographic } from "./infographic-types";
+import { DEFAULT_INFOGRAPHIC } from "./infographic-types";
+
+export type { EmailInfographic };
+export { DEFAULT_INFOGRAPHIC };
 
 export interface EmailTemplateContent {
   subject: string;
@@ -212,6 +217,28 @@ export async function saveTemplateContent(key: string, content: EmailTemplateCon
     where: { key: settingKey },
     create: { key: settingKey, value: JSON.stringify(content) },
     update: { value: JSON.stringify(content) },
+  });
+}
+
+export async function getInfographic(): Promise<EmailInfographic> {
+  try {
+    const setting = await prisma.siteSetting.findUnique({
+      where: { key: "email_infographic" },
+    });
+    if (setting?.value) {
+      return JSON.parse(setting.value) as EmailInfographic;
+    }
+  } catch {
+    // fall through
+  }
+  return DEFAULT_INFOGRAPHIC;
+}
+
+export async function saveInfographic(data: EmailInfographic): Promise<void> {
+  await prisma.siteSetting.upsert({
+    where: { key: "email_infographic" },
+    create: { key: "email_infographic", value: JSON.stringify(data) },
+    update: { value: JSON.stringify(data) },
   });
 }
 
