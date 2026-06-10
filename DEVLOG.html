@@ -722,8 +722,9 @@
       <a href="#step233" class="nav-link"><span class="dot"></span>233 — Ghost Session &amp; Idle Timeout</a>
 
       <div class="nav-section-label">10 Haziran 2026 — E-posta Sistemi</div>
-      <a href="#step234" class="nav-link active"><span class="dot"></span>234 — Email Tasarım Yenileme (PDF)</a>
+      <a href="#step234" class="nav-link"><span class="dot"></span>234 — Email Tasarım Yenileme (PDF)</a>
       <a href="#step235" class="nav-link"><span class="dot"></span>235 — Admin E-posta Şablon Yönetimi</a>
+      <a href="#step236" class="nav-link active"><span class="dot"></span>236 — Header Logo + Damlacık + İnfografik</a>
 
 <div class="nav-section-label">Referans</div>
       <a href="#theme-ref"   class="nav-link"><span class="dot"></span>Tema Değerleri</a>
@@ -13210,10 +13211,136 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ─── ADIM 236 ─── -->
+    <div class="date-header">
+      <div class="date-pill">10 Haziran 2026 — E-posta Header Yenileme</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 236</div>
+    </div>
+
+    <section class="section" id="step236">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.12)">🖼️</div>
+        <h2>Adım 236 — E-posta Header: Gerçek Logo + Damlacık Geçişi + İnfografik Yönetimi</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Ekran görüntüsündeki e-posta tasarımı referans alınarak header'da gerçek marka logosu
+          kullanılması, dalgalı geçişin yerine tek yuvarlak bal damlacığı şeklinin uygulanması ve
+          tüm e-postalarda görünen infografik bölümünün admin panelinden yönetilebilir hale
+          getirilmesi istendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>1 — Gerçek Logo (logo.png)</h3>
+        <ul>
+          <li>Önceki yapı: <code>text</code> tabanlı — "1973 · KOZAN" rozeti + bold "KOOPERATİF BALI" + italic "Binboğa®"</li>
+          <li>Yeni yapı: <code>/images/logo.png</code> doğrudan <code>&lt;img&gt;</code> tag'i ile header'a yerleştirildi</li>
+          <li>
+            <strong>Neden PNG çalışır?</strong> <code>logo.png</code>'nin renk modu <code>colorType=6 (RGBA)</code> —
+            transparan arka plan var. Bal sarısı (<code>#F9B10B</code>) header üzerinde native görünür.
+          </li>
+          <li>Boyutlar: <code>width=210 height=149</code> (orijinal 2164×1536 oranı korundu), <code>display:block; margin:0 auto</code></li>
+          <li>E-posta istemcilerinde <code>src</code> tam URL ile gönderilir: <code>{`${appUrl}/images/logo.png`}</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>2 — Bal Damlacığı (Honey Drip SVG)</h3>
+        <p>Header altındaki geçiş, düz dalgadan tek yuvarlak damlacık şekline dönüştürüldü:</p>
+        <div class="code-block" style="margin-top:10px">
+          <pre>viewBox="0 0 600 66"
+&lt;rect fill="#ffffff" width="600" height="66" /&gt;
+&lt;path
+  d="M 0,0 L 600,0 L 600,18
+     C 545,18 440,15 375,38
+     C 352,50 333,62 300,65
+     C 267,62 248,50 225,38
+     C 160,15 55,18 0,18 Z"
+  fill="#F9B10B"
+/&gt;</pre>
+        </div>
+        <ul style="margin-top:10px">
+          <li>Kenarlar düz (<code>y=18</code>), merkez cubic bezier ile <code>y=65</code>'e kadar iner — tek yuvarlak damla</li>
+          <li>Sol/sağ kontrol noktaları neredeyse yatay; ortaya yaklaştıkça eğri sertleşir</li>
+          <li>Önceki dalga (<code>Q150,12 0,18</code>) yerine <code>C</code> (cubic) bezier — daha yumuşak geçiş</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>3 — İnfografik Bölümü</h3>
+        <p>
+          Tüm e-postalarda <strong>body ile footer arasında</strong> görünen 3–4 sütun ikon+metin
+          kartları. Varsayılan içerik: "100% Doğal Bal" · "Sertifikalı Üretim" · "Hızlı Teslimat".
+        </p>
+        <div class="alert alert-info" style="margin-top:10px">
+          <span class="alert-label">VERİTABANI:</span>
+          <code>SiteSetting.key = "email_infographic"</code>, değer JSON.
+          Kayıt yoksa <code>DEFAULT_INFOGRAPHIC</code> kullanılır.
+        </div>
+        <table style="margin-top:10px">
+          <thead><tr><th>Alan</th><th>Tip</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>show</code></td><td>boolean</td><td>Bölümü göster/gizle</td></tr>
+            <tr><td><code>items</code></td><td>Array (max 4)</td><td>İkon + metin çiftleri</td></tr>
+            <tr><td><code>items[].icon</code></td><td>InfographicIconKey</td><td>honey · leaf · shield · truck · star · heart · check · gift</td></tr>
+            <tr><td><code>items[].text</code></td><td>string</td><td>Kısa etiket metni</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan / Güncellenen Dosyalar</h3>
+        <div class="file-tree">
+          <div><span class="file new">lib/mail/infographic-types.ts</span> <span class="tag tag-green">YENİ</span>
+            — <code>EmailInfographic</code>, <code>InfographicItem</code>, <code>InfographicIconKey</code>, <code>DEFAULT_INFOGRAPHIC</code>, <code>INFOGRAPHIC_ICON_OPTIONS</code> (Prisma bağımlılığı yok)
+          </div>
+          <div><span class="file mod">lib/mail/template-content.ts</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — <code>getInfographic()</code> + <code>saveInfographic()</code> eklendi
+          </div>
+          <div><span class="file mod">lib/mail/templates/email-layout.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — Text logo → <code>&lt;img logo.png&gt;</code> · dalga → damlacık SVG · infografik tablo bloğu eklendi · <code>infographic?: EmailInfographic</code> prop (opsiyonel, default)
+          </div>
+          <div><span class="file new">app/api/admin/email-templates/infographic/route.ts</span> <span class="tag tag-green">YENİ</span>
+            — <code>GET</code> mevcut ayarı döner · <code>PUT</code> kaydeder (max 4 öğe, boş text filtresi)
+          </div>
+          <div><span class="file mod">components/admin/EmailTemplateEditor.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — "Şablon Metinleri" + "İnfografik Bölüm" sekmeleri · ikon seçici · öğe ekle/sil · toggle · canlı önizleme
+          </div>
+          <div><span class="file mod">app/admin/email-sablonlari/page.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span>
+            — <code>getInfographic()</code> paralel yükleme (<code>Promise.all</code>) + <code>initialInfographic</code> prop
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Admin Editör — İnfografik Sekmesi</h3>
+        <ul>
+          <li>Göster/Gizle toggle (pill switch)</li>
+          <li>Her öğe: <code>&lt;select&gt;</code> ikon seçici (8 seçenek) + mini SVG önizleme + metin inputu + sil butonu</li>
+          <li>"+ Öğe Ekle" butonu (max 4 öğede gizlenir)</li>
+          <li>Canlı önizleme: bal sarısı kenarlı kart grid, seçilen ikon + metin anında görülür</li>
+          <li>Kaydet → <code>PUT /api/admin/email-templates/infographic</code></li>
+          <li>URL: <code>/admin/email-sablonlari</code> → "İnfografik Bölüm" sekmesi</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Commit</h3>
+        <div class="meta">10 Haziran 2026 · 77e65ca · main · 6 dosya, +656 / -195</div>
+        <p style="margin-top:6px;font-size:13px;color:var(--text-muted)">
+          feat(email): logo.png header, damlacık geçişi ve admin infografik yönetimi
+        </p>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 10 Haziran 2026 — Adım 235 (E-posta Şablon Yenileme &amp; Admin Yönetimi) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 10 Haziran 2026 — Adım 236 (E-posta Header Logo + Damlacık + İnfografik) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
