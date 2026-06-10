@@ -1,14 +1,18 @@
 export const dynamic = "force-dynamic";
 import { requirePermission } from "@/lib/rbac/guards";
 import Link from "next/link";
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDate } from "@/lib/utils/format";
 import type { OrderStatus } from "@prisma/client";
+import { OrderDateFilter } from "@/components/admin/orders/OrderDateFilter";
+import { OrderExportButton } from "@/components/admin/orders/OrderExportButton";
+import { getOrderDateRange } from "@/lib/utils/order-date-range";
 
 export const metadata = { title: "Sipariş Yönetimi | Admin" };
 
 interface PageProps {
-  searchParams: Promise<{ durum?: string; sayfa?: string }>;
+  searchParams: Promise<{ durum?: string; sayfa?: string; preset?: string }>;
 }
 
 const STATUS_OPTIONS = [
@@ -45,10 +49,17 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     ? (rawStatus as OrderStatus)
     : undefined;
   const page = parseInt(params.sayfa ?? "1");
+  const preset = params.preset;
+  const dateRange = getOrderDateRange(preset);
+
+  const where = {
+    ...(status && { status }),
+    ...(dateRange && { createdAt: dateRange }),
+  };
 
   const [orders, total] = await Promise.all([
     prisma.order.findMany({
-      where: status ? { status } : undefined,
+      where,
       include: {
         user: { select: { name: true, email: true } },
         items: true,
@@ -57,23 +68,46 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
-    prisma.order.count({
-      where: status ? { status } : undefined,
-    }),
+    prisma.order.count({ where }),
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  function statusHref(s: string) {
+    const qs = new URLSearchParams();
+    if (s) qs.set("durum", s);
+    if (preset) qs.set("preset", preset);
+    return `/admin/siparisler${qs.size > 0 ? `?${qs}` : ""}`;
+  }
+
+  function pageHref(p: number) {
+    const qs = new URLSearchParams();
+    if (status) qs.set("durum", status);
+    if (preset) qs.set("preset", preset);
+    qs.set("sayfa", String(p));
+    return `/admin/siparisler?${qs}`;
+  }
+
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-black text-gray-900">Siparişler</h1>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <h1 className="text-2xl font-black text-gray-900">Siparişler</h1>
+        <Suspense>
+          <OrderExportButton />
+        </Suspense>
+      </div>
+
+      {/* Date filter */}
+      <Suspense>
+        <OrderDateFilter active={preset ?? "all"} />
+      </Suspense>
 
       {/* Status filter */}
       <div className="flex gap-2 flex-wrap">
         {STATUS_OPTIONS.map((opt) => (
           <Link
             key={opt.value}
-            href={`/admin/siparisler${opt.value ? `?durum=${opt.value}` : ""}`}
+            href={statusHref(opt.value)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
               (rawStatus ?? "") === opt.value
                 ? "bg-honey-dark text-white"
@@ -146,7 +180,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <Link
               key={p}
-              href={`/admin/siparisler?${new URLSearchParams({ ...(status ? { durum: status } : {}), sayfa: String(p) })}`}
+              href={pageHref(p)}
               className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-medium ${
                 p === page ? "bg-honey-dark text-white" : "border border-gray-200 text-gray-600 hover:border-honey-dark"
               }`}
