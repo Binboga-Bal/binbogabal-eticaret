@@ -7,6 +7,7 @@ import {
   trustBadgesTheme,
   processFlowTheme,
   homeBannersTheme,
+  categoryGridTheme,
   footerTheme,
 } from "@/lib/theme";
 
@@ -30,6 +31,7 @@ const KEYS = [
   "text_home_process_2_title", "text_home_process_2_desc",
   "text_home_process_3_title", "text_home_process_3_desc",
   "text_home_process_4_title", "text_home_process_4_desc",
+  "text_home_categories_heading", "text_home_categories_subheading",
 ];
 
 export default async function AnasayfaIcerigi() {
@@ -52,6 +54,29 @@ export default async function AnasayfaIcerigi() {
           hint: "Header · Footer · Arama",
           currentUrl: db.img_logo ?? footerTheme.logo.src,
           recommendedSize: "230 × 150 px",
+        },
+      ],
+    },
+    {
+      id: "kategoriler",
+      title: "Kategoriler Bölümü",
+      description: "Anasayfadaki ürün kategorileri ızgarasının başlık ve alt metin içerikleri.",
+      texts: [
+        {
+          key: "text_home_categories_heading",
+          label: "Başlık",
+          type: "text" as const,
+          defaultValue: categoryGridTheme.heading,
+          currentValue: db.text_home_categories_heading ?? null,
+          placeholder: categoryGridTheme.heading,
+        },
+        {
+          key: "text_home_categories_subheading",
+          label: "Alt Metin",
+          type: "text" as const,
+          defaultValue: categoryGridTheme.subheading,
+          currentValue: db.text_home_categories_subheading ?? null,
+          placeholder: categoryGridTheme.subheading,
         },
       ],
     },

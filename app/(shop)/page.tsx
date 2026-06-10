@@ -89,6 +89,7 @@ const SETTING_KEYS = [
   "text_home_process_2_title", "text_home_process_2_desc",
   "text_home_process_3_title", "text_home_process_3_desc",
   "text_home_process_4_title", "text_home_process_4_desc",
+  "text_home_categories_heading", "text_home_categories_subheading",
 ];
 
 export default async function HomePage() {
@@ -140,7 +141,10 @@ export default async function HomePage() {
       <HeroSlider slides={heroSlides} />
       <TrustBadges images={badgeImages} badgeTexts={badgeTexts} />
 
-      <CategoryGrid />
+      <CategoryGrid
+        heading={s.text_home_categories_heading || undefined}
+        subheading={s.text_home_categories_subheading || undefined}
+      />
 
       <ProcessFlow
         images={processImages}

@@ -2,8 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/layout/Container";
+import { categoryGridTheme } from "@/lib/theme";
 
-export async function CategoryGrid() {
+interface CategoryGridProps {
+  heading?: string;
+  subheading?: string;
+}
+
+export async function CategoryGrid({ heading, subheading }: CategoryGridProps = {}) {
   const categories = await prisma.category.findMany({
     where: { isActive: true, parentId: null, showOnHome: true },
     orderBy: { order: "asc" },
@@ -12,12 +18,18 @@ export async function CategoryGrid() {
 
   if (categories.length === 0) return null;
 
+  const resolvedHeading = heading || categoryGridTheme.heading;
+  const resolvedSubheading = subheading || categoryGridTheme.subheading;
+
   return (
     <section className="py-10 md:py-14 lg:py-20 bg-gray-50">
       <Container size="content">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-fluid-xl font-black text-gray-900 tracking-tight">Ürün Kategorileri</h2>
-          <Link href="/urunlerimiz" className="text-sm text-honey-dark font-semibold hover:underline">
+        <div className="flex items-start justify-between mb-6 gap-4">
+          <div>
+            <h2 className="text-fluid-xl font-black text-gray-900 tracking-tight">{resolvedHeading}</h2>
+            <p className="text-sm text-gray-500 mt-1">{resolvedSubheading}</p>
+          </div>
+          <Link href="/urunlerimiz" className="text-sm text-honey-dark font-semibold hover:underline shrink-0 pt-1">
             Tüm Ürünler →
           </Link>
         </div>

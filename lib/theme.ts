@@ -104,9 +104,9 @@ export const sliderTheme = {
 
   /** Slider yüksekliği (px) — HeroSlider bu değerden okur */
   heightMobile: 520, // ≤ md breakpoint
-  height: 620,       // md+ (768px–1919px)
-  height3xl: 760,    // 1920px+ (3xl)
-  height4xl: 900,    // 2560px+ (4xl)
+  height: 620, // md+ (768px–1919px)
+  height3xl: 760, // 1920px+ (3xl)
+  height4xl: 900, // 2560px+ (4xl)
 
   /** Önceki/sonraki ok butonlarının arka plan rengi */
   navBtnBg: palette.honeyDark,
@@ -330,6 +330,15 @@ export const processFlowTheme = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
+// § 11 — KATEGORİLER BÖLÜMÜ (CategoryGrid bileşeni)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const categoryGridTheme = {
+  heading: "Ürün Kategorileri",
+  subheading:
+    "Arıcı ailelerimizin özenle ürettiği, analizi yapılmış doğal ballarımızı keşfedin.",
+} as const;
+
 // § 11 — ANASAYFA BANNER'LARI (page.tsx Hikayemiz & Hakkımızda)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -337,9 +346,9 @@ export const homeBannersTheme = {
   hikayemiz: {
     image: "/images/home-screen/our-history/our-history.webp",
     heading: "HİKAYEMİZ",
-    subheading: "ŞİRKET DEĞİL, KOOPERATİFİZ!",
+    subheading: "BİZ ŞİRKET DEĞİL, KOOPERATİFİZ!",
     body: "1973 yılında, Adana'nın Kozan ilçesinde birkaç arıcı aile bir karar verdi. Tek başına ayakta kalmanın zor oldugunu biliyorlardı. Çünkü bal sadece doganın degil, sabrın da işiydi. Yagmurun erken yagması, kuraklıgın uzaması, piyasanın dengesizligi… Hepsi küçük üreticinin omzuna yük oluyordu.\n\nİşte o gün, yükü paylaşmak için bir araya geldiler. 745 Sayılı Kozan Bal Tarım Satış Kooperatifi böyle dogdu.",
-    btn: { label: "HİKAYENİN DEVAMI ▶", href: "/hakkimizda" },
+    btn: { label: "HİKAYENİN DEVAMI ▶", href: "/kooperatif-hikayemiz" },
   },
   hakkimizda: {
     image: "/images/home-screen/about-us/about-us.webp",

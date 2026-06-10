@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { processFlowTheme } from "@/lib/theme";
 import { buildMetadata } from "@/lib/seo/meta.service";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,6 +30,19 @@ const D = {
   coop_p1: "Kooperatif; ortak ekonomik, sosyal ve kültürel ihtiyaçları karşılamak için gönüllü olarak bir araya gelen insanların oluşturduğu, demokratik olarak kontrol edilen bağımsız bir kuruluştur.",
   coop_p2: "Bir şirkette hissedar ne kadar çok pay sahibiyse o kadar çok söz hakkı alır. Kooperatifte ise her üye, sahip olduğu hisse miktarından bağımsız olarak tek oy hakkına sahiptir. Bu fark her şeyi değiştirir.",
   coop_p3: "Dünya genelinde 3 milyondan fazla kooperatif, 1 milyarın üzerinde üyeyle faaliyet göstermektedir. Türkiye'de ise tarımsal kooperatifler küçük üreticinin en büyük kalkanı olmaya devam ediyor.",
+
+  coop_grid_1_img:  "/images/home-screen/second-infographics/uretici-icin-adil-model.webp",
+  coop_grid_1_title: "ÜRETİCİ İÇİN ADİL MODEL",
+  coop_grid_1_desc: "Arıcılarımıza adil fiyat ve öncelikli gelir güvencesi sunuyoruz. Arıcılar ortaklardan oluşur, üreticilerin kooperatif ağına dahil olması ve rekabetçi fiyatlarla kazanmalarını sağlarız.",
+  coop_grid_2_img:  "/images/home-screen/second-infographics/kalite-icin-kontrol.webp",
+  coop_grid_2_title: "KALİTE İÇİN KONTROL",
+  coop_grid_2_desc: "Her parti bal, çok aşamalı kalite denetimlerinden geçer. Akredite laboratuvarlarda analizden geçer, uluslararası standartlara uygunluğu garanti eder.",
+  coop_grid_3_img:  "/images/home-screen/second-infographics/tuketici-icin-guven.webp",
+  coop_grid_3_title: "TÜKETİCİ İÇİN GÜVEN",
+  coop_grid_3_desc: "Hangi bölgeden, hangi taşıyıcıyla ve ne kadar hijyenik üretildiğine dair tam bilgi. Şeffaflık ve güven, marka bağlılığını sağlar.",
+  coop_grid_4_img:  "/images/home-screen/second-infographics/gelecek-icin-surdurebilirlik.webp",
+  coop_grid_4_title: "GELECEK İÇİN SÜRDÜRÜLEBİLİRLİK",
+  coop_grid_4_desc: "Doğal arıcılık, organik üretim ve geleceğe duyarlı uygulamalarla ekoloji sistemini koruyoruz. Doğaya saygılı, biyoçeşitlilik destekleyen gelecek nesiller için dünya bırakıyoruz.",
 
   process_tag: "Süreç",
   process_heading: "Kovandan Sofranıza, Adım Adım",
@@ -118,6 +130,12 @@ export default async function KooperatifHikayemizPage() {
     detail: t(db, `voice_${i}_detail` as keyof typeof D),
   }));
 
+  const coopGrid = [1, 2, 3, 4].map((i) => ({
+    img:   t(db, `coop_grid_${i}_img`   as keyof typeof D),
+    title: t(db, `coop_grid_${i}_title` as keyof typeof D),
+    desc:  t(db, `coop_grid_${i}_desc`  as keyof typeof D),
+  }));
+
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -180,14 +198,14 @@ export default async function KooperatifHikayemizPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-6">
-              {processFlowTheme.steps.map((step) => (
-                <div key={step.number} className="bg-white rounded-2xl p-5 shadow-sm flex flex-col items-center text-center gap-3">
+              {coopGrid.map((card, i) => (
+                <div key={i} className="bg-white rounded-2xl p-5 shadow-sm flex flex-col items-center text-center gap-3">
                   <div className="relative w-24 h-24">
-                    <Image src={step.image} alt={step.title} fill className="object-contain" sizes="96px" />
+                    <Image src={card.img} alt={card.title} fill className="object-contain" sizes="96px" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-honey-dark text-xs mb-1 leading-snug">{step.title}</h3>
-                    <p className="text-xs text-gray-600 leading-relaxed">{step.description}</p>
+                    <h3 className="font-bold text-honey-dark text-xs mb-1 leading-snug">{card.title}</h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">{card.desc}</p>
                   </div>
                 </div>
               ))}

@@ -120,6 +120,22 @@ export default async function KooperatifHikayemizAdmin() {
       ],
     },
     {
+      id: "coop-grid",
+      title: "Kooperatifçilik Grid Kartları (4 Kart)",
+      description: "\"Şirket değil, kooperatifiz\" başlığının sağındaki 4 kartlık ızgara.",
+      images: [1, 2, 3, 4].map((i) => ({
+        key: `${PFX}coop_grid_${i}_img`,
+        label: `Kart ${i} — Görsel`,
+        hint: `Grid kart ${i} infografik görseli`,
+        currentUrl: db[`${PFX}coop_grid_${i}_img`] ?? null,
+        recommendedSize: "400 × 400 px",
+      })),
+      texts: [1, 2, 3, 4].flatMap((i) => [
+        tf(`coop_grid_${i}_title`, `Kart ${i} — Başlık`),
+        tf(`coop_grid_${i}_desc`,  `Kart ${i} — Açıklama`, "textarea", 2),
+      ]),
+    },
+    {
       id: "process",
       title: "Nasıl Çalışır? (4 Adım)",
       texts: [
