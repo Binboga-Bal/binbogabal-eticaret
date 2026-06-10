@@ -123,41 +123,22 @@ export function EmailLayout({ children, appUrl, infographic }: EmailLayoutProps)
         style={{
           background: HONEY,
           textAlign: "center",
-          padding: "28px 32px 0",
+          padding: "20px 32px",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${appUrl}/images/logo.png`}
           alt="Binboğa Kooperatif Balı"
-          width={210}
-          height={149}
+          width={130}
+          height={92}
           style={{
             display: "block",
             margin: "0 auto",
-            maxWidth: 210,
+            maxWidth: 130,
             height: "auto",
           }}
         />
-      </div>
-
-      {/* ── DAMLACIK GEÇİŞİ ── */}
-      <div style={{ background: HONEY, lineHeight: 0, fontSize: 0 }}>
-        <svg
-          viewBox="0 0 600 66"
-          width="600"
-          height="66"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ display: "block", width: "100%" }}
-        >
-          {/* Beyaz zemin */}
-          <rect fill="#ffffff" width="600" height="66" />
-          {/* Bal sarısı damlacık */}
-          <path
-            d="M 0,0 L 600,0 L 600,18 C 545,18 440,15 375,38 C 352,50 333,62 300,65 C 267,62 248,50 225,38 C 160,15 55,18 0,18 Z"
-            fill={HONEY}
-          />
-        </svg>
       </div>
 
       {/* ── BODY ── */}
