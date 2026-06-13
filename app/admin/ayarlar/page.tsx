@@ -37,6 +37,16 @@ const MAINTENANCE_SETTINGS = [
   },
 ];
 
+const QR_ANALIZ_SETTINGS = [
+  {
+    key: "qr_ocr_enabled",
+    label: "Kamera ile OCR Tanıma",
+    value: "true",
+    type: "toggle",
+    description: "Aktifken müşteriler /qr-analiz sayfasında kamera butonunu görebilir ve etiketi fotoğraflayarak parti numarası + dolum tarihini otomatik tanıtabilir.",
+  },
+];
+
 const BANNER_SETTINGS = [
   {
     key: "cart_banner_enabled",
@@ -77,6 +87,7 @@ export default async function AdminSettingsPage() {
   const settings = DEFAULT_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value }));
   const maintenanceSettings = MAINTENANCE_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value }));
   const bannerSettings = BANNER_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value, options: (s as any).options }));
+  const qrAnalizSettings = QR_ANALIZ_SETTINGS.map((s) => ({ ...s, value: settingsMap[s.key] ?? s.value }));
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -108,6 +119,14 @@ export default async function AdminSettingsPage() {
         </div>
         <span className="text-gray-400 group-hover:text-gray-600 text-lg">›</span>
       </Link>
+
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <h2 className="text-base font-bold text-gray-800 mb-1">QR Analiz Sayfası</h2>
+        <p className="text-sm text-gray-500 mb-5">
+          Müşterilerin bal etiketini kamerayla okutarak analiz raporuna ulaşmasını sağlayan OCR özelliğini yönetin.
+        </p>
+        <SettingsForm settings={qrAnalizSettings} />
+      </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <h2 className="text-base font-bold text-gray-800 mb-5">Sepet Kampanya Bandı</h2>
