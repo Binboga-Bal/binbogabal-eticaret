@@ -9,39 +9,38 @@ export async function GET(
   const { searchParams } = new URL(req.url);
   const dolum = searchParams.get("dolum"); // YYYY-MM-DD
 
-  const where: Parameters<typeof prisma.honeyBatch.findMany>[0]["where"] = {
-    batchNumber: decodeURIComponent(batchNumber),
-    isActive: true,
-    ...(dolum
-      ? {
-          productionDate: {
-            gte: new Date(`${dolum}T00:00:00.000Z`),
-            lt: new Date(`${dolum}T23:59:59.999Z`),
-          },
-        }
-      : {}),
-  };
-
-  const select = {
-    id: true,
-    batchNumber: true,
-    productName: true,
-    productionDate: true,
-    analysisDate: true,
-    expiryDate: true,
-    moistureContent: true,
-    hmfValue: true,
-    diastaseActivity: true,
-    electricalConductivity: true,
-    sucroseContent: true,
-    ph: true,
-    floraItems: true,
-    floraNotes: true,
-    laboratoryName: true,
-    isActive: true,
-  };
-
-  const batches = await prisma.honeyBatch.findMany({ where, select });
+  const batches = await prisma.honeyBatch.findMany({
+    where: {
+      batchNumber: decodeURIComponent(batchNumber),
+      isActive: true,
+      ...(dolum
+        ? {
+            productionDate: {
+              gte: new Date(`${dolum}T00:00:00.000Z`),
+              lt: new Date(`${dolum}T23:59:59.999Z`),
+            },
+          }
+        : {}),
+    },
+    select: {
+      id: true,
+      batchNumber: true,
+      productName: true,
+      productionDate: true,
+      analysisDate: true,
+      expiryDate: true,
+      moistureContent: true,
+      hmfValue: true,
+      diastaseActivity: true,
+      electricalConductivity: true,
+      sucroseContent: true,
+      ph: true,
+      floraItems: true,
+      floraNotes: true,
+      laboratoryName: true,
+      isActive: true,
+    },
+  });
 
   if (batches.length === 0) {
     return NextResponse.json({ error: "Parti bulunamadı" }, { status: 404 });
