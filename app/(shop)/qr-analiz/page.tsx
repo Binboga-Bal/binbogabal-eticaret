@@ -56,12 +56,76 @@ function QualityCard({ label, value, unit }: { label: string; value: number | nu
 
 // ─── Tarih yardımcıları ───────────────────────────────────────────────────────
 
-/** Etiketteki DD/MM/YY → YYYY-MM-DD (input[type=date] değeri) */
+/** Etiketteki DD/MM/YY → YYYY-MM-DD */
 function labelDateToIso(s: string): string | null {
   const m = s.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
   if (!m) return null;
   const [, dd, mm, yy] = m;
   return `20${yy}-${mm}-${dd}`;
+}
+
+/** YYYY-MM-DD → DD/MM/YY (gösterim için) */
+function isoToDisplay(iso: string): string {
+  if (!iso) return "";
+  const [yr, mm, dd] = iso.split("-");
+  return `${dd}/${mm}/${yr.slice(2)}`;
+}
+
+/**
+ * GG/AA/YY formatında otomatik slash ekleyen tarih inputu.
+ * value/onChange YYYY-MM-DD ISO formatında çalışır.
+ */
+function DateInput({
+  value,
+  onChange,
+  disabled,
+  className,
+}: {
+  value: string;
+  onChange: (iso: string) => void;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const [display, setDisplay] = useState(isoToDisplay(value));
+
+  // OCR veya dışarıdan gelen değişiklikleri senkronize et
+  const prevValue = useRef(value);
+  useEffect(() => {
+    if (value !== prevValue.current) {
+      setDisplay(isoToDisplay(value));
+      prevValue.current = value;
+    }
+  }, [value]);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, "").slice(0, 6);
+    let formatted = raw;
+    if (raw.length > 2) formatted = raw.slice(0, 2) + "/" + raw.slice(2);
+    if (raw.length > 4) formatted = formatted.slice(0, 5) + "/" + formatted.slice(5);
+    setDisplay(formatted);
+
+    if (raw.length === 6) {
+      const dd = raw.slice(0, 2);
+      const mm = raw.slice(2, 4);
+      const yy = raw.slice(4, 6);
+      onChange(`20${yy}-${mm}-${dd}`);
+    } else {
+      onChange("");
+    }
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={display}
+      onChange={handleChange}
+      placeholder="GG/AA/YY"
+      maxLength={8}
+      disabled={disabled}
+      className={className}
+    />
+  );
 }
 
 // ─── OCR ─────────────────────────────────────────────────────────────────────
@@ -349,12 +413,11 @@ export default function QrAnalizPage() {
               <label className="block text-xs font-medium text-gray-500 mb-1 ml-1">
                 Dolum Tarihi <span className="text-gray-400 font-normal">(etikette ikinci tarih)</span>
               </label>
-              <input
-                type="date"
+              <DateInput
                 value={dolumDate}
-                onChange={(e) => { setDolumDate(e.target.value); setOcrPanel(null); }}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey"
+                onChange={(iso) => { setDolumDate(iso); setOcrPanel(null); }}
                 disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey font-mono"
               />
             </div>
 
