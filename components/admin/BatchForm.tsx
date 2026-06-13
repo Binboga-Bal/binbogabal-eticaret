@@ -147,7 +147,7 @@ export function BatchForm({ initialData }: Props) {
             required
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Üretim Tarihi *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dolum Tarihi *</label>
             <input
               type="date"
               value={form.productionDate}
@@ -168,7 +168,7 @@ export function BatchForm({ initialData }: Props) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tavsiye Edilen Tüketim Tarihi *
+              TETT — Tavsiye Edilen Tüketim Tarihi *
             </label>
             <input
               type="date"

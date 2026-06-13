@@ -58,8 +58,8 @@ export function BatchListClient({ initialBatches }: Props) {
             <tr className="border-b bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
               <th className="px-5 py-3 text-left font-medium">Parti No.</th>
               <th className="px-5 py-3 text-left font-medium">Ürün</th>
-              <th className="px-5 py-3 text-left font-medium">Üretim</th>
-              <th className="px-5 py-3 text-left font-medium">Tüketim Tarihi</th>
+              <th className="px-5 py-3 text-left font-medium">Dolum Tarihi</th>
+              <th className="px-5 py-3 text-left font-medium">TETT</th>
               <th className="px-5 py-3 text-left font-medium">Durum</th>
               <th className="px-5 py-3 text-right font-medium">İşlem</th>
             </tr>

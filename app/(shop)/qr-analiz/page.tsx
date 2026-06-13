@@ -268,7 +268,7 @@ export default function QrAnalizPage() {
             {/* Öne çıkarılmış tüketim tarihi */}
             <div className="bg-honey-dark text-white rounded-2xl p-6 text-center">
               <p className="text-xs uppercase tracking-widest opacity-75 mb-2 font-medium">
-                Tavsiye Edilen Tüketim Tarihi
+                TETT — Tavsiye Edilen Tüketim Tarihi
               </p>
               <p className="text-4xl font-black">{fmt(batch.expiryDate)}</p>
               <p className="text-sm opacity-70 mt-2">
@@ -284,9 +284,9 @@ export default function QrAnalizPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { label: "Üretim Tarihi", value: batch.productionDate },
+                  { label: "Dolum Tarihi", value: batch.productionDate },
                   { label: "Analiz Tarihi", value: batch.analysisDate },
-                  { label: "Tavsiye Edilen Tüketim", value: batch.expiryDate },
+                  { label: "TETT", value: batch.expiryDate },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-honey-cream rounded-xl px-4 py-3">
                     <p className="text-xs text-gray-500 mb-1">{label}</p>
