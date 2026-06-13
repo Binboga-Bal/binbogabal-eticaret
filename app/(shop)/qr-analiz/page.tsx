@@ -139,7 +139,7 @@ type FetchState = "idle" | "loading" | "error" | "notfound" | "multiple";
 
 function CameraGuideModal({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl p-6 space-y-5">
         <div className="text-center">
           <div className="text-4xl mb-3">📷</div>
