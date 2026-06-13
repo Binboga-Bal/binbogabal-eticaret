@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Search, FlaskConical, Leaf, Calendar, CheckCircle,
-  AlertCircle, Loader2, Camera, X,
+  AlertCircle, Loader2, Camera, X, CheckCheck,
 } from "lucide-react";
 
 type FloraItem = { name: string; percentage: number; type: "dominant" | "sekonder" | "minör" };
@@ -54,13 +54,58 @@ function QualityCard({ label, value, unit }: { label: string; value: number | nu
   );
 }
 
-// Batch numarası pattern: 159-06 gibi
-function extractBatchNumber(text: string): string | null {
-  const match = text.match(/\b\d{2,6}-\d{2,4}\b/);
-  return match ? match[0] : null;
+/** Fotoğrafı gri tonlama + kontrast artırma ile ön işle — OCR doğruluğunu artırır */
+function preprocessImageForOcr(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onerror = reject;
+    img.onload = () => {
+      const scale = Math.max(1, 1200 / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { reject(new Error("canvas")); return; }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        // Gri ton
+        const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        // Kontrast artırma: threshold 160
+        const v = gray > 160 ? 255 : 0;
+        d[i] = d[i + 1] = d[i + 2] = v;
+      }
+      ctx.putImageData(imageData, 0, 0);
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("blob")), "image/png");
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(file);
+  });
 }
 
-type OcrState = "idle" | "processing";
+/** Okunan metinden parti numarasını çıkar (örn: 141-01, 159 06, 141–01) */
+function extractBatchNumber(raw: string): string | null {
+  // Normalize et: em-dash, en-dash → tire
+  const text = raw.replace(/[–—]/g, "-");
+
+  // 1. Tam format: 141-01
+  const m1 = text.match(/\b(\d{2,6})-(\d{2,4})\b/);
+  if (m1) return m1[0];
+
+  // 2. Boşlukla ayrılmış: 141 01 (OCR bazen tire yerine boşluk koyar)
+  const m2 = text.match(/\b(\d{3,6})\s+(\d{2,3})\b/);
+  if (m2) return `${m2[1]}-${m2[2]}`;
+
+  // 3. Bitişik yazılmış: 14101 (bazen tire kaybolur)
+  const m3 = text.match(/\b(\d{3,4})(\d{2})\b/);
+  if (m3) return `${m3[1]}-${m3[2]}`;
+
+  return null;
+}
+
+type OcrPanel = { raw: string; suggested: string | null } | null;
 
 export default function QrAnalizPage() {
   const searchParams = useSearchParams();
@@ -71,11 +116,12 @@ export default function QrAnalizPage() {
   const [batch, setBatch] = useState<Batch | null>(null);
   const [fetchState, setFetchState] = useState<"idle" | "loading" | "error" | "notfound">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [ocrState, setOcrState] = useState<OcrState>("idle");
-  const [ocrError, setOcrError] = useState("");
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrPanel, setOcrPanel] = useState<OcrPanel>(null);
 
   const search = useCallback(async (batchNumber: string) => {
     if (!batchNumber.trim()) return;
+    setOcrPanel(null);
     setFetchState("loading");
     setBatch(null);
     setErrorMsg("");
@@ -111,35 +157,43 @@ export default function QrAnalizPage() {
   async function handleCameraCapture(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
 
-    setOcrError("");
-    setOcrState("processing");
+    setOcrLoading(true);
+    setOcrPanel(null);
 
     try {
+      // Ön işleme — kontrast artır
+      const processed = await preprocessImageForOcr(file);
+
       const Tesseract = await import("tesseract.js");
       const worker = await Tesseract.createWorker("eng");
-      const { data: { text } } = await worker.recognize(file);
+      const { data: { text } } = await worker.recognize(processed);
       await worker.terminate();
 
-      const found = extractBatchNumber(text);
-      if (found) {
-        setInput(found);
-        setOcrState("idle");
-        search(found);
-      } else {
-        setOcrError("Parti numarası tanınamadı. Lütfen daha net bir fotoğraf çekin veya elle girin.");
-        setOcrState("idle");
+      const raw = text.trim();
+      const suggested = extractBatchNumber(raw);
+
+      setOcrPanel({ raw, suggested });
+
+      if (suggested) {
+        setInput(suggested);
       }
     } catch {
-      setOcrError("Kamera okuması başarısız oldu. Lütfen elle girin.");
-      setOcrState("idle");
+      setOcrPanel({ raw: "", suggested: null });
     } finally {
-      // reset input so same image can be reselected
-      if (cameraInputRef.current) cameraInputRef.current.value = "";
+      setOcrLoading(false);
     }
   }
 
-  const isLoading = fetchState === "loading" || ocrState === "processing";
+  function useOcrSuggestion() {
+    if (!ocrPanel?.suggested) return;
+    setInput(ocrPanel.suggested);
+    setOcrPanel(null);
+    search(ocrPanel.suggested);
+  }
+
+  const isLoading = fetchState === "loading" || ocrLoading;
 
   return (
     <div className="min-h-screen bg-honey-cream">
@@ -161,50 +215,84 @@ export default function QrAnalizPage() {
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Parti numaranızı girin (örn: 159-06)"
+              onChange={(e) => { setInput(e.target.value); setOcrPanel(null); }}
+              placeholder="Parti numaranızı girin (örn: 141-01)"
               className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-honey font-mono"
               disabled={isLoading}
             />
-            {/* Kamera butonu */}
             <button
               type="button"
               onClick={() => cameraInputRef.current?.click()}
               disabled={isLoading}
               title="Kamerayla oku"
-              className="flex items-center justify-center w-12 h-12 rounded-xl border border-gray-200 text-gray-500 hover:bg-honey-cream hover:text-honey-dark hover:border-honey transition-colors disabled:opacity-50"
+              className="flex items-center justify-center w-12 h-12 rounded-xl border border-gray-200 text-gray-500 hover:bg-honey-cream hover:text-honey-dark hover:border-honey transition-colors disabled:opacity-50 flex-shrink-0"
             >
-              {ocrState === "processing" ? (
-                <Loader2 size={18} className="animate-spin text-honey" />
-              ) : (
-                <Camera size={18} />
-              )}
+              {ocrLoading ? <Loader2 size={18} className="animate-spin text-honey" /> : <Camera size={18} />}
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 bg-honey text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-honey-dark transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 bg-honey text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-honey-dark transition-colors disabled:opacity-60 flex-shrink-0"
             >
-              {fetchState === "loading" ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Search size={16} />
-              )}
+              {fetchState === "loading" ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
               Sorgula
             </button>
           </form>
 
-          {/* OCR durum/hata */}
-          {ocrState === "processing" && (
+          {/* OCR yükleniyor */}
+          {ocrLoading && (
             <p className="text-xs text-honey-dark mt-2 flex items-center gap-1.5">
               <Loader2 size={12} className="animate-spin" />
-              Fotoğraf okunuyor, lütfen bekleyin...
+              Fotoğraf işleniyor...
             </p>
           )}
-          {ocrError && (
-            <div className="mt-2 flex items-start gap-1.5 text-xs text-red-600">
-              <X size={13} className="flex-shrink-0 mt-0.5" />
-              {ocrError}
+
+          {/* OCR sonuç paneli */}
+          {ocrPanel && (
+            <div className={`mt-3 rounded-xl border p-3 text-sm ${ocrPanel.suggested ? "border-green-200 bg-green-50" : "border-orange-200 bg-orange-50"}`}>
+              {ocrPanel.suggested ? (
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-green-700 font-medium mb-0.5">Okunan parti numarası</p>
+                    <p className="font-mono font-bold text-green-800 text-base">{ocrPanel.suggested}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={useOcrSuggestion}
+                      className="flex items-center gap-1.5 bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      <CheckCheck size={13} />
+                      Kullan
+                    </button>
+                    <button
+                      onClick={() => setOcrPanel(null)}
+                      className="text-xs text-gray-500 px-3 py-1.5 rounded-lg hover:bg-gray-100"
+                    >
+                      Kapat
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-orange-700 font-medium flex items-center gap-1.5">
+                      <AlertCircle size={13} />
+                      Parti numarası otomatik tanınamadı — okunan metin:
+                    </p>
+                    <button onClick={() => setOcrPanel(null)} className="text-gray-400 hover:text-gray-600">
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {ocrPanel.raw ? (
+                    <p className="font-mono text-xs text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 whitespace-pre-wrap break-all leading-relaxed">
+                      {ocrPanel.raw}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-500">Hiçbir metin okunamadı. Daha iyi aydınlatılmış ve yakın bir fotoğraf deneyin.</p>
+                  )}
+                  <p className="text-xs text-orange-600 mt-2">Yukarıdaki metinden parti numarasını bulup arama kutusuna yazabilirsiniz.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -235,7 +323,8 @@ export default function QrAnalizPage() {
             <div>
               <p className="font-semibold text-gray-800">Parti bulunamadı</p>
               <p className="text-sm text-gray-500 mt-1">
-                <span className="font-mono font-bold">{input}</span> numaralı partiye ait kayıt bulunamadı. Lütfen etiketi kontrol ederek tekrar deneyin.
+                <span className="font-mono font-bold">{input}</span> numaralı partiye ait kayıt bulunamadı.
+                Lütfen etiketi kontrol ederek tekrar deneyin.
               </p>
             </div>
           </div>
@@ -265,15 +354,13 @@ export default function QrAnalizPage() {
               </div>
             </div>
 
-            {/* Öne çıkarılmış tüketim tarihi */}
+            {/* Öne çıkarılmış TETT */}
             <div className="bg-honey-dark text-white rounded-2xl p-6 text-center">
               <p className="text-xs uppercase tracking-widest opacity-75 mb-2 font-medium">
                 TETT — Tavsiye Edilen Tüketim Tarihi
               </p>
               <p className="text-4xl font-black">{fmt(batch.expiryDate)}</p>
-              <p className="text-sm opacity-70 mt-2">
-                Bu tarihten önce tüketilmesi önerilir
-              </p>
+              <p className="text-sm opacity-70 mt-2">Bu tarihten önce tüketilmesi önerilir</p>
             </div>
 
             {/* Tarih Bilgileri */}
@@ -357,9 +444,9 @@ export default function QrAnalizPage() {
           </>
         )}
 
-        {fetchState === "idle" && !batch && (
+        {fetchState === "idle" && !batch && !ocrLoading && (
           <div className="text-center py-8 text-sm text-gray-400 space-y-1">
-            <p>Kavanozunuzun üzerindeki <span className="font-mono font-semibold">159-06</span> gibi parti numarasını girin.</p>
+            <p>Kavanozunuzun üzerindeki <span className="font-mono font-semibold">141-01</span> gibi parti numarasını girin.</p>
             <p className="flex items-center justify-center gap-1.5">
               <Camera size={14} />
               Ya da kamera butonuna tıklayarak etiketi fotoğraflayın.
