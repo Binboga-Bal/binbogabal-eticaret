@@ -137,6 +137,62 @@ function extractFromOcr(text: string): OcrExtracted {
 type OcrPanel = OcrExtracted | null;
 type FetchState = "idle" | "loading" | "error" | "notfound" | "multiple";
 
+function CameraGuideModal({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl p-6 space-y-5">
+        <div className="text-center">
+          <div className="text-4xl mb-3">📷</div>
+          <h2 className="font-black text-gray-900 text-lg">Etiketi Doğru Çerçeveleyin</h2>
+        </div>
+
+        {/* Etiket mockup */}
+        <div className="bg-yellow-400 rounded-xl px-4 py-3 text-center border-4 border-dashed border-yellow-600 relative">
+          <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            ÇERÇEVE İÇİNDE OLSUN
+          </div>
+          <p className="text-[10px] font-semibold text-yellow-900 mb-1">
+            Tav. Edilen Tüketim / Dolum Tarihi / Parti No
+          </p>
+          <p className="font-mono font-black text-yellow-900 text-sm tracking-wider">
+            21/11/27 &nbsp; 21/05/26 &nbsp; 141-01
+          </p>
+        </div>
+
+        <ul className="space-y-2 text-sm text-gray-600">
+          <li className="flex items-start gap-2">
+            <span className="text-green-500 font-bold flex-shrink-0 mt-0.5">✓</span>
+            Telefonu <strong>yatay</strong> tutun
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-green-500 font-bold flex-shrink-0 mt-0.5">✓</span>
+            Sadece tarih ve parti no satırını çerçeve içine alın
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-green-500 font-bold flex-shrink-0 mt-0.5">✓</span>
+            İyi aydınlatılmış ortamda çekin
+          </li>
+        </ul>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 rounded-xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+          >
+            İptal
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-3 rounded-xl bg-honey text-white text-sm font-bold hover:bg-honey-dark transition-colors"
+          >
+            Kamerayı Aç
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function QrAnalizPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -149,6 +205,7 @@ export default function QrAnalizPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrPanel, setOcrPanel] = useState<OcrPanel>(null);
+  const [showCameraGuide, setShowCameraGuide] = useState(false);
 
   const search = useCallback(async (parti: string, dolum: string) => {
     if (!parti.trim()) return;
@@ -238,6 +295,14 @@ export default function QrAnalizPage() {
 
   return (
     <div className="min-h-screen bg-honey-cream">
+      {/* Kamera rehber modal */}
+      {showCameraGuide && (
+        <CameraGuideModal
+          onConfirm={() => { setShowCameraGuide(false); cameraInputRef.current?.click(); }}
+          onClose={() => setShowCameraGuide(false)}
+        />
+      )}
+
       {/* Hero */}
       <div className="bg-gradient-to-b from-honey to-honey-dark py-14 px-4 text-center">
         <div className="flex justify-center mb-3">
@@ -269,7 +334,7 @@ export default function QrAnalizPage() {
               <div className="flex flex-col justify-end">
                 <button
                   type="button"
-                  onClick={() => cameraInputRef.current?.click()}
+                  onClick={() => setShowCameraGuide(true)}
                   disabled={isLoading}
                   title="Etiketi kamerayla tara"
                   className="flex items-center justify-center w-12 h-[46px] rounded-xl border border-gray-200 text-gray-500 hover:bg-honey-cream hover:text-honey-dark hover:border-honey transition-colors disabled:opacity-50"
