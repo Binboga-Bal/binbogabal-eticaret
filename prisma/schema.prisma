@@ -1652,3 +1652,29 @@ model LlmContentStore {
   @@index([entityType, locale])
   @@map("llm_content_store")
 }
+
+// ─── ANALIZ RAPORLARI ────────────────────────────────────────────────────────
+
+model HoneyBatch {
+  id                     String   @id @default(cuid())
+  batchNumber            String   @unique
+  productName            String
+  productionDate         DateTime
+  analysisDate           DateTime
+  expiryDate             DateTime
+  moistureContent        Float?
+  hmfValue               Float?
+  diastaseActivity       Float?
+  electricalConductivity Float?
+  sucroseContent         Float?
+  ph                     Float?
+  floraItems             Json     @default("[]")
+  floraNotes             String?  @db.Text
+  laboratoryName         String?
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([batchNumber])
+  @@map("honey_batches")
+}

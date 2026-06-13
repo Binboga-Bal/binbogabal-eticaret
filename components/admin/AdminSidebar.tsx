@@ -25,6 +25,7 @@ import {
   Globe,
   Headphones,
   Mail,
+  FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useState } from "react";
@@ -107,6 +108,7 @@ const navItems: NavItem[] = [
       { href: "/admin/seo/reports", label: "Raporlar" },
     ],
   },
+  { href: "/admin/analiz-raporlari", label: "Analiz Raporları", icon: <FlaskConical size={18} />, permission: "products:view" },
   { href: "/admin/erp-sync", label: "ERP Senkron.", icon: <RefreshCw size={18} />, permission: "erp:view" },
   { href: "/admin/ayarlar", label: "Ayarlar", icon: <Settings size={18} />, permission: "settings:view" },
   {

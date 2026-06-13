@@ -13516,10 +13516,161 @@ if (session?.user?.id) {
       </div>
     </section>
 
+    <!-- ─── ADIM 239 ─── -->
+    <div class="date-header">
+      <div class="date-pill">13 Haziran 2026 — QR Analiz Modülü</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 239</div>
+    </div>
+
+    <section class="section" id="step239">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(249,177,11,.12)">🔬</div>
+        <h2>Adım 239 — QR Kod ile Bal Analiz Raporu Modülü</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Kavanoz etiketine basılacak statik QR kod → <code>/qr-analiz</code> sayfası → parti numarası girişi →
+          kalite ekibinin admin panelden girdiği analiz raporu (kalite değerleri, flora/polen, tarih bilgileri)
+          müşteriye gösterilsin. Admin tarafında tam CRUD. QR kod PNG olarak indirilebilsin.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Veritabanı</h3>
+        <table style="margin-top:8px">
+          <thead><tr><th>Alan</th><th>Tip</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>batchNumber</code></td><td>String @unique</td><td>Parti no (örn: 159-06)</td></tr>
+            <tr><td><code>productName</code></td><td>String</td><td>Ürün adı (bağımsız modül)</td></tr>
+            <tr><td><code>productionDate / analysisDate / expiryDate</code></td><td>DateTime</td><td>Üretim, analiz, tavsiye edilen tüketim tarihleri</td></tr>
+            <tr><td><code>moistureContent / hmfValue / diastaseActivity / electricalConductivity / sucroseContent / ph</code></td><td>Float?</td><td>6 kalite parametresi</td></tr>
+            <tr><td><code>floraItems</code></td><td>Json []</td><td>Dinamik flora satırları: {name, percentage, type}</td></tr>
+            <tr><td><code>floraNotes</code></td><td>String?</td><td>Serbest flora/pollen notu</td></tr>
+            <tr><td><code>laboratoryName</code></td><td>String?</td><td>Analizi yapan laboratuvar</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">
+          <code>honey_batches</code> tablosu Supabase'e <code>db:push</code> ile eklendi.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Müşteri Sayfası — <code>/qr-analiz</code></h3>
+        <ul>
+          <li>Honey temalı hero section ile arama kutusu</li>
+          <li>URL param desteği: <code>/qr-analiz?parti=159-06</code> ile doğrudan açılır</li>
+          <li>Parti bulunamazsa → "Bulunamadı" kartı, sunucu hatası → "Tekrar deneyin" mesajı</li>
+          <li>Rapor kartları: doğrulandı başlığı, tarih bilgileri (3 kart), 6 kalite değeri grid, flora bar chart, flora notları</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Admin Sayfaları &amp; Form</h3>
+        <ul>
+          <li><strong>/admin/analiz-raporlari</strong> — Tüm partilerin tablosu + QR kod kartı (PNG indirme), arama filtresi, göz/düzenle/sil butonları</li>
+          <li><strong>/admin/analiz-raporlari/yeni</strong> — Yeni parti formu</li>
+          <li><strong>/admin/analiz-raporlari/[id]/duzenle</strong> — Mevcut partiyi düzenleme</li>
+          <li><strong>BatchForm.tsx</strong> — Dinamik flora satırları (Ekle/Sil), 6 sayısal kalite alanı, 3 tarih picker, serbest flora notu</li>
+          <li><strong>BatchListClient.tsx</strong> — Client-side filtreleme ve silme, göz ikonu ile müşteri görünümü önizleme</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>API Rotaları</h3>
+        <table style="margin-top:8px">
+          <thead><tr><th>Rota</th><th>Method</th><th>Açıklama</th></tr></thead>
+          <tbody>
+            <tr><td><code>/api/batch/[batchNumber]</code></td><td>GET</td><td>Herkese açık — parti sorgulama</td></tr>
+            <tr><td><code>/api/admin/batches</code></td><td>GET, POST</td><td>Admin — liste ve oluşturma</td></tr>
+            <tr><td><code>/api/admin/batches/[id]</code></td><td>PUT, DELETE</td><td>Admin — güncelleme ve silme</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Sidebar &amp; QR</h3>
+        <ul>
+          <li>AdminSidebar'a <strong>Analiz Raporları</strong> linki <code>FlaskConical</code> ikonu ile eklendi (<code>products:view</code> izni)</li>
+          <li>QR kod: <code>qrcode</code> paketi ile sunucu tarafında üretilir, honey renkli (#C57930 koyu, beyaz arka plan), admin listesinde PNG indirme bağlantısı</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Oluşturulan / Güncellenen Dosyalar</h3>
+        <div class="file-tree">
+          <div><span class="file new">prisma/schema.prisma</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — HoneyBatch modeli eklendi</div>
+          <div><span class="file new">app/api/batch/[batchNumber]/route.ts</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">app/api/admin/batches/route.ts</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">app/api/admin/batches/[id]/route.ts</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">components/admin/BatchForm.tsx</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">components/admin/BatchListClient.tsx</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">app/admin/analiz-raporlari/page.tsx</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">app/admin/analiz-raporlari/yeni/page.tsx</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">app/admin/analiz-raporlari/[id]/duzenle/page.tsx</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file new">app/(shop)/qr-analiz/page.tsx</span> <span class="tag tag-green">YENİ</span></div>
+          <div><span class="file mod">components/admin/AdminSidebar.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — Analiz Raporları nav öğesi</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ADIM 240 ─── -->
+    <div class="date-header">
+      <div class="date-pill">13 Haziran 2026 — OCR + Tüketim Tarihi</div>
+      <div class="date-line"></div>
+      <div class="date-count">Adım 240</div>
+    </div>
+
+    <section class="section" id="step240">
+      <div class="section-title">
+        <div class="icon" style="background:rgba(34,197,94,.12)">📷</div>
+        <h2>Adım 240 — OCR Kamera Okuma &amp; Tüketim Tarihi Öne Çıkarma</h2>
+      </div>
+
+      <div class="card">
+        <h3>İstek</h3>
+        <p>
+          Müşteri parti numarasını elle yazmanın yanı sıra kamerayla da okutabilsin.
+          Ayrıca tavsiye edilen tüketim tarihi rapor sayfasında hem büyük banner olarak hem de
+          tarih bilgileri kartında gösterilsin.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>OCR — Tesseract.js Entegrasyonu</h3>
+        <ul>
+          <li>Arama kutusunun yanına kamera ikonu butonu eklendi</li>
+          <li>Tıklanınca <code>&lt;input type="file" capture="environment"&gt;</code> ile arka kamera açılır</li>
+          <li>Fotoğraf seçilince Tesseract.js (v7, lazy import) ile metin tanıma çalışır</li>
+          <li>"Fotoğraf okunuyor..." spinner gösterilir, işlem bitince sonuç değerlendirile</li>
+          <li>Regex <code>/\b\d{2,6}-\d{2,4}\b/</code> ile 159-06 formatındaki parti numarası ayrıştırılır</li>
+          <li>Bulunursa arama kutusuna yazılır ve otomatik sorgulama başlar; bulunamazsa kullanıcıya uyarı gösterilir</li>
+          <li>Tesseract.js büyük dil modeli yalnızca kamera butonu kullanıldığında yüklenir (code splitting)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Tüketim Tarihi — İkili Gösterim</h3>
+        <ul>
+          <li><strong>Üstte banner:</strong> Koyu amber (<code>bg-honey-dark</code>) arka planlı, beyaz metin, 4xl font büyüklüğünde öne çıkarılmış kart — "Tavsiye Edilen Tüketim Tarihi"</li>
+          <li><strong>Tarih bilgileri kartı:</strong> Üretim / Analiz / Tüketim üçlü kartta da yer almaya devam eder</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Güncellenen Dosya</h3>
+        <div class="file-tree">
+          <div><span class="file mod">app/(shop)/qr-analiz/page.tsx</span> <span class="tag tag-honey">GÜNCELLENDİ</span> — OCR akışı + tüketim tarihi banner'ı</div>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <div style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px; color: var(--text-muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
       <span>🍯 Binboğa Bal E-Ticaret — Geliştirme Günlüğü</span>
-      <span>Son güncelleme: 10 Haziran 2026 — Adım 238 (E-postalara Ürün Fotoğrafı) — Claude tarafından yazıldı</span>
+      <span>Son güncelleme: 13 Haziran 2026 — Adım 240 (QR Analiz + OCR) — Claude tarafından yazıldı</span>
     </div>
   </main>
 </div>
